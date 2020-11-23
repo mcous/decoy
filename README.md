@@ -1,12 +1,22 @@
 # Decoy
 
+[![pypi version badge][]][pypi]
+[![license badge][]][license]
+
+[pypi]: https://pypi.org/project/decoy/
+[pypi version badge]: https://flat.badgen.net/pypi/v/decoy
+[license]: https://github.com/mcous/decoy/blob/main/LICENSE
+[license badge]: https://flat.badgen.net/github/license/mcous/decoy
+
 > Opinionated, typed stubbing and verification library for Python
+
+<https://mike.cousins.io/decoy/>
 
 The Decoy library allows you to create, stub, and verify test double objects for your Python unit tests, so your tests are:
 
-- Easier to fit into the Arrange-Act-Assert pattern
 - Less prone to insufficient tests due to unconditional stubbing
 - Covered by typechecking
+- Easier to fit into the Arrange-Act-Assert pattern
 
 The Decoy API is heavily inspired by / stolen from the excellent [testdouble.js][] and [Mockito][] projects.
 
@@ -42,7 +52,7 @@ def decoy() -> Decoy:
 
 Why is this important? The `Decoy` container tracks every test double that is created during a test so that you can define assertions using fully-typed rehearsals of your test double. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.
 
-[pytest]: https://docs.pytest.org/en/latest/
+[pytest]: https://docs.pytest.org/
 
 ### Stubbing
 
@@ -92,8 +102,7 @@ Verification of decoy calls after they have occurred be considered a last resort
 Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same decoy, then one or more of these is true:
 
 - The assertions are redundant
-- You should re-read the section on stubbing and maybe the [testdouble.js][] and/or [mockito][] documentation
-- Your dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
+- The dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
 
 ```python
 import pytest
