@@ -47,7 +47,7 @@ jobs:
         with:
           python-version: "3.8"
       - name: Install dependencies
-        run: pip install poetry
+        run: pip install poetry && poetry install
       - name: Build artifacts
         run: |
           poetry build
