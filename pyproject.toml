@@ -9,8 +9,13 @@ repository = "https://github.com/mcous/decoy"
 homepage = "https://mike.cousins.io/decoy/"
 documentation = "https://mike.cousins.io/decoy/"
 
-include = [
-  "LICENSE"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Mocking",
+    "Typing :: Typed",
 ]
 
 [tool.poetry.dependencies]
