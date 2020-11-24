@@ -61,8 +61,13 @@ The library and documentation will be deployed to PyPI and GitHub Pages, respect
 Deploy adheres to [semantic versioning][], so care should be taken to bump accurately.
 
 ```bash
-# bump the version, e.g. a minor bump
-poetry version minor
+# checkout the main branch and pull down latest changes
+git checkout main
+git pull
+
+# bump the version
+# replace ${bump_version} with a bump specifier, like "minor"
+poetry version ${bump_version}
 
 # add the bumped pyproject.toml
 git add pyproject.toml
@@ -71,6 +76,7 @@ git add pyproject.toml
 # replace ${release_version} with the actual version string
 git commit -m "chore(release): ${release_version}"
 git tag -a v${release_version} -m "chore(release): ${release_version}"
+git push --folow-tags
 ```
 
 [semantic versioning]: https://semver.org/

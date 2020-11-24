@@ -1,6 +1,6 @@
 name: Continuous integration
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -53,7 +53,7 @@ jobs:
           poetry build
           poetry run mkdocs build
       - if: startsWith(github.ref, 'refs/tags/v')
-        name: Deploy to PyPI
+        name: Deploy to PyPI and GitHub Pages
         env:
           USER_NAME: ${{ github.actor }}
           USER_ID: ${{ github.event.sender.id }}
