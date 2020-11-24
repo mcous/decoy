@@ -2,6 +2,7 @@ site_name: Decoy
 
 nav:
   - User Guide: index.md
+  - why.md
   - api.md
   - contributing.md
 

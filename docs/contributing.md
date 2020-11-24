@@ -53,3 +53,30 @@ poetry run black .
 [mypy]: https://mypy.readthedocs.io
 [flake8]: https://flake8.pycqa.org
 [black]: https://black.readthedocs.io
+
+## Deploying
+
+The library and documentation will be deployed to PyPI and GitHub Pages, respectively, by CI. To trigger the deploy, cut a new version and push it to GitHub.
+
+Deploy adheres to [semantic versioning][], so care should be taken to bump accurately.
+
+```bash
+# checkout the main branch and pull down latest changes
+git checkout main
+git pull
+
+# bump the version
+# replace ${bump_version} with a bump specifier, like "minor"
+poetry version ${bump_version}
+
+# add the bumped pyproject.toml
+git add pyproject.toml
+
+# commit and tag the bump
+# replace ${release_version} with the actual version string
+git commit -m "chore(release): ${release_version}"
+git tag -a v${release_version} -m "chore(release): ${release_version}"
+git push --folow-tags
+```
+
+[semantic versioning]: https://semver.org/
