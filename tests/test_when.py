@@ -3,7 +3,7 @@ import pytest
 from mock import MagicMock
 
 from decoy import Decoy, matchers
-from .common import SomeClass, some_func
+from .common import some_func, SomeClass, SomeAsyncClass, SomeNestedClass
 
 
 def test_stub_function_then_return(decoy: Decoy) -> None:
@@ -19,7 +19,7 @@ def test_stub_function_then_return(decoy: Decoy) -> None:
 
 
 def test_stub_function_then_raise(decoy: Decoy) -> None:
-    """It should be able to stub a function return."""
+    """It should be able to stub a function raise."""
     stub = decoy.create_decoy_func(spec=some_func)
 
     decoy.when(stub("fizzbuzz")).then_raise(ValueError("oh no!"))
@@ -30,7 +30,7 @@ def test_stub_function_then_raise(decoy: Decoy) -> None:
 
 
 def test_stub_method_then_return(decoy: Decoy) -> None:
-    """It should be able to stub a function return."""
+    """It should be able to stub a method return."""
     stub = decoy.create_decoy(spec=SomeClass)
 
     decoy.when(stub.foo("hello")).then_return("world")
@@ -47,7 +47,7 @@ def test_stub_method_then_return(decoy: Decoy) -> None:
 
 
 def test_stub_method_then_raise(decoy: Decoy) -> None:
-    """It should be able to stub a function return."""
+    """It should be able to stub a method raise."""
     stub = decoy.create_decoy(spec=SomeClass)
 
     decoy.when(stub.foo("fizzbuzz")).then_raise(ValueError("oh no!"))
@@ -72,7 +72,7 @@ def test_stub_with_matcher(decoy: Decoy) -> None:
 
 
 def test_last_stubbing_wins(decoy: Decoy) -> None:
-    """It should be able to stub a function return."""
+    """It should return the last stubbing given identical arguments."""
     stub = decoy.create_decoy_func(spec=some_func)
 
     decoy.when(stub("hello")).then_return("world")
@@ -104,3 +104,28 @@ def test_cannot_stub_without_rehearsal(decoy: Decoy) -> None:
     # stubbing without a valid decoy should fail
     with pytest.raises(ValueError, match="rehearsal"):
         decoy.when(bad_stub("bad")).then_return("nope")
+
+
+def test_stub_nested_method_then_return(decoy: Decoy) -> None:
+    """It should be able to stub a nested method return."""
+    stub = decoy.create_decoy(spec=SomeNestedClass)
+
+    decoy.when(stub.child.foo("hello")).then_return("world")
+
+    assert stub.child.foo("hello") == "world"
+    assert stub.child.foo("goodbye") is None
+    assert stub.foo("hello") is None
+
+
+@pytest.mark.asyncio
+async def test_stub_async_method(decoy: Decoy) -> None:
+    """It should be able to stub an async method."""
+    stub = decoy.create_decoy(spec=SomeAsyncClass, is_async=True)
+
+    decoy.when(await stub.foo("hello")).then_return("world")
+    decoy.when(await stub.bar(0, 1.0, "2")).then_raise(ValueError("oh no"))
+
+    assert await stub.foo("hello") == "world"
+
+    with pytest.raises(ValueError, match="oh no"):
+        await stub.bar(0, 1.0, "2")

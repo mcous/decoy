@@ -4,8 +4,8 @@ The Python testing world already has [unittest.mock][] for creating fakes, so wh
 
 The `MagicMock` class (and friends) provided by the Python standard library are great, which is why Decoy uses them under the hood. They are, however:
 
-- Not very opinionated in how they are used
-- Not able to adhere to type annotations of your actual interfaces
+-   Not very opinionated in how they are used
+-   Not able to adhere to type annotations of your actual interfaces
 
 At its core, Decoy wraps `MagicMock` with a more opinionated, strictly typed interface to encourage well written tests and, ultimately, well written source code.
 
@@ -17,9 +17,9 @@ Decoy is heavily influenced by and/or stolen from the [testdouble.js][] and [Moc
 
 If you have the time, you should check out:
 
-- Mockito Wiki - [How to write good tests](https://github.com/mockito/mockito/wiki/How-to-write-good-tests)
-- Test Double Wiki - [Discovery Testing](https://github.com/testdouble/contributing-tests/wiki/Discovery-Testing)
-- Test Double Wiki - [Test Double](https://github.com/testdouble/contributing-tests/wiki/Test-Double)
+-   Mockito Wiki - [How to write good tests](https://github.com/mockito/mockito/wiki/How-to-write-good-tests)
+-   Test Double Wiki - [Discovery Testing](https://github.com/testdouble/contributing-tests/wiki/Discovery-Testing)
+-   Test Double Wiki - [Test Double](https://github.com/testdouble/contributing-tests/wiki/Test-Double)
 
 [testdouble.js]: https://github.com/testdouble/testdouble.js
 [mockito]: https://site.mockito.org/
@@ -28,16 +28,16 @@ If you have the time, you should check out:
 
 A [stub][] is a specific type of test fake that:
 
-- Can be configured to respond in a certain way if given certain inputs
-- Will no-op if given output outside of its pre-configured specifications
+-   Can be configured to respond in a certain way if given certain inputs
+-   Will no-op if given output outside of its pre-configured specifications
 
 Stubs are great for simulating dependencies that provide data to or run calculations on input data for the code under test.
 
 For the following examples, let's assume:
 
-- We're testing a library to deal with `Book` objects
-- That library depends on a `Database` provider to store objects in a database
-- That library depends on a `Logger` interface to log access
+-   We're testing a library to deal with `Book` objects
+-   That library depends on a `Database` provider to store objects in a database
+-   That library depends on a `Logger` interface to log access
 
 [stub]: https://en.wikipedia.org/wiki/Test_stub
 
@@ -106,19 +106,19 @@ def test_get_book(mock_database: MagicMock, mock_book: Book) -> None:
 
 Both of these options have roughly the same upside and downsides:
 
-- Upside: `MagicMock` is part of the Python standard library
-- Downside: they're both a little difficult to read
-  - Option 1 separates the input checking from output value, and they appear in reverse chronological order (you define the dependency output before you define the input)
-  - Option 2 forces you to create a whole new function and assign it to the `side_effect` value
-- Downside: `MagicMock` is effectively `Any` typed
-  - `return_value` and `assert_called_with` are not typed according to the dependency's type definition
-  - A manual `side_effect`, if typed, needs to be manually typed, which may not match the actual dependency type definition
+-   Upside: `MagicMock` is part of the Python standard library
+-   Downside: they're both a little difficult to read
+    -   Option 1 separates the input checking from output value, and they appear in reverse chronological order (you define the dependency output before you define the input)
+    -   Option 2 forces you to create a whole new function and assign it to the `side_effect` value
+-   Downside: `MagicMock` is effectively `Any` typed
+    -   `return_value` and `assert_called_with` are not typed according to the dependency's type definition
+    -   A manual `side_effect`, if typed, needs to be manually typed, which may not match the actual dependency type definition
 
 Option 1 has another downside, specifically:
 
-- The mocked return value is unconditional
-  - If the assert step is wrong or accidentally skipped, the code-under-test is still fed the mock data
-  - This increases the likelihood of a false pass or insufficient test coverage
+-   The mocked return value is unconditional
+    -   If the assert step is wrong or accidentally skipped, the code-under-test is still fed the mock data
+    -   This increases the likelihood of a false pass or insufficient test coverage
 
 ### Stubbing with Decoy
 
@@ -163,12 +163,12 @@ def test_get_book(decoy: Decoy, mock_database: Database, mock_book: Book) -> Non
 
 Benefits to note over the vanilla `MagicMock` versions:
 
-- The rehearsal syntax for stub configuration is terse but very easy to read
-  - Inputs and outputs from the dependency are specified together
-  - You specify the inputs _before_ outputs, which can be easier to grok
-- The entire test fits neatly into "arrange", "act", and "assert" phases
-- Decoy casts test doubles as the actual types they are mimicking
-  - This means stub configuration arguments _and_ return values are type-checked
+-   The rehearsal syntax for stub configuration is terse but very easy to read
+    -   Inputs and outputs from the dependency are specified together
+    -   You specify the inputs _before_ outputs, which can be easier to grok
+-   The entire test fits neatly into "arrange", "act", and "assert" phases
+-   Decoy casts test doubles as the actual types they are mimicking
+    -   This means stub configuration arguments _and_ return values are type-checked
 
 ## Creating and Using a Spy
 

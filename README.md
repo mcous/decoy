@@ -17,9 +17,9 @@
 
 The Decoy library allows you to create, stub, and verify test double objects for your Python unit tests, so your tests are:
 
-- Less prone to insufficient tests due to unconditional stubbing
-- Covered by typechecking
-- Easier to fit into the Arrange-Act-Assert pattern
+-   Less prone to insufficient tests due to unconditional stubbing
+-   Covered by typechecking
+-   Easier to fit into the Arrange-Act-Assert pattern
 
 The Decoy API is heavily inspired by / stolen from the excellent [testdouble.js][] and [Mockito][] projects.
 
@@ -63,9 +63,9 @@ A stub is a an object used in a test that is pre-configured to act in a certain 
 
 By pre-configuring the stub with specific rehearsals, you get the following benefits:
 
-- Your test double will only return your mock value **if it is called correctly**
-- You avoid separate "set up mock return value" and "assert mock called correctly" steps
-- If you annotate your test double with an actual type, the rehearsal will fail typechecking if called incorrectly
+-   Your test double will only return your mock value **if it is called correctly**
+-   You avoid separate "set up mock return value" and "assert mock called correctly" steps
+-   If you annotate your test double with an actual type, the rehearsal will fail typechecking if called incorrectly
 
 ```python
 import pytest
@@ -99,13 +99,13 @@ If you're coming from `unittest.mock`, you're probably more used to calling your
 
 Verification of decoy calls after they have occurred be considered a last resort, because:
 
-- If you're calling a method/function to get its data, then you can more precisely describe that relationship using [stubbing](#stubbing)
-- Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
+-   If you're calling a method/function to get its data, then you can more precisely describe that relationship using [stubbing](#stubbing)
+-   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
 
 Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same decoy, then one or more of these is true:
 
-- The assertions are redundant
-- The dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
+-   The assertions are redundant
+-   The dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
 
 ```python
 import pytest

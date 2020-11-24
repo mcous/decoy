@@ -1,8 +1,7 @@
 """Decoy test double stubbing and verification library."""
-
-from mock import AsyncMock, MagicMock
 from typing import cast, Any, Callable, Mapping, Optional, Sequence, Tuple, Type
 
+from .mock import create_decoy_mock, DecoyMock
 from .registry import Registry
 from .stub import Stub
 from .types import Call, ClassT, FuncT, ReturnT
@@ -15,8 +14,7 @@ class Decoy:
     _last_decoy_id: Optional[int]
 
     def __init__(self) -> None:
-        """
-        Initialize the state container for test doubles and stubs.
+        """Initialize the state container for test doubles and stubs.
 
         You should initialize a new Decoy instance for every test.
 
@@ -34,8 +32,7 @@ class Decoy:
         self._last_decoy_id = None
 
     def create_decoy(self, spec: Type[ClassT], *, is_async: bool = False) -> ClassT:
-        """
-        Create a class decoy for `spec`.
+        """Create a class decoy for `spec`.
 
         Arguments:
             spec: A class definition that the decoy should mirror.
@@ -52,25 +49,13 @@ class Decoy:
             ```
 
         """
-        decoy = MagicMock(spec=spec) if is_async is False else AsyncMock(spec=spec)
-        decoy_id = self._registry.register_decoy(decoy)
-        side_effect = self._create_track_call_and_act(decoy_id)
-
-        decoy.configure_mock(
-            **{
-                f"{method}.side_effect": side_effect
-                for method in dir(spec)
-                if not (method.startswith("__") and method.endswith("__"))
-            }
-        )
-
+        decoy = self._create_and_register_mock(spec=spec, is_async=is_async)
         return cast(ClassT, decoy)
 
     def create_decoy_func(
         self, spec: Optional[FuncT] = None, *, is_async: bool = False
     ) -> FuncT:
-        """
-        Create a function decoy for `spec`.
+        """Create a function decoy for `spec`.
 
         Arguments:
             spec: A function that the decoy should mirror.
@@ -86,16 +71,12 @@ class Decoy:
                 # ...
             ```
         """
-        decoy = MagicMock(spec=spec) if is_async is False else AsyncMock(spec=spec)
-        decoy_id = self._registry.register_decoy(decoy)
-
-        decoy.configure_mock(side_effect=self._create_track_call_and_act(decoy_id))
+        decoy = self._create_and_register_mock(spec=spec, is_async=is_async)
 
         return cast(FuncT, decoy)
 
     def when(self, _rehearsal_result: ReturnT) -> Stub[ReturnT]:
-        """
-        Create a [Stub][decoy.stub.Stub] configuration using a rehearsal call.
+        """Create a [Stub][decoy.stub.Stub] configuration using a rehearsal call.
 
         See [stubbing](/#stubbing) for more details.
 
@@ -118,9 +99,8 @@ class Decoy:
 
         return stub
 
-    def verify(self, _rehearsal_result: ReturnT) -> None:
-        """
-        Verify a decoy was called using a rehearsal.
+    def verify(self, _rehearsal_result: Optional[ReturnT] = None) -> None:
+        """Verify a decoy was called using a rehearsal.
 
         See [verification](/#verification) for more details.
 
@@ -144,6 +124,15 @@ class Decoy:
             raise ValueError("verify must be called with a decoy rehearsal")
 
         decoy.assert_has_calls([rehearsal])
+
+    def _create_and_register_mock(self, spec: Any, is_async: bool) -> DecoyMock:
+        decoy = create_decoy_mock(is_async=is_async, spec=spec)
+        decoy_id = self._registry.register_decoy(decoy)
+        side_effect = self._create_track_call_and_act(decoy_id)
+
+        decoy.configure_mock(side_effect=side_effect)
+
+        return decoy
 
     def _pop_last_rehearsal(self) -> Tuple[int, Call]:
         decoy_id = self._last_decoy_id

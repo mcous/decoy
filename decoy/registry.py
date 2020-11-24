@@ -3,16 +3,16 @@ from mock import Mock
 from weakref import finalize, WeakValueDictionary
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from .mock import DecoyMock
 from .stub import Stub
 from .types import Call
 
 if TYPE_CHECKING:
-    DecoyMapType = WeakValueDictionary[int, Mock]
+    DecoyMapType = WeakValueDictionary[int, DecoyMock]
 
 
 class Registry:
-    """
-    Decoy and stub configuration registry.
+    """Decoy and stub configuration registry.
 
     The Registry collects weak-references to decoys created in order to
     automatically clean up stub configurations when a decoy goes out of scope.
@@ -23,7 +23,7 @@ class Registry:
         self._decoy_map: DecoyMapType = WeakValueDictionary()
         self._stub_map: Dict[int, List[Stub[Any]]] = {}
 
-    def register_decoy(self, decoy: Mock) -> int:
+    def register_decoy(self, decoy: DecoyMock) -> int:
         """Register a decoy for tracking."""
         decoy_id = id(decoy)
 

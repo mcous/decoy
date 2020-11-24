@@ -23,8 +23,7 @@ class _Anything:
 
 
 def Anything() -> Any:
-    """
-    Match anything except None.
+    """Match anything except None.
 
     Example:
         ```python
@@ -52,8 +51,7 @@ class _IsA:
 
 
 def IsA(match_type: type) -> Any:
-    """
-    Match anything that satisfies the passed in type.
+    """Match anything that satisfies the passed in type.
 
     Arguments:
         match_type: Type to match.
@@ -85,8 +83,7 @@ class _IsNot:
 
 
 def IsNot(value: object) -> Any:
-    """
-    Match anything that isn't the passed in value.
+    """Match anything that isn't the passed in value.
 
     Arguments:
         value: Value to check against.
@@ -120,8 +117,7 @@ class _StringMatching:
 
 
 def StringMatching(match: str) -> str:
-    """
-    Match any string matching the passed in pattern.
+    """Match any string matching the passed in pattern.
 
     Arguments:
         match: Pattern to check against; will be compiled into an re.Pattern.
@@ -163,8 +159,7 @@ class _ErrorMatching:
 
 
 def ErrorMatching(error: Type[Exception], match: Optional[str] = None) -> Exception:
-    """
-    Match any error matching an Exception type and optional message matcher.
+    """Match any error matching an Exception type and optional message matcher.
 
     Arguments:
         error: Exception type to match against.

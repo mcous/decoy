@@ -1,26 +1,26 @@
 site_name: Decoy
 
 nav:
-  - User Guide: index.md
-  - why.md
-  - api.md
-  - contributing.md
+    - User Guide: index.md
+    - why.md
+    - api.md
+    - contributing.md
 
 theme:
-  name: "material"
-  palette:
-    scheme: preference
+    name: "material"
+    palette:
+        scheme: preference
 
 plugins:
-  - search
-  - mkdocstrings:
-      watch:
-        - decoy
-      handlers:
-        python:
-          rendering:
-            show_source: False
+    - search
+    - mkdocstrings:
+          watch:
+              - decoy
+          handlers:
+              python:
+                  rendering:
+                      show_source: False
 
 markdown_extensions:
-  - pymdownx.highlight
-  - pymdownx.superfences
+    - pymdownx.highlight
+    - pymdownx.superfences

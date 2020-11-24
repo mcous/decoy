@@ -13,8 +13,7 @@ class Stub(Generic[ReturnT]):
     _error: Optional[Exception]
 
     def __init__(self, rehearsal: Call) -> None:
-        """
-        Initialize the stub from a rehearsal call.
+        """Initialize the stub from a rehearsal call.
 
         Arguments:
             rehearsal: A call tuple to match against.
@@ -24,8 +23,7 @@ class Stub(Generic[ReturnT]):
         self._error = None
 
     def then_return(self, *values: ReturnT) -> None:
-        """
-        Set the stub's return value(s).
+        """Set the stub's return value(s).
 
         See [stubbing](/#stubbing) for more details.
 
@@ -38,8 +36,7 @@ class Stub(Generic[ReturnT]):
         self._values = deque(values)
 
     def then_raise(self, error: Exception) -> None:
-        """
-        Set the stub's error value.
+        """Set the stub's error value.
 
         See [stubbing](/#stubbing) for more details.
 
