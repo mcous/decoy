@@ -5,7 +5,7 @@
 [![license badge][]][license]
 
 [ci]: https://github.com/mcous/decoy/actions
-[ci badge]: https://flat.badgen.net/github/checks/mcous/decoy
+[ci badge]: https://flat.badgen.net/github/checks/mcous/decoy/main
 [pypi]: https://pypi.org/project/decoy/
 [pypi version badge]: https://flat.badgen.net/pypi/v/decoy
 [license]: https://github.com/mcous/decoy/blob/main/LICENSE
