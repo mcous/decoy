@@ -1,4 +1,8 @@
 site_name: Decoy
+site_description: "Opinionated, typed stubbing and verification library for Python."
+site_url: "https://mike.cousins.io/decoy/"
+repo_url: "https://github.com/mcous/decoy"
+repo_name: "mcous/decoy"
 
 nav:
     - User Guide: index.md
