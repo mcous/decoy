@@ -24,10 +24,10 @@ Decoy's tests are run using [pytest][].
 poetry run pytest
 ```
 
-You can also run tests in watch mode using [pytest-watch][].
+You can also run tests in watch mode using [pytest-xdist][].
 
 ```bash
-poetry run pytest-watch
+poetry run pytest --looponfail
 ```
 
 ### Checks
@@ -47,12 +47,21 @@ Decoy's source code is formatted using [black][].
 poetry run black .
 ```
 
+### Documentation
+
+Decoy's documentation is built with [mkdocs][], which you can use to preview the documentation site locally.
+
+```bash
+poetry run mkdocs serve
+```
+
 [poetry]: https://python-poetry.org/
 [pytest]: https://docs.pytest.org/
-[pytest-watch]: https://github.com/joeyespo/pytest-watch
+[pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
 [mypy]: https://mypy.readthedocs.io
 [flake8]: https://flake8.pycqa.org
 [black]: https://black.readthedocs.io
+[mkdocs]: https://www.mkdocs.org/
 
 ## Deploying
 
@@ -76,7 +85,7 @@ git add pyproject.toml
 # replace ${release_version} with the actual version string
 git commit -m "chore(release): ${release_version}"
 git tag -a v${release_version} -m "chore(release): ${release_version}"
-git push --folow-tags
+git push --follow-tags
 ```
 
 [semantic versioning]: https://semver.org/

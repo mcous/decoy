@@ -1,4 +1,29 @@
-"""Matcher helpers."""
+"""Matcher helpers.
+
+A "matcher" is a helper class with an `__eq__` method defined. Use them
+anywhere in your test where you would use an actual value for equality
+(`==`) comparision.
+
+Matchers help you loosen assertions where strict adherence to an exact value
+is not relevent to what you're trying to test.
+
+Example:
+    ```python
+    from decoy import Decoy, matchers
+
+    # ...
+
+    def test_logger_called(decoy: Decoy):
+        # ...
+        decoy.verify(
+            logger.log(msg=matchers.StringMatching("hello"))
+        )
+    ```
+
+Note:
+    Identity comparisons (`is`) will not work with matchers. Decoy only uses
+    equality comparisons for stubbing and verification.
+"""
 from re import compile as compile_re
 from typing import cast, Any, Optional, Pattern, Type
 

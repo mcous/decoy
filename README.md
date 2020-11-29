@@ -53,7 +53,7 @@ def decoy() -> Decoy:
     return Decoy()
 ```
 
-Why is this important? The `Decoy` container tracks every test double that is created during a test so that you can define assertions using fully-typed rehearsals of your test double. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.
+Why is this important? The `Decoy` container tracks every fake that is created during a test so that you can define assertions using fully-typed rehearsals of your test double. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.
 
 [pytest]: https://docs.pytest.org/
 

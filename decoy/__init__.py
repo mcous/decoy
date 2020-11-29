@@ -1,17 +1,16 @@
 """Decoy test double stubbing and verification library."""
-from typing import cast, Any, Callable, Mapping, Optional, Sequence, Tuple, Type
+from typing import cast, Any, Optional, Type
 
-from .mock import create_decoy_mock, DecoyMock
 from .registry import Registry
+from .spy import create_spy, SpyCall
 from .stub import Stub
-from .types import Call, ClassT, FuncT, ReturnT
+from .types import ClassT, FuncT, ReturnT
 
 
 class Decoy:
     """Decoy test double state container."""
 
     _registry: Registry
-    _last_decoy_id: Optional[int]
 
     def __init__(self) -> None:
         """Initialize the state container for test doubles and stubs.
@@ -29,17 +28,18 @@ class Decoy:
             ```
         """
         self._registry = Registry()
-        self._last_decoy_id = None
 
     def create_decoy(self, spec: Type[ClassT], *, is_async: bool = False) -> ClassT:
         """Create a class decoy for `spec`.
 
         Arguments:
             spec: A class definition that the decoy should mirror.
-            is_async: Set to `True` if the class has `await`able methods.
+            is_async: Force the returned spy to be asynchronous. In most cases,
+                this argument should be unnecessary, since the Spy will use
+                `spec` to determine if a method should be asynchronous.
 
         Returns:
-            A `MagicMock` or `AsyncMock`, typecast as an instance of `spec`.
+            A [`Spy`][decoy.spy.BaseSpy], typecast as an instance of `spec`.
 
         Example:
             ```python
@@ -49,8 +49,12 @@ class Decoy:
             ```
 
         """
-        decoy = self._create_and_register_mock(spec=spec, is_async=is_async)
-        return cast(ClassT, decoy)
+        spy = create_spy(
+            spec=spec, is_async=is_async, handle_call=self._handle_spy_call
+        )
+        self._registry.register_spy(spy)
+
+        return cast(ClassT, spy)
 
     def create_decoy_func(
         self, spec: Optional[FuncT] = None, *, is_async: bool = False
@@ -59,10 +63,12 @@ class Decoy:
 
         Arguments:
             spec: A function that the decoy should mirror.
-            is_async: Set to `True` if the function is `await`able.
+            is_async: Force the returned spy to be asynchronous. In most cases,
+                this argument should be unnecessary, since the Spy will use
+                `spec` to determine if the function should be asynchronous.
 
         Returns:
-            A `MagicMock` or `AsyncMock`, typecast as the function given for `spec`.
+            A [`Spy`][decoy.spy.BaseSpy] typecast as `spec` function.
 
         Example:
             ```python
@@ -71,9 +77,12 @@ class Decoy:
                 # ...
             ```
         """
-        decoy = self._create_and_register_mock(spec=spec, is_async=is_async)
+        spy = create_spy(
+            spec=spec, is_async=is_async, handle_call=self._handle_spy_call
+        )
+        self._registry.register_spy(spy)
 
-        return cast(FuncT, decoy)
+        return cast(FuncT, spy)
 
     def when(self, _rehearsal_result: ReturnT) -> Stub[ReturnT]:
         """Create a [Stub][decoy.stub.Stub] configuration using a rehearsal call.
@@ -91,11 +100,17 @@ class Decoy:
             db = decoy.create_decoy(spec=Database)
             decoy.when(db.exists("some-id")).then_return(True)
             ```
+
+        Note:
+            The "rehearsal" is an actual call to the test fake. The fact that
+            the call is writtin inside `when` is purely for typechecking and
+            API niceness. Decoy will pop the last call to _any_ fake off its
+            call stack, which will end up being the call inside `when`.
         """
-        decoy_id, rehearsal = self._pop_last_rehearsal()
+        rehearsal = self._pop_last_rehearsal()
         stub = Stub[ReturnT](rehearsal=rehearsal)
 
-        self._registry.register_stub(decoy_id, stub)
+        self._registry.register_stub(rehearsal.spy_id, stub)
 
         return stub
 
@@ -116,50 +131,32 @@ class Decoy:
 
                 decoy.verify(gen_id("model-prefix_"))
             ```
+
+        Note:
+            The "rehearsal" is an actual call to the test fake. The fact that
+            the call is writtin inside `verify` is purely for typechecking and
+            API niceness. Decoy will pop the last call to _any_ fake off its
+            call stack, which will end up being the call inside `verify`.
         """
-        decoy_id, rehearsal = self._pop_last_rehearsal()
-        decoy = self._registry.get_decoy(decoy_id)
+        rehearsal = self._pop_last_rehearsal()
 
-        if decoy is None:
-            raise ValueError("verify must be called with a decoy rehearsal")
+        assert rehearsal in self._registry.get_calls_by_spy_id(rehearsal.spy_id)
 
-        decoy.assert_has_calls([rehearsal])
+    def _pop_last_rehearsal(self) -> SpyCall:
+        rehearsal = self._registry.pop_last_call()
 
-    def _create_and_register_mock(self, spec: Any, is_async: bool) -> DecoyMock:
-        decoy = create_decoy_mock(is_async=is_async, spec=spec)
-        decoy_id = self._registry.register_decoy(decoy)
-        side_effect = self._create_track_call_and_act(decoy_id)
+        if rehearsal is None:
+            raise ValueError("when/verify must be called with a decoy rehearsal")
 
-        decoy.configure_mock(side_effect=side_effect)
+        return rehearsal
 
-        return decoy
+    def _handle_spy_call(self, call: SpyCall) -> Any:
+        self._registry.register_call(call)
 
-    def _pop_last_rehearsal(self) -> Tuple[int, Call]:
-        decoy_id = self._last_decoy_id
+        stubs = self._registry.get_stubs_by_spy_id(call.spy_id)
 
-        if decoy_id is not None:
-            rehearsal = self._registry.pop_decoy_last_call(decoy_id)
-            self._last_decoy_id = None
+        for stub in reversed(stubs):
+            if stub._rehearsal == call:
+                return stub._act()
 
-            if rehearsal is not None:
-                return (decoy_id, rehearsal)
-
-        raise ValueError("when/verify must be called with a decoy rehearsal")
-
-    def _create_track_call_and_act(self, decoy_id: int) -> Callable[..., Any]:
-        def track_call_and_act(
-            *args: Sequence[Any], **_kwargs: Mapping[str, Any]
-        ) -> Any:
-            self._last_decoy_id = decoy_id
-
-            last_call = self._registry.peek_decoy_last_call(decoy_id)
-            stubs = reversed(self._registry.get_decoy_stubs(decoy_id))
-
-            if last_call is not None:
-                for stub in stubs:
-                    if stub._rehearsal == last_call:
-                        return stub._act()
-
-            return None
-
-        return track_call_and_act
+        return None

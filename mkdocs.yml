@@ -23,8 +23,14 @@ plugins:
           handlers:
               python:
                   rendering:
+                      show_root_heading: True
+                      show_object_full_path: True
                       show_source: False
+                      heading_level: 2
 
 markdown_extensions:
+    - toc:
+          permalink: "#"
+    - admonition
     - pymdownx.highlight
     - pymdownx.superfences

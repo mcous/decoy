@@ -47,10 +47,10 @@ def test_verify_with_matcher(decoy: Decoy) -> None:
 
     stub("hello")
 
-    decoy.verify(stub(matchers.StringMatching("ello")))
+    decoy.verify(stub(matchers.StringMatching("ell")))
 
     with pytest.raises(AssertionError):
-        decoy.verify(stub(matchers.StringMatching("^ello")))
+        decoy.verify(stub(matchers.StringMatching("^ell")))
 
 
 def test_call_nested_method_then_verify(decoy: Decoy) -> None:
