@@ -35,11 +35,11 @@ class Decoy:
         Arguments:
             spec: A class definition that the decoy should mirror.
             is_async: Force the returned spy to be asynchronous. In most cases,
-                this argument should be unnecessary, since the Spy will use
-                `spec` to determine if a method should be asynchronous.
+                this argument is unnecessary, since the Spy will use `spec` to
+                determine if a method should be asynchronous.
 
         Returns:
-            A [`Spy`][decoy.spy.BaseSpy], typecast as an instance of `spec`.
+            A spy typecast as an instance of `spec`.
 
         Example:
             ```python
@@ -64,11 +64,11 @@ class Decoy:
         Arguments:
             spec: A function that the decoy should mirror.
             is_async: Force the returned spy to be asynchronous. In most cases,
-                this argument should be unnecessary, since the Spy will use
-                `spec` to determine if the function should be asynchronous.
+                this argument is unnecessary, since the Spy will use `spec` to
+                determine if the function should be asynchronous.
 
         Returns:
-            A [`Spy`][decoy.spy.BaseSpy] typecast as `spec` function.
+            A spy typecast as `spec` function.
 
         Example:
             ```python
@@ -93,7 +93,7 @@ class Decoy:
             _rehearsal_result: The return value of a rehearsal, used for typechecking.
 
         Returns:
-            A Stub to configure using `then_return` or `then_raise`.
+            A stub to configure using `then_return` or `then_raise`.
 
         Example:
             ```python
@@ -103,8 +103,8 @@ class Decoy:
 
         Note:
             The "rehearsal" is an actual call to the test fake. The fact that
-            the call is writtin inside `when` is purely for typechecking and
-            API niceness. Decoy will pop the last call to _any_ fake off its
+            the call is written inside `when` is purely for typechecking and
+            API sugar. Decoy will pop the last call to _any_ fake off its
             call stack, which will end up being the call inside `when`.
         """
         rehearsal = self._pop_last_rehearsal()
@@ -134,8 +134,8 @@ class Decoy:
 
         Note:
             The "rehearsal" is an actual call to the test fake. The fact that
-            the call is writtin inside `verify` is purely for typechecking and
-            API niceness. Decoy will pop the last call to _any_ fake off its
+            the call is written inside `verify` is purely for typechecking and
+            API sugar. Decoy will pop the last call to _any_ fake off its
             call stack, which will end up being the call inside `verify`.
         """
         rehearsal = self._pop_last_rehearsal()
