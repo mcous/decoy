@@ -8,7 +8,7 @@ The `Mock` class (and friends) provided by the Python standard library are great
 -   Not geared towards mimicking the type annotations of your actual interfaces
 -   Geared towards call-then-assert-called test patterns
 
-At its core, Decoy uses test fakes that stripped down, slightly more opinionated versions of `Mock` that are designed to work with type annotations.
+At its core, Decoy uses test fakes that are stripped down, slightly more opinionated versions of `Mock` that are designed to work with type annotations.
 
 [unittest.mock]: https://docs.python.org/3/library/unittest.mock.html
 
@@ -25,7 +25,7 @@ Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its 
     -   Are you using a partial mock to ease testing with a complex (or third-party) dependency, and if so, is that test better as an integration test?
 
 [partial mocks]: https://github.com/testdouble/contributing-tests/wiki/Partial-Mock
-[single-responsibilty principle]: https://en.wikipedia.org/wiki/Single-responsibility_principle
+[single-responsibility principle]: https://en.wikipedia.org/wiki/Single-responsibility_principle
 
 ### Without configuration, test doubles should no-op
 
@@ -40,6 +40,11 @@ Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its 
     -   i.e. set `return_value`, then later assert that it was called correctly
 
 [arrange act assert]: https://github.com/testdouble/contributing-tests/wiki/Arrange-Act-Assert
+
+### unittest.mock is a good library
+
+-   `unittest.mock` is a well designed, flexible, and powerful mocking library
+-   You may have tests that don't work nicely with Decoy, or legacy code that would be too hard to refactor, and that's OK! Just use [unittest.mock][], instead
 
 ### Stubs should not return unconditionally
 
@@ -148,7 +153,7 @@ Both of these options have roughly the same upside and downsides:
     -   Option 1 separates the input checking from output value, and they appear in reverse chronological order (you define the dependency output before you define the input)
     -   Option 2 forces you to create a whole new function and assign it to the `side_effect` value
 -   Downside: `MagicMock` is effectively `Any` typed
-    -   `return_value` and `assert_called_with` are not typed according to the dependency's type definition
+    -   `return_value` and `assert_called_with` are not typed according to the dependency's type annotations
     -   A manual `side_effect`, if typed, needs to be manually typed, which may not match the actual dependency type definition
 
 Option 1 has another downside, specifically:

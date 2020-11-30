@@ -9,6 +9,3 @@ ClassT = TypeVar("ClassT", bound=object)
 
 ReturnT = TypeVar("ReturnT")
 """The return type of a given call."""
-
-Call = Any
-"""A type alias representing a unittest.mock._Call."""
