@@ -115,16 +115,16 @@ from decoy import Decoy, verify
 from .logger import Logger
 
 def log_warning(msg: str, logger: Logger) -> None:
-  logger.warn(msg)
+    logger.warn(msg)
 
 def test_log_warning(decoy: Decoy):
-  logger = decoy.create_decoy(spec=Logger)
+    logger = decoy.create_decoy(spec=Logger)
 
-  # call code under test
-  some_result = log_warning("oh no!", logger)
+    # call code under test
+    some_result = log_warning("oh no!", logger)
 
-  # verify double called correctly
-  decoy.verify(logger.warn("oh no!"))
+    # verify double called correctly
+    decoy.verify(logger.warn("oh no!"))
 ```
 
 ### Matchers
@@ -141,19 +141,19 @@ from decoy import Decoy, matchers
 from .logger import Logger
 
 def log_warning(msg: str, logger: Logger) -> None:
-  logger.warn(msg)
+    logger.warn(msg)
 
 def test_log_warning(decoy: Decoy):
-  logger = decoy.create_decoy(spec=Logger)
+    logger = decoy.create_decoy(spec=Logger)
 
-  # call code under test
-  some_result = log_warning(
-    "Oh no, something horrible went wrong with request ID abc123efg456",
-    logger=logger
-  )
+    # call code under test
+    some_result = log_warning(
+        "Oh no, something horrible went wrong with request ID abc123efg456",
+        logger=logger
+    )
 
-  # verify double called correctly
-  decoy.verify(
-    mock_logger.warn(matchers.StringMatching("something went wrong"))
-  )
+    # verify double called correctly
+    decoy.verify(
+        mock_logger.warn(matchers.StringMatching("something went wrong"))
+    )
 ```
