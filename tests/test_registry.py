@@ -1,11 +1,12 @@
 """Tests for the decoy registry."""
 import pytest
-from gc import collect as collect_garbage
-from mock import call, MagicMock, Mock
 from typing import Any
 
+from decoy.spy import create_spy, SpyCall
 from decoy.registry import Registry
 from decoy.stub import Stub
+
+from .common import noop
 
 
 @pytest.fixture
@@ -14,94 +15,76 @@ def registry() -> Registry:
     return Registry()
 
 
-def test_register_decoy(registry: Registry) -> None:
-    """It should register a decoy and return a unique identifier."""
-    decoy_1 = MagicMock()
-    decoy_2 = MagicMock()
-    decoy_id_1 = registry.register_decoy(decoy_1)
-    decoy_id_2 = registry.register_decoy(decoy_2)
+def test_register_spy(registry: Registry) -> None:
+    """It should register a spy and return a unique identifier."""
+    spy = create_spy(handle_call=noop)
 
-    assert decoy_id_1 != decoy_id_2
-    assert registry.get_decoy(decoy_id_1) == decoy_1
-    assert registry.get_decoy(decoy_id_2) == decoy_2
+    spy_id = registry.register_spy(spy)
+
+    assert spy_id == id(spy)
 
 
-def test_get_decoy_with_no_decoy(registry: Registry) -> None:
-    """Peek should return None if the ID does not match."""
-    result = registry.get_decoy(42)
-    assert result is None
+def test_register_call(registry: Registry) -> None:
+    """It should register a spy call."""
+    spy = create_spy(handle_call=noop)
+    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
+    call_2 = SpyCall(spy_id=id(spy), args=(2,), kwargs={})
+
+    registry.register_spy(spy)
+    registry.register_call(call_1)
+    registry.register_call(call_2)
+
+    assert registry.last_call == call_2
 
 
-def test_peek_decoy_last_call(registry: Registry) -> None:
-    """It should be able to peek the last decoy call by ID."""
-    decoy = MagicMock()
-    decoy_id = registry.register_decoy(decoy)
+def test_pop_last_call(registry: Registry) -> None:
+    """It should be able to pop the last spy call."""
+    spy = create_spy(handle_call=noop)
+    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
+    call_2 = SpyCall(spy_id=id(spy), args=(2,), kwargs={})
 
-    decoy.method(foo="hello", bar="world")
+    registry.register_spy(spy)
+    registry.register_call(call_1)
+    registry.register_call(call_2)
 
-    result = registry.peek_decoy_last_call(decoy_id)
-    assert result == call.method(foo="hello", bar="world")
-
-    result = registry.peek_decoy_last_call(decoy_id)
-    assert result == call.method(foo="hello", bar="world")
-
-
-def test_peek_decoy_last_call_with_no_decoy(registry: Registry) -> None:
-    """Peek should return None if the ID does not match."""
-    result = registry.peek_decoy_last_call(42)
-    assert result is None
-
-
-def test_pop_decoy_last_call(registry: Registry) -> None:
-    """It should be able to pop the last decoy call by ID."""
-    decoy = MagicMock()
-    decoy_id = registry.register_decoy(decoy)
-
-    decoy.method(foo="hello", bar="world")
-
-    result = registry.pop_decoy_last_call(decoy_id)
-    assert result == call.method(foo="hello", bar="world")
-
-    result = registry.pop_decoy_last_call(decoy_id)
-    assert result is None
-
-
-def test_pop_decoy_last_call_with_no_decoy(registry: Registry) -> None:
-    """Pop should return None if the ID does not match."""
-    result = registry.pop_decoy_last_call(42)
-    assert result is None
+    assert registry.pop_last_call() == call_2
+    assert registry.last_call == call_1
 
 
 def test_register_stub(registry: Registry) -> None:
-    """It should register a decoy and return a unique identifier."""
-    decoy = MagicMock()
-    decoy_id = registry.register_decoy(decoy)
+    """It should register a stub."""
+    spy = create_spy(handle_call=noop)
+    spy_id = registry.register_spy(spy)
+    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
+    call_2 = SpyCall(spy_id=id(spy), args=(2,), kwargs={})
 
-    stub_1 = Stub[Any](call(1, 2, 3))
-    stub_2 = Stub[Any](call(4, 5, 6))
+    stub_1 = Stub[Any](call_1)
+    stub_2 = Stub[Any](call_2)
 
-    assert registry.get_decoy_stubs(decoy_id) == []
+    assert registry.get_stubs_by_spy_id(spy_id) == []
 
-    registry.register_stub(decoy_id=decoy_id, stub=stub_1)
-    registry.register_stub(decoy_id=decoy_id, stub=stub_2)
+    registry.register_stub(spy_id=spy_id, stub=stub_1)
+    registry.register_stub(spy_id=spy_id, stub=stub_2)
 
-    assert registry.get_decoy_stubs(decoy_id) == [stub_1, stub_2]
+    assert registry.get_stubs_by_spy_id(spy_id) == [stub_1, stub_2]
 
 
-def test_registered_decoys_clean_up_automatically(registry: Registry) -> None:
-    """It should clean up when the decoy goes out of scope."""
-    decoy = Mock()
-    stub = Stub[Any](call(1, 2, 3))
+def test_registered_calls_clean_up_automatically(registry: Registry) -> None:
+    """It should clean up when the spy goes out of scope."""
+    spy = create_spy(handle_call=noop)
+    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
+    stub_1 = Stub[Any](call_1)
 
-    decoy_id = registry.register_decoy(decoy)
-    registry.register_stub(decoy_id, stub)
+    spy_id = registry.register_spy(spy)
+    registry.register_call(call_1)
+    registry.register_stub(spy_id=spy_id, stub=stub_1)
 
-    decoy(foo="hello", bar="world")
+    assert registry.last_call == call_1
+    assert registry.get_stubs_by_spy_id(spy_id) == [stub_1]
 
-    # decoy goes out of scope and garbage is collected
-    del decoy
-    collect_garbage()
+    # spy goes out of scope and garbage is collected
+    del spy
 
-    # registry no longer has references to the decoy not its stubs
-    assert registry.get_decoy(decoy_id) is None
-    assert registry.get_decoy_stubs(decoy_id) == []
+    # registry no longer has references to the calls
+    assert registry.last_call is None
+    assert registry.get_stubs_by_spy_id(spy_id) == []

@@ -1,4 +1,5 @@
 """Common test interfaces."""
+from typing import Any
 
 
 class SomeClass:
@@ -46,6 +47,16 @@ class SomeAsyncClass:
         ...
 
 
+def noop(*args: Any, **kwargs: Any) -> Any:
+    """No-op."""
+    pass
+
+
 def some_func(val: str) -> str:
     """Test function."""
+    return "can't touch this"
+
+
+async def some_async_func(val: str) -> str:
+    """Async test function."""
     return "can't touch this"

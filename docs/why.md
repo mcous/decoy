@@ -2,16 +2,54 @@
 
 The Python testing world already has [unittest.mock][] for creating fakes, so why is a library like Decoy even necessary?
 
-The `MagicMock` class (and friends) provided by the Python standard library are great, which is why Decoy uses them under the hood. They are, however:
+The `Mock` class (and friends) provided by the Python standard library are great! They are, however:
 
--   Not very opinionated in how they are used
--   Not able to adhere to type annotations of your actual interfaces
+-   Flexible to the point of sometimes feeling un-opinionated
+-   Not geared towards mimicking the type annotations of your actual interfaces
+-   Geared towards call-then-assert-called test patterns
 
-At its core, Decoy wraps `MagicMock` with a more opinionated, strictly typed interface to encourage well written tests and, ultimately, well written source code.
+At its core, Decoy uses test fakes that stripped down, slightly more opinionated versions of `Mock` that are designed to work with type annotations.
 
 [unittest.mock]: https://docs.python.org/3/library/unittest.mock.html
 
-## Recommended Reading
+## Opinions
+
+Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its API) holds, are:
+
+### Test doubles should be complete mocks of dependencies
+
+-   `unittest.mock.Mock` can partially mock using the `wraps` parameter
+-   Decoy considers [partial mocks][] to be code smell
+-   If you find yourself wanted to partially mock a dependency, consider:
+    -   Is the dependency in question properly factored according to [single-responsibility principle][]? Complexity should often move to another dependency rather than to a new method of the same object
+    -   Are you using a partial mock to ease testing with a complex (or third-party) dependency, and if so, is that test better as an integration test?
+
+[partial mocks]: https://github.com/testdouble/contributing-tests/wiki/Partial-Mock
+[single-responsibilty principle]: https://en.wikipedia.org/wiki/Single-responsibility_principle
+
+### Without configuration, test doubles should no-op
+
+-   `unittest.mock.Mock`'s default return value from an unconfigured method is another `Mock`
+-   Other mocking libraries exist that `assert` on an unconfigured call
+-   In either case, the test subject ends up more likely to trigger a `raise` that is unrelated to the test in question
+
+### Tests should be organized into ["arrange", "act", and "assert"][arrange act assert] phases
+
+-   `unittest.mock` is well-geared towards this usage, especially with spies
+-   When stubbing data dependencies, though, `unittest.mock`'s most straightforward usage involves separate "arrange" and "assert" steps for the same `Mock`
+    -   i.e. set `return_value`, then later assert that it was called correctly
+
+[arrange act assert]: https://github.com/testdouble/contributing-tests/wiki/Arrange-Act-Assert
+
+### Stubs should not return unconditionally
+
+-   Setting `unittest.mock.Mock::return_value` is unconditional, in that all subsequent calls to that mock will receive that return value, even if they are called incorrectly
+    -   When setting `return_value`, you always need to check `assert_called_with` to really make sure the code under test is behaving
+-   Decoy's API requires stubs to be configured with arguments to return anything, which means the code under test won't receive data unless it uses the dependency correctly
+    -   This prevents false test passes when the dependency is _not_ called correctly and the `assert` step is missing or forgotten
+    -   It also makes an "assert stub was called correctly" step redundant because the data from the stubbed dependency should be fed into the output of the code under test
+
+### Recommended reading
 
 Decoy is heavily influenced by and/or stolen from the [testdouble.js][] and [Mockito][] projects. These projects have both been around for a while (especially Mockito), and their docs are valuable resources for learning how to test and mock effectively.
 
@@ -24,7 +62,7 @@ If you have the time, you should check out:
 [testdouble.js]: https://github.com/testdouble/testdouble.js
 [mockito]: https://site.mockito.org/
 
-## Creating and Using a Stub
+## Comparing MagicMock and Decoy for Stubbing
 
 A [stub][] is a specific type of test fake that:
 
@@ -37,7 +75,6 @@ For the following examples, let's assume:
 
 -   We're testing a library to deal with `Book` objects
 -   That library depends on a `Database` provider to store objects in a database
--   That library depends on a `Logger` interface to log access
 
 [stub]: https://en.wikipedia.org/wiki/Test_stub
 
@@ -143,16 +180,15 @@ def mock_book() -> Book:
     return cast(Book, {"title": "The Metamorphosis"})
 ```
 
-Decoy wraps `MagicMock` with a simple, rehearsal-based stubbing interface.
+Decoy uses a simple, rehearsal-based stubbing interface.
 
 ```python
 def test_get_book(decoy: Decoy, mock_database: Database, mock_book: Book) -> None:
     # arrange stub to return mock data when called correctly
-    decoy.when(
-        # this is a rehearsal, which might look a little funny at first
-        # it's an actual call to the test double that Decoy captures
-        mock_database.get_by_id("unique-id")
-    ).then_return(mock_book)
+    # the input argument specification is in the form of a "rehearsal,"
+    # which might look a little funny at first, but ends up being quite
+    # easy to work and reason with once you're used to it
+    decoy.when(mock_database.get_by_id("unique-id")).then_return(mock_book)
 
     # exercise the code under test
     result = get_book("unique-id", database=mock_database)
@@ -167,12 +203,14 @@ Benefits to note over the vanilla `MagicMock` versions:
     -   Inputs and outputs from the dependency are specified together
     -   You specify the inputs _before_ outputs, which can be easier to grok
 -   The entire test fits neatly into "arrange", "act", and "assert" phases
--   Decoy casts test doubles as the actual types they are mimicking
+-   Decoy typecasts test doubles as the actual types they are mimicking
     -   This means stub configuration arguments _and_ return values are type-checked
 
-## Creating and Using a Spy
+## Comparing MagicMock and Decoy for Spying
 
 A [spy][] is another kind of test fake that simply records calls made to it. Spies are useful to model dependencies that are used for their side-effects rather than providing or calculating data.
+
+In this example, we add the requirement that our bookshelf library logs access using a `Logger` interface.
 
 [spy]: https://github.com/testdouble/contributing-tests/wiki/Spy
 
@@ -181,15 +219,10 @@ A [spy][] is another kind of test fake that simply records calls made to it. Spi
 ```python
 # setup
 from pytest
-from decoy import Decoy
+from unittest.mock import MagicMock
 
 from my_lib.logger import Logger
 from my_lib.bookshelf import get_book, Book
-
-
-@pytest.fixture
-def decoy() -> Decoy:
-    return Decoy()
 
 
 @pytest.fixture
@@ -241,6 +274,6 @@ def test_get_book_logs(decoy: Decoy, mock_logger: Logger) -> None:
     # assert logger spy was called correctly
     # uses the same type-checked "rehearsal" syntax as stubbing
     decoy.verify(
-        mock_logger(level="debug", msg="Get book unique-id")
+        mock_logger.log(level="debug", msg="Get book unique-id")
     )
 ```

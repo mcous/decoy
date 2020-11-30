@@ -1,6 +1,5 @@
 """Tests for the Decoy double creator."""
 import pytest
-from mock import MagicMock
 
 from decoy import Decoy, matchers
 from .common import some_func, SomeClass, SomeAsyncClass, SomeNestedClass
@@ -66,7 +65,7 @@ def test_stub_with_matcher(decoy: Decoy) -> None:
     """It should still work with matchers as arguments."""
     stub = decoy.create_decoy_func(spec=some_func)
 
-    decoy.when(stub(matchers.StringMatching("ello"))).then_return("world")
+    decoy.when(stub(matchers.StringMatching("ell"))).then_return("world")
 
     assert stub("hello") == "world"
 
@@ -99,7 +98,7 @@ def test_stub_multiple_returns(decoy: Decoy) -> None:
 
 def test_cannot_stub_without_rehearsal(decoy: Decoy) -> None:
     """It should require a rehearsal to stub."""
-    bad_stub = MagicMock()
+    bad_stub = some_func
 
     # stubbing without a valid decoy should fail
     with pytest.raises(ValueError, match="rehearsal"):
@@ -120,7 +119,7 @@ def test_stub_nested_method_then_return(decoy: Decoy) -> None:
 @pytest.mark.asyncio
 async def test_stub_async_method(decoy: Decoy) -> None:
     """It should be able to stub an async method."""
-    stub = decoy.create_decoy(spec=SomeAsyncClass, is_async=True)
+    stub = decoy.create_decoy(spec=SomeAsyncClass)
 
     decoy.when(await stub.foo("hello")).then_return("world")
     decoy.when(await stub.bar(0, 1.0, "2")).then_raise(ValueError("oh no"))
@@ -129,3 +128,34 @@ async def test_stub_async_method(decoy: Decoy) -> None:
 
     with pytest.raises(ValueError, match="oh no"):
         await stub.bar(0, 1.0, "2")
+
+
+def test_stub_nested_sync_class_in_async(decoy: Decoy) -> None:
+    """It should be able to stub a sync child instance of an async class."""
+
+    class _AsyncWithSync:
+        @property
+        def _sync_child(self) -> SomeClass:
+            ...
+
+    stub = decoy.create_decoy(spec=_AsyncWithSync)
+
+    decoy.when(stub._sync_child.foo("hello")).then_return("world")
+
+    assert stub._sync_child.foo("hello") == "world"
+
+
+@pytest.mark.asyncio
+async def test_stub_nested_async_class_in_sync(decoy: Decoy) -> None:
+    """It should be able to stub an async child instance of an sync class."""
+
+    class _SyncWithAsync:
+        @property
+        def _async_child(self) -> SomeAsyncClass:
+            ...
+
+    stub = decoy.create_decoy(spec=_SyncWithAsync)
+
+    decoy.when(await stub._async_child.foo("hello")).then_return("world")
+
+    assert await stub._async_child.foo("hello") == "world"

@@ -1,68 +1,97 @@
-"""Decoy and stub configuration registry."""
-from mock import Mock
-from weakref import finalize, WeakValueDictionary
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+"""Decoy and stub registration module."""
+from collections import deque
+from weakref import finalize
+from typing import Any, Deque, Dict, List, Optional
 
-from .mock import DecoyMock
+from .spy import BaseSpy, SpyCall
 from .stub import Stub
-from .types import Call
-
-if TYPE_CHECKING:
-    DecoyMapType = WeakValueDictionary[int, DecoyMock]
 
 
 class Registry:
     """Decoy and stub configuration registry.
 
-    The Registry collects weak-references to decoys created in order to
-    automatically clean up stub configurations when a decoy goes out of scope.
+    The registry collects weak-references to spies and spy calls created in
+    order to clean up stub configurations when a spy goes out of scope.
     """
+
+    _calls: Deque[SpyCall]
 
     def __init__(self) -> None:
         """Initialize a Registry."""
-        self._decoy_map: DecoyMapType = WeakValueDictionary()
         self._stub_map: Dict[int, List[Stub[Any]]] = {}
+        self._calls = deque()
 
-    def register_decoy(self, decoy: DecoyMock) -> int:
-        """Register a decoy for tracking."""
-        decoy_id = id(decoy)
+    @property
+    def last_call(self) -> Optional[SpyCall]:
+        """Peek the last call in the registry's call stack."""
+        if len(self._calls) > 0:
+            return self._calls[-1]
+        else:
+            return None
 
-        self._decoy_map[decoy_id] = decoy
-        finalize(decoy, self._clear_decoy_stubs, decoy_id)
+    def pop_last_call(self) -> Optional[SpyCall]:
+        """Pop the last call made off the registry's call stack."""
+        if len(self._calls) > 0:
+            return self._calls.pop()
+        else:
+            return None
 
-        return decoy_id
+    def get_stubs_by_spy_id(self, spy_id: int) -> List[Stub[Any]]:
+        """Get a spy's stub list by identifier.
 
-    def register_stub(self, decoy_id: int, stub: Stub[Any]) -> None:
-        """Register a stub for tracking."""
-        stub_list = self.get_decoy_stubs(decoy_id)
-        self._stub_map[decoy_id] = stub_list + [stub]
+        Arguments:
+            spy_id: The unique identifer of the Spy to look up.
 
-    def get_decoy(self, decoy_id: int) -> Optional[Mock]:
-        """Get a decoy by identifier."""
-        return self._decoy_map.get(decoy_id)
+        Returns:
+            The list of stubs matching the given Spy.
+        """
+        return self._stub_map.get(spy_id, [])
 
-    def get_decoy_stubs(self, decoy_id: int) -> List[Stub[Any]]:
-        """Get a decoy's stub list by identifier."""
-        return self._stub_map.get(decoy_id, [])
+    def get_calls_by_spy_id(self, spy_id: int) -> List[SpyCall]:
+        """Get a spy's call list by identifier.
 
-    def peek_decoy_last_call(self, decoy_id: int) -> Optional[Call]:
-        """Get a decoy's last call."""
-        decoy = self._decoy_map.get(decoy_id, None)
+        Arguments:
+            spy_id: The unique identifer of the Spy to look up.
 
-        if decoy is not None and len(decoy.mock_calls) > 0:
-            return decoy.mock_calls[-1]
+        Returns:
+            The list of calls matching the given Spy.
+        """
+        return [c for c in self._calls if c.spy_id == spy_id]
 
-        return None
+    def register_spy(self, spy: BaseSpy) -> int:
+        """Register a spy for tracking.
 
-    def pop_decoy_last_call(self, decoy_id: int) -> Optional[Call]:
-        """Pop a decoy's last call off of its call stack."""
-        decoy = self._decoy_map.get(decoy_id, None)
+        Arguments:
+            spy: The spy to track.
 
-        if decoy is not None and len(decoy.mock_calls) > 0:
-            return decoy.mock_calls.pop()
+        Returns:
+            The spy's unique identifier.
+        """
+        spy_id = id(spy)
+        finalize(spy, self._clear_spy, spy_id)
+        return spy_id
 
-        return None
+    def register_call(self, call: SpyCall) -> None:
+        """Register a spy call for tracking.
 
-    def _clear_decoy_stubs(self, decoy_id: int) -> None:
-        if decoy_id in self._stub_map:
-            del self._stub_map[decoy_id]
+        Arguments:
+            call: The call to track.
+        """
+        self._calls.append(call)
+
+    def register_stub(self, spy_id: int, stub: Stub[Any]) -> None:
+        """Register a stub for tracking.
+
+        Arguments:
+            spy_id: The unique identifer of the Spy to look up.
+            stub: The stub to track.
+        """
+        stub_list = self.get_stubs_by_spy_id(spy_id)
+        self._stub_map[spy_id] = stub_list + [stub]
+
+    def _clear_spy(self, spy_id: int) -> None:
+        """Clear all references to a given spy_id."""
+        self._calls = deque([c for c in self._calls if c.spy_id != spy_id])
+
+        if spy_id in self._stub_map:
+            del self._stub_map[spy_id]

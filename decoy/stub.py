@@ -2,17 +2,18 @@
 from collections import deque
 from typing import Deque, Generic, Optional
 
-from .types import Call, ReturnT
+from .spy import SpyCall
+from .types import ReturnT
 
 
 class Stub(Generic[ReturnT]):
     """A rehearsed test double stub that may perform an action."""
 
-    _rehearsal: Call
+    _rehearsal: SpyCall
     _values: Deque[ReturnT]
     _error: Optional[Exception]
 
-    def __init__(self, rehearsal: Call) -> None:
+    def __init__(self, rehearsal: SpyCall) -> None:
         """Initialize the stub from a rehearsal call.
 
         Arguments:
@@ -40,12 +41,13 @@ class Stub(Generic[ReturnT]):
 
         See [stubbing](/#stubbing) for more details.
 
-        Note: setting a stub to raise will prevent you from writing new
-        rehearsals, because they will raise. If you need to make more calls
-        to `when`, you'll need to wrap your rehearsal in a `try`.
-
         Arguments:
             error: The error to raise.
+
+        Note:
+            Setting a stub to raise will prevent you from writing new
+            rehearsals, because they will raise. If you need to make more calls
+            to `when`, you'll need to wrap your rehearsal in a `try`.
         """
         self._value = None
         self._error = error
