@@ -59,7 +59,7 @@ Why is this important? The `Decoy` container tracks every fake that is created d
 
 ### Stubbing
 
-A stub is a an object used in a test that is pre-configured to act in a certain way if called according to a spec, defined by a rehearsal. A "rehearsal" is simply a call to the stub inside of a `decoy.when` wrapper.
+A stub is a an object used in a test that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you specify a stub's call expectations with a "rehearsal", which is simply a call to the stub inside of a `decoy.when` wrapper.
 
 By pre-configuring the stub with specific rehearsals, you get the following benefits:
 
@@ -93,19 +93,9 @@ def test_get_item(decoy: Decoy):
     assert other_result is None
 ```
 
-### Verification
+### Verifying interactions
 
-If you're coming from `unittest.mock`, you're probably more used to calling your code under test and _then_ verifying that your test double was called correctly. Asserting on mock call signatures after the fact can be useful, but **should only be used if the dependency is being called solely for its side-effect(s)**.
-
-Verification of decoy calls after they have occurred be considered a last resort, because:
-
--   If you're calling a method/function to get its data, then you can more precisely describe that relationship using [stubbing](#stubbing)
--   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
-
-Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same decoy, then one or more of these is true:
-
--   The assertions are redundant
--   The dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
+If you're coming from `unittest.mock`, you're probably used to calling your code under test and _then_ verifying that your dependency was called correctly. Decoy provides similar call verification using the same "rehearsal" mechanism that the stubbing API uses.
 
 ```python
 import pytest
@@ -123,15 +113,25 @@ def test_log_warning(decoy: Decoy):
     # call code under test
     some_result = log_warning("oh no!", logger)
 
-    # verify double called correctly
+    # verify double called correctly with a rehearsal
     decoy.verify(logger.warn("oh no!"))
 ```
 
+Asserting that calls happened after the fact can be useful, but **should only be used if the dependency is being called solely for its side-effect(s)**. Verification of interactions in this manner should be considered a last resort, because:
+
+-   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](#stubbing)
+-   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
+
+Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same decoy, then one or more of these is true:
+
+-   The assertions are redundant
+-   The dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
+
 ### Matchers
 
-Sometimes, when you're stubbing or verifying decoy calls (or really when you're doing any sort of equality assertion in a test), you need to loosen a given assertion. For example, you may want to assert that a double is called with a string, but you don't care what the full contents of that string is.
+Sometimes, when you're stubbing or verifying calls (or really when you're doing any sort of equality assertion in a test), you need to loosen a given assertion. For example, you may want to assert that a dependency is called with a string, but you don't care about the full contents of that string.
 
-Decoy includes a set of matchers, which are simply Python classes with `__eq__` methods defined, that you can use in decoy rehearsals and/or assertions.
+Decoy includes a set of matchers, which are simply Python classes with `__eq__` methods defined, that you can use in rehearsals and/or assertions.
 
 ```python
 import pytest
@@ -148,12 +148,12 @@ def test_log_warning(decoy: Decoy):
 
     # call code under test
     some_result = log_warning(
-        "Oh no, something horrible went wrong with request ID abc123efg456",
+        "Oh no, something went wrong with request ID abc123efg456",
         logger=logger
     )
 
     # verify double called correctly
     decoy.verify(
-        mock_logger.warn(matchers.StringMatching("something went wrong"))
+        logger.warn(matchers.StringMatching("request ID abc123efg456"))
     )
 ```

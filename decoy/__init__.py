@@ -87,7 +87,7 @@ class Decoy:
     def when(self, _rehearsal_result: ReturnT) -> Stub[ReturnT]:
         """Create a [Stub][decoy.stub.Stub] configuration using a rehearsal call.
 
-        See [stubbing](/#stubbing) for more details.
+        See [stubbing](index.md#stubbing) for more details.
 
         Arguments:
             _rehearsal_result: The return value of a rehearsal, used for typechecking.
@@ -117,7 +117,7 @@ class Decoy:
     def verify(self, _rehearsal_result: Optional[ReturnT] = None) -> None:
         """Verify a decoy was called using a rehearsal.
 
-        See [verification](/#verification) for more details.
+        See [verification](index.md#verification) for more details.
 
         Arguments:
             _rehearsal_result: The return value of a rehearsal, unused.
