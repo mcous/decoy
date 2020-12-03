@@ -36,7 +36,8 @@ pytest-mypy-plugins = "^1.6.1"
 pytest-xdist = "^2.1.0"
 
 [tool.pytest.ini_options]
-addopts = "--color=yes"
+addopts = "--color=yes --mypy-ini-file=mypy.ini"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"

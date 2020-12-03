@@ -42,7 +42,7 @@
       decoy.when(fake.do_thing("hello")).then_return(42)
       decoy.when(fake.do_thing("goodbye")).then_return("wrong-type")
   out: |
-      main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"
+      main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: function_stub_mimics_return_type
   main: |
@@ -57,4 +57,4 @@
       decoy.when(fake("hello")).then_return(42)
       decoy.when(fake("goodbye")).then_return("wrong-type")
   out: |
-      main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"
+      main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
