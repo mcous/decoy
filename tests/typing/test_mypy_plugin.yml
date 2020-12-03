@@ -1,0 +1,42 @@
+# mypy plugin tests
+
+- case: does_not_suppress_func_returns_value
+  main: |
+      def noop() -> None:
+          pass
+
+      value = noop()
+  out: |
+      main:4: error: "noop" does not return a value  [func-returns-value]
+
+- case: suppresses_func_returns_value_in_when
+  main: |
+      from decoy import Decoy
+
+      def noop() -> None:
+          pass
+
+      decoy = Decoy()
+      stub = decoy.when(noop())
+
+- case: suppresses_func_returns_value_in_verify
+  main: |
+      from decoy import Decoy
+
+      def noop() -> None:
+          pass
+
+      decoy = Decoy()
+      decoy.verify(noop())
+
+- case: does_not_suppress_other_errors
+  main: |
+      from decoy import Decoy
+
+      def do_thing() -> int:
+          return 42
+
+      decoy = Decoy()
+      stub = decoy.when(do_thing("hello"))
+  out: |
+      main:7: error: Too many arguments for "do_thing"  [call-arg]

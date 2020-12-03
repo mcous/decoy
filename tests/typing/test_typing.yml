@@ -1,0 +1,59 @@
+# typing tests
+
+- case: class_decoy_mimics_type
+  main: |
+      from decoy import Decoy
+
+      class Dependency():
+          def do_thing(self, input: str) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.create_decoy(spec=Dependency)
+      reveal_type(fake)
+  out: |
+      main:9: note: Revealed type is 'main.Dependency*'
+
+- case: function_decoy_mimics_type
+  main: |
+      from decoy import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake = decoy.create_decoy_func(spec=do_thing)
+      reveal_type(fake)
+  out: |
+      main:8: note: Revealed type is 'def (input: builtins.str) -> builtins.int'
+
+- case: class_stub_mimics_return_type
+  main: |
+      from decoy import Decoy
+
+      class Dependency():
+          def do_thing(self, input: str) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.create_decoy(spec=Dependency)
+
+      decoy.when(fake.do_thing("hello")).then_return(42)
+      decoy.when(fake.do_thing("goodbye")).then_return("wrong-type")
+  out: |
+      main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: function_stub_mimics_return_type
+  main: |
+      from decoy import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake = decoy.create_decoy_func(spec=do_thing)
+
+      decoy.when(fake("hello")).then_return(42)
+      decoy.when(fake("goodbye")).then_return("wrong-type")
+  out: |
+      main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
