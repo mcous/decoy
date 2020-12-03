@@ -26,9 +26,16 @@ def test_create_spy() -> None:
     spy(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy), args=(1, 2, 3), kwargs={}),
-        SpyCall(spy_id=id(spy), args=(), kwargs={"four": 4, "five": 5, "six": 6}),
-        SpyCall(spy_id=id(spy), args=(7,), kwargs={"eight": 8, "nine": 9}),
+        SpyCall(spy_id=id(spy), spy_name="spy", args=(1, 2, 3), kwargs={}),
+        SpyCall(
+            spy_id=id(spy),
+            spy_name="spy",
+            args=(),
+            kwargs={"four": 4, "five": 5, "six": 6},
+        ),
+        SpyCall(
+            spy_id=id(spy), spy_name="spy", args=(7,), kwargs={"eight": 8, "nine": 9}
+        ),
     ]
 
 
@@ -43,9 +50,19 @@ def test_create_spy_from_spec_function() -> None:
     spy(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy), args=(1, 2, 3), kwargs={}),
-        SpyCall(spy_id=id(spy), args=(), kwargs={"four": 4, "five": 5, "six": 6}),
-        SpyCall(spy_id=id(spy), args=(7,), kwargs={"eight": 8, "nine": 9}),
+        SpyCall(spy_id=id(spy), spy_name="some_func", args=(1, 2, 3), kwargs={}),
+        SpyCall(
+            spy_id=id(spy),
+            spy_name="some_func",
+            args=(),
+            kwargs={"four": 4, "five": 5, "six": 6},
+        ),
+        SpyCall(
+            spy_id=id(spy),
+            spy_name="some_func",
+            args=(7,),
+            kwargs={"eight": 8, "nine": 9},
+        ),
     ]
 
 
@@ -62,9 +79,19 @@ async def test_create_spy_from_async_spec_function() -> None:
     await spy(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy), args=(1, 2, 3), kwargs={}),
-        SpyCall(spy_id=id(spy), args=(), kwargs={"four": 4, "five": 5, "six": 6}),
-        SpyCall(spy_id=id(spy), args=(7,), kwargs={"eight": 8, "nine": 9}),
+        SpyCall(spy_id=id(spy), spy_name="some_async_func", args=(1, 2, 3), kwargs={}),
+        SpyCall(
+            spy_id=id(spy),
+            spy_name="some_async_func",
+            args=(),
+            kwargs={"four": 4, "five": 5, "six": 6},
+        ),
+        SpyCall(
+            spy_id=id(spy),
+            spy_name="some_async_func",
+            args=(7,),
+            kwargs={"eight": 8, "nine": 9},
+        ),
     ]
 
 
@@ -79,9 +106,21 @@ def test_create_spy_from_spec_class() -> None:
     spy.do_the_thing(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy.foo), args=(1, 2, 3), kwargs={}),
-        SpyCall(spy_id=id(spy.bar), args=(), kwargs={"four": 4, "five": 5, "six": 6}),
-        SpyCall(spy_id=id(spy.do_the_thing), args=(7,), kwargs={"eight": 8, "nine": 9}),
+        SpyCall(
+            spy_id=id(spy.foo), spy_name="SomeClass.foo", args=(1, 2, 3), kwargs={}
+        ),
+        SpyCall(
+            spy_id=id(spy.bar),
+            spy_name="SomeClass.bar",
+            args=(),
+            kwargs={"four": 4, "five": 5, "six": 6},
+        ),
+        SpyCall(
+            spy_id=id(spy.do_the_thing),
+            spy_name="SomeClass.do_the_thing",
+            args=(7,),
+            kwargs={"eight": 8, "nine": 9},
+        ),
     ]
 
 
@@ -96,9 +135,21 @@ async def test_create_spy_from_async_spec_class() -> None:
     await spy.do_the_thing(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy.foo), args=(1, 2, 3), kwargs={}),
-        SpyCall(spy_id=id(spy.bar), args=(), kwargs={"four": 4, "five": 5, "six": 6}),
-        SpyCall(spy_id=id(spy.do_the_thing), args=(7,), kwargs={"eight": 8, "nine": 9}),
+        SpyCall(
+            spy_id=id(spy.foo), spy_name="SomeAsyncClass.foo", args=(1, 2, 3), kwargs={}
+        ),
+        SpyCall(
+            spy_id=id(spy.bar),
+            spy_name="SomeAsyncClass.bar",
+            args=(),
+            kwargs={"four": 4, "five": 5, "six": 6},
+        ),
+        SpyCall(
+            spy_id=id(spy.do_the_thing),
+            spy_name="SomeAsyncClass.do_the_thing",
+            args=(7,),
+            kwargs={"eight": 8, "nine": 9},
+        ),
     ]
 
 
@@ -113,14 +164,21 @@ def test_create_nested_spy() -> None:
     spy.child.do_the_thing(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy.foo), args=(1, 2, 3), kwargs={}),
+        SpyCall(
+            spy_id=id(spy.foo),
+            spy_name="SomeNestedClass.foo",
+            args=(1, 2, 3),
+            kwargs={},
+        ),
         SpyCall(
             spy_id=id(spy.child.bar),
+            spy_name="SomeNestedClass.child.bar",
             args=(),
             kwargs={"four": 4, "five": 5, "six": 6},
         ),
         SpyCall(
             spy_id=id(spy.child.do_the_thing),
+            spy_name="SomeNestedClass.child.do_the_thing",
             args=(7,),
             kwargs={"eight": 8, "nine": 9},
         ),
@@ -148,11 +206,13 @@ async def test_create_nested_spy_using_property_type_hints() -> None:
     assert calls == [
         SpyCall(
             spy_id=id(spy._async_child.bar),
+            spy_name="_SomeClass._async_child.bar",
             args=(),
             kwargs={"four": 4, "five": 5, "six": 6},
         ),
         SpyCall(
             spy_id=id(spy._sync_child.do_the_thing),
+            spy_name="_SomeClass._sync_child.do_the_thing",
             args=(7,),
             kwargs={"eight": 8, "nine": 9},
         ),
@@ -175,11 +235,13 @@ async def test_create_nested_spy_using_class_type_hints() -> None:
     assert calls == [
         SpyCall(
             spy_id=id(spy._async_child.bar),
+            spy_name="_SomeClass._async_child.bar",
             args=(),
             kwargs={"four": 4, "five": 5, "six": 6},
         ),
         SpyCall(
             spy_id=id(spy._sync_child.do_the_thing),
+            spy_name="_SomeClass._sync_child.do_the_thing",
             args=(7,),
             kwargs={"eight": 8, "nine": 9},
         ),
@@ -204,3 +266,38 @@ async def test_spy_returns_handler_value() -> None:
         sync_spy(),
         await async_spy(),
     ] == [1, 2, 3, 4]
+
+
+@pytest.mark.parametrize(
+    ("call", "expected"),
+    [
+        (
+            SpyCall(spy_id=42, spy_name="some.name", args=(), kwargs={}),
+            "some.name()",
+        ),
+        (
+            SpyCall(spy_id=42, spy_name="some.name", args=(1,), kwargs={}),
+            "some.name(1)",
+        ),
+        (
+            SpyCall(spy_id=42, spy_name="some.name", args=(1, "2"), kwargs={}),
+            "some.name(1, '2')",
+        ),
+        (
+            SpyCall(spy_id=42, spy_name="some.name", args=(), kwargs={"foo": "bar"}),
+            "some.name(foo='bar')",
+        ),
+        (
+            SpyCall(
+                spy_id=42,
+                spy_name="some.name",
+                args=(1, 2),
+                kwargs={"foo": "bar", "baz": False},
+            ),
+            "some.name(1, 2, foo='bar', baz=False)",
+        ),
+    ],
+)
+def test_spy_call_stringifies(call: SpyCall, expected: str) -> None:
+    """It should serialize SpyCalls to strings."""
+    assert str(call) == expected

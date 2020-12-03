@@ -27,8 +27,8 @@ def test_register_spy(registry: Registry) -> None:
 def test_register_call(registry: Registry) -> None:
     """It should register a spy call."""
     spy = create_spy(handle_call=noop)
-    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
-    call_2 = SpyCall(spy_id=id(spy), args=(2,), kwargs={})
+    call_1 = SpyCall(spy_id=id(spy), spy_name="spy", args=(1,), kwargs={})
+    call_2 = SpyCall(spy_id=id(spy), spy_name="spy", args=(2,), kwargs={})
 
     registry.register_spy(spy)
     registry.register_call(call_1)
@@ -40,8 +40,8 @@ def test_register_call(registry: Registry) -> None:
 def test_pop_last_call(registry: Registry) -> None:
     """It should be able to pop the last spy call."""
     spy = create_spy(handle_call=noop)
-    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
-    call_2 = SpyCall(spy_id=id(spy), args=(2,), kwargs={})
+    call_1 = SpyCall(spy_id=id(spy), spy_name="spy", args=(1,), kwargs={})
+    call_2 = SpyCall(spy_id=id(spy), spy_name="spy", args=(2,), kwargs={})
 
     registry.register_spy(spy)
     registry.register_call(call_1)
@@ -55,8 +55,8 @@ def test_register_stub(registry: Registry) -> None:
     """It should register a stub."""
     spy = create_spy(handle_call=noop)
     spy_id = registry.register_spy(spy)
-    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
-    call_2 = SpyCall(spy_id=id(spy), args=(2,), kwargs={})
+    call_1 = SpyCall(spy_id=id(spy), spy_name="spy", args=(1,), kwargs={})
+    call_2 = SpyCall(spy_id=id(spy), spy_name="spy", args=(2,), kwargs={})
 
     stub_1 = Stub[Any](call_1)
     stub_2 = Stub[Any](call_2)
@@ -72,7 +72,7 @@ def test_register_stub(registry: Registry) -> None:
 def test_registered_calls_clean_up_automatically(registry: Registry) -> None:
     """It should clean up when the spy goes out of scope."""
     spy = create_spy(handle_call=noop)
-    call_1 = SpyCall(spy_id=id(spy), args=(1,), kwargs={})
+    call_1 = SpyCall(spy_id=id(spy), spy_name="spy", args=(1,), kwargs={})
     stub_1 = Stub[Any](call_1)
 
     spy_id = registry.register_spy(spy)

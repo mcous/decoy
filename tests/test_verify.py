@@ -15,8 +15,16 @@ def test_call_function_then_verify(decoy: Decoy) -> None:
     decoy.verify(stub("hello"))
     decoy.verify(stub("goodbye"))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as error_info:
         decoy.verify(stub("fizzbuzz"))
+
+    assert str(error_info.value) == (
+        "Expected call:\n"
+        "\tsome_func('fizzbuzz')\n"
+        "Found 2 calls:\n"
+        "1.\tsome_func('hello')\n"
+        "2.\tsome_func('goodbye')"
+    )
 
 
 def test_call_method_then_verify(decoy: Decoy) -> None:
@@ -34,11 +42,27 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
     decoy.verify(stub.bar(0, 1.0, "2"))
     decoy.verify(stub.bar(3, 4.0, "5"))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as error_info:
         decoy.verify(stub.foo("fizzbuzz"))
 
-    with pytest.raises(AssertionError):
+    assert str(error_info.value) == (
+        "Expected call:\n"
+        "\tSomeClass.foo('fizzbuzz')\n"
+        "Found 2 calls:\n"
+        "1.\tSomeClass.foo('hello')\n"
+        "2.\tSomeClass.foo('goodbye')"
+    )
+
+    with pytest.raises(AssertionError) as error_info:
         decoy.verify(stub.bar(6, 7.0, "8"))
+
+    assert str(error_info.value) == (
+        "Expected call:\n"
+        "\tSomeClass.bar(6, 7.0, '8')\n"
+        "Found 2 calls:\n"
+        "1.\tSomeClass.bar(0, 1.0, '2')\n"
+        "2.\tSomeClass.bar(3, 4.0, '5')"
+    )
 
 
 def test_verify_with_matcher(decoy: Decoy) -> None:
@@ -49,8 +73,15 @@ def test_verify_with_matcher(decoy: Decoy) -> None:
 
     decoy.verify(stub(matchers.StringMatching("ell")))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as error_info:
         decoy.verify(stub(matchers.StringMatching("^ell")))
+
+    assert str(error_info.value) == (
+        "Expected call:\n"
+        "\tsome_func(<StringMatching '^ell'>)\n"
+        "Found 1 call:\n"
+        "1.\tsome_func('hello')"
+    )
 
 
 def test_call_nested_method_then_verify(decoy: Decoy) -> None:
