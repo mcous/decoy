@@ -8,12 +8,11 @@
           def do_thing(self, input: str) -> int:
               return 42
 
-
       decoy = Decoy()
       fake = decoy.create_decoy(spec=Dependency)
       reveal_type(fake)
   out: |
-      main:10: note: Revealed type is 'main.Dependency*'
+      main:9: note: Revealed type is 'main.Dependency*'
 
 - case: function_decoy_mimics_type
   main: |

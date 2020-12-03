@@ -73,7 +73,7 @@ def test_call_no_return_method_then_verify(decoy: Decoy) -> None:
 
     stub.do_the_thing(True)
 
-    decoy.verify(stub.do_the_thing(True))  # type: ignore[func-returns-value]
+    decoy.verify(stub.do_the_thing(True))
 
     with pytest.raises(AssertionError):
-        decoy.verify(stub.do_the_thing(False))  # type: ignore[func-returns-value]
+        decoy.verify(stub.do_the_thing(False))
