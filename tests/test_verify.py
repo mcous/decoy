@@ -1,6 +1,7 @@
 """Tests for the Decoy double creator."""
 import pytest
 
+from os import linesep
 from decoy import Decoy, matchers
 from .common import SomeClass, SomeNestedClass, some_func
 
@@ -19,10 +20,10 @@ def test_call_function_then_verify(decoy: Decoy) -> None:
         decoy.verify(stub("fizzbuzz"))
 
     assert str(error_info.value) == (
-        "Expected call:\n"
-        "\tsome_func('fizzbuzz')\n"
-        "Found 2 calls:\n"
-        "1.\tsome_func('hello')\n"
+        f"Expected call:{linesep}"
+        f"\tsome_func('fizzbuzz'){linesep}"
+        f"Found 2 calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
         "2.\tsome_func('goodbye')"
     )
 
@@ -46,10 +47,10 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
         decoy.verify(stub.foo("fizzbuzz"))
 
     assert str(error_info.value) == (
-        "Expected call:\n"
-        "\tSomeClass.foo('fizzbuzz')\n"
-        "Found 2 calls:\n"
-        "1.\tSomeClass.foo('hello')\n"
+        f"Expected call:{linesep}"
+        f"\tSomeClass.foo('fizzbuzz'){linesep}"
+        f"Found 2 calls:{linesep}"
+        f"1.\tSomeClass.foo('hello'){linesep}"
         "2.\tSomeClass.foo('goodbye')"
     )
 
@@ -57,10 +58,10 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
         decoy.verify(stub.bar(6, 7.0, "8"))
 
     assert str(error_info.value) == (
-        "Expected call:\n"
-        "\tSomeClass.bar(6, 7.0, '8')\n"
-        "Found 2 calls:\n"
-        "1.\tSomeClass.bar(0, 1.0, '2')\n"
+        f"Expected call:{linesep}"
+        f"\tSomeClass.bar(6, 7.0, '8'){linesep}"
+        f"Found 2 calls:{linesep}"
+        f"1.\tSomeClass.bar(0, 1.0, '2'){linesep}"
         "2.\tSomeClass.bar(3, 4.0, '5')"
     )
 
@@ -77,9 +78,9 @@ def test_verify_with_matcher(decoy: Decoy) -> None:
         decoy.verify(stub(matchers.StringMatching("^ell")))
 
     assert str(error_info.value) == (
-        "Expected call:\n"
-        "\tsome_func(<StringMatching '^ell'>)\n"
-        "Found 1 call:\n"
+        f"Expected call:{linesep}"
+        f"\tsome_func(<StringMatching '^ell'>){linesep}"
+        f"Found 1 call:{linesep}"
         "1.\tsome_func('hello')"
     )
 
