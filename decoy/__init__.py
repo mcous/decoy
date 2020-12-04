@@ -1,5 +1,6 @@
 """Decoy test double stubbing and verification library."""
-from typing import cast, Any, Optional, Type
+from os import linesep
+from typing import cast, Any, Optional, Sequence, Type
 
 from .registry import Registry
 from .spy import create_spy, SpyCall
@@ -139,8 +140,9 @@ class Decoy:
             call stack, which will end up being the call inside `verify`.
         """
         rehearsal = self._pop_last_rehearsal()
+        all_calls = self._registry.get_calls_by_spy_id(rehearsal.spy_id)
 
-        assert rehearsal in self._registry.get_calls_by_spy_id(rehearsal.spy_id)
+        assert rehearsal in all_calls, self._build_verify_error(rehearsal, all_calls)
 
     def _pop_last_rehearsal(self) -> SpyCall:
         rehearsal = self._registry.pop_last_call()
@@ -160,3 +162,21 @@ class Decoy:
                 return stub._act()
 
         return None
+
+    def _build_verify_error(
+        self, rehearsal: SpyCall, all_calls: Sequence[SpyCall]
+    ) -> str:
+        all_calls_len = len(all_calls)
+        all_calls_plural = all_calls_len != 1
+        all_calls_printout = linesep.join(
+            [f"{n + 1}.\t{str(all_calls[n])}" for n in range(all_calls_len)]
+        )
+
+        return linesep.join(
+            [
+                "Expected call:",
+                f"\t{str(rehearsal)}",
+                f"Found {all_calls_len} call{'s' if all_calls_plural else ''}:",
+                all_calls_printout,
+            ]
+        )

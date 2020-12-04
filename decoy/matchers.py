@@ -104,7 +104,7 @@ class _IsNot:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<IsNot {self._reject_value}>"
+        return f"<IsNot {repr(self._reject_value)}>"
 
 
 def IsNot(value: object) -> Any:
@@ -138,7 +138,7 @@ class _StringMatching:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<StringMatching {self._pattern.pattern}>"
+        return f"<StringMatching {repr(self._pattern.pattern)}>"
 
 
 def StringMatching(match: str) -> str:
