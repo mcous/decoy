@@ -115,13 +115,14 @@ class Decoy:
 
         return stub
 
-    def verify(self, _rehearsal_result: Optional[ReturnT] = None) -> None:
-        """Verify a decoy was called using a rehearsal.
+    def verify(self, *_rehearsal_results: Any) -> None:
+        """Verify a decoy was called using one or more rehearsals.
 
         See [verification](index.md#verification) for more details.
 
         Arguments:
-            _rehearsal_result: The return value of a rehearsal, unused.
+            _rehearsal_results: The return value of rehearsals, unused except
+                to determine how many rehearsals to verify.
 
         Example:
             ```python
@@ -134,15 +135,31 @@ class Decoy:
             ```
 
         Note:
-            The "rehearsal" is an actual call to the test fake. The fact that
+            A "rehearsal" is an actual call to the test fake. The fact that
             the call is written inside `verify` is purely for typechecking and
-            API sugar. Decoy will pop the last call to _any_ fake off its
+            API sugar. Decoy will pop the last call(s) to _any_ fake off its
             call stack, which will end up being the call inside `verify`.
         """
-        rehearsal = self._pop_last_rehearsal()
-        all_calls = self._registry.get_calls_by_spy_id(rehearsal.spy_id)
+        if len(_rehearsal_results) > 1:
+            rehearsals = list(
+                reversed(
+                    [self._pop_last_rehearsal() for i in range(len(_rehearsal_results))]
+                )
+            )
+        else:
+            rehearsals = [self._pop_last_rehearsal()]
 
-        assert rehearsal in all_calls, self._build_verify_error(rehearsal, all_calls)
+        all_spies = [r.spy_id for r in rehearsals]
+        all_calls = self._registry.get_calls_by_spy_id(*all_spies)
+
+        for i in range(len(all_calls)):
+            call = all_calls[i]
+            call_list = all_calls[i : i + len(rehearsals)]
+
+            if call == rehearsals[0] and call_list == rehearsals:
+                return None
+
+        raise AssertionError(self._build_verify_error(rehearsals, all_calls))
 
     def _pop_last_rehearsal(self) -> SpyCall:
         rehearsal = self._registry.pop_last_call()
@@ -164,18 +181,26 @@ class Decoy:
         return None
 
     def _build_verify_error(
-        self, rehearsal: SpyCall, all_calls: Sequence[SpyCall]
+        self, rehearsals: Sequence[SpyCall], all_calls: Sequence[SpyCall]
     ) -> str:
+        rehearsals_len = len(rehearsals)
+        rehearsals_plural = rehearsals_len != 1
+
         all_calls_len = len(all_calls)
         all_calls_plural = all_calls_len != 1
+
+        rehearsals_printout = linesep.join(
+            [f"{n + 1}.\t{str(rehearsals[n])}" for n in range(rehearsals_len)]
+        )
+
         all_calls_printout = linesep.join(
             [f"{n + 1}.\t{str(all_calls[n])}" for n in range(all_calls_len)]
         )
 
         return linesep.join(
             [
-                "Expected call:",
-                f"\t{str(rehearsal)}",
+                f"Expected call{'s' if rehearsals_plural else ''}:",
+                rehearsals_printout,
                 f"Found {all_calls_len} call{'s' if all_calls_plural else ''}:",
                 all_calls_printout,
             ]
