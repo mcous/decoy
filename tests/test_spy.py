@@ -248,25 +248,25 @@ async def test_create_nested_spy_using_class_type_hints() -> None:
     ]
 
 
+@pytest.mark.filterwarnings("ignore:'NoneType' object is not subscriptable")
 async def test_create_nested_spy_using_non_runtime_type_hints() -> None:
     """It should gracefully degrade if type hints cannot be resolved."""
-    with pytest.warns(SyntaxWarning, match="'NoneType' object is not subscriptable"):
 
-        class _SomeClass:
-            _property: "None[str]"
+    class _SomeClass:
+        _property: "None[str]"
 
-        calls = []
-        spy = create_spy(spec=_SomeClass, handle_call=lambda c: calls.append(c))
-        spy._property.do_something(7, eight=8, nine=9)
+    calls = []
+    spy = create_spy(spec=_SomeClass, handle_call=lambda c: calls.append(c))
+    spy._property.do_something(7, eight=8, nine=9)
 
-        assert calls == [
-            SpyCall(
-                spy_id=id(spy._property.do_something),
-                spy_name="_SomeClass._property.do_something",
-                args=(7,),
-                kwargs={"eight": 8, "nine": 9},
-            ),
-        ]
+    assert calls == [
+        SpyCall(
+            spy_id=id(spy._property.do_something),
+            spy_name="_SomeClass._property.do_something",
+            args=(7,),
+            kwargs={"eight": 8, "nine": 9},
+        ),
+    ]
 
 
 async def test_spy_returns_handler_value() -> None:
