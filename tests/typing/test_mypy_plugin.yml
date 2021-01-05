@@ -29,6 +29,16 @@
       decoy = Decoy()
       decoy.verify(noop())
 
+- case: suppresses_multiple_func_returns_value_in_verify
+  main: |
+      from decoy import Decoy
+
+      def noop() -> None:
+          pass
+
+      decoy = Decoy()
+      decoy.verify(noop(), noop())
+
 - case: does_not_suppress_other_errors
   main: |
       from decoy import Decoy
@@ -40,3 +50,15 @@
       stub = decoy.when(do_thing("hello"))
   out: |
       main:7: error: Too many arguments for "do_thing"  [call-arg]
+
+- case: does_not_suppress_other_errors_with_multiple_verify_calls
+  main: |
+      from decoy import Decoy
+
+      def noop() -> None:
+          pass
+
+      decoy = Decoy()
+      decoy.verify(noop(), noop("hello"))
+  out: |
+      main:7: error: Too many arguments for "noop"  [call-arg]

@@ -47,7 +47,7 @@ class Registry:
         """
         return self._stub_map.get(spy_id, [])
 
-    def get_calls_by_spy_id(self, spy_id: int) -> List[SpyCall]:
+    def get_calls_by_spy_id(self, *spy_id: int) -> List[SpyCall]:
         """Get a spy's call list by identifier.
 
         Arguments:
@@ -56,7 +56,7 @@ class Registry:
         Returns:
             The list of calls matching the given Spy.
         """
-        return [c for c in self._calls if c.spy_id == spy_id]
+        return [c for c in self._calls if c.spy_id in spy_id]
 
     def register_spy(self, spy: BaseSpy) -> int:
         """Register a spy for tracking.

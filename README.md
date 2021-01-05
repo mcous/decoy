@@ -144,6 +144,17 @@ Stubbing and verification of a decoy are **mutually exclusive** within a test. I
 -   The assertions are redundant
 -   The dependency is doing too much based on its input (e.g. side-effecting _and_ calculating complex data) and should be refactored
 
+#### Verifying order of multiple calls
+
+If your code under test must call several dependencies in order, you may pass multiple rehearsals to `verify`. Decoy will search through the list of all calls made to the given spies and look for the exact rehearsal sequence given, in order.
+
+```python
+decoy.verify(
+    handler.call_first_procedure("hello"),
+    handler.call_second_procedure("world"),
+)
+```
+
 ### Usage with async/await
 
 Decoy supports async/await out of the box! Pass your async function or class with async methods to `spec` in `decoy.create_decoy_func` or `decoy.create_decoy`, respectively, and Decoy will figure out the rest.

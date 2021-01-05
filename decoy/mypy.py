@@ -21,15 +21,16 @@ class DecoyPlugin(Plugin):
     def _handle_decoy_call(self, ctx: MethodContext) -> Type:
         errors_list = ctx.api.msg.errors.error_info_map.get(ctx.api.path, [])
         rehearsal_call_args = ctx.args[0] if len(ctx.args) > 0 else []
+        error_removals = []
 
         for err in errors_list:
-            for arg in rehearsal_call_args:
-                if (
-                    err.code == FUNC_RETURNS_VALUE
-                    and arg.line == err.line
-                    and arg.column == err.column
-                ):
-                    errors_list.remove(err)
+            if err.code == FUNC_RETURNS_VALUE:
+                for arg in rehearsal_call_args:
+                    if arg.line == err.line and arg.column == err.column:
+                        error_removals.append(err)
+
+        for err in error_removals:
+            errors_list.remove(err)
 
         return ctx.default_return_type
 

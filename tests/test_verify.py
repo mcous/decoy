@@ -21,7 +21,7 @@ def test_call_function_then_verify(decoy: Decoy) -> None:
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
-        f"\tsome_func('fizzbuzz'){linesep}"
+        f"1.\tsome_func('fizzbuzz'){linesep}"
         f"Found 2 calls:{linesep}"
         f"1.\tsome_func('hello'){linesep}"
         "2.\tsome_func('goodbye')"
@@ -48,7 +48,7 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
-        f"\tSomeClass.foo('fizzbuzz'){linesep}"
+        f"1.\tSomeClass.foo('fizzbuzz'){linesep}"
         f"Found 2 calls:{linesep}"
         f"1.\tSomeClass.foo('hello'){linesep}"
         "2.\tSomeClass.foo('goodbye')"
@@ -59,7 +59,7 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
-        f"\tSomeClass.bar(6, 7.0, '8'){linesep}"
+        f"1.\tSomeClass.bar(6, 7.0, '8'){linesep}"
         f"Found 2 calls:{linesep}"
         f"1.\tSomeClass.bar(0, 1.0, '2'){linesep}"
         "2.\tSomeClass.bar(3, 4.0, '5')"
@@ -79,7 +79,7 @@ def test_verify_with_matcher(decoy: Decoy) -> None:
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
-        f"\tsome_func(<StringMatching '^ell'>){linesep}"
+        f"1.\tsome_func(<StringMatching '^ell'>){linesep}"
         f"Found 1 call:{linesep}"
         "1.\tsome_func('hello')"
     )
@@ -109,3 +109,68 @@ def test_call_no_return_method_then_verify(decoy: Decoy) -> None:
 
     with pytest.raises(AssertionError):
         decoy.verify(stub.do_the_thing(False))
+
+
+def test_verify_multiple_calls(decoy: Decoy) -> None:
+    """It should be able to verify multiple calls."""
+    stub = decoy.create_decoy(spec=SomeClass)
+    stub_func = decoy.create_decoy_func(spec=some_func)
+
+    stub.do_the_thing(False)
+    stub.do_the_thing(True)
+    stub_func("hello")
+
+    decoy.verify(
+        stub.do_the_thing(True),
+        stub_func("hello"),
+    )
+
+    with pytest.raises(AssertionError) as error_info:
+        decoy.verify(
+            stub.do_the_thing(False),
+            stub_func("goodbye"),
+        )
+
+    assert str(error_info.value) == (
+        f"Expected calls:{linesep}"
+        f"1.\tSomeClass.do_the_thing(False){linesep}"
+        f"2.\tsome_func('goodbye'){linesep}"
+        f"Found 3 calls:{linesep}"
+        f"1.\tSomeClass.do_the_thing(False){linesep}"
+        f"2.\tSomeClass.do_the_thing(True){linesep}"
+        "3.\tsome_func('hello')"
+    )
+
+    with pytest.raises(AssertionError) as error_info:
+        decoy.verify(
+            stub_func("hello"),
+            stub.do_the_thing(True),
+        )
+
+    assert str(error_info.value) == (
+        f"Expected calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        f"2.\tSomeClass.do_the_thing(True){linesep}"
+        f"Found 3 calls:{linesep}"
+        f"1.\tSomeClass.do_the_thing(False){linesep}"
+        f"2.\tSomeClass.do_the_thing(True){linesep}"
+        "3.\tsome_func('hello')"
+    )
+
+    with pytest.raises(AssertionError) as error_info:
+        decoy.verify(
+            stub.do_the_thing(True),
+            stub.do_the_thing(True),
+            stub_func("hello"),
+        )
+
+    assert str(error_info.value) == (
+        f"Expected calls:{linesep}"
+        f"1.\tSomeClass.do_the_thing(True){linesep}"
+        f"2.\tSomeClass.do_the_thing(True){linesep}"
+        f"3.\tsome_func('hello'){linesep}"
+        f"Found 3 calls:{linesep}"
+        f"1.\tSomeClass.do_the_thing(False){linesep}"
+        f"2.\tSomeClass.do_the_thing(True){linesep}"
+        "3.\tsome_func('hello')"
+    )
