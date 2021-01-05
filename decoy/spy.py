@@ -77,12 +77,20 @@ class BaseSpy:
         child_spec = None
 
         if isclass(self._spec):
-            hints = get_type_hints(self._spec)  # type: ignore[arg-type]
-            child_spec = getattr(
-                self._spec,
-                name,
-                hints.get(name),
-            )
+            try:
+                # NOTE(mc, 2021-01-05): `get_type_hints` may fail at runtime,
+                # e.g. if a type is subscriptable according to mypy but not
+                # according to Python, `get_type_hints` will raise.
+                # Rather than fail to create a spy with an inscrutable error,
+                # gracefully fallback to a specification-less spy.
+                hints = get_type_hints(self._spec)  # type: ignore[arg-type]
+                child_spec = getattr(
+                    self._spec,
+                    name,
+                    hints.get(name),
+                )
+            except Exception:
+                pass
 
         if isinstance(child_spec, property):
             hints = get_type_hints(child_spec.fget)
