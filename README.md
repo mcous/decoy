@@ -54,7 +54,7 @@ def decoy() -> Decoy:
     return Decoy()
 ```
 
-Why is this important? The `Decoy` container tracks every fake that is created during a test so that you can define assertions using fully-typed rehearsals of your test double. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.
+Why is this important? The `Decoy` container tracks every test double that is created during a test so that you can define assertions using fully-typed rehearsals. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.
 
 [pytest]: https://docs.pytest.org/
 
@@ -79,7 +79,7 @@ plugins = decoy.mypy
 
 ### Stubbing
 
-A stub is a an object used in a test that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you specify a stub's call expectations with a "rehearsal", which is simply a call to the stub inside of a `decoy.when` wrapper.
+A stub is an object used in a test that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you specify a stub's call conditions with a "rehearsal", which is simply a call to the stub inside of a `decoy.when` wrapper.
 
 By pre-configuring the stub with specific rehearsals, you get the following benefits:
 
