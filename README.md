@@ -1,19 +1,22 @@
-# Decoy
-
-[![ci badge][]][ci]
-[![pypi version badge][]][pypi]
-[![license badge][]][license]
-
-[ci]: https://github.com/mcous/decoy/actions
-[ci badge]: https://flat.badgen.net/github/checks/mcous/decoy/main
-[pypi]: https://pypi.org/project/decoy/
-[pypi version badge]: https://flat.badgen.net/pypi/v/decoy
-[license]: https://github.com/mcous/decoy/blob/main/LICENSE
-[license badge]: https://flat.badgen.net/github/license/mcous/decoy
-
-> Opinionated, typed stubbing and verification library for Python
-
-<https://mike.cousins.io/decoy/>
+<div align="center">
+    <h1>Decoy</h1>
+    <img src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
+    <p>Opinionated, typed stubbing and verification library for Python</p>
+    <p>
+        <a href="https://github.com/mcous/decoy/actions">
+            <img title="CI Status" src="https://flat.badgen.net/github/checks/mcous/decoy/main">
+        </a>
+        <a href="https://pypi.org/project/decoy/">
+            <img title="PyPI Version" src="https://flat.badgen.net/pypi/v/decoy">
+        </a>
+        <a href="https://github.com/mcous/decoy/blob/main/LICENSE">
+            <img title="License" src="https://flat.badgen.net/github/license/mcous/decoy">
+        </a>
+    </p>
+    <p>
+        <a href="https://mike.cousins.io/decoy/">https://mike.cousins.io/decoy/</a>
+    </p>
+</div>
 
 The Decoy library allows you to create, stub, and verify test double objects for your Python unit tests, so your tests are:
 
