@@ -1,22 +1,32 @@
 """Decoy test double stubbing and verification library."""
 from os import linesep
 from typing import cast, Any, Optional, Sequence, Type
+from warnings import warn
 
 from .registry import Registry
 from .spy import create_spy, SpyCall
 from .stub import Stub
 from .types import ClassT, FuncT, ReturnT
+from .warnings import MissingStubWarning
 
 
 class Decoy:
     """Decoy test double state container."""
 
     _registry: Registry
+    _warn_on_missing_stubs: bool
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        warn_on_missing_stubs: bool = True,
+    ) -> None:
         """Initialize the state container for test doubles and stubs.
 
         You should initialize a new Decoy instance for every test.
+
+        Arguments:
+            warn_on_missing_stubs: Trigger a warning if a stub is called
+                with arguments that do not match any of its rehearsals.
 
         Example:
             ```python
@@ -29,6 +39,7 @@ class Decoy:
             ```
         """
         self._registry = Registry()
+        self._warn_on_missing_stubs = warn_on_missing_stubs
 
     def create_decoy(self, spec: Type[ClassT], *, is_async: bool = False) -> ClassT:
         """Create a class decoy for `spec`.
@@ -177,6 +188,9 @@ class Decoy:
         for stub in reversed(stubs):
             if stub._rehearsal == call:
                 return stub._act()
+
+        if self._warn_on_missing_stubs and len(stubs) > 0:
+            warn(MissingStubWarning(call, stubs))
 
         return None
 
