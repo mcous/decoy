@@ -40,7 +40,7 @@ class Registry:
         """Get a spy's stub list by identifier.
 
         Arguments:
-            spy_id: The unique identifer of the Spy to look up.
+            spy_id: The unique identifier of the Spy to look up.
 
         Returns:
             The list of stubs matching the given Spy.
@@ -51,7 +51,7 @@ class Registry:
         """Get a spy's call list by identifier.
 
         Arguments:
-            spy_id: The unique identifer of the Spy to look up.
+            spy_id: The unique identifier of the Spy to look up.
 
         Returns:
             The list of calls matching the given Spy.
@@ -83,7 +83,7 @@ class Registry:
         """Register a stub for tracking.
 
         Arguments:
-            spy_id: The unique identifer of the Spy to look up.
+            spy_id: The unique identifier of the Spy to look up.
             stub: The stub to track.
         """
         stub_list = self.get_stubs_by_spy_id(spy_id)
