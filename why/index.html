@@ -1,0 +1,860 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Opinionated, typed stubbing and verification library for Python.">
+      
+      
+      
+        <link rel="canonical" href="https://mike.cousins.io/decoy/why/">
+      
+      
+        <meta name="author" content="Mike Cousins">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.6">
+    
+    
+      
+        <title>Why Use Decoy? - Decoy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6910b76c.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.196e0c26.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="" data-md-color-accent="">
+      
+        <script>matchMedia("(prefers-color-scheme: dark)").matches&&document.body.setAttribute("data-md-color-scheme","slate")</script>
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#why-use-decoy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://mike.cousins.io/decoy/" title="Decoy" class="md-header-nav__button md-logo" aria-label="Decoy">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.5 5A1.5 1.5 0 007 6.5 1.5 1.5 0 008.5 8 1.5 1.5 0 0010 6.5 1.5 1.5 0 008.5 5M10 2a5 5 0 015 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0110 2z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Decoy
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Why Use Decoy?
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/mcous/decoy/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://mike.cousins.io/decoy/" title="Decoy" class="md-nav__button md-logo" aria-label="Decoy">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.5 5A1.5 1.5 0 007 6.5 1.5 1.5 0 008.5 8 1.5 1.5 0 0010 6.5 1.5 1.5 0 008.5 5M10 2a5 5 0 015 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0110 2z"/></svg>
+
+    </a>
+    Decoy
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/mcous/decoy/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      User Guide
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Why Use Decoy?
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Why Use Decoy?
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opinions" class="md-nav__link">
+    Opinions
+  </a>
+  
+    <nav class="md-nav" aria-label="Opinions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-doubles-should-be-complete-mocks-of-dependencies" class="md-nav__link">
+    Test doubles should be complete mocks of dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#without-configuration-test-doubles-should-no-op" class="md-nav__link">
+    Without configuration, test doubles should no-op
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-should-be-organized-into-arrange-act-and-assert-phases" class="md-nav__link">
+    Tests should be organized into "arrange", "act", and "assert" phases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unittestmock-is-a-good-library" class="md-nav__link">
+    unittest.mock is a good library
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stubs-should-not-return-unconditionally" class="md-nav__link">
+    Stubs should not return unconditionally
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-reading" class="md-nav__link">
+    Recommended reading
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-magicmock-and-decoy-for-stubbing" class="md-nav__link">
+    Comparing MagicMock and Decoy for Stubbing
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparing MagicMock and Decoy for Stubbing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stubbing-with-a-magicmock" class="md-nav__link">
+    Stubbing with a MagicMock
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stubbing-with-decoy" class="md-nav__link">
+    Stubbing with Decoy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-magicmock-and-decoy-for-spying" class="md-nav__link">
+    Comparing MagicMock and Decoy for Spying
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparing MagicMock and Decoy for Spying">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spying-with-a-magicmock" class="md-nav__link">
+    Spying with a MagicMock
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spying-with-decoy" class="md-nav__link">
+    Spying with Decoy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../api/" class="md-nav__link">
+      API Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../contributing/" class="md-nav__link">
+      Contributing Guide
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opinions" class="md-nav__link">
+    Opinions
+  </a>
+  
+    <nav class="md-nav" aria-label="Opinions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-doubles-should-be-complete-mocks-of-dependencies" class="md-nav__link">
+    Test doubles should be complete mocks of dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#without-configuration-test-doubles-should-no-op" class="md-nav__link">
+    Without configuration, test doubles should no-op
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-should-be-organized-into-arrange-act-and-assert-phases" class="md-nav__link">
+    Tests should be organized into "arrange", "act", and "assert" phases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unittestmock-is-a-good-library" class="md-nav__link">
+    unittest.mock is a good library
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stubs-should-not-return-unconditionally" class="md-nav__link">
+    Stubs should not return unconditionally
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-reading" class="md-nav__link">
+    Recommended reading
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-magicmock-and-decoy-for-stubbing" class="md-nav__link">
+    Comparing MagicMock and Decoy for Stubbing
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparing MagicMock and Decoy for Stubbing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stubbing-with-a-magicmock" class="md-nav__link">
+    Stubbing with a MagicMock
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stubbing-with-decoy" class="md-nav__link">
+    Stubbing with Decoy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-magicmock-and-decoy-for-spying" class="md-nav__link">
+    Comparing MagicMock and Decoy for Spying
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparing MagicMock and Decoy for Spying">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spying-with-a-magicmock" class="md-nav__link">
+    Spying with a MagicMock
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spying-with-decoy" class="md-nav__link">
+    Spying with Decoy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/mcous/decoy/blob/main/docs/why.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="why-use-decoy">Why Use Decoy?<a class="headerlink" href="#why-use-decoy" title="Permanent link">#</a></h1>
+<p>The Python testing world already has <a href="https://docs.python.org/3/library/unittest.mock.html">unittest.mock</a> for creating fakes, so why is a library like Decoy even necessary?</p>
+<p>The <code>Mock</code> class (and friends) provided by the Python standard library are great! They are, however:</p>
+<ul>
+<li>Flexible to the point of sometimes feeling un-opinionated</li>
+<li>Not geared towards mimicking the type annotations of your actual interfaces</li>
+<li>Geared towards call-then-assert-called test patterns</li>
+</ul>
+<p>At its core, Decoy uses test fakes that are stripped down, slightly more opinionated versions of <code>Mock</code> that are designed to work with type annotations.</p>
+<h2 id="opinions">Opinions<a class="headerlink" href="#opinions" title="Permanent link">#</a></h2>
+<p>Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its API) holds, are:</p>
+<h3 id="test-doubles-should-be-complete-mocks-of-dependencies">Test doubles should be complete mocks of dependencies<a class="headerlink" href="#test-doubles-should-be-complete-mocks-of-dependencies" title="Permanent link">#</a></h3>
+<ul>
+<li><code>unittest.mock.Mock</code> can partially mock using the <code>wraps</code> parameter</li>
+<li>Decoy considers <a href="https://github.com/testdouble/contributing-tests/wiki/Partial-Mock">partial mocks</a> to be code smell</li>
+<li>If you find yourself wanted to partially mock a dependency, consider:<ul>
+<li>Is the dependency in question properly factored according to <a href="https://en.wikipedia.org/wiki/Single-responsibility_principle">single-responsibility principle</a>? Complexity should often move to another dependency rather than to a new method of the same object</li>
+<li>Are you using a partial mock to ease testing with a complex (or third-party) dependency, and if so, is that test better as an integration test?</li>
+</ul>
+</li>
+</ul>
+<h3 id="without-configuration-test-doubles-should-no-op">Without configuration, test doubles should no-op<a class="headerlink" href="#without-configuration-test-doubles-should-no-op" title="Permanent link">#</a></h3>
+<ul>
+<li><code>unittest.mock.Mock</code>'s default return value from an unconfigured method is another <code>Mock</code></li>
+<li>Other mocking libraries exist that <code>assert</code> on an unconfigured call</li>
+<li>In either case, the test subject ends up more likely to trigger a <code>raise</code> that is unrelated to the test in question</li>
+</ul>
+<h3 id="tests-should-be-organized-into-arrange-act-and-assert-phases">Tests should be organized into <a href="https://github.com/testdouble/contributing-tests/wiki/Arrange-Act-Assert">"arrange", "act", and "assert"</a> phases<a class="headerlink" href="#tests-should-be-organized-into-arrange-act-and-assert-phases" title="Permanent link">#</a></h3>
+<ul>
+<li><code>unittest.mock</code> is well-geared towards this usage, especially with spies</li>
+<li>When stubbing data dependencies, though, <code>unittest.mock</code>'s most straightforward usage involves separate "arrange" and "assert" steps for the same <code>Mock</code><ul>
+<li>i.e. set <code>return_value</code>, then later assert that it was called correctly</li>
+</ul>
+</li>
+</ul>
+<h3 id="unittestmock-is-a-good-library">unittest.mock is a good library<a class="headerlink" href="#unittestmock-is-a-good-library" title="Permanent link">#</a></h3>
+<ul>
+<li><code>unittest.mock</code> is a well designed, flexible, and powerful mocking library</li>
+<li>You may have tests that don't work nicely with Decoy, or legacy code that would be too hard to refactor, and that's OK! Just use <a href="https://docs.python.org/3/library/unittest.mock.html">unittest.mock</a>, instead</li>
+</ul>
+<h3 id="stubs-should-not-return-unconditionally">Stubs should not return unconditionally<a class="headerlink" href="#stubs-should-not-return-unconditionally" title="Permanent link">#</a></h3>
+<ul>
+<li>Setting <code>unittest.mock.Mock::return_value</code> is unconditional, in that all subsequent calls to that mock will receive that return value, even if they are called incorrectly<ul>
+<li>When setting <code>return_value</code>, you always need to check <code>assert_called_with</code> to really make sure the code under test is behaving</li>
+</ul>
+</li>
+<li>Decoy's API requires stubs to be configured with arguments to return anything, which means the code under test won't receive data unless it uses the dependency correctly<ul>
+<li>This prevents false test passes when the dependency is <em>not</em> called correctly and the <code>assert</code> step is missing or forgotten</li>
+<li>It also makes an "assert stub was called correctly" step redundant because the data from the stubbed dependency should be fed into the output of the code under test</li>
+</ul>
+</li>
+</ul>
+<h3 id="recommended-reading">Recommended reading<a class="headerlink" href="#recommended-reading" title="Permanent link">#</a></h3>
+<p>Decoy is heavily influenced by and/or stolen from the <a href="https://github.com/testdouble/testdouble.js">testdouble.js</a> and <a href="https://site.mockito.org/">Mockito</a> projects. These projects have both been around for a while (especially Mockito), and their docs are valuable resources for learning how to test and mock effectively.</p>
+<p>If you have the time, you should check out:</p>
+<ul>
+<li>Mockito Wiki - <a href="https://github.com/mockito/mockito/wiki/How-to-write-good-tests">How to write good tests</a></li>
+<li>Test Double Wiki - <a href="https://github.com/testdouble/contributing-tests/wiki/Discovery-Testing">Discovery Testing</a></li>
+<li>Test Double Wiki - <a href="https://github.com/testdouble/contributing-tests/wiki/Test-Double">Test Double</a></li>
+</ul>
+<h2 id="comparing-magicmock-and-decoy-for-stubbing">Comparing MagicMock and Decoy for Stubbing<a class="headerlink" href="#comparing-magicmock-and-decoy-for-stubbing" title="Permanent link">#</a></h2>
+<p>A <a href="https://en.wikipedia.org/wiki/Test_stub">stub</a> is a specific type of test fake that:</p>
+<ul>
+<li>Can be configured to respond in a certain way if given certain inputs</li>
+<li>Will no-op if given output outside of its pre-configured specifications</li>
+</ul>
+<p>Stubs are great for simulating dependencies that provide data to or run calculations on input data for the code under test.</p>
+<p>For the following examples, let's assume:</p>
+<ul>
+<li>We're testing a library to deal with <code>Book</code> objects</li>
+<li>That library depends on a <code>Database</code> provider to store objects in a database</li>
+</ul>
+<h3 id="stubbing-with-a-magicmock">Stubbing with a MagicMock<a class="headerlink" href="#stubbing-with-a-magicmock" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># setup</span>
+<span class="kn">from</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
+
+<span class="kn">from</span> <span class="nn">my_lib.database</span> <span class="kn">import</span> <span class="n">Database</span>
+<span class="kn">from</span> <span class="nn">my_lib.bookshelf</span> <span class="kn">import</span> <span class="n">get_book</span><span class="p">,</span> <span class="n">Book</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mock_database</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MagicMock</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">MagicMock</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Database</span><span class="p">)</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mock_book</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Book</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;The Metamorphosis&quot;</span><span class="p">})</span>
+</code></pre></div>
+<p><code>MagicMock</code> does not provide an explicit stubbing interface, so to stub you could:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># option 1:</span>
+<span class="c1">#   - return mock data unconditionally</span>
+<span class="c1">#   - assert dependency was called correctly after the fact</span>
+
+<span class="k">def</span> <span class="nf">test_get_book</span><span class="p">(</span><span class="n">mock_database</span><span class="p">:</span> <span class="n">MagicMock</span><span class="p">,</span> <span class="n">mock_book</span><span class="p">:</span> <span class="n">Book</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># arrange mock to always return mock data</span>
+    <span class="n">mock_database</span><span class="o">.</span><span class="n">get_by_id</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">mock_book</span>
+
+    <span class="c1"># exercise the code under test</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">get_book</span><span class="p">(</span><span class="s2">&quot;unique-id&quot;</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">mock_database</span><span class="p">)</span>
+
+    <span class="c1"># assert that the result is correct</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">mock_book</span>
+    <span class="c1"># also assert that the database mock was called correctly</span>
+    <span class="n">mock_database</span><span class="o">.</span><span class="n">get_by_id</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="s2">&quot;unique-id)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># option 2: create a side-effect function to check the conditions</span>
+<span class="k">def</span> <span class="nf">test_get_book</span><span class="p">(</span><span class="n">mock_database</span><span class="p">:</span> <span class="n">MagicMock</span><span class="p">,</span> <span class="n">mock_book</span><span class="p">:</span> <span class="n">Book</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">stub_get_by_id</span><span class="p">(</span><span class="n">uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Book</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="s2">&quot;unique-id&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mock_book</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># arrange mock to always return mock data</span>
+    <span class="n">mock_database</span><span class="o">.</span><span class="n">get_by_id</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="n">stub_get_by_id</span>
+
+    <span class="c1"># exercise the code under test</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">get_book</span><span class="p">(</span><span class="s2">&quot;unique-id&quot;</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">mock_database</span><span class="p">)</span>
+
+    <span class="c1"># assert that the result is correct</span>
+    <span class="c1"># because of the `if` in the side-effect, we know the stub was called</span>
+    <span class="c1"># correctly because there&#39;s no other way the code-under-test could have</span>
+    <span class="c1"># gotten the mock_book data</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">mock_book</span>
+</code></pre></div>
+<p>Both of these options have roughly the same upside and downsides:</p>
+<ul>
+<li>Upside: <code>MagicMock</code> is part of the Python standard library</li>
+<li>Downside: they're both a little difficult to read<ul>
+<li>Option 1 separates the input checking from output value, and they appear in reverse chronological order (you define the dependency output before you define the input)</li>
+<li>Option 2 forces you to create a whole new function and assign it to the <code>side_effect</code> value</li>
+</ul>
+</li>
+<li>Downside: <code>MagicMock</code> is effectively <code>Any</code> typed<ul>
+<li><code>return_value</code> and <code>assert_called_with</code> are not typed according to the dependency's type annotations</li>
+<li>A manual <code>side_effect</code>, if typed, needs to be manually typed, which may not match the actual dependency type definition</li>
+</ul>
+</li>
+</ul>
+<p>Option 1 has another downside, specifically:</p>
+<ul>
+<li>The mocked return value is unconditional<ul>
+<li>If the assert step is wrong or accidentally skipped, the code-under-test is still fed the mock data</li>
+<li>This increases the likelihood of a false pass or insufficient test coverage</li>
+</ul>
+</li>
+</ul>
+<h3 id="stubbing-with-decoy">Stubbing with Decoy<a class="headerlink" href="#stubbing-with-decoy" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># setup</span>
+<span class="kn">from</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span>
+
+<span class="kn">from</span> <span class="nn">my_lib.database</span> <span class="kn">import</span> <span class="n">Database</span>
+<span class="kn">from</span> <span class="nn">my_lib.bookshelf</span> <span class="kn">import</span> <span class="n">get_book</span><span class="p">,</span> <span class="n">Book</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">decoy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Decoy</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Decoy</span><span class="p">()</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mock_database</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Database</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Database</span><span class="p">)</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mock_book</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Book</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;The Metamorphosis&quot;</span><span class="p">})</span>
+</code></pre></div>
+<p>Decoy uses a simple, rehearsal-based stubbing interface.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">test_get_book</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">,</span> <span class="n">mock_database</span><span class="p">:</span> <span class="n">Database</span><span class="p">,</span> <span class="n">mock_book</span><span class="p">:</span> <span class="n">Book</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># arrange stub to return mock data when called correctly</span>
+    <span class="c1"># the input argument specification is in the form of a &quot;rehearsal,&quot;</span>
+    <span class="c1"># which might look a little funny at first, but ends up being quite</span>
+    <span class="c1"># easy to work and reason with once you&#39;re used to it</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">mock_database</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">&quot;unique-id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="n">mock_book</span><span class="p">)</span>
+
+    <span class="c1"># exercise the code under test</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">get_book</span><span class="p">(</span><span class="s2">&quot;unique-id&quot;</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">mock_database</span><span class="p">)</span>
+
+    <span class="c1"># assert that the result is correct</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">mock_book</span>
+</code></pre></div>
+<p>Benefits to note over the vanilla <code>MagicMock</code> versions:</p>
+<ul>
+<li>The rehearsal syntax for stub configuration is terse but very easy to read<ul>
+<li>Inputs and outputs from the dependency are specified together</li>
+<li>You specify the inputs <em>before</em> outputs, which can be easier to grok</li>
+</ul>
+</li>
+<li>The entire test fits neatly into "arrange", "act", and "assert" phases</li>
+<li>Decoy typecasts test doubles as the actual types they are mimicking<ul>
+<li>This means stub configuration arguments <em>and</em> return values are type-checked</li>
+</ul>
+</li>
+</ul>
+<h2 id="comparing-magicmock-and-decoy-for-spying">Comparing MagicMock and Decoy for Spying<a class="headerlink" href="#comparing-magicmock-and-decoy-for-spying" title="Permanent link">#</a></h2>
+<p>A <a href="https://github.com/testdouble/contributing-tests/wiki/Spy">spy</a> is another kind of test fake that simply records calls made to it. Spies are useful to model dependencies that are used for their side-effects rather than providing or calculating data.</p>
+<p>In this example, we add the requirement that our bookshelf library logs access using a <code>Logger</code> interface.</p>
+<h3 id="spying-with-a-magicmock">Spying with a MagicMock<a class="headerlink" href="#spying-with-a-magicmock" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># setup</span>
+<span class="kn">from</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
+
+<span class="kn">from</span> <span class="nn">my_lib.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">my_lib.bookshelf</span> <span class="kn">import</span> <span class="n">get_book</span><span class="p">,</span> <span class="n">Book</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mock_logger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MagicMock</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">MagicMock</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Logger</span><span class="p">)</span>
+</code></pre></div>
+<p><code>MagicMock</code> is well suited to spying, since it's an object that records all calls made to it.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">test_get_book_logs</span><span class="p">(</span><span class="n">mock_logger</span><span class="p">:</span> <span class="n">MagicMock</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># exercise the code under test</span>
+    <span class="n">get_book</span><span class="p">(</span><span class="s2">&quot;unique-id&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">mock_logger</span><span class="p">)</span>
+
+    <span class="c1"># assert logger spy was called correctly</span>
+    <span class="n">mock_logger</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Get book unique-id&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The only real downside to <code>MagicMock</code> in this case is the lack of typechecking.</p>
+<h3 id="spying-with-decoy">Spying with Decoy<a class="headerlink" href="#spying-with-decoy" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># setup</span>
+<span class="kn">from</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span>
+
+<span class="kn">from</span> <span class="nn">my_lib.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">my_lib.bookshelf</span> <span class="kn">import</span> <span class="n">get_book</span><span class="p">,</span> <span class="n">Book</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">decoy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Decoy</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Decoy</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mock_logger</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Logger</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Logger</span><span class="p">)</span>
+</code></pre></div>
+<p>For verification of spies, Decoy doesn't do much except set out to add typechecking.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">test_get_book_logs</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">,</span> <span class="n">mock_logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># exercise the code under test</span>
+    <span class="n">get_book</span><span class="p">(</span><span class="s2">&quot;unique-id&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">mock_logger</span><span class="p">)</span>
+
+    <span class="c1"># assert logger spy was called correctly</span>
+    <span class="c1"># uses the same type-checked &quot;rehearsal&quot; syntax as stubbing</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span>
+        <span class="n">mock_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Get book unique-id&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href=".." class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                User Guide
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../api/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                API Reference
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.7836ba4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: ['navigation.instant'],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

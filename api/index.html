@@ -1,0 +1,1128 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Opinionated, typed stubbing and verification library for Python." name="description"/>
+<link href="https://mike.cousins.io/decoy/api/" rel="canonical"/>
+<meta content="Mike Cousins" name="author"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-6.1.6" name="generator"/>
+<title>API Reference - Decoy</title>
+<link href="../assets/stylesheets/main.6910b76c.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.196e0c26.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+</head>
+<body data-md-color-accent="" data-md-color-primary="" data-md-color-scheme="preference" dir="ltr">
+<script>matchMedia("(prefers-color-scheme: dark)").matches&&document.body.setAttribute("data-md-color-scheme","slate")</script>
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#api-reference">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="Decoy" class="md-header-nav__button md-logo" href="https://mike.cousins.io/decoy/" title="Decoy">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 5A1.5 1.5 0 007 6.5 1.5 1.5 0 008.5 8 1.5 1.5 0 0010 6.5 1.5 1.5 0 008.5 5M10 2a5 5 0 015 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0110 2z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
+            Decoy
+          </span>
+<span class="md-header-nav__topic md-ellipsis">
+            
+              API Reference
+            
+          </span>
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header-nav__source">
+<a class="md-source" href="https://github.com/mcous/decoy/" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Decoy" class="md-nav__button md-logo" href="https://mike.cousins.io/decoy/" title="Decoy">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 5A1.5 1.5 0 007 6.5 1.5 1.5 0 008.5 8 1.5 1.5 0 0010 6.5 1.5 1.5 0 008.5 5M10 2a5 5 0 015 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0110 2z"></path></svg>
+</a>
+    Decoy
+  </label>
+<div class="md-nav__source">
+<a class="md-source" href="https://github.com/mcous/decoy/" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+      User Guide
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../why/">
+      Why Use Decoy?
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        API Reference
+        <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+      API Reference
+    </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy">
+    Decoy
+  </a>
+<nav aria-label="Decoy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.__getattribute__">
+    __getattribute__()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.create_decoy">
+    create_decoy()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.create_decoy_func">
+    create_decoy_func()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.verify">
+    verify()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.when">
+    when()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub">
+    Stub
+  </a>
+<nav aria-label="Stub" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub.then_raise">
+    then_raise()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub.then_return">
+    then_return()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers">
+    matchers
+  </a>
+<nav aria-label="matchers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.Anything">
+    Anything()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.ErrorMatching">
+    ErrorMatching()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.IsA">
+    IsA()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.IsNot">
+    IsNot()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.StringMatching">
+    StringMatching()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.warnings">
+    warnings
+  </a>
+<nav aria-label="warnings" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.warnings.MissingStubWarning">
+    MissingStubWarning
+  </a>
+<nav aria-label="MissingStubWarning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.warnings.MissingStubWarning.__init__">
+    __init__()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../contributing/">
+      Contributing Guide
+    </a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy">
+    Decoy
+  </a>
+<nav aria-label="Decoy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.__getattribute__">
+    __getattribute__()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.create_decoy">
+    create_decoy()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.create_decoy_func">
+    create_decoy_func()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.verify">
+    verify()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.Decoy.when">
+    when()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub">
+    Stub
+  </a>
+<nav aria-label="Stub" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub.then_raise">
+    then_raise()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.stub.Stub.then_return">
+    then_return()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers">
+    matchers
+  </a>
+<nav aria-label="matchers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.Anything">
+    Anything()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.ErrorMatching">
+    ErrorMatching()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.IsA">
+    IsA()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.IsNot">
+    IsNot()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.matchers.StringMatching">
+    StringMatching()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.warnings">
+    warnings
+  </a>
+<nav aria-label="warnings" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.warnings.MissingStubWarning">
+    MissingStubWarning
+  </a>
+<nav aria-label="MissingStubWarning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decoy.warnings.MissingStubWarning.__init__">
+    __init__()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<a class="md-content__button md-icon" href="https://github.com/mcous/decoy/blob/main/docs/api.md" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"></path></svg>
+</a>
+<h1 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">#</a></h1>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="decoy.Decoy">
+<code>decoy.Decoy</code>
+<a class="headerlink" href="#decoy.Decoy" title="Permanent link">#</a></h2>
+<div class="doc doc-contents first">
+<p>Decoy test double state container.</p>
+<div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.Decoy.__getattribute__">
+<code class="highlight language-python">
+decoy.Decoy.__getattribute__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+<a class="headerlink" href="#decoy.Decoy.__getattribute__" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Proxy to catch calls to <code>when</code> and mark the subsequent spy call as a rehearsal.</p>
+<p>This is to ensure that rehearsal calls don't accidentally trigger a
+<code>MissingStubWarning</code>.</p>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.Decoy.__init__">
+<code class="highlight language-python">
+decoy.Decoy.__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warn_on_missing_stubs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+<a class="headerlink" href="#decoy.Decoy.__init__" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Initialize the state container for test doubles and stubs.</p>
+<p>You should initialize a new Decoy instance for every test.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>warn_on_missing_stubs</code></td>
+<td><code>bool</code></td>
+<td>
+<p>Trigger a warning if a stub is called
+with arguments that do not match any of its rehearsals.</p>
+</td>
+<td><code>True</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">decoy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Decoy</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Decoy</span><span class="p">()</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.Decoy.create_decoy">
+<code class="highlight language-python">
+decoy.Decoy.create_decoy<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_async</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.Decoy.create_decoy" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Create a class decoy for <code>spec</code>.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spec</code></td>
+<td><code>Type[~ClassT]</code></td>
+<td>
+<p>A class definition that the decoy should mirror.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>is_async</code></td>
+<td><code>bool</code></td>
+<td>
+<p>Force the returned spy to be asynchronous. In most cases,
+this argument is unnecessary, since the Spy will use <code>spec</code> to
+determine if a method should be asynchronous.</p>
+</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~ClassT</code></td>
+<td>
+<p>A spy typecast as an instance of <code>spec</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">test_get_something</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Database</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.Decoy.create_decoy_func">
+<code class="highlight language-python">
+decoy.Decoy.create_decoy_func<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_async</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.Decoy.create_decoy_func" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Create a function decoy for <code>spec</code>.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spec</code></td>
+<td><code>Optional[~FuncT]</code></td>
+<td>
+<p>A function that the decoy should mirror.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>is_async</code></td>
+<td><code>bool</code></td>
+<td>
+<p>Force the returned spy to be asynchronous. In most cases,
+this argument is unnecessary, since the Spy will use <code>spec</code> to
+determine if the function should be asynchronous.</p>
+</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~FuncT</code></td>
+<td>
+<p>A spy typecast as <code>spec</code> function.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">test_create_something</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">gen_id</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy_func</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">generate_unique_id</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.Decoy.verify">
+<code class="highlight language-python">
+decoy.Decoy.verify<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">_rehearsal_results</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.Decoy.verify" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Verify a decoy was called using one or more rehearsals.</p>
+<p>See <a href="..#verification">verification</a> for more details.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_rehearsal_results</code></td>
+<td><code>Any</code></td>
+<td>
+<p>The return value of rehearsals, unused except
+to determine how many rehearsals to verify.</p>
+</td>
+<td><code>()</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">test_create_something</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">gen_id</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy_func</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">generate_unique_id</span><span class="p">)</span>
+
+    <span class="c1"># ...</span>
+
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">gen_id</span><span class="p">(</span><span class="s2">"model-prefix_"</span><span class="p">))</span>
+</code></pre>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A "rehearsal" is an actual call to the test fake. The fact that
+the call is written inside <code>verify</code> is purely for typechecking and
+API sugar. Decoy will pop the last call(s) to <em>any</em> fake off its
+call stack, which will end up being the call inside <code>verify</code>.</p>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.Decoy.when">
+<code class="highlight language-python">
+decoy.Decoy.when<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_rehearsal_result</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.Decoy.when" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Create a <a href="#decoy.stub.Stub">Stub</a> configuration using a rehearsal call.</p>
+<p>See <a href="..#stubbing">stubbing</a> for more details.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_rehearsal_result</code></td>
+<td><code>~ReturnT</code></td>
+<td>
+<p>The return value of a rehearsal, used for typechecking.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>decoy.stub.Stub[~ReturnT]</code></td>
+<td>
+<p>A stub to configure using <code>then_return</code> or <code>then_raise</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="n">db</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Database</span><span class="p">)</span>
+<span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">"some-id"</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</code></pre>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The "rehearsal" is an actual call to the test fake. Because the
+call is written inside <code>when</code>, Decoy is able to infer that the call
+is a rehearsal for stub configuration purposes rather than a call
+from the code-under-test.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="decoy.stub.Stub">
+<code>decoy.stub.Stub</code>
+<a class="headerlink" href="#decoy.stub.Stub" title="Permanent link">#</a></h2>
+<div class="doc doc-contents first">
+<p>A rehearsed test double stub that may perform an action.</p>
+<div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.stub.Stub.__init__">
+<code class="highlight language-python">
+decoy.stub.Stub.__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rehearsal</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+<a class="headerlink" href="#decoy.stub.Stub.__init__" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Initialize the stub from a rehearsal call.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rehearsal</code></td>
+<td><code>SpyCall</code></td>
+<td>
+<p>A call tuple to match against.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.stub.Stub.then_raise">
+<code class="highlight language-python">
+decoy.stub.Stub.then_raise<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.stub.Stub.then_raise" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Set the stub's error value.</p>
+<p>See <a href="/#stubbing">stubbing</a> for more details.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>error</code></td>
+<td><code>Exception</code></td>
+<td>
+<p>The error to raise.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Setting a stub to raise will prevent you from writing new
+rehearsals, because they will raise. If you need to make more calls
+to <code>when</code>, you'll need to wrap your rehearsal in a <code>try</code>.</p>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="decoy.stub.Stub.then_return">
+<code class="highlight language-python">
+decoy.stub.Stub.then_return<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">values</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.stub.Stub.then_return" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Set the stub's return value(s).</p>
+<p>See <a href="/#stubbing">stubbing</a> for more details.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*values</code></td>
+<td><code>~ReturnT</code></td>
+<td>
+<p>Zero or more return values. Multiple values will result
+     in different return values for subsequent calls, with the
+     last value latching in once all other values have returned.</p>
+</td>
+<td><code>()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-module">
+<h2 class="doc doc-heading" id="decoy.matchers">
+<code>decoy.matchers</code>
+<a class="headerlink" href="#decoy.matchers" title="Permanent link">#</a></h2>
+<div class="doc doc-contents first">
+<p>Matcher helpers.</p>
+<p>A "matcher" is a helper class with an <code>__eq__</code> method defined. Use them
+anywhere in your test where you would use an actual value for equality
+(<code>==</code>) comparision.</p>
+<p>Matchers help you loosen assertions where strict adherence to an exact value
+is not relevent to what you're trying to test.</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span><span class="p">,</span> <span class="n">matchers</span>
+
+<span class="c1"># ...</span>
+
+<span class="k">def</span> <span class="nf">test_logger_called</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">matchers</span><span class="o">.</span><span class="n">StringMatching</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">))</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Identity comparisons (<code>is</code>) will not work with matchers. Decoy only uses
+equality comparisons for stubbing and verification.</p>
+</div>
+<div class="doc doc-children">
+<div class="doc doc-object doc-function">
+<h3 class="doc doc-heading" id="decoy.matchers.Anything">
+<code class="highlight language-python">
+decoy.matchers.Anything<span class="p">()</span> </code>
+<a class="headerlink" href="#decoy.matchers.Anything" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Match anything except None.</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">assert</span> <span class="s2">"foobar"</span> <span class="o">==</span> <span class="n">Anything</span><span class="p">()</span>
+<span class="k">assert</span> <span class="kc">None</span> <span class="o">!=</span> <span class="n">Anything</span><span class="p">()</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-function">
+<h3 class="doc doc-heading" id="decoy.matchers.ErrorMatching">
+<code class="highlight language-python">
+decoy.matchers.ErrorMatching<span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.matchers.ErrorMatching" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Match any error matching an Exception type and optional message matcher.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>error</code></td>
+<td><code>Type[Exception]</code></td>
+<td>
+<p>Exception type to match against.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>match</code></td>
+<td><code>Optional[str]</code></td>
+<td>
+<p>Pattern to check against; will be compiled into an re.Pattern.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">assert</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"oh no!"</span><span class="p">)</span> <span class="o">==</span> <span class="n">ErrorMatching</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span>
+<span class="k">assert</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"oh no!"</span><span class="p">)</span> <span class="o">==</span> <span class="n">ErrorMatching</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">"no"</span><span class="p">)</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-function">
+<h3 class="doc doc-heading" id="decoy.matchers.IsA">
+<code class="highlight language-python">
+decoy.matchers.IsA<span class="p">(</span><span class="n">match_type</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.matchers.IsA" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Match anything that satisfies the passed in type.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>match_type</code></td>
+<td><code>type</code></td>
+<td>
+<p>Type to match.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">assert</span> <span class="s2">"foobar"</span> <span class="o">==</span> <span class="n">IsA</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">==</span> <span class="n">IsA</span><span class="p">(</span><span class="n">datetime</span><span class="p">)</span>
+<span class="k">assert</span> <span class="mi">42</span> <span class="o">==</span> <span class="n">IsA</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-function">
+<h3 class="doc doc-heading" id="decoy.matchers.IsNot">
+<code class="highlight language-python">
+decoy.matchers.IsNot<span class="p">(</span><span class="n">value</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.matchers.IsNot" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Match anything that isn't the passed in value.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>value</code></td>
+<td><code>object</code></td>
+<td>
+<p>Value to check against.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">assert</span> <span class="s2">"foobar"</span> <span class="o">==</span> <span class="n">IsNot</span><span class="p">(</span><span class="s2">"bazquux"</span><span class="p">)</span>
+<span class="k">assert</span> <span class="mi">42</span> <span class="o">==</span> <span class="n">IsNot</span><span class="p">(</span><span class="s2">"the question"</span><span class="p">)</span>
+<span class="k">assert</span> <span class="mi">1</span> <span class="o">!=</span> <span class="n">IsNot</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-function">
+<h3 class="doc doc-heading" id="decoy.matchers.StringMatching">
+<code class="highlight language-python">
+decoy.matchers.StringMatching<span class="p">(</span><span class="n">match</span><span class="p">)</span> </code>
+<a class="headerlink" href="#decoy.matchers.StringMatching" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>Match any string matching the passed in pattern.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>match</code></td>
+<td><code>str</code></td>
+<td>
+<p>Pattern to check against; will be compiled into an re.Pattern.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight">
+<pre><span></span><code><span class="k">assert</span> <span class="s2">"foobar"</span> <span class="o">==</span> <span class="n">StringMatching</span><span class="p">(</span><span class="s2">"bar"</span><span class="p">)</span>
+<span class="k">assert</span> <span class="s2">"foobar"</span> <span class="o">!=</span> <span class="n">StringMatching</span><span class="p">(</span><span class="s2">"^bar"</span><span class="p">)</span>
+</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-module">
+<h2 class="doc doc-heading" id="decoy.warnings">
+<code>decoy.warnings</code>
+<a class="headerlink" href="#decoy.warnings" title="Permanent link">#</a></h2>
+<div class="doc doc-contents first">
+<p>Warnings produced by Decoy.</p>
+<div class="doc doc-children">
+<div class="doc doc-object doc-class">
+<h3 class="doc doc-heading" id="decoy.warnings.MissingStubWarning">
+<code>decoy.warnings.MissingStubWarning</code>
+<a class="headerlink" href="#decoy.warnings.MissingStubWarning" title="Permanent link">#</a></h3>
+<div class="doc doc-contents">
+<p>A warning raised when a configured stub is called with different arguments.</p>
+<div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h4 class="doc doc-heading" id="decoy.warnings.MissingStubWarning.__init__">
+<code class="highlight language-python">
+decoy.warnings.MissingStubWarning.__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">stubs</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+<a class="headerlink" href="#decoy.warnings.MissingStubWarning.__init__" title="Permanent link">#</a></h4>
+<div class="doc doc-contents">
+<p>Initialize the warning message with the actual and expected calls.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../why/" rel="prev">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Why Use Decoy?
+              </div>
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../contributing/" rel="next">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Contributing Guide
+              </div>
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+          Material for MkDocs
+        </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+<script src="../assets/javascripts/bundle.7836ba4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+<script>
+        app = initialize({
+          base: "..",
+          features: ['navigation.instant'],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+</body>
+</html>

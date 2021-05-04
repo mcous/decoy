@@ -1,0 +1,689 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Opinionated, typed stubbing and verification library for Python.">
+      
+      
+      
+        <link rel="canonical" href="https://mike.cousins.io/decoy/">
+      
+      
+        <meta name="author" content="Mike Cousins">
+      
+      <link rel="shortcut icon" href="img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.6">
+    
+    
+      
+        <title>Decoy</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.6910b76c.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.196e0c26.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="" data-md-color-accent="">
+      
+        <script>matchMedia("(prefers-color-scheme: dark)").matches&&document.body.setAttribute("data-md-color-scheme","slate")</script>
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#install" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://mike.cousins.io/decoy/" title="Decoy" class="md-header-nav__button md-logo" aria-label="Decoy">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.5 5A1.5 1.5 0 007 6.5 1.5 1.5 0 008.5 8 1.5 1.5 0 0010 6.5 1.5 1.5 0 008.5 5M10 2a5 5 0 015 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0110 2z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Decoy
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              User Guide
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/mcous/decoy/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://mike.cousins.io/decoy/" title="Decoy" class="md-nav__button md-logo" aria-label="Decoy">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.5 5A1.5 1.5 0 007 6.5 1.5 1.5 0 008.5 8 1.5 1.5 0 0010 6.5 1.5 1.5 0 008.5 5M10 2a5 5 0 015 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0110 2z"/></svg>
+
+    </a>
+    Decoy
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/mcous/decoy/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        User Guide
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="." class="md-nav__link md-nav__link--active">
+      User Guide
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mypy-setup" class="md-nav__link">
+    Mypy Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stubbing" class="md-nav__link">
+    Stubbing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifying-interactions" class="md-nav__link">
+    Verifying interactions
+  </a>
+  
+    <nav class="md-nav" aria-label="Verifying interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verifying-order-of-multiple-calls" class="md-nav__link">
+    Verifying order of multiple calls
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-with-asyncawait" class="md-nav__link">
+    Usage with async/await
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matchers" class="md-nav__link">
+    Matchers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="why/" class="md-nav__link">
+      Why Use Decoy?
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="api/" class="md-nav__link">
+      API Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="contributing/" class="md-nav__link">
+      Contributing Guide
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mypy-setup" class="md-nav__link">
+    Mypy Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stubbing" class="md-nav__link">
+    Stubbing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifying-interactions" class="md-nav__link">
+    Verifying interactions
+  </a>
+  
+    <nav class="md-nav" aria-label="Verifying interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verifying-order-of-multiple-calls" class="md-nav__link">
+    Verifying order of multiple calls
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-with-asyncawait" class="md-nav__link">
+    Usage with async/await
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matchers" class="md-nav__link">
+    Matchers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/mcous/decoy/blob/main/docs/index.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <div align="center">
+    <h1>Decoy</h1>
+    <img src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
+    <p>Opinionated, typed stubbing and verification library for Python</p>
+    <p>
+        <a href="https://github.com/mcous/decoy/actions">
+            <img title="CI Status" src="https://flat.badgen.net/github/checks/mcous/decoy/main">
+        </a>
+        <a href="https://pypi.org/project/decoy/">
+            <img title="PyPI Version" src="https://flat.badgen.net/pypi/v/decoy">
+        </a>
+        <a href="https://github.com/mcous/decoy/blob/main/LICENSE">
+            <img title="License" src="https://flat.badgen.net/github/license/mcous/decoy">
+        </a>
+    </p>
+    <p>
+        <a href="https://mike.cousins.io/decoy/">https://mike.cousins.io/decoy/</a>
+    </p>
+</div>
+
+<p>The Decoy library allows you to create, stub, and verify test double objects for your Python unit tests, so your tests are:</p>
+<ul>
+<li>Less prone to insufficient tests due to unconditional stubbing</li>
+<li>Covered by typechecking</li>
+<li>Easier to fit into the Arrange-Act-Assert pattern</li>
+</ul>
+<p>The Decoy API is heavily inspired by / stolen from the excellent <a href="https://github.com/testdouble/testdouble.js">testdouble.js</a> and <a href="https://site.mockito.org/">Mockito</a> projects.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># pip</span>
+pip install decoy
+
+<span class="c1"># poetry</span>
+poetry add --dev decoy
+</code></pre></div>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">#</a></h2>
+<p>You'll want to create a test fixture to reset Decoy state between each test run. In <a href="https://docs.pytest.org/">pytest</a>, you can do this by using a fixture to create a new Decoy instance for every test.</p>
+<p>The examples below assume the following global test fixture:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">decoy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Decoy</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Decoy</span><span class="p">()</span>
+</code></pre></div>
+<p>Why is this important? The <code>Decoy</code> container tracks every test double that is created during a test so that you can define assertions using fully-typed rehearsals. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.</p>
+<h3 id="mypy-setup">Mypy Setup<a class="headerlink" href="#mypy-setup" title="Permanent link">#</a></h3>
+<p>Decoy's rehearsal syntax can be a bit confusing to <a href="https://mypy.readthedocs.io/">mypy</a> if the mock in question is supposed to return <code>None</code>. Normally, <a href="https://mypy.readthedocs.io/en/stable/error_code_list.html#check-that-called-function-returns-a-value-func-returns-value">mypy will complain</a> if you try to use a <code>None</code>-returning expression as a value, because this is almost always a mistake.</p>
+<p>In Decoy, however, it's an intentional part of the API and <em>not</em> a mistake. To suppress these errors, Decoy provides a mypy plugin that you should add to your configuration file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># mypi.ini</span>
+
+<span class="c1"># ...</span>
+<span class="na">plugins</span> <span class="o">=</span> <span class="s">decoy.mypy</span>
+<span class="c1"># ...</span>
+</code></pre></div>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h2>
+<h3 id="stubbing">Stubbing<a class="headerlink" href="#stubbing" title="Permanent link">#</a></h3>
+<p>A stub is an object used in a test that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you specify a stub's call conditions with a "rehearsal", which is simply a call to the stub inside of a <code>decoy.when</code> wrapper.</p>
+<p>By pre-configuring the stub with specific rehearsals, you get the following benefits:</p>
+<ul>
+<li>Your test double will only return your mock value <strong>if it is called correctly</strong></li>
+<li>You avoid separate "set up mock return value" and "assert mock called correctly" steps</li>
+<li>If you annotate your test double with an actual type, the rehearsal will fail typechecking if called incorrectly</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span>
+
+<span class="kn">from</span> <span class="nn">.database</span> <span class="kn">import</span> <span class="n">Database</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="k">def</span> <span class="nf">get_item</span><span class="p">(</span><span class="n">uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">Database</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Model</span><span class="p">]:</span>
+  <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_get_item</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">mock_item</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="p">{</span> <span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span> <span class="p">})</span>
+    <span class="n">mock_db</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Database</span><span class="p">)</span>
+
+    <span class="c1"># arrange stub using rehearsals</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">mock_db</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">&quot;some-id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="n">mock_item</span><span class="p">)</span>
+
+    <span class="c1"># call code under test</span>
+    <span class="n">some_result</span> <span class="o">=</span> <span class="n">get_item</span><span class="p">(</span><span class="s2">&quot;some-id&quot;</span><span class="p">)</span>
+    <span class="n">other_result</span> <span class="o">=</span> <span class="n">get_item</span><span class="p">(</span><span class="s2">&quot;other-id&quot;</span><span class="p">)</span>
+
+    <span class="c1"># assert code result</span>
+    <span class="k">assert</span> <span class="n">some_result</span> <span class="o">==</span> <span class="n">mock_item</span>
+    <span class="k">assert</span> <span class="n">other_result</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="verifying-interactions">Verifying interactions<a class="headerlink" href="#verifying-interactions" title="Permanent link">#</a></h3>
+<p>If you're coming from <code>unittest.mock</code>, you're probably used to calling your code under test and <em>then</em> verifying that your dependency was called correctly. Decoy provides similar call verification using the same "rehearsal" mechanism that the stubbing API uses.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span><span class="p">,</span> <span class="n">verify</span>
+
+<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+
+<span class="k">def</span> <span class="nf">log_warning</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_log_warning</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Logger</span><span class="p">)</span>
+
+    <span class="c1"># call code under test</span>
+    <span class="n">some_result</span> <span class="o">=</span> <span class="n">log_warning</span><span class="p">(</span><span class="s2">&quot;oh no!&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># verify double called correctly with a rehearsal</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;oh no!&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p>Asserting that calls happened after the fact can be useful, but <strong>should only be used if the dependency is being called solely for its side-effect(s)</strong>. Verification of interactions in this manner should be considered a last resort, because:</p>
+<ul>
+<li>If you're calling a dependency to get data, then you can more precisely describe that relationship using <a href="#stubbing">stubbing</a></li>
+<li>Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly</li>
+</ul>
+<p>Stubbing and verification of a decoy are <strong>mutually exclusive</strong> within a test. If you find yourself wanting to both stub and verify the same decoy, then one or more of these is true:</p>
+<ul>
+<li>The assertions are redundant</li>
+<li>The dependency is doing too much based on its input (e.g. side-effecting <em>and</em> calculating complex data) and should be refactored</li>
+</ul>
+<h4 id="verifying-order-of-multiple-calls">Verifying order of multiple calls<a class="headerlink" href="#verifying-order-of-multiple-calls" title="Permanent link">#</a></h4>
+<p>If your code under test must call several dependencies in order, you may pass multiple rehearsals to <code>verify</code>. Decoy will search through the list of all calls made to the given spies and look for the exact rehearsal sequence given, in order.</p>
+<div class="highlight"><pre><span></span><code><span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">call_first_procedure</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">),</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">call_second_procedure</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="usage-with-asyncawait">Usage with async/await<a class="headerlink" href="#usage-with-asyncawait" title="Permanent link">#</a></h3>
+<p>Decoy supports async/await out of the box! Pass your async function or class with async methods to <code>spec</code> in <code>decoy.create_decoy_func</code> or <code>decoy.create_decoy</code>, respectively, and Decoy will figure out the rest.</p>
+<p>When writing rehearsals on async functions and methods, remember to include the <code>await</code> with your rehearsal call:</p>
+<div class="highlight"><pre><span></span><code><span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="k">await</span> <span class="n">mock_db</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">&quot;some-id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="n">mock_item</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="matchers">Matchers<a class="headerlink" href="#matchers" title="Permanent link">#</a></h3>
+<p>Sometimes, when you're stubbing or verifying calls (or really when you're doing any sort of equality assertion in a test), you need to loosen a given assertion. For example, you may want to assert that a dependency is called with a string, but you don't care about the full contents of that string.</p>
+<p>Decoy includes a set of matchers, which are simply Python classes with <code>__eq__</code> methods defined, that you can use in rehearsals and/or assertions.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">decoy</span> <span class="kn">import</span> <span class="n">Decoy</span><span class="p">,</span> <span class="n">matchers</span>
+
+<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+
+<span class="k">def</span> <span class="nf">log_warning</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_log_warning</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">create_decoy</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Logger</span><span class="p">)</span>
+
+    <span class="c1"># call code under test</span>
+    <span class="n">some_result</span> <span class="o">=</span> <span class="n">log_warning</span><span class="p">(</span>
+        <span class="s2">&quot;Oh no, something went wrong with request ID abc123efg456&quot;</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+    <span class="p">)</span>
+
+    <span class="c1"># verify double called correctly</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">matchers</span><span class="o">.</span><span class="n">StringMatching</span><span class="p">(</span><span class="s2">&quot;request ID abc123efg456&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
+</code></pre></div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+        
+          <a href="why/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Why Use Decoy?
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="assets/javascripts/bundle.7836ba4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: ".",
+          features: ['navigation.instant'],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
