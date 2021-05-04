@@ -1,22 +1,33 @@
 """Decoy test double stubbing and verification library."""
 from os import linesep
 from typing import cast, Any, Optional, Sequence, Type
+from warnings import warn
 
 from .registry import Registry
 from .spy import create_spy, SpyCall
 from .stub import Stub
 from .types import ClassT, FuncT, ReturnT
+from .warnings import MissingStubWarning
 
 
 class Decoy:
     """Decoy test double state container."""
 
     _registry: Registry
+    _warn_on_missing_stubs: bool
+    _next_call_is_when_rehearsal: bool
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        warn_on_missing_stubs: bool = True,
+    ) -> None:
         """Initialize the state container for test doubles and stubs.
 
         You should initialize a new Decoy instance for every test.
+
+        Arguments:
+            warn_on_missing_stubs: Trigger a warning if a stub is called
+                with arguments that do not match any of its rehearsals.
 
         Example:
             ```python
@@ -29,6 +40,21 @@ class Decoy:
             ```
         """
         self._registry = Registry()
+        self._warn_on_missing_stubs = warn_on_missing_stubs
+        self._next_call_is_when_rehearsal = False
+
+    def __getattribute__(self, name: str) -> Any:
+        """Proxy to catch calls to `when` and mark the subsequent spy call as a rehearsal.
+
+        This is to ensure that rehearsal calls don't accidentally trigger a
+        `MissingStubWarning`.
+        """
+        actual_method = super().__getattribute__(name)
+
+        if name == "when":
+            self._next_call_is_when_rehearsal = True
+
+        return actual_method
 
     def create_decoy(self, spec: Type[ClassT], *, is_async: bool = False) -> ClassT:
         """Create a class decoy for `spec`.
@@ -103,10 +129,10 @@ class Decoy:
             ```
 
         Note:
-            The "rehearsal" is an actual call to the test fake. The fact that
-            the call is written inside `when` is purely for typechecking and
-            API sugar. Decoy will pop the last call to _any_ fake off its
-            call stack, which will end up being the call inside `when`.
+            The "rehearsal" is an actual call to the test fake. Because the
+            call is written inside `when`, Decoy is able to infer that the call
+            is a rehearsal for stub configuration purposes rather than a call
+            from the code-under-test.
         """
         rehearsal = self._pop_last_rehearsal()
         stub = Stub[ReturnT](rehearsal=rehearsal)
@@ -173,10 +199,15 @@ class Decoy:
         self._registry.register_call(call)
 
         stubs = self._registry.get_stubs_by_spy_id(call.spy_id)
+        is_when_rehearsal = self._next_call_is_when_rehearsal
+        self._next_call_is_when_rehearsal = False
 
         for stub in reversed(stubs):
             if stub._rehearsal == call:
                 return stub._act()
+
+        if not is_when_rehearsal and self._warn_on_missing_stubs and len(stubs) > 0:
+            warn(MissingStubWarning(call, stubs))
 
         return None
 

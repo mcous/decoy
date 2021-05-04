@@ -1,7 +1,7 @@
 """Tests for the Decoy double creator."""
 import pytest
 
-from decoy import Decoy, matchers
+from decoy import Decoy, matchers, warnings
 from .common import some_func, SomeClass, SomeAsyncClass, SomeNestedClass
 
 
@@ -159,3 +159,32 @@ async def test_stub_nested_async_class_in_sync(decoy: Decoy) -> None:
     decoy.when(await stub._async_child.foo("hello")).then_return("world")
 
     assert await stub._async_child.foo("hello") == "world"
+
+
+def test_no_stubbing_found_warning(strict_decoy: Decoy) -> None:
+    """It should raise a warning if a stub is configured and then called incorrectly."""
+    stub = strict_decoy.create_decoy_func(spec=some_func)
+
+    strict_decoy.when(stub("hello")).then_return("world")
+
+    with pytest.warns(warnings.MissingStubWarning):
+        stub("h3110")
+
+
+@pytest.mark.filterwarnings("error::UserWarning")
+def test_no_stubbing_found_warnings_disabled(decoy: Decoy) -> None:
+    """It should not raise a warning if warn_on_missing_stub is disabled."""
+    stub = decoy.create_decoy_func(spec=some_func)
+
+    decoy.when(stub("hello")).then_return("world")
+
+    stub("h3110")
+
+
+@pytest.mark.filterwarnings("error::UserWarning")
+def test_additional_stubbings_do_not_warn(strict_decoy: Decoy) -> None:
+    """It should not raise a warning if warn_on_missing_stub is disabled."""
+    stub = strict_decoy.create_decoy_func(spec=some_func)
+
+    strict_decoy.when(stub("hello")).then_return("world")
+    strict_decoy.when(stub("goodbye")).then_return("so long")
