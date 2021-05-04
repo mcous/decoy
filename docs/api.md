@@ -5,5 +5,3 @@
 ::: decoy.stub.Stub
 
 ::: decoy.matchers
-
-::: decoy.warnings
