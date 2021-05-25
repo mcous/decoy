@@ -34,6 +34,7 @@ __all__ = [
     "IsNot",
     "StringMatching",
     "ErrorMatching",
+    "Captor",
 ]
 
 
@@ -197,3 +198,34 @@ def ErrorMatching(error: Type[Exception], match: Optional[str] = None) -> Except
         ```
     """
     return cast(Exception, _ErrorMatching(error, match))
+
+
+class _Captor:
+    def __eq__(self, target: object) -> bool:
+        """Capture compared value, always returning True."""
+        self._value = target
+        return True
+
+    def __repr__(self) -> str:
+        """Return a string representation of the matcher."""
+        return "<Captor>"
+
+    @property
+    def value(self) -> Any:
+        if not hasattr(self, "_value"):
+            raise AssertionError("No value captured by captor.")
+
+        return self._value
+
+
+def Captor() -> Any:
+    """Match anything, capturing its value.
+
+    Example:
+        ```python
+        captor = Captor()
+        assert "foobar" == captor
+        print(captor.value)  # "foobar"
+        ```
+    """
+    return _Captor()
