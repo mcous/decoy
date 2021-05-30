@@ -4,6 +4,10 @@
 # https://github.com/psf/black/blob/master/docs/compatible_configs.md
 max-line-length = 88
 
+extend-exclude =
+    # ignore cache directory for CI
+    .cache
+
 extend-ignore =
     # ignore E203 because black might reformat it
     E203,
