@@ -3,3 +3,4 @@ site
 *.egg-info
 .python-version
 __pycache__
+.cache

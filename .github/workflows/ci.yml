@@ -3,8 +3,8 @@ name: "Continuous integration"
 on: [push, pull_request]
 
 env:
-    PIP_CACHE_DIR: ${{ runner.temp }}/.cache/pip
-    POETRY_CACHE_DIR: ${{ runner.temp }}/.cache/pypoetry
+    PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
+    POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
     DEFAULT_PYTHON: "3.8"
 
 jobs:
