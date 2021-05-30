@@ -25,7 +25,7 @@ Note:
     equality comparisons for stubbing and verification.
 """
 from re import compile as compile_re
-from typing import cast, Any, List, Optional, Pattern, Type
+from typing import cast, Any, List, Mapping, Optional, Pattern, Type
 
 
 __all__ = [
@@ -62,34 +62,54 @@ def Anything() -> Any:
 
 class _IsA:
     _match_type: type
+    _attributes: Optional[Mapping[str, Any]]
 
-    def __init__(self, match_type: type) -> None:
-        """Initialize the matcher with a type."""
+    def __init__(
+        self,
+        match_type: type,
+        attributes: Optional[Mapping[str, Any]] = None,
+    ) -> None:
+        """Initialize the matcher with a type and optional attributes."""
         self._match_type = match_type
+        self._attributes = attributes
 
     def __eq__(self, target: object) -> bool:
-        """Return true if target is a self._match_type."""
-        return type(target) == self._match_type
+        """Return true if target is the correct type and matches attributes."""
+        matches_type = type(target) == self._match_type
+        matches_attrs = target == HasAttributes(self._attributes or {})
+
+        return matches_type and matches_attrs
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return "<IsA {self._match_type.__name__}>"
+        if self._attributes is None:
+            return f"<IsA {self._match_type.__name__}>"
+        else:
+            return f"<IsA {self._match_type.__name__} {repr(self._attributes)}>"
 
 
-def IsA(match_type: type) -> Any:
+def IsA(match_type: type, attributes: Optional[Mapping[str, Any]] = None) -> Any:
     """Match anything that satisfies the passed in type.
 
     Arguments:
         match_type: Type to match.
+        attributes: Optional set of attributes to match
 
     Example:
         ```python
         assert "foobar" == IsA(str)
         assert datetime.now() == IsA(datetime)
         assert 42 == IsA(int)
+
+        @dataclass
+        class HelloWorld:
+            hello: str = "world"
+            goodby: str = "so long"
+
+        assert HelloWorld() == IsA(HelloWorld, {"hello": "world"})
         ```
     """
-    return _IsA(match_type)
+    return _IsA(match_type, attributes)
 
 
 class _IsNot:
@@ -122,6 +142,86 @@ def IsNot(value: object) -> Any:
         ```
     """
     return _IsNot(value)
+
+
+class _HasAttributes:
+    _attributes: Mapping[str, Any]
+
+    def __init__(self, attributes: Mapping[str, Any]) -> None:
+        self._attributes = attributes
+
+    def __eq__(self, target: object) -> bool:
+        """Return true if target matches all given attributes."""
+        is_match = True
+        for attr_name, value in self._attributes.items():
+            if is_match:
+                is_match = (
+                    hasattr(target, attr_name) and getattr(target, attr_name) == value
+                )
+
+        return is_match
+
+    def __repr__(self) -> str:
+        """Return a string representation of the matcher."""
+        return f"<HasAttributes {repr(self._attributes)}>"
+
+
+def HasAttributes(attributes: Mapping[str, Any]) -> Any:
+    """Match anything with the passed in attributes.
+
+    Arguments:
+        attributes: Attribute values to check.
+
+    Example:
+        ```python
+        @dataclass
+        class HelloWorld:
+            hello: str = "world"
+            goodby: str = "so long"
+
+        assert HelloWorld() == matchers.HasAttributes({"hello": "world"})
+        ```
+    """
+    return _HasAttributes(attributes)
+
+
+class _DictMatching:
+    _values: Mapping[str, Any]
+
+    def __init__(self, values: Mapping[str, Any]) -> None:
+        self._values = values
+
+    def __eq__(self, target: object) -> bool:
+        """Return true if target matches all given keys/values."""
+        is_match = True
+
+        for key, value in self._values.items():
+            if is_match:
+                try:
+                    is_match = key in target and target[key] == value  # type: ignore[index,operator]  # noqa: E501
+                except TypeError:
+                    is_match = False
+
+        return is_match
+
+    def __repr__(self) -> str:
+        """Return a string representation of the matcher."""
+        return f"<DictMatching {repr(self._values)}>"
+
+
+def DictMatching(values: Mapping[str, Any]) -> Any:
+    """Match any dictionary with the passed in keys / values.
+
+    Arguments:
+        values: Keys and values to check.
+
+    Example:
+        ```python
+        value = {"hello": "world", "goodbye": "so long"}
+        assert value == matchers.DictMatching({"hello": "world"})
+        ```
+    """
+    return _DictMatching(values)
 
 
 class _StringMatching:
