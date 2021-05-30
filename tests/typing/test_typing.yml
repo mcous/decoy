@@ -13,8 +13,7 @@
       reveal_type(fake)
   out: |
       main:9: note: Revealed type is 'main.Dependency*'
-  env:
-      - MYPYPATH=.
+
 - case: function_decoy_mimics_type
   main: |
       from decoy import Decoy
