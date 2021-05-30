@@ -83,7 +83,7 @@ class BaseSpy:
                 # according to Python, `get_type_hints` will raise.
                 # Rather than fail to create a spy with an inscrutable error,
                 # gracefully fallback to a specification-less spy.
-                hints = get_type_hints(self._spec)  # type: ignore[arg-type]
+                hints = get_type_hints(self._spec)
                 child_spec = getattr(
                     self._spec,
                     name,
