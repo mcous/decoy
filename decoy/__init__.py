@@ -1,6 +1,6 @@
 """Decoy test double stubbing and verification library."""
 from os import linesep
-from typing import cast, Any, Optional, Sequence, Type
+from typing import cast, Any, Callable, Optional, Sequence
 from warnings import warn
 
 from .registry import Registry
@@ -56,7 +56,12 @@ class Decoy:
 
         return actual_method
 
-    def create_decoy(self, spec: Type[ClassT], *, is_async: bool = False) -> ClassT:
+    def create_decoy(
+        self,
+        spec: Callable[..., ClassT],
+        *,
+        is_async: bool = False,
+    ) -> ClassT:
         """Create a class decoy for `spec`.
 
         Arguments:

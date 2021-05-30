@@ -14,6 +14,21 @@
   out: |
       main:9: note: Revealed type is 'main.Dependency*'
 
+- case: class_decoy_mimics_abstract_class_type
+  main: |
+      from abc import ABC
+      from decoy import Decoy
+
+      class Dependency(ABC):
+          def do_thing(self, input: str) -> int:
+              ...
+
+      decoy = Decoy()
+      fake = decoy.create_decoy(spec=Dependency)
+      reveal_type(fake)
+  out: |
+      main:10: note: Revealed type is 'main.Dependency*'
+
 - case: function_decoy_mimics_type
   main: |
       from decoy import Decoy
