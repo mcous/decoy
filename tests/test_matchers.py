@@ -1,7 +1,7 @@
 """Matcher tests."""
 import pytest
 from decoy import matchers
-from typing import Any
+from typing import Any, List
 from .common import SomeClass
 
 
@@ -57,34 +57,12 @@ def test_error_matching_matcher() -> None:
 def test_captor_matcher() -> None:
     """It should have a captor matcher that captures the compared value."""
     captor = matchers.Captor()
+    comparisons: List[Any] = [1, False, None, {}, [], ("hello", "world"), SomeClass()]
 
-    compare: Any = 1
-    assert compare == captor
-    assert captor.value is compare
-
-    compare = False
-    assert compare == captor
-    assert captor.value is compare
-
-    compare = None
-    assert compare == captor
-    assert captor.value is compare
-
-    compare = {}
-    assert compare == captor
-    assert captor.value is compare
-
-    compare = []
-    assert compare == captor
-    assert captor.value is compare
-
-    compare = ("hello", "world")
-    assert compare == captor
-    assert captor.value is compare
-
-    compare = SomeClass()
-    assert compare == captor
-    assert captor.value is compare
+    for i, compare in enumerate(comparisons):
+        assert compare == captor
+        assert captor.value is compare
+        assert captor.values == comparisons[0 : i + 1]
 
 
 def test_captor_matcher_raises_if_no_value() -> None:

@@ -25,7 +25,7 @@ Note:
     equality comparisons for stubbing and verification.
 """
 from re import compile as compile_re
-from typing import cast, Any, Optional, Pattern, Type
+from typing import cast, Any, List, Optional, Pattern, Type
 
 
 __all__ = [
@@ -201,9 +201,12 @@ def ErrorMatching(error: Type[Exception], match: Optional[str] = None) -> Except
 
 
 class _Captor:
+    def __init__(self) -> None:
+        self._values: List[Any] = []
+
     def __eq__(self, target: object) -> bool:
         """Capture compared value, always returning True."""
-        self._value = target
+        self._values.append(target)
         return True
 
     def __repr__(self) -> str:
@@ -212,20 +215,35 @@ class _Captor:
 
     @property
     def value(self) -> Any:
-        if not hasattr(self, "_value"):
+        """Get the captured value.
+
+        Raises:
+            AssertionError: if no value was captured.
+        """
+        if len(self._values) == 0:
             raise AssertionError("No value captured by captor.")
 
-        return self._value
+        return self._values[-1]
+
+    @property
+    def values(self) -> List[Any]:
+        """Get all captured values."""
+        return self._values
 
 
 def Captor() -> Any:
     """Match anything, capturing its value.
+
+    The last captured value will be set to `captor.value`. All captured
+    values will be placed in the `captor.values` list, which can be
+    helpful if a captor needs to be triggered multiple times.
 
     Example:
         ```python
         captor = Captor()
         assert "foobar" == captor
         print(captor.value)  # "foobar"
+        print(captor.values)  # ["foobar"]
         ```
     """
     return _Captor()

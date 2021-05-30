@@ -198,3 +198,41 @@ def test_log_warning(decoy: Decoy):
         logger.warn(matchers.StringMatching("request ID abc123efg456"))
     )
 ```
+
+#### Capturing values with `matchers.captor`
+
+When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given decoy.
+
+For example, our test subject may register an anonymous event listener handler with a dependency, and we want to test our subject's behavior when the event listener is triggered.
+
+```py
+import pytest
+from typing import cast, Optional
+from decoy import Decoy, matchers
+
+from .event_source import EventSource
+from .event_consumer import EventConsumer
+
+
+def test_event_listener(decoy: Decoy):
+    event_source = decoy.create_decoy(spec=EventSource)
+    subject = EventConsumer(event_source=event_source)
+    captor = matchers.Captor()
+
+    # subject registers its listener when started
+    subject.start_consuming()
+
+    # verify listener attached and capture the listener
+    decoy.verify(event_source.register(event_listener=captor))
+
+    # trigger the listener
+    event_handler = captor.value  # or, equivalently, captor.values[0]
+
+    assert subject.has_heard_event is False
+    event_handler()
+    assert subject.has_heard_event is True
+```
+
+This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve anonymous / private functions.
+
+For further reading on when (or rather, when not) to use argument captors, check out [testdouble's documentation on its argument captor matcher](https://github.com/testdouble/testdouble.js/blob/main/docs/6-verifying-invocations.md#tdmatcherscaptor).
