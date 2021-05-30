@@ -5,6 +5,7 @@ on: [push, pull_request]
 env:
     PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
     POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
+    DEFAULT_PYTHON: "3.8"
 
 jobs:
     test:
@@ -26,7 +27,7 @@ jobs:
             - name: "Set up dependency cache"
               uses: actions/cache@v2
               with:
-                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-${{ hashFiles('**/*.lock') }}
+                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ matrix.python-version }}-${{ hashFiles('**/*.lock') }}
                   path: |
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
@@ -47,12 +48,12 @@ jobs:
             - name: "Set up Python"
               uses: actions/setup-python@v2
               with:
-                  python-version: "3.8"
+                  python-version: ${{ env.DEFAULT_PYTHON }}
 
             - name: "Set up dependency cache"
               uses: actions/cache@v2
               with:
-                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-${{ hashFiles('**/*.lock') }}
+                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
                   path: |
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
@@ -80,12 +81,12 @@ jobs:
             - name: "Set up Python"
               uses: actions/setup-python@v2
               with:
-                  python-version: "3.8"
+                  python-version: ${{ env.DEFAULT_PYTHON }}
 
             - name: "Set up dependency cache"
               uses: actions/cache@v2
               with:
-                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-${{ hashFiles('**/*.lock') }}
+                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
                   path: |
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
