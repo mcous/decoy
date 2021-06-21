@@ -41,26 +41,25 @@ poetry add --dev decoy
 
 ## Setup
 
-You'll want to create a test fixture to reset Decoy state between each test run. In [pytest][], you can do this by using a fixture to create a new Decoy instance for every test.
+### Pytest
 
-The examples below assume the following global test fixture:
+Decoy ships with its own [pytest][] plugin, so once Decoy is installed, you're ready to start using it via its pytest fixture, called `decoy`.
 
 ```python
-import pytest
+# test_my_thing.py
 from decoy import Decoy
 
-@pytest.fixture
-def decoy() -> Decoy:
-    return Decoy()
+def test_my_thing_works(decoy: Decoy) -> None:
+    # ...
 ```
 
-Why is this important? The `Decoy` container tracks every test double that is created during a test so that you can define assertions using fully-typed rehearsals. It's important to wipe this slate clean for every test so you don't leak memory or have any state preservation between tests.
+The `decoy` fixture is function-scoped and will ensure that all stub and spy state is reset between every test.
 
 [pytest]: https://docs.pytest.org/
 
 ### Mypy Setup
 
-Decoy's rehearsal syntax can be a bit confusing to [mypy][] if the mock in question is supposed to return `None`. Normally, [mypy will complain][] if you try to use a `None`-returning expression as a value, because this is almost always a mistake.
+Decoy's rehearsal syntax can be a bit confusing to [mypy][] if a function is supposed to return `None`. Normally, [mypy will complain][] if you try to use a `None`-returning expression as a value, because this is almost always a mistake.
 
 In Decoy, however, it's an intentional part of the API and _not_ a mistake. To suppress these errors, Decoy provides a mypy plugin that you should add to your configuration file:
 
