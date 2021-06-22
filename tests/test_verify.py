@@ -8,16 +8,16 @@ from .common import SomeClass, SomeNestedClass, some_func
 
 def test_call_function_then_verify(decoy: Decoy) -> None:
     """It should be able to verify a past function call."""
-    stub = decoy.create_decoy_func(spec=some_func)
+    spy = decoy.create_decoy_func(spec=some_func)
 
-    stub("hello")
-    stub("goodbye")
+    spy("hello")
+    spy("goodbye")
 
-    decoy.verify(stub("hello"))
-    decoy.verify(stub("goodbye"))
+    decoy.verify(spy("hello"))
+    decoy.verify(spy("goodbye"))
 
     with pytest.raises(AssertionError) as error_info:
-        decoy.verify(stub("fizzbuzz"))
+        decoy.verify(spy("fizzbuzz"))
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
@@ -30,21 +30,21 @@ def test_call_function_then_verify(decoy: Decoy) -> None:
 
 def test_call_method_then_verify(decoy: Decoy) -> None:
     """It should be able to verify a past method call."""
-    stub = decoy.create_decoy(spec=SomeClass)
+    spy = decoy.create_decoy(spec=SomeClass)
 
-    stub.foo("hello")
-    stub.foo("goodbye")
-    stub.bar(0, 1.0, "2")
-    stub.bar(3, 4.0, "5")
+    spy.foo("hello")
+    spy.foo("goodbye")
+    spy.bar(0, 1.0, "2")
+    spy.bar(3, 4.0, "5")
 
-    decoy.verify(stub.foo("hello"))
-    decoy.verify(stub.foo("goodbye"))
+    decoy.verify(spy.foo("hello"))
+    decoy.verify(spy.foo("goodbye"))
 
-    decoy.verify(stub.bar(0, 1.0, "2"))
-    decoy.verify(stub.bar(3, 4.0, "5"))
+    decoy.verify(spy.bar(0, 1.0, "2"))
+    decoy.verify(spy.bar(3, 4.0, "5"))
 
     with pytest.raises(AssertionError) as error_info:
-        decoy.verify(stub.foo("fizzbuzz"))
+        decoy.verify(spy.foo("fizzbuzz"))
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
@@ -55,7 +55,7 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
     )
 
     with pytest.raises(AssertionError) as error_info:
-        decoy.verify(stub.bar(6, 7.0, "8"))
+        decoy.verify(spy.bar(6, 7.0, "8"))
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
@@ -68,14 +68,14 @@ def test_call_method_then_verify(decoy: Decoy) -> None:
 
 def test_verify_with_matcher(decoy: Decoy) -> None:
     """It should still work with matchers as arguments."""
-    stub = decoy.create_decoy_func(spec=some_func)
+    spy = decoy.create_decoy_func(spec=some_func)
 
-    stub("hello")
+    spy("hello")
 
-    decoy.verify(stub(matchers.StringMatching("ell")))
+    decoy.verify(spy(matchers.StringMatching("ell")))
 
     with pytest.raises(AssertionError) as error_info:
-        decoy.verify(stub(matchers.StringMatching("^ell")))
+        decoy.verify(spy(matchers.StringMatching("^ell")))
 
     assert str(error_info.value) == (
         f"Expected call:{linesep}"
@@ -87,48 +87,48 @@ def test_verify_with_matcher(decoy: Decoy) -> None:
 
 def test_call_nested_method_then_verify(decoy: Decoy) -> None:
     """It should be able to verify a past nested method call."""
-    stub = decoy.create_decoy(spec=SomeNestedClass)
+    spy = decoy.create_decoy(spec=SomeNestedClass)
 
-    stub.child.foo("hello")
-    stub.child.bar(0, 1.0, "2")
+    spy.child.foo("hello")
+    spy.child.bar(0, 1.0, "2")
 
-    decoy.verify(stub.child.foo("hello"))
-    decoy.verify(stub.child.bar(0, 1.0, "2"))
+    decoy.verify(spy.child.foo("hello"))
+    decoy.verify(spy.child.bar(0, 1.0, "2"))
 
     with pytest.raises(AssertionError):
-        decoy.verify(stub.foo("fizzbuzz"))
+        decoy.verify(spy.foo("fizzbuzz"))
 
 
 def test_call_no_return_method_then_verify(decoy: Decoy) -> None:
     """It should be able to verify a past void method call."""
-    stub = decoy.create_decoy(spec=SomeClass)
+    spy = decoy.create_decoy(spec=SomeClass)
 
-    stub.do_the_thing(True)
+    spy.do_the_thing(True)
 
-    decoy.verify(stub.do_the_thing(True))
+    decoy.verify(spy.do_the_thing(True))
 
     with pytest.raises(AssertionError):
-        decoy.verify(stub.do_the_thing(False))
+        decoy.verify(spy.do_the_thing(False))
 
 
 def test_verify_multiple_calls(decoy: Decoy) -> None:
     """It should be able to verify multiple calls."""
-    stub = decoy.create_decoy(spec=SomeClass)
-    stub_func = decoy.create_decoy_func(spec=some_func)
+    spy = decoy.create_decoy(spec=SomeClass)
+    spy_func = decoy.create_decoy_func(spec=some_func)
 
-    stub.do_the_thing(False)
-    stub.do_the_thing(True)
-    stub_func("hello")
+    spy.do_the_thing(False)
+    spy.do_the_thing(True)
+    spy_func("hello")
 
     decoy.verify(
-        stub.do_the_thing(True),
-        stub_func("hello"),
+        spy.do_the_thing(True),
+        spy_func("hello"),
     )
 
     with pytest.raises(AssertionError) as error_info:
         decoy.verify(
-            stub.do_the_thing(False),
-            stub_func("goodbye"),
+            spy.do_the_thing(False),
+            spy_func("goodbye"),
         )
 
     assert str(error_info.value) == (
@@ -143,8 +143,8 @@ def test_verify_multiple_calls(decoy: Decoy) -> None:
 
     with pytest.raises(AssertionError) as error_info:
         decoy.verify(
-            stub_func("hello"),
-            stub.do_the_thing(True),
+            spy_func("hello"),
+            spy.do_the_thing(True),
         )
 
     assert str(error_info.value) == (
@@ -159,9 +159,9 @@ def test_verify_multiple_calls(decoy: Decoy) -> None:
 
     with pytest.raises(AssertionError) as error_info:
         decoy.verify(
-            stub.do_the_thing(True),
-            stub.do_the_thing(True),
-            stub_func("hello"),
+            spy.do_the_thing(True),
+            spy.do_the_thing(True),
+            spy_func("hello"),
         )
 
     assert str(error_info.value) == (
@@ -174,3 +174,56 @@ def test_verify_multiple_calls(decoy: Decoy) -> None:
         f"2.\tSomeClass.do_the_thing(True){linesep}"
         "3.\tsome_func('hello')"
     )
+
+
+def test_verify_call_count(decoy: Decoy) -> None:
+    """It should be able to verify a specific call count."""
+    spy = decoy.create_decoy_func(spec=some_func)
+
+    spy("hello")
+    spy("hello")
+
+    decoy.verify(spy("hello"))
+    decoy.verify(spy("hello"), times=2)
+    decoy.verify(spy("goodbye"), times=0)
+
+    with pytest.raises(AssertionError) as error_info:
+        decoy.verify(spy("hello"), times=0)
+
+    assert str(error_info.value) == (
+        f"Expected 0 calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        f"Found 2 calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        "2.\tsome_func('hello')"
+    )
+
+    with pytest.raises(AssertionError) as error_info:
+        decoy.verify(spy("hello"), times=1)
+
+    assert str(error_info.value) == (
+        f"Expected 1 call:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        f"Found 2 calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        "2.\tsome_func('hello')"
+    )
+
+    with pytest.raises(AssertionError) as error_info:
+        decoy.verify(spy("hello"), times=3)
+
+    assert str(error_info.value) == (
+        f"Expected 3 calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        f"Found 2 calls:{linesep}"
+        f"1.\tsome_func('hello'){linesep}"
+        "2.\tsome_func('hello')"
+    )
+
+
+def test_verify_call_count_raises_multiple_rehearsals(decoy: Decoy) -> None:
+    """It should not be able to verify call count if multiple rehearsals used."""
+    spy = decoy.create_decoy_func(spec=some_func)
+
+    with pytest.raises(ValueError, match="multiple rehearsals"):
+        decoy.verify(spy("hello"), spy("goodbye"), times=1)

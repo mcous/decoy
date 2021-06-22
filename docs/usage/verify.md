@@ -55,3 +55,21 @@ decoy.verify(
     handler.call_second_procedure("world"),
 )
 ```
+
+## Verifying a call count
+
+You may want to verify that a call has been made a certain number of times, or verify that a call was never made. You can use the optional `times` argument to specify call count.
+
+```python
+decoy.verify(
+    handler.should_be_called_twice(),
+    times=2,
+)
+
+decoy.verify(
+    handler.should_never_be_called(),
+    times=0,
+)
+```
+
+You may only use the `times` argument with single rehearsal.
