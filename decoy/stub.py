@@ -26,7 +26,7 @@ class Stub(Generic[ReturnT]):
     def then_return(self, *values: ReturnT) -> None:
         """Set the stub's return value(s).
 
-        See [stubbing](/#stubbing) for more details.
+        See [stubbing usage guide](../usage/when) for more details.
 
         Arguments:
             *values: Zero or more return values. Multiple values will result
@@ -39,7 +39,7 @@ class Stub(Generic[ReturnT]):
     def then_raise(self, error: Exception) -> None:
         """Set the stub's error value.
 
-        See [stubbing](/#stubbing) for more details.
+        See [stubbing usage guide](../usage/when) for more details.
 
         Arguments:
             error: The error to raise.

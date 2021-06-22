@@ -7,9 +7,14 @@ repo_name: "mcous/decoy"
 edit_uri: "blob/main/docs/"
 
 nav:
-    - User Guide: index.md
-    - why.md
+    - Getting Started: index.md
+    - Usage Guide:
+          - usage/create.md
+          - usage/when.md
+          - usage/verify.md
+          - usage/matchers.md
     - api.md
+    - why.md
     - contributing.md
 
 theme:

@@ -64,6 +64,8 @@ class Decoy:
     ) -> ClassT:
         """Create a class decoy for `spec`.
 
+        See [decoy creation usage guide](../usage/create) for more details.
+
         Arguments:
             spec: A class definition that the decoy should mirror.
             is_async: Force the returned spy to be asynchronous. In most cases,
@@ -93,6 +95,8 @@ class Decoy:
     ) -> FuncT:
         """Create a function decoy for `spec`.
 
+        See [decoy creation usage guide](../usage/create) for more details.
+
         Arguments:
             spec: A function that the decoy should mirror.
             is_async: Force the returned spy to be asynchronous. In most cases,
@@ -119,7 +123,7 @@ class Decoy:
     def when(self, _rehearsal_result: ReturnT) -> Stub[ReturnT]:
         """Create a [Stub][decoy.stub.Stub] configuration using a rehearsal call.
 
-        See [stubbing](index.md#stubbing) for more details.
+        See [stubbing usage guide](../usage/when) for more details.
 
         Arguments:
             _rehearsal_result: The return value of a rehearsal, used for typechecking.
@@ -149,7 +153,7 @@ class Decoy:
     def verify(self, *_rehearsal_results: Any) -> None:
         """Verify a decoy was called using one or more rehearsals.
 
-        See [verification](index.md#verification) for more details.
+        See [verification usage guide](../usage/verify) for more details.
 
         Arguments:
             _rehearsal_results: The return value of rehearsals, unused except

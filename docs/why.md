@@ -1,14 +1,14 @@
 # Why Use Decoy?
 
-The Python testing world already has [unittest.mock][] for creating fakes, so why is a library like Decoy even necessary?
+The Python testing world already has [unittest.mock][] for creating mocks, so why is a library like Decoy even necessary?
 
 The `Mock` class (and friends) provided by the Python standard library are great! They are, however:
 
--   Flexible to the point of sometimes feeling un-opinionated
+-   Sometimes too flexible to provide useful design feedback
 -   Not geared towards mimicking the type annotations of your actual interfaces
 -   Geared towards call-then-assert-called test patterns
 
-At its core, Decoy uses test fakes that are stripped down, slightly more opinionated versions of `Mock` that are designed to work with type annotations.
+At its core, Decoy uses spies that are stripped down, more opinionated versions of `Mock` that are designed to work with type annotations.
 
 [unittest.mock]: https://docs.python.org/3/library/unittest.mock.html
 
@@ -16,7 +16,7 @@ At its core, Decoy uses test fakes that are stripped down, slightly more opinion
 
 Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its API) holds, are:
 
-### Test doubles should be complete mocks of dependencies
+### Mocks of dependencies should be complete
 
 -   `unittest.mock.Mock` can partially mock using the `wraps` parameter
 -   Decoy considers [partial mocks][] to be code smell
@@ -27,7 +27,7 @@ Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its 
 [partial mocks]: https://github.com/testdouble/contributing-tests/wiki/Partial-Mock
 [single-responsibility principle]: https://en.wikipedia.org/wiki/Single-responsibility_principle
 
-### Without configuration, test doubles should no-op
+### Without configuration, mocks should no-op
 
 -   `unittest.mock.Mock`'s default return value from an unconfigured method is another `Mock`
 -   Other mocking libraries exist that `assert` on an unconfigured call
@@ -40,11 +40,6 @@ Decoy is meant to be an "opinionated" library. The opinions that Decoy (and its 
     -   i.e. set `return_value`, then later assert that it was called correctly
 
 [arrange act assert]: https://github.com/testdouble/contributing-tests/wiki/Arrange-Act-Assert
-
-### unittest.mock is a good library
-
--   `unittest.mock` is a well designed, flexible, and powerful mocking library
--   You may have tests that don't work nicely with Decoy, or legacy code that would be too hard to refactor, and that's OK! Just use [unittest.mock][], instead
 
 ### Stubs should not return unconditionally
 
