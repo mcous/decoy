@@ -2,6 +2,8 @@
 import pytest
 from decoy import Decoy
 
+pytest_plugins = ["pytester"]
+
 
 @pytest.fixture
 def decoy() -> Decoy:
