@@ -1,6 +1,6 @@
 # Spying with verify
 
-A spy is a mock that simply records all calls made to it. In Decoy, you use the [`verify` API][decoy.decoy.verify] to make assertions about the calls to a spy.
+A spy is a mock that simply records all calls made to it. In Decoy, you use the [`verify` API][decoy.Decoy.verify] to make assertions about the calls to a spy.
 
 If you're coming from `unittest.mock`, you're probably used to calling your code under test and _then_ verifying that your dependency was called correctly. Decoy can provide similar call verification.
 
