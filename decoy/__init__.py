@@ -150,7 +150,7 @@ class Decoy:
 
         return stub
 
-    def verify(self, *_rehearsal_results: Any) -> None:
+    def verify(self, *_rehearsal_results: Any, times: Optional[int] = None) -> None:
         """Verify a decoy was called using one or more rehearsals.
 
         See [verification usage guide](../usage/verify) for more details.
@@ -158,6 +158,10 @@ class Decoy:
         Arguments:
             _rehearsal_results: The return value of rehearsals, unused except
                 to determine how many rehearsals to verify.
+            times: How many times the call should appear. If `times` is specifed,
+                the call count must match exactly, otherwise the call must appear
+                at least once. The `times` argument must be used with exactly one
+                rehearsal.
 
         Example:
             ```python
@@ -187,14 +191,24 @@ class Decoy:
         all_spies = [r.spy_id for r in rehearsals]
         all_calls = self._registry.get_calls_by_spy_id(*all_spies)
 
-        for i in range(len(all_calls)):
-            call = all_calls[i]
-            call_list = all_calls[i : i + len(rehearsals)]
+        if times is None:
+            for i in range(len(all_calls)):
+                call = all_calls[i]
+                call_list = all_calls[i : i + len(rehearsals)]
 
-            if call == rehearsals[0] and call_list == rehearsals:
+                if call == rehearsals[0] and call_list == rehearsals:
+                    return None
+
+        elif len(rehearsals) == 1:
+            matching_calls = [call for call in all_calls if call == rehearsals[0]]
+
+            if len(matching_calls) == times:
                 return None
 
-        raise AssertionError(self._build_verify_error(rehearsals, all_calls))
+        else:
+            raise ValueError("Cannot verify multiple rehearsals when using times")
+
+        raise AssertionError(self._build_verify_error(rehearsals, all_calls, times))
 
     def _pop_last_rehearsal(self) -> SpyCall:
         rehearsal = self._registry.pop_last_call()
@@ -221,10 +235,14 @@ class Decoy:
         return None
 
     def _build_verify_error(
-        self, rehearsals: Sequence[SpyCall], all_calls: Sequence[SpyCall]
+        self,
+        rehearsals: Sequence[SpyCall],
+        all_calls: Sequence[SpyCall],
+        times: Optional[int] = None,
     ) -> str:
         rehearsals_len = len(rehearsals)
         rehearsals_plural = rehearsals_len != 1
+        times_plural = times is not None and times != 1
 
         all_calls_len = len(all_calls)
         all_calls_plural = all_calls_len != 1
@@ -239,7 +257,8 @@ class Decoy:
 
         return linesep.join(
             [
-                f"Expected call{'s' if rehearsals_plural else ''}:",
+                f"Expected {f'{times} ' if times is not None else ''}"
+                f"call{'s' if rehearsals_plural or times_plural else ''}:",
                 rehearsals_printout,
                 f"Found {all_calls_len} call{'s' if all_calls_plural else ''}:",
                 all_calls_printout,

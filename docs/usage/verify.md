@@ -1,6 +1,6 @@
 # Spying with verify
 
-A spy is a mock that simply records all calls made to it. In Decoy, you use the [`verify` API][decoy.Decoy.verify] to make assertions about the calls to a spy.
+A spy is a mock that simply records all calls made to it. In Decoy, you use the [`verify` API][decoy.decoy.verify] to make assertions about the calls to a spy.
 
 If you're coming from `unittest.mock`, you're probably used to calling your code under test and _then_ verifying that your dependency was called correctly. Decoy can provide similar call verification.
 
@@ -55,3 +55,21 @@ decoy.verify(
     handler.call_second_procedure("world"),
 )
 ```
+
+## Verifying a call count
+
+You may want to verify that a call has been made a certain number of times, or verify that a call was never made. You can use the optional `times` argument to specify call count.
+
+```python
+decoy.verify(
+    handler.should_be_called_twice(),
+    times=2,
+)
+
+decoy.verify(
+    handler.should_never_be_called(),
+    times=0,
+)
+```
+
+You may only use the `times` argument with single rehearsal.
