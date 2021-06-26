@@ -233,9 +233,7 @@ class _StringMatching:
 
     def __eq__(self, target: object) -> bool:
         """Return true if target is not self._reject_value."""
-        return (
-            type(target) is str and self._pattern.search(cast(str, target)) is not None
-        )
+        return isinstance(target, str) and self._pattern.search(target) is not None
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""

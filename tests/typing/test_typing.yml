@@ -12,7 +12,7 @@
       fake = decoy.create_decoy(spec=Dependency)
       reveal_type(fake)
   out: |
-      main:9: note: Revealed type is 'main.Dependency*'
+      main:9: note: Revealed type is "main.Dependency*"
 
 - case: class_decoy_mimics_abstract_class_type
   main: |
@@ -27,7 +27,7 @@
       fake = decoy.create_decoy(spec=Dependency)
       reveal_type(fake)
   out: |
-      main:10: note: Revealed type is 'main.Dependency*'
+      main:10: note: Revealed type is "main.Dependency*"
 
 - case: function_decoy_mimics_type
   main: |
@@ -40,7 +40,7 @@
       fake = decoy.create_decoy_func(spec=do_thing)
       reveal_type(fake)
   out: |
-      main:8: note: Revealed type is 'def (input: builtins.str) -> builtins.int'
+      main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
 
 - case: class_stub_mimics_return_type
   main: |
@@ -84,9 +84,9 @@
       reveal_type(matchers.ErrorMatching(RuntimeError))
       reveal_type(matchers.Captor())
   out: |
-      main:3: note: Revealed type is 'Any'
-      main:4: note: Revealed type is 'Any'
-      main:5: note: Revealed type is 'Any'
-      main:6: note: Revealed type is 'builtins.str'
-      main:7: note: Revealed type is 'builtins.Exception'
-      main:8: note: Revealed type is 'Any'
+      main:3: note: Revealed type is "Any"
+      main:4: note: Revealed type is "Any"
+      main:5: note: Revealed type is "Any"
+      main:6: note: Revealed type is "builtins.str"
+      main:7: note: Revealed type is "builtins.Exception"
+      main:8: note: Revealed type is "Any"
