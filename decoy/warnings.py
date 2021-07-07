@@ -1,5 +1,5 @@
 """Warning value objects."""
-import textwrap
+import os
 from typing import Sequence
 
 from .call_stack import SpyCall, SpyRehearsal
@@ -21,10 +21,11 @@ class MiscalledStubWarning(UserWarning):
         calls: Sequence[SpyCall],
     ) -> None:
         """Initialize the warning object and its message."""
-        heading = textwrap.dedent(
-            f"""\
-            Stub was called but no matching rehearsal found.
-            Found {count(len(rehearsals), 'rehearsal')}:"""
+        heading = os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                f"Found {count(len(rehearsals), 'rehearsal')}:",
+            ]
         )
 
         message = stringify_error_message(

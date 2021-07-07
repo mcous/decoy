@@ -1,6 +1,6 @@
 """Tests for error and warning message generation."""
 import pytest
-import textwrap
+import os
 from typing import List, NamedTuple
 
 from decoy.warnings import MiscalledStubWarning
@@ -23,13 +23,14 @@ miscalled_stub_specs = [
         calls=[
             SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
         ],
-        expected_message=textwrap.dedent(
-            """\
-            Stub was called but no matching rehearsal found.
-            Found 1 rehearsal:
-            1.\tspy()
-            Found 1 call:
-            1.\tspy(1)"""
+        expected_message=os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                "Found 1 rehearsal:",
+                "1.\tspy()",
+                "Found 1 call:",
+                "1.\tspy(1)",
+            ]
         ),
     ),
     MiscalledStubSpec(
@@ -40,14 +41,15 @@ miscalled_stub_specs = [
         calls=[
             SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
         ],
-        expected_message=textwrap.dedent(
-            """\
-            Stub was called but no matching rehearsal found.
-            Found 2 rehearsals:
-            1.\tspy()
-            2.\tspy(0)
-            Found 1 call:
-            1.\tspy(1)"""
+        expected_message=os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                "Found 2 rehearsals:",
+                "1.\tspy()",
+                "2.\tspy(0)",
+                "Found 1 call:",
+                "1.\tspy(1)",
+            ]
         ),
     ),
     MiscalledStubSpec(
@@ -58,14 +60,15 @@ miscalled_stub_specs = [
             SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
             SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
         ],
-        expected_message=textwrap.dedent(
-            """\
-            Stub was called but no matching rehearsal found.
-            Found 1 rehearsal:
-            1.\tspy()
-            Found 2 calls:
-            1.\tspy(1)
-            2.\tspy(2)"""
+        expected_message=os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                "Found 1 rehearsal:",
+                "1.\tspy()",
+                "Found 2 calls:",
+                "1.\tspy(1)",
+                "2.\tspy(2)",
+            ]
         ),
     ),
 ]

@@ -1,6 +1,6 @@
 """Tests for error and warning message generation."""
 import pytest
-import textwrap
+import os
 from typing import List, NamedTuple, Optional
 
 from decoy.errors import VerifyError
@@ -23,11 +23,12 @@ verify_error_specs = [
         ],
         calls=[],
         times=None,
-        expected_message=textwrap.dedent(
-            """\
-            Expected at least 1 call:
-            1.\tmy_spy()
-            Found 0 calls."""
+        expected_message=os.linesep.join(
+            [
+                "Expected at least 1 call:",
+                "1.\tmy_spy()",
+                "Found 0 calls.",
+            ]
         ),
     ),
     VerifyErrorSpec(
@@ -39,13 +40,14 @@ verify_error_specs = [
             SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
         ],
         times=None,
-        expected_message=textwrap.dedent(
-            """\
-            Expected at least 1 call:
-            1.\tmy_spy()
-            Found 2 calls:
-            1.\tspy_101(1, 2, 3)
-            2.\tspy_101(4, 5, 6)"""
+        expected_message=os.linesep.join(
+            [
+                "Expected at least 1 call:",
+                "1.\tmy_spy()",
+                "Found 2 calls:",
+                "1.\tspy_101(1, 2, 3)",
+                "2.\tspy_101(4, 5, 6)",
+            ]
         ),
     ),
     VerifyErrorSpec(
@@ -60,16 +62,17 @@ verify_error_specs = [
             SpyCall(spy_id=202, spy_name="spy_202", args=("oh no",), kwargs={}),
         ],
         times=None,
-        expected_message=textwrap.dedent(
-            """\
-            Expected call sequence:
-            1.\tspy_101(1, 2, 3)
-            2.\tspy_101(4, 5, 6)
-            3.\tspy_202(7, 8, 9)
-            Found 3 calls:
-            1.\tspy_101(1, 2, 3)
-            2.\tspy_101(4, 5, 6)
-            3.\tspy_202('oh no')"""
+        expected_message=os.linesep.join(
+            [
+                "Expected call sequence:",
+                "1.\tspy_101(1, 2, 3)",
+                "2.\tspy_101(4, 5, 6)",
+                "3.\tspy_202(7, 8, 9)",
+                "Found 3 calls:",
+                "1.\tspy_101(1, 2, 3)",
+                "2.\tspy_101(4, 5, 6)",
+                "3.\tspy_202('oh no')",
+            ]
         ),
     ),
     VerifyErrorSpec(
@@ -81,11 +84,12 @@ verify_error_specs = [
             SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
         ],
         times=1,
-        expected_message=textwrap.dedent(
-            """\
-            Expected exactly 1 call:
-            1.\tspy_101(1, 2, 3)
-            Found 2 calls."""
+        expected_message=os.linesep.join(
+            [
+                "Expected exactly 1 call:",
+                "1.\tspy_101(1, 2, 3)",
+                "Found 2 calls.",
+            ]
         ),
     ),
 ]
