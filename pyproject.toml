@@ -22,6 +22,7 @@ classifiers = [
 python = "^3.7"
 
 [tool.poetry.dev-dependencies]
+decoy = "^1.5.0"
 black = "^21.5b1"
 flake8 = "^3.8.4"
 flake8-annotations = "^2.4.1"
@@ -40,6 +41,12 @@ pytest-xdist = "^2.1.0"
 
 [tool.pytest.ini_options]
 addopts = "--color=yes --mypy-ini-file=tests/typing/mypy.ini"
+
+[tool.mypy]
+files = ["decoy", "tests"]
+plugins = ["decoy/mypy/plugin.py"]
+strict = true
+show_error_codes = true
 
 [build-system]
 requires = ["poetry>=0.12"]

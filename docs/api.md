@@ -2,8 +2,10 @@
 
 ::: decoy.Decoy
 
-::: decoy.stub.Stub
+::: decoy.Stub
 
 ::: decoy.matchers
+
+::: decoy.errors
 
 ::: decoy.warnings

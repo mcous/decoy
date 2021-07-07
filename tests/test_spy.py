@@ -2,7 +2,8 @@
 import pytest
 
 from typing import Any
-from decoy.spy import create_spy, AsyncSpy, SpyCall
+from decoy.call_stack import SpyCall
+from decoy.spy import create_spy, AsyncSpy, SpyConfig
 
 from .common import (
     some_func,
@@ -19,7 +20,7 @@ def test_create_spy() -> None:
     """It should be able to create a test spy."""
     calls = []
 
-    spy = create_spy(handle_call=lambda c: calls.append(c))
+    spy = create_spy(SpyConfig(handle_call=lambda c: calls.append(c)))
 
     spy(1, 2, 3)
     spy(four=4, five=5, six=6)
@@ -43,7 +44,7 @@ def test_create_spy_from_spec_function() -> None:
     """It should be able to create a test spy from a spec function."""
     calls = []
 
-    spy = create_spy(spec=some_func, handle_call=lambda c: calls.append(c))
+    spy = create_spy(SpyConfig(spec=some_func, handle_call=lambda c: calls.append(c)))
 
     spy(1, 2, 3)
     spy(four=4, five=5, six=6)
@@ -71,7 +72,10 @@ async def test_create_spy_from_async_spec_function() -> None:
     calls = []
 
     spy: AsyncSpy = create_spy(
-        spec=some_async_func, handle_call=lambda c: calls.append(c)
+        SpyConfig(
+            spec=some_async_func,
+            handle_call=lambda c: calls.append(c),
+        )
     )
 
     await spy(1, 2, 3)
@@ -99,7 +103,7 @@ def test_create_spy_from_spec_class() -> None:
     """It should be able to create a test spy from a spec class."""
     calls = []
 
-    spy = create_spy(spec=SomeClass, handle_call=lambda c: calls.append(c))
+    spy = create_spy(SpyConfig(spec=SomeClass, handle_call=lambda c: calls.append(c)))
 
     spy.foo(1, 2, 3)
     spy.bar(four=4, five=5, six=6)
@@ -128,7 +132,9 @@ async def test_create_spy_from_async_spec_class() -> None:
     """It should be able to create a test spy from a class with async methods."""
     calls = []
 
-    spy = create_spy(spec=SomeAsyncClass, handle_call=lambda c: calls.append(c))
+    spy = create_spy(
+        SpyConfig(spec=SomeAsyncClass, handle_call=lambda c: calls.append(c))
+    )
 
     await spy.foo(1, 2, 3)
     await spy.bar(four=4, five=5, six=6)
@@ -157,7 +163,9 @@ def test_create_nested_spy() -> None:
     """It should be able to create a spy that goes several properties deep."""
     calls = []
 
-    spy = create_spy(spec=SomeNestedClass, handle_call=lambda c: calls.append(c))
+    spy = create_spy(
+        SpyConfig(spec=SomeNestedClass, handle_call=lambda c: calls.append(c))
+    )
 
     spy.foo(1, 2, 3)
     spy.child.bar(four=4, five=5, six=6)
@@ -198,7 +206,7 @@ async def test_create_nested_spy_using_property_type_hints() -> None:
             ...
 
     calls = []
-    spy = create_spy(spec=_SomeClass, handle_call=lambda c: calls.append(c))
+    spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
 
     await spy._async_child.bar(four=4, five=5, six=6)
     spy._sync_child.do_the_thing(7, eight=8, nine=9)
@@ -227,7 +235,7 @@ async def test_create_nested_spy_using_class_type_hints() -> None:
         _sync_child: SomeClass
 
     calls = []
-    spy = create_spy(spec=_SomeClass, handle_call=lambda c: calls.append(c))
+    spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
 
     await spy._async_child.bar(four=4, five=5, six=6)
     spy._sync_child.do_the_thing(7, eight=8, nine=9)
@@ -256,7 +264,7 @@ async def test_create_nested_spy_using_non_runtime_type_hints() -> None:
         _property: "None[str]"
 
     calls = []
-    spy = create_spy(spec=_SomeClass, handle_call=lambda c: calls.append(c))
+    spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
     spy._property.do_something(7, eight=8, nine=9)
 
     assert calls == [
@@ -278,8 +286,8 @@ async def test_spy_returns_handler_value() -> None:
         call_count = call_count + 1
         return call_count
 
-    sync_spy = create_spy(spec=some_func, handle_call=_handle_call)
-    async_spy = create_spy(spec=some_async_func, handle_call=_handle_call)
+    sync_spy = create_spy(SpyConfig(spec=some_func, handle_call=_handle_call))
+    async_spy = create_spy(SpyConfig(spec=some_async_func, handle_call=_handle_call))
 
     assert [
         sync_spy(),
@@ -287,38 +295,3 @@ async def test_spy_returns_handler_value() -> None:
         sync_spy(),
         await async_spy(),
     ] == [1, 2, 3, 4]
-
-
-@pytest.mark.parametrize(
-    ("call", "expected"),
-    [
-        (
-            SpyCall(spy_id=42, spy_name="some.name", args=(), kwargs={}),
-            "some.name()",
-        ),
-        (
-            SpyCall(spy_id=42, spy_name="some.name", args=(1,), kwargs={}),
-            "some.name(1)",
-        ),
-        (
-            SpyCall(spy_id=42, spy_name="some.name", args=(1, "2"), kwargs={}),
-            "some.name(1, '2')",
-        ),
-        (
-            SpyCall(spy_id=42, spy_name="some.name", args=(), kwargs={"foo": "bar"}),
-            "some.name(foo='bar')",
-        ),
-        (
-            SpyCall(
-                spy_id=42,
-                spy_name="some.name",
-                args=(1, 2),
-                kwargs={"foo": "bar", "baz": False},
-            ),
-            "some.name(1, 2, foo='bar', baz=False)",
-        ),
-    ],
-)
-def test_spy_call_stringifies(call: SpyCall, expected: str) -> None:
-    """It should serialize SpyCalls to strings."""
-    assert str(call) == expected

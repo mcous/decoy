@@ -32,7 +32,7 @@ def test_log_warning(decoy: Decoy):
 
 ## Capturing values
 
-When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [`matchers.Captor`][decoy.matchers.captor].
+When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [`matchers.Captor`][decoy.matchers.Captor].
 
 For example, our test subject may register an event listener handler, and we want to test our subject's behavior when the event listener is triggered.
 

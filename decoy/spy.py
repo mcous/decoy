@@ -4,39 +4,22 @@ Classes in this module are heavily inspired by the
 [unittest.mock library](https://docs.python.org/3/library/unittest.mock.html).
 """
 from __future__ import annotations
-from dataclasses import dataclass
 from inspect import isclass, iscoroutinefunction
-from typing import get_type_hints, Any, Callable, Dict, Optional, Tuple, Type
+from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional
 
-
-@dataclass(frozen=True)
-class SpyCall:
-    """A dataclass representing a call to a spy.
-
-    Attributes:
-        spy_id: Identifier of the spy that made the call
-        args: Arguments list of the call
-        kwargs: Keyword arguments list of the call
-    """
-
-    spy_id: int
-    spy_name: str
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
-
-    def __str__(self) -> str:
-        """Stringify the call to something human readable.
-
-        `SpyCall(spy_id=42, spy_name="name", args=(1,), kwargs={"foo": False})`
-        would stringify as `"name(1, foo=False)"`
-        """
-        args_list = [repr(arg) for arg in self.args]
-        kwargs_list = [f"{key}={repr(val)}" for key, val in self.kwargs.items()]
-
-        return f"{self.spy_name}({', '.join(args_list + kwargs_list)})"
+from .call_stack import SpyCall
 
 
 CallHandler = Callable[[SpyCall], Any]
+
+
+class SpyConfig(NamedTuple):
+    """Spy configuration options passed to create_spy."""
+
+    handle_call: CallHandler
+    spec: Optional[Any] = None
+    name: Optional[str] = None
+    is_async: bool = False
 
 
 class BaseSpy:
@@ -78,7 +61,7 @@ class BaseSpy:
 
         if isclass(self._spec):
             try:
-                # NOTE(mc, 2021-01-05): `get_type_hints` may fail at runtime,
+                # NOTE: `get_type_hints` may fail at runtime,
                 # e.g. if a type is subscriptable according to mypy but not
                 # according to Python, `get_type_hints` will raise.
                 # Rather than fail to create a spy with an inscrutable error,
@@ -97,9 +80,11 @@ class BaseSpy:
             child_spec = hints.get("return")
 
         spy = create_spy(
-            handle_call=self._handle_call,
-            spec=child_spec,
-            name=f"{self._name}.{name}",
+            config=SpyConfig(
+                handle_call=self._handle_call,
+                spec=child_spec,
+                name=f"{self._name}.{name}",
+            ),
         )
 
         self._spy_children[name] = spy
@@ -123,20 +108,16 @@ class AsyncSpy(BaseSpy):
         return self._handle_call(SpyCall(id(self), self._name, args, kwargs))
 
 
-def create_spy(
-    handle_call: CallHandler,
-    spec: Optional[Any] = None,
-    is_async: bool = False,
-    name: Optional[str] = None,
-) -> Any:
+SpyFactory = Callable[[SpyConfig], BaseSpy]
+
+
+def create_spy(config: SpyConfig) -> Any:
     """Create a Spy from a spec.
 
     Functions and classes passed to `spec` will be inspected (and have any type
     annotations inspected) to ensure `AsyncSpy`'s are returned where necessary.
     """
-    _SpyCls: Type[BaseSpy] = Spy
-
-    if iscoroutinefunction(spec) or is_async is True:
-        _SpyCls = AsyncSpy
+    handle_call, spec, name, is_async = config
+    _SpyCls = AsyncSpy if iscoroutinefunction(spec) or is_async is True else Spy
 
     return _SpyCls(handle_call=handle_call, spec=spec, name=name)
