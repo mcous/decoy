@@ -20,6 +20,7 @@ def test_decoy_creates_func_spy(decoy: Decoy) -> None:
     assert isinstance(subject, Spy)
 
 
+@pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
 def test_when_smoke_test(decoy: Decoy) -> None:
     """It should be able to configure a stub with a rehearsal."""
     subject = decoy.create_decoy_func(spec=some_func)

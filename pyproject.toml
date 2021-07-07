@@ -22,7 +22,6 @@ classifiers = [
 python = "^3.7"
 
 [tool.poetry.dev-dependencies]
-decoy = "^1.5.0"
 black = "^21.5b1"
 flake8 = "^3.8.4"
 flake8-annotations = "^2.4.1"
