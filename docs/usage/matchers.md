@@ -32,7 +32,7 @@ def test_log_warning(decoy: Decoy):
 
 ## Capturing values
 
-When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [`matchers.Captor`][decoy.matchers.captor].
+When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [decoy.matchers.Captor][].
 
 For example, our test subject may register an event listener handler, and we want to test our subject's behavior when the event listener is triggered.
 
@@ -64,6 +64,6 @@ def test_event_listener(decoy: Decoy):
     assert subject.has_heard_event is True
 ```
 
-This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve private functions.
+This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.Captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve private functions.
 
 For further reading on when (or rather, when not) to use argument captors, check out [testdouble's documentation on its argument captor matcher](https://github.com/testdouble/testdouble.js/blob/main/docs/6-verifying-invocations.md#tdmatcherscaptor).

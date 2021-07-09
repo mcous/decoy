@@ -1,7 +1,7 @@
 <div align="center">
     <h1>Decoy</h1>
     <img src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
-    <p>Opinionated, typed stubbing and verification library for Python</p>
+    <p>Opinionated mocking library for Python</p>
     <p>
         <a href="https://github.com/mcous/decoy/actions">
             <img title="CI Status" src="https://flat.badgen.net/github/checks/mcous/decoy/main">
@@ -18,7 +18,7 @@
     </p>
 </div>
 
-The Decoy library allows you to create, stub, and verify fully-typed, async/await friendly mocks in your Python unit tests, so your tests are:
+The Decoy library allows you to create, stub, and verify fully-typed, async/await-friendly mocks in your Python unit tests, so your tests are:
 
 -   Less prone to insufficient tests due to unconditional stubbing
 -   Easier to fit into the Arrange-Act-Assert pattern
