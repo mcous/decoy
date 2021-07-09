@@ -1,6 +1,6 @@
 # Spying with verify
 
-A spy is a mock that simply records all calls made to it. In Decoy, you use the [`verify` API][decoy.Decoy.verify] to make assertions about the calls to a spy.
+A spy is a mock that simply records all calls made to it. In Decoy, you use [decoy.Decoy.verify][] to make assertions about the calls to a spy.
 
 If you're coming from `unittest.mock`, you're probably used to calling your code under test and _then_ verifying that your dependency was called correctly. Decoy can provide similar call verification.
 
@@ -18,7 +18,7 @@ Stubbing and verification of a decoy are **mutually exclusive** within a test. I
 
 ## Using rehearsals to verify a call
 
-The `verify` API uses the same "rehearsal" syntax as the [`when` API](when).
+The `verify` API uses the same "rehearsal" syntax as the [`when` API](./when).
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
@@ -29,6 +29,8 @@ def test_my_thing(decoy: Decoy) -> None:
 
     decoy.verify(database.remove("some-id"))
 ```
+
+If Decoy is unable to find any calls matching the rehearsal inside `verify`, a [decoy.errors.VerifyError][] will be raised.
 
 ## Verifying with async/await
 

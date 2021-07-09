@@ -6,7 +6,17 @@ from .stringify import stringify_error_message, count
 
 
 class VerifyError(AssertionError):
-    """An error raised when actual calls do not match rehearsals given to `verify`."""
+    """An error raised when actual calls do not match rehearsals given to `verify`.
+
+    Attributes:
+        rehearsals: Rehearsals that were being verified.
+        calls: Actual calls to the mock(s).
+        times: The expected number of calls to the mock, if any.
+    """
+
+    rehearsals: Sequence[SpyRehearsal]
+    calls: Sequence[SpyCall]
+    times: Optional[int]
 
     def __init__(
         self,
@@ -14,7 +24,6 @@ class VerifyError(AssertionError):
         calls: Sequence[SpyCall],
         times: Optional[int],
     ) -> None:
-        """Initialize the error object and its message."""
         if times is not None:
             heading = f"Expected exactly {count(times, 'call')}:"
         elif len(rehearsals) == 1:

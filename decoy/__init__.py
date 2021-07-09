@@ -1,4 +1,4 @@
-"""Decoy test double stubbing and verification library."""
+"""Decoy stubbing and spying library."""
 from __future__ import annotations
 from typing import cast, Any, Callable, Generic, Optional
 
@@ -139,9 +139,10 @@ class Decoy:
 
         This method should be called after every test to ensure spies and stubs
         don't leak between tests. The Decoy fixture provided by the pytest plugin
-        will do this automatically.
+        will do this automatically. See the [setup guide](../setup) for more details.
 
-        See the [setup guide](../setup) for more details.
+        The `reset` method may also trigger warnings if Decoy detects any questionable
+        mock usage. See the [decoy.warnings][] for more details.
         """
         self._core.reset()
 
@@ -150,7 +151,6 @@ class Stub(Generic[ReturnT]):
     """A rehearsed Stub that can be used to configure mock behaviors."""
 
     def __init__(self, core: StubCore) -> None:
-        """Initialize the Stub with a configuration."""
         self._core = core
 
     def then_return(self, *values: ReturnT) -> None:

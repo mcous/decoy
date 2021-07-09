@@ -1,6 +1,6 @@
 # Stubbing with when
 
-A stub is a mock that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you use the [`when` API][decoy.Decoy.when] to configure stubs.
+A stub is a mock that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you use [decoy.Decoy.when][] to configure stubs.
 
 ## Using rehearsals to return a value
 
@@ -37,7 +37,7 @@ def test_my_thing_when_database_raises(decoy: Decoy) -> None:
 
     decoy.when(database.get("foo")).then_raise(KeyError(f"foo does not exist"))
 
-    with pytest.raises(NotFoundError):
+    with pytest.raises(KeyError):
         subject.get_model_by_id("foo")
 ```
 

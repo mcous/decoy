@@ -13,14 +13,20 @@ class MiscalledStubWarning(UserWarning):
 
     - Configured as a stub with [`when`][decoy.Decoy.when]
     - Called with arguments that do not match any configured behaviors
+
+    Attributes:
+        rehearsals: The mocks's configured rehearsals.
+        calls: Actual calls to the mock.
     """
+
+    rehearsals: Sequence[SpyRehearsal]
+    calls: Sequence[SpyCall]
 
     def __init__(
         self,
         rehearsals: Sequence[SpyRehearsal],
         calls: Sequence[SpyCall],
     ) -> None:
-        """Initialize the warning object and its message."""
         heading = os.linesep.join(
             [
                 "Stub was called but no matching rehearsal found.",
