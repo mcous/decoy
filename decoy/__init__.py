@@ -1,60 +1,22 @@
-"""Decoy test double stubbing and verification library."""
-from os import linesep
-from typing import cast, Any, Callable, Optional, Sequence
-from warnings import warn
+"""Decoy stubbing and spying library."""
+from __future__ import annotations
+from typing import cast, Any, Callable, Generic, Optional
 
-from .registry import Registry
-from .spy import create_spy, SpyCall
-from .stub import Stub
+from . import matchers, errors, warnings
+from .core import DecoyCore, StubCore
 from .types import ClassT, FuncT, ReturnT
-from .warnings import MissingStubWarning
 
 
 class Decoy:
     """Decoy test double state container."""
 
-    _registry: Registry
-    _warn_on_missing_stubs: bool
-    _next_call_is_when_rehearsal: bool
-
-    def __init__(
-        self,
-        warn_on_missing_stubs: bool = True,
-    ) -> None:
+    def __init__(self) -> None:
         """Initialize the state container for test doubles and stubs.
 
-        You should initialize a new Decoy instance for every test.
-
-        Arguments:
-            warn_on_missing_stubs: Trigger a warning if a stub is called
-                with arguments that do not match any of its rehearsals.
-
-        Example:
-            ```python
-            import pytest
-            from decoy import Decoy
-
-            @pytest.fixture
-            def decoy() -> Decoy:
-                return Decoy()
-            ```
+        You should initialize a new Decoy instance for every test. See the
+        [setup guide](../setup) for more details.
         """
-        self._registry = Registry()
-        self._warn_on_missing_stubs = warn_on_missing_stubs
-        self._next_call_is_when_rehearsal = False
-
-    def __getattribute__(self, name: str) -> Any:
-        """Proxy to catch calls to `when` and mark the subsequent spy call as a rehearsal.
-
-        This is to ensure that rehearsal calls don't accidentally trigger a
-        `MissingStubWarning`.
-        """
-        actual_method = super().__getattribute__(name)
-
-        if name == "when":
-            self._next_call_is_when_rehearsal = True
-
-        return actual_method
+        self._core = DecoyCore()
 
     def create_decoy(
         self,
@@ -83,15 +45,14 @@ class Decoy:
             ```
 
         """
-        spy = create_spy(
-            spec=spec, is_async=is_async, handle_call=self._handle_spy_call
-        )
-        self._registry.register_spy(spy)
-
+        spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(ClassT, spy)
 
     def create_decoy_func(
-        self, spec: Optional[FuncT] = None, *, is_async: bool = False
+        self,
+        spec: Optional[FuncT] = None,
+        *,
+        is_async: bool = False,
     ) -> FuncT:
         """Create a function decoy for `spec`.
 
@@ -113,15 +74,11 @@ class Decoy:
                 # ...
             ```
         """
-        spy = create_spy(
-            spec=spec, is_async=is_async, handle_call=self._handle_spy_call
-        )
-        self._registry.register_spy(spy)
-
+        spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(FuncT, spy)
 
     def when(self, _rehearsal_result: ReturnT) -> Stub[ReturnT]:
-        """Create a [Stub][decoy.stub.Stub] configuration using a rehearsal call.
+        """Create a [Stub][decoy.Stub] configuration using a rehearsal call.
 
         See [stubbing usage guide](../usage/when) for more details.
 
@@ -143,12 +100,8 @@ class Decoy:
             is a rehearsal for stub configuration purposes rather than a call
             from the code-under-test.
         """
-        rehearsal = self._pop_last_rehearsal()
-        stub = Stub[ReturnT](rehearsal=rehearsal)
-
-        self._registry.register_stub(rehearsal.spy_id, stub)
-
-        return stub
+        stub_core = self._core.when(_rehearsal_result)
+        return Stub(core=stub_core)
 
     def verify(self, *_rehearsal_results: Any, times: Optional[int] = None) -> None:
         """Verify a decoy was called using one or more rehearsals.
@@ -158,7 +111,7 @@ class Decoy:
         Arguments:
             _rehearsal_results: The return value of rehearsals, unused except
                 to determine how many rehearsals to verify.
-            times: How many times the call should appear. If `times` is specifed,
+            times: How many times the call should appear. If `times` is specified,
                 the call count must match exactly, otherwise the call must appear
                 at least once. The `times` argument must be used with exactly one
                 rehearsal.
@@ -179,88 +132,53 @@ class Decoy:
             API sugar. Decoy will pop the last call(s) to _any_ fake off its
             call stack, which will end up being the call inside `verify`.
         """
-        if len(_rehearsal_results) > 1:
-            rehearsals = list(
-                reversed(
-                    [self._pop_last_rehearsal() for i in range(len(_rehearsal_results))]
-                )
-            )
-        else:
-            rehearsals = [self._pop_last_rehearsal()]
+        self._core.verify(*_rehearsal_results, times=times)
 
-        all_spies = [r.spy_id for r in rehearsals]
-        all_calls = self._registry.get_calls_by_spy_id(*all_spies)
+    def reset(self) -> None:
+        """Reset all decoy state.
 
-        if times is None:
-            for i in range(len(all_calls)):
-                call = all_calls[i]
-                call_list = all_calls[i : i + len(rehearsals)]
+        This method should be called after every test to ensure spies and stubs
+        don't leak between tests. The Decoy fixture provided by the pytest plugin
+        will do this automatically. See the [setup guide](../setup) for more details.
 
-                if call == rehearsals[0] and call_list == rehearsals:
-                    return None
+        The `reset` method may also trigger warnings if Decoy detects any questionable
+        mock usage. See [decoy.warnings][] for more details.
+        """
+        self._core.reset()
 
-        elif len(rehearsals) == 1:
-            matching_calls = [call for call in all_calls if call == rehearsals[0]]
 
-            if len(matching_calls) == times:
-                return None
+class Stub(Generic[ReturnT]):
+    """A rehearsed Stub that can be used to configure mock behaviors."""
 
-        else:
-            raise ValueError("Cannot verify multiple rehearsals when using times")
+    def __init__(self, core: StubCore) -> None:
+        self._core = core
 
-        raise AssertionError(self._build_verify_error(rehearsals, all_calls, times))
+    def then_return(self, *values: ReturnT) -> None:
+        """Set the stub to return value(s).
 
-    def _pop_last_rehearsal(self) -> SpyCall:
-        rehearsal = self._registry.pop_last_call()
+        See [stubbing usage guide](../usage/when) for more details.
 
-        if rehearsal is None:
-            raise ValueError("when/verify must be called with a decoy rehearsal")
+        Arguments:
+            *values: Zero or more return values. Multiple values will result
+                     in different return values for subsequent calls, with the
+                     last value latching in once all other values have returned.
+        """
+        self._core.then_return(*values)
 
-        return rehearsal
+    def then_raise(self, error: Exception) -> None:
+        """Set the stub to raise an error.
 
-    def _handle_spy_call(self, call: SpyCall) -> Any:
-        self._registry.register_call(call)
+        See [stubbing usage guide](../usage/when) for more details.
 
-        stubs = self._registry.get_stubs_by_spy_id(call.spy_id)
-        is_when_rehearsal = self._next_call_is_when_rehearsal
-        self._next_call_is_when_rehearsal = False
+        Arguments:
+            error: The error to raise.
 
-        for stub in reversed(stubs):
-            if stub._rehearsal == call:
-                return stub._act()
+        Note:
+            Setting a stub to raise will prevent you from writing new
+            rehearsals, because they will raise. If you need to make more calls
+            to `when`, you'll need to wrap your rehearsal in a `try`.
+        """
+        self._core.then_raise(error)
 
-        if not is_when_rehearsal and self._warn_on_missing_stubs and len(stubs) > 0:
-            warn(MissingStubWarning(call, stubs))
 
-        return None
-
-    def _build_verify_error(
-        self,
-        rehearsals: Sequence[SpyCall],
-        all_calls: Sequence[SpyCall],
-        times: Optional[int] = None,
-    ) -> str:
-        rehearsals_len = len(rehearsals)
-        rehearsals_plural = rehearsals_len != 1
-        times_plural = times is not None and times != 1
-
-        all_calls_len = len(all_calls)
-        all_calls_plural = all_calls_len != 1
-
-        rehearsals_printout = linesep.join(
-            [f"{n + 1}.\t{str(rehearsals[n])}" for n in range(rehearsals_len)]
-        )
-
-        all_calls_printout = linesep.join(
-            [f"{n + 1}.\t{str(all_calls[n])}" for n in range(all_calls_len)]
-        )
-
-        return linesep.join(
-            [
-                f"Expected {f'{times} ' if times is not None else ''}"
-                f"call{'s' if rehearsals_plural or times_plural else ''}:",
-                rehearsals_printout,
-                f"Found {all_calls_len} call{'s' if all_calls_plural else ''}:",
-                all_calls_printout,
-            ]
-        )
+__all__ = ["Decoy", "Stub", "matchers", "warnings", "errors"]

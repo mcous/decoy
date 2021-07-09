@@ -1,64 +1,85 @@
-"""Tests for warning messages."""
-from os import linesep
-from typing import Any, List
+"""Tests for error and warning message generation."""
+import pytest
+import os
+from typing import List, NamedTuple
 
-from decoy.spy import SpyCall
-from decoy.stub import Stub
-from decoy.warnings import MissingStubWarning
-
-
-def test_no_stubbing_found_warning() -> None:
-    """It should print a helpful error message if a call misses a stub."""
-    call = SpyCall(spy_id=123, spy_name="spy", args=(1, 2), kwargs={"foo": "bar"})
-    stub: Stub[Any] = Stub(
-        rehearsal=SpyCall(
-            spy_id=123,
-            spy_name="spy",
-            args=(3, 4),
-            kwargs={"baz": "qux"},
-        )
-    )
-
-    result = MissingStubWarning(call=call, stubs=[stub])
-
-    assert str(result) == (
-        f"Stub was called but no matching rehearsal found.{linesep}"
-        f"Found 1 rehearsal:{linesep}"
-        f"1.\tspy(3, 4, baz='qux'){linesep}"
-        f"Actual call:{linesep}"
-        "\tspy(1, 2, foo='bar')"
-    )
+from decoy.spy import SpyCall, SpyRehearsal
+from decoy.warnings import MiscalledStubWarning
 
 
-def test_no_stubbing_found_warning_plural() -> None:
-    """It should print a helpful message if a call misses multiple stubs."""
-    call = SpyCall(spy_id=123, spy_name="spy", args=(1, 2), kwargs={"foo": "bar"})
-    stubs: List[Stub[Any]] = [
-        Stub(
-            rehearsal=SpyCall(
-                spy_id=123,
-                spy_name="spy",
-                args=(3, 4),
-                kwargs={"baz": "qux"},
-            )
+class MiscalledStubSpec(NamedTuple):
+    """Spec data for MiscalledStubWarning message tests."""
+
+    rehearsals: List[SpyRehearsal]
+    calls: List[SpyCall]
+    expected_message: str
+
+
+miscalled_stub_specs = [
+    MiscalledStubSpec(
+        rehearsals=[
+            SpyRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+        ],
+        expected_message=os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                "Found 1 rehearsal:",
+                "1.\tspy()",
+                "Found 1 call:",
+                "1.\tspy(1)",
+            ]
         ),
-        Stub(
-            rehearsal=SpyCall(
-                spy_id=123,
-                spy_name="spy",
-                args=(5, 6),
-                kwargs={"fizz": "buzz"},
-            )
+    ),
+    MiscalledStubSpec(
+        rehearsals=[
+            SpyRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+            SpyRehearsal(spy_id=1, spy_name="spy", args=(0,), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+        ],
+        expected_message=os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                "Found 2 rehearsals:",
+                "1.\tspy()",
+                "2.\tspy(0)",
+                "Found 1 call:",
+                "1.\tspy(1)",
+            ]
         ),
-    ]
+    ),
+    MiscalledStubSpec(
+        rehearsals=[
+            SpyRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+        ],
+        expected_message=os.linesep.join(
+            [
+                "Stub was called but no matching rehearsal found.",
+                "Found 1 rehearsal:",
+                "1.\tspy()",
+                "Found 2 calls:",
+                "1.\tspy(1)",
+                "2.\tspy(2)",
+            ]
+        ),
+    ),
+]
 
-    result = MissingStubWarning(call=call, stubs=stubs)
 
-    assert str(result) == (
-        f"Stub was called but no matching rehearsal found.{linesep}"
-        f"Found 2 rehearsals:{linesep}"
-        f"1.\tspy(3, 4, baz='qux'){linesep}"
-        f"2.\tspy(5, 6, fizz='buzz'){linesep}"
-        f"Actual call:{linesep}"
-        "\tspy(1, 2, foo='bar')"
-    )
+@pytest.mark.parametrize(MiscalledStubSpec._fields, miscalled_stub_specs)
+def test_verify_no_misscalled_stubs(
+    rehearsals: List[SpyRehearsal],
+    calls: List[SpyCall],
+    expected_message: str,
+) -> None:
+    """It should stringify MiscalledStubWarning properly."""
+    warning = MiscalledStubWarning(calls=calls, rehearsals=rehearsals)
+    assert str(warning) == expected_message

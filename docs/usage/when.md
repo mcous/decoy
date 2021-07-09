@@ -1,6 +1,6 @@
 # Stubbing with when
 
-A stub is a mock that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you use the [`when` API][decoy.Decoy.when] to configure stubs.
+A stub is a mock that is pre-configured to return a result or raise an error if called according to a specification. In Decoy, you use [decoy.Decoy.when][] to configure stubs.
 
 ## Using rehearsals to return a value
 
@@ -18,7 +18,7 @@ def test_my_thing(decoy: Decoy) -> None:
     assert result == Model(id="some-id")
 ```
 
-The "rehearsal" is simply a call to the stub wrapped inside `decoy.when`. Decoy is able to differentiate between rehearsal calls and actual calls. If the mock is called later **in exactly the same way as a rehearsal**, it will behave as configured. If you need to loosen the "exact argument match" behavior, see the [matchers docs](./matchers).
+The "rehearsal" is simply a call to the stub wrapped inside `decoy.when`. Decoy is able to differentiate between rehearsal calls and actual calls. If the mock is called later **in exactly the same way as a rehearsal**, it will behave as configured. If you need to loosen the "exact argument match" behavior, see [matchers](./matchers).
 
 The "rehearsal" API gives us the following benefits:
 
@@ -37,7 +37,7 @@ def test_my_thing_when_database_raises(decoy: Decoy) -> None:
 
     decoy.when(database.get("foo")).then_raise(KeyError(f"foo does not exist"))
 
-    with pytest.raises(NotFoundError):
+    with pytest.raises(KeyError):
         subject.get_model_by_id("foo")
 ```
 

@@ -1,6 +1,6 @@
 # Spying with verify
 
-A spy is a mock that simply records all calls made to it. In Decoy, you use the [`verify` API][decoy.Decoy.verify] to make assertions about the calls to a spy.
+A spy is a mock that simply records all calls made to it. In Decoy, you use [decoy.Decoy.verify][] to make assertions about the calls to a spy.
 
 If you're coming from `unittest.mock`, you're probably used to calling your code under test and _then_ verifying that your dependency was called correctly. Decoy can provide similar call verification.
 
@@ -8,7 +8,7 @@ If you're coming from `unittest.mock`, you're probably used to calling your code
 
 Asserting that calls happened after the fact can be useful, but **should only be used if the dependency is being called solely for its side-effect(s)**. Verification of interactions in this manner should be considered a last resort, because:
 
--   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](when)
+-   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](./when)
 -   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
 
 Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same dependency, then one or more of these is true:
@@ -18,7 +18,7 @@ Stubbing and verification of a decoy are **mutually exclusive** within a test. I
 
 ## Using rehearsals to verify a call
 
-The `verify` API uses the same "rehearsal" syntax as the [`when` API](when).
+The `verify` API uses the same "rehearsal" syntax as the [`when` API](./when).
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
@@ -29,6 +29,8 @@ def test_my_thing(decoy: Decoy) -> None:
 
     decoy.verify(database.remove("some-id"))
 ```
+
+If Decoy is unable to find any calls matching the rehearsal inside `verify`, a [decoy.errors.VerifyError][] will be raised.
 
 ## Verifying with async/await
 

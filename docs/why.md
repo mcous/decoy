@@ -4,11 +4,15 @@ The Python testing world already has [unittest.mock][] for creating mocks, so wh
 
 The `Mock` class (and friends) provided by the Python standard library are great! They are, however:
 
--   Sometimes too flexible to provide useful design feedback
--   Not geared towards mimicking the type annotations of your actual interfaces
--   Geared towards call-then-assert-called test patterns
+-   Heavily geared towards call-then-assert-called test patterns
+-   Often too flexible to provide useful design feedback
+-   Not designed to mimic the type annotations of your actual interfaces
 
-At its core, Decoy uses spies that are stripped down, more opinionated versions of `Mock` that are designed to work with type annotations.
+Decoy sets out to provide mocks that are, instead:
+
+-   Configurable based on inputs and outputs rather than assertions
+-   Intentionally limited to provide quick design feedback for your code under test
+-   Designed from the ground-up to be useful in typed codebases
 
 [unittest.mock]: https://docs.python.org/3/library/unittest.mock.html
 
