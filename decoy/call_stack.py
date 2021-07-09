@@ -2,7 +2,7 @@
 from typing import List, Sequence
 
 from .spy import SpyCall, SpyRehearsal
-from .errors import RehearsalNotFoundError
+from .errors import MissingRehearsalError
 
 
 class CallStack:
@@ -31,7 +31,7 @@ class CallStack:
         calls = self._stack[-count:]
 
         if len(calls) != count or any(isinstance(call, SpyRehearsal) for call in calls):
-            raise RehearsalNotFoundError()
+            raise MissingRehearsalError()
 
         rehearsals = [SpyRehearsal(*call) for call in calls]
         self._stack[-count:] = rehearsals

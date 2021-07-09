@@ -5,8 +5,12 @@ from .spy import SpyCall, SpyRehearsal
 from .stringify import stringify_error_message, count
 
 
-class RehearsalNotFoundError(ValueError):
-    """An error raised when `when` or `verify` is called without rehearsal(s)."""
+class MissingRehearsalError(ValueError):
+    """An error raised when `when` or `verify` is called without rehearsal(s).
+
+    This error can also be triggered if you forget to include `await` with
+    the rehearsal of an asynchronous mock.
+    """
 
     def __init__(self) -> None:
         super().__init__("Rehearsal not found for when/verify.")

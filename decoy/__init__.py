@@ -142,7 +142,7 @@ class Decoy:
         will do this automatically. See the [setup guide](../setup) for more details.
 
         The `reset` method may also trigger warnings if Decoy detects any questionable
-        mock usage. See the [decoy.warnings][] for more details.
+        mock usage. See [decoy.warnings][] for more details.
         """
         self._core.reset()
 
