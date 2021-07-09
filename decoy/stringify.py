@@ -1,7 +1,7 @@
 """Message string generation."""
 import os
 from typing import Sequence
-from .call_stack import SpyCall, SpyRehearsal
+from .spy import SpyCall, SpyRehearsal
 
 
 def stringify_call(call: SpyCall) -> str:

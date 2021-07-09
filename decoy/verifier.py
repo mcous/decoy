@@ -2,7 +2,7 @@
 from typing import Dict, List, Optional, Sequence
 from warnings import warn
 
-from .call_stack import SpyCall, SpyRehearsal
+from .spy import SpyCall, SpyRehearsal
 from .errors import VerifyError
 from .warnings import MiscalledStubWarning
 

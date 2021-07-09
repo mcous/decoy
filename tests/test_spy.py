@@ -1,9 +1,8 @@
 """Tests for spy creation."""
 import pytest
-
 from typing import Any
-from decoy.call_stack import SpyCall
-from decoy.spy import create_spy, AsyncSpy, SpyConfig
+
+from decoy.spy import create_spy, AsyncSpy, SpyConfig, SpyCall
 
 from .common import (
     some_func,

@@ -1,7 +1,9 @@
 """Tests for the spy call stack."""
 import pytest
-from decoy.call_stack import CallStack, CallStackEmptyError
-from decoy.call_stack import SpyCall, SpyRehearsal
+
+from decoy.errors import RehearsalNotFoundError
+from decoy.spy import SpyCall, SpyRehearsal
+from decoy.call_stack import CallStack
 
 
 def test_push_and_consume() -> None:
@@ -27,7 +29,7 @@ def test_pop_raises_empty_error() -> None:
     subject.push(call)
     subject.consume_rehearsal()
 
-    with pytest.raises(CallStackEmptyError):
+    with pytest.raises(RehearsalNotFoundError):
         subject.consume_rehearsal()
 
 
@@ -46,7 +48,7 @@ def test_pop_slice() -> None:
         SpyRehearsal(spy_id=2, spy_name="spy_2", args=(), kwargs={}),
     ]
 
-    with pytest.raises(CallStackEmptyError):
+    with pytest.raises(RehearsalNotFoundError):
         subject.consume_rehearsal()
 
 
@@ -57,7 +59,7 @@ def test_pop_slice_raises_error() -> None:
 
     subject.push(call_1)
 
-    with pytest.raises(CallStackEmptyError):
+    with pytest.raises(RehearsalNotFoundError):
         subject.consume_rehearsals(count=2)
 
 

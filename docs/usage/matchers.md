@@ -2,7 +2,7 @@
 
 Sometimes, when you're stubbing or verifying calls (or really when you're doing any sort of equality assertion in a test), you need to loosen a given assertion. For example, you may want to assert that a dependency is called with a string, but you don't care about the full contents of that string.
 
-Decoy includes a [`matchers` module][decoy.matchers], which has a set of Python classes with `__eq__` methods defined that you can use in rehearsals and/or assertions in place of actual values
+Decoy includes [decoy.matchers][], which has a set of Python classes with `__eq__` methods defined that you can use in rehearsals and/or assertions in place of actual values
 
 ## Basic usage
 
@@ -32,7 +32,7 @@ def test_log_warning(decoy: Decoy):
 
 ## Capturing values
 
-When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [`matchers.Captor`][decoy.matchers.Captor].
+When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [`matchers.Captor`][decoy.matchers.captor].
 
 For example, our test subject may register an event listener handler, and we want to test our subject's behavior when the event listener is triggered.
 

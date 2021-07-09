@@ -5,9 +5,29 @@ Classes in this module are heavily inspired by the
 """
 from __future__ import annotations
 from inspect import isclass, iscoroutinefunction
-from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional
+from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional, Tuple
 
-from .call_stack import SpyCall
+
+class SpyCall(NamedTuple):
+    """A value object representing a call to a spy.
+
+    Attributes:
+        spy_id: Identifier of the spy that made the call.
+        spy_name: String name of the spy.
+        args: Arguments list of the call.
+        kwargs: Keyword arguments list of the call.
+    """
+
+    spy_id: int
+    spy_name: str
+    args: Tuple[Any, ...]
+    kwargs: Dict[str, Any]
+
+
+class SpyRehearsal(SpyCall):
+    """A SpyCall that has been used as a rehearsal."""
+
+    pass
 
 
 CallHandler = Callable[[SpyCall], Any]
@@ -108,7 +128,7 @@ class AsyncSpy(BaseSpy):
         return self._handle_call(SpyCall(id(self), self._name, args, kwargs))
 
 
-SpyFactory = Callable[[SpyConfig], BaseSpy]
+SpyFactory = Callable[[SpyConfig], Any]
 
 
 def create_spy(config: SpyConfig) -> Any:

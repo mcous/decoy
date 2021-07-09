@@ -3,8 +3,8 @@ import pytest
 import os
 from typing import List, NamedTuple, Optional
 
+from decoy.spy import SpyCall, SpyRehearsal
 from decoy.errors import VerifyError
-from decoy.call_stack import SpyCall, SpyRehearsal
 
 
 class VerifyErrorSpec(NamedTuple):

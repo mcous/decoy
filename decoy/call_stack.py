@@ -1,33 +1,8 @@
 """Spy creation and storage."""
-from typing import Any, Dict, List, NamedTuple, Sequence, Tuple
+from typing import List, Sequence
 
-
-class SpyCall(NamedTuple):
-    """A value object representing a call to a spy.
-
-    Attributes:
-        spy_id: Identifier of the spy that made the call.
-        spy_name: String name of the spy.
-        args: Arguments list of the call.
-        kwargs: Keyword arguments list of the call.
-    """
-
-    spy_id: int
-    spy_name: str
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
-
-
-class SpyRehearsal(SpyCall):
-    """A SpyCall that has been used as a rehearsal."""
-
-    pass
-
-
-class CallStackEmptyError(IndexError):
-    """An error raised when attempting pop from an empty stack."""
-
-    pass
+from .spy import SpyCall, SpyRehearsal
+from .errors import RehearsalNotFoundError
 
 
 class CallStack:
@@ -56,7 +31,7 @@ class CallStack:
         calls = self._stack[-count:]
 
         if len(calls) != count or any(isinstance(call, SpyRehearsal) for call in calls):
-            raise CallStackEmptyError("Not enough calls in the stack")
+            raise RehearsalNotFoundError()
 
         rehearsals = [SpyRehearsal(*call) for call in calls]
         self._stack[-count:] = rehearsals

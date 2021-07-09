@@ -8,7 +8,7 @@ If you're coming from `unittest.mock`, you're probably used to calling your code
 
 Asserting that calls happened after the fact can be useful, but **should only be used if the dependency is being called solely for its side-effect(s)**. Verification of interactions in this manner should be considered a last resort, because:
 
--   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](when)
+-   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](./when)
 -   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
 
 Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same dependency, then one or more of these is true:

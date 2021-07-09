@@ -3,8 +3,8 @@ import pytest
 import os
 from typing import List, NamedTuple
 
+from decoy.spy import SpyCall, SpyRehearsal
 from decoy.warnings import MiscalledStubWarning
-from decoy.call_stack import SpyCall, SpyRehearsal
 
 
 class MiscalledStubSpec(NamedTuple):

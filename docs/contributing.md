@@ -55,14 +55,6 @@ Decoy's documentation is built with [mkdocs][], which you can use to preview the
 poetry run mkdocs serve
 ```
 
-[poetry]: https://python-poetry.org/
-[pytest]: https://docs.pytest.org/
-[pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
-[mypy]: https://mypy.readthedocs.io
-[flake8]: https://flake8.pycqa.org
-[black]: https://black.readthedocs.io
-[mkdocs]: https://www.mkdocs.org/
-
 ## Deploying
 
 The library and documentation will be deployed to PyPI and GitHub Pages, respectively, by CI. To trigger the deploy, cut a new version and push it to GitHub.
@@ -88,4 +80,11 @@ git tag -a v${release_version} -m "chore(release): ${release_version}"
 git push --follow-tags
 ```
 
+[poetry]: https://python-poetry.org/
+[pytest]: https://docs.pytest.org/
+[pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
+[mypy]: https://mypy.readthedocs.io
+[flake8]: https://flake8.pycqa.org
+[black]: https://black.readthedocs.io
+[mkdocs]: https://www.mkdocs.org/
 [semantic versioning]: https://semver.org/

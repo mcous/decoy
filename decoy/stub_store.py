@@ -1,7 +1,7 @@
 """Stub creation and storage."""
 from typing import Any, List, NamedTuple, Optional
 
-from .call_stack import SpyCall, SpyRehearsal
+from .spy import SpyCall, SpyRehearsal
 
 
 class StubBehavior(NamedTuple):

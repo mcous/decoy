@@ -4,10 +4,18 @@ import pytest
 from decoy import Decoy
 from decoy.core import DecoyCore
 from decoy.call_handler import CallHandler
-from decoy.call_stack import CallStack, SpyCall, SpyRehearsal
+from decoy.call_stack import CallStack
 from decoy.stub_store import StubStore, StubBehavior
 from decoy.verifier import Verifier
-from decoy.spy import Spy, SpyConfig, SpyFactory, create_spy as default_create_spy
+
+from decoy.spy import (
+    Spy,
+    SpyConfig,
+    SpyFactory,
+    SpyCall,
+    SpyRehearsal,
+    create_spy as default_create_spy,
+)
 
 from .common import SomeClass, noop
 

@@ -1,8 +1,15 @@
 """Error value objects."""
 from typing import Optional, Sequence
 
-from .call_stack import SpyCall, SpyRehearsal
+from .spy import SpyCall, SpyRehearsal
 from .stringify import stringify_error_message, count
+
+
+class RehearsalNotFoundError(ValueError):
+    """An error raised when `when` or `verify` is called without rehearsal(s)."""
+
+    def __init__(self) -> None:
+        super().__init__("Rehearsal not found for when/verify.")
 
 
 class VerifyError(AssertionError):

@@ -2,9 +2,9 @@
 from __future__ import annotations
 from typing import Any, Optional
 
-from .call_stack import CallStack, SpyRehearsal
+from .call_stack import CallStack
 from .stub_store import StubStore, StubBehavior
-from .spy import BaseSpy, SpyConfig, SpyFactory, create_spy as default_create_spy
+from .spy import SpyConfig, SpyFactory, SpyRehearsal, create_spy as default_create_spy
 from .call_handler import CallHandler
 from .verifier import Verifier
 from .types import ReturnT
@@ -31,7 +31,7 @@ class DecoyCore:
             stub_store=self._stub_store,
         )
 
-    def mock(self, *, spec: Optional[Any] = None, is_async: bool = False) -> BaseSpy:
+    def mock(self, *, spec: Optional[Any] = None, is_async: bool = False) -> Any:
         """Create and register a new spy."""
         config = SpyConfig(
             spec=spec,

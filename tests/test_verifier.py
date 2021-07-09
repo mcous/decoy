@@ -2,7 +2,7 @@
 import pytest
 from typing import Any, List, NamedTuple, Optional
 
-from decoy.call_stack import SpyCall, SpyRehearsal
+from decoy.spy import SpyCall, SpyRehearsal
 from decoy.errors import VerifyError
 from decoy.warnings import MiscalledStubWarning
 from decoy.verifier import Verifier

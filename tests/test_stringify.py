@@ -2,7 +2,7 @@
 import pytest
 from typing import NamedTuple
 
-from decoy.call_stack import SpyCall
+from decoy.spy import SpyCall
 from decoy.stringify import stringify_call
 
 

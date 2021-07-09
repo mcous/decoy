@@ -1,7 +1,8 @@
 """Tests for stub behavior storage."""
 import pytest
+
+from decoy.spy import SpyCall, SpyRehearsal
 from decoy.stub_store import StubStore, StubBehavior
-from decoy.call_stack import SpyCall, SpyRehearsal
 
 
 def test_get_by_call() -> None:

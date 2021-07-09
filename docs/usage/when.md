@@ -18,7 +18,7 @@ def test_my_thing(decoy: Decoy) -> None:
     assert result == Model(id="some-id")
 ```
 
-The "rehearsal" is simply a call to the stub wrapped inside `decoy.when`. Decoy is able to differentiate between rehearsal calls and actual calls. If the mock is called later **in exactly the same way as a rehearsal**, it will behave as configured. If you need to loosen the "exact argument match" behavior, see the [matchers docs](./matchers).
+The "rehearsal" is simply a call to the stub wrapped inside `decoy.when`. Decoy is able to differentiate between rehearsal calls and actual calls. If the mock is called later **in exactly the same way as a rehearsal**, it will behave as configured. If you need to loosen the "exact argument match" behavior, see [matchers](./matchers).
 
 The "rehearsal" API gives us the following benefits:
 

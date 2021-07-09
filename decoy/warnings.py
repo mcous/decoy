@@ -2,7 +2,7 @@
 import os
 from typing import Sequence
 
-from .call_stack import SpyCall, SpyRehearsal
+from .spy import SpyCall, SpyRehearsal
 from .stringify import stringify_error_message, count
 
 
