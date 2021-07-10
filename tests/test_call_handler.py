@@ -2,7 +2,7 @@
 import pytest
 
 from decoy import Decoy
-from decoy.spy import SpyCall
+from decoy.spy_calls import SpyCall
 from decoy.call_stack import CallStack
 from decoy.stub_store import StubStore, StubBehavior
 from decoy.call_handler import CallHandler

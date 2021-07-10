@@ -7,15 +7,9 @@ from decoy.call_handler import CallHandler
 from decoy.call_stack import CallStack
 from decoy.stub_store import StubStore, StubBehavior
 from decoy.verifier import Verifier
-
-from decoy.spy import (
-    Spy,
-    SpyConfig,
-    SpyFactory,
-    SpyCall,
-    SpyRehearsal,
-    create_spy as default_create_spy,
-)
+from decoy.warning_checker import WarningChecker
+from decoy.spy_calls import SpyCall, VerifyRehearsal, WhenRehearsal
+from decoy.spy import Spy, SpyConfig, SpyFactory, create_spy as default_create_spy
 
 from .common import SomeClass, noop
 
@@ -51,9 +45,16 @@ def verifier(decoy: Decoy) -> Verifier:
 
 
 @pytest.fixture
+def warning_checker(decoy: Decoy) -> WarningChecker:
+    """Get a mock instance of a Verifier."""
+    return decoy.create_decoy(spec=WarningChecker)
+
+
+@pytest.fixture
 def subject(
     create_spy: SpyFactory,
     verifier: Verifier,
+    warning_checker: WarningChecker,
     stub_store: StubStore,
     call_stack: CallStack,
     call_handler: CallHandler,
@@ -62,6 +63,7 @@ def subject(
     return DecoyCore(
         create_spy=create_spy,
         verifier=verifier,
+        warning_checker=warning_checker,
         stub_store=stub_store,
         call_stack=call_stack,
         call_handler=call_handler,
@@ -108,8 +110,8 @@ def test_when_then_return(
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a new stubbing."""
-    rehearsal = SpyRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_rehearsal()).then_return(rehearsal)
+    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    decoy.when(call_stack.consume_when_rehearsal()).then_return(rehearsal)
 
     result = subject.when("__rehearsal__")
     result.then_return("hello")
@@ -129,8 +131,8 @@ def test_when_then_return_multiple_values(
     subject: DecoyCore,
 ) -> None:
     """It should add multiple return values to a stub."""
-    rehearsal = SpyRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_rehearsal()).then_return(rehearsal)
+    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    decoy.when(call_stack.consume_when_rehearsal()).then_return(rehearsal)
 
     result = subject.when(0)
     result.then_return(42, 43, 44)
@@ -158,8 +160,8 @@ def test_when_then_raise(
     subject: DecoyCore,
 ) -> None:
     """It should add a raise behavior to a stub."""
-    rehearsal = SpyRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_rehearsal()).then_return(rehearsal)
+    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    decoy.when(call_stack.consume_when_rehearsal()).then_return(rehearsal)
 
     error = RuntimeError("oh no")
     result = subject.when("__rehearsal__")
@@ -181,10 +183,10 @@ def test_verify(
 ) -> None:
     """It should be able to verify a call."""
     spy_id = 42
-    rehearsal = SpyRehearsal(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = VerifyRehearsal(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
     call = SpyCall(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
 
-    decoy.when(call_stack.consume_rehearsals(count=1)).then_return([rehearsal])
+    decoy.when(call_stack.consume_verify_rehearsals(count=1)).then_return([rehearsal])
     decoy.when(call_stack.get_by_rehearsals([rehearsal])).then_return([call])
 
     subject.verify("__rehearsal__")
@@ -203,12 +205,12 @@ def test_verify_multiple_calls(
     spy_id_2 = 9001
 
     rehearsals = [
-        SpyRehearsal(spy_id=spy_id_1, spy_name="spy_1", args=(), kwargs={}),
-        SpyRehearsal(spy_id=spy_id_2, spy_name="spy_2", args=(), kwargs={}),
+        VerifyRehearsal(spy_id=spy_id_1, spy_name="spy_1", args=(), kwargs={}),
+        VerifyRehearsal(spy_id=spy_id_2, spy_name="spy_2", args=(), kwargs={}),
     ]
     calls = [SpyCall(spy_id=spy_id_1, spy_name="spy_1", args=(), kwargs={})]
 
-    decoy.when(call_stack.consume_rehearsals(count=2)).then_return(rehearsals)
+    decoy.when(call_stack.consume_verify_rehearsals(count=2)).then_return(rehearsals)
     decoy.when(call_stack.get_by_rehearsals(rehearsals)).then_return(calls)
 
     subject.verify("__rehearsal_1__", "__rehearsal_2__")
@@ -224,10 +226,10 @@ def test_verify_call_times(
 ) -> None:
     """It should be able to verify the call count."""
     spy_id = 42
-    rehearsal = SpyRehearsal(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = VerifyRehearsal(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
     call = SpyCall(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
 
-    decoy.when(call_stack.consume_rehearsals(count=1)).then_return([rehearsal])
+    decoy.when(call_stack.consume_verify_rehearsals(count=1)).then_return([rehearsal])
     decoy.when(call_stack.get_by_rehearsals([rehearsal])).then_return([call])
 
     subject.verify("__rehearsal__", times=2)
@@ -239,7 +241,7 @@ def test_reset(
     decoy: Decoy,
     call_stack: CallStack,
     stub_store: StubStore,
-    verifier: Verifier,
+    warning_checker: WarningChecker,
     subject: DecoyCore,
 ) -> None:
     """It should reset the stores."""
@@ -250,7 +252,7 @@ def test_reset(
     subject.reset()
 
     decoy.verify(
-        verifier.verify_no_miscalled_stubs([call]),
+        warning_checker.check([call]),
         call_stack.clear(),
         stub_store.clear(),
     )

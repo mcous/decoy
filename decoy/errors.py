@@ -1,15 +1,25 @@
-"""Error value objects."""
+"""Errors raised by Decoy.
+
+See the [errors guide][] for more details.
+
+[errors guide]: ../usage/errors-and-warnings/#warnings
+"""
 from typing import Optional, Sequence
 
-from .spy import SpyCall, SpyRehearsal
+from .spy_calls import SpyCall, VerifyRehearsal
 from .stringify import stringify_error_message, count
 
 
 class MissingRehearsalError(ValueError):
     """An error raised when `when` or `verify` is called without rehearsal(s).
 
-    This error can also be triggered if you forget to include `await` with
-    the rehearsal of an asynchronous mock.
+    This error is raised if you use Decoy incorrectly in your tests. When
+    using async/await, this error can be triggered if you forget to include
+    `await` with your rehearsal.
+
+    See the [MissingRehearsalError guide][] for more details.
+
+    [MissingRehearsalError guide]: ../usage/errors-and-warnings/#missingrehearsalerror
     """
 
     def __init__(self) -> None:
@@ -19,19 +29,23 @@ class MissingRehearsalError(ValueError):
 class VerifyError(AssertionError):
     """An error raised when actual calls do not match rehearsals given to `verify`.
 
+    See the [VerifyError guide][] for more details.
+
+    [VerifyError guide]: ../usage/errors-and-warnings/#verifyerror
+
     Attributes:
         rehearsals: Rehearsals that were being verified.
         calls: Actual calls to the mock(s).
         times: The expected number of calls to the mock, if any.
     """
 
-    rehearsals: Sequence[SpyRehearsal]
+    rehearsals: Sequence[VerifyRehearsal]
     calls: Sequence[SpyCall]
     times: Optional[int]
 
     def __init__(
         self,
-        rehearsals: Sequence[SpyRehearsal],
+        rehearsals: Sequence[VerifyRehearsal],
         calls: Sequence[SpyCall],
         times: Optional[int],
     ) -> None:

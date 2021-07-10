@@ -6,29 +6,9 @@ Classes in this module are heavily inspired by the
 from __future__ import annotations
 from inspect import isclass, iscoroutinefunction, isfunction, signature
 from functools import partial
-from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional, Tuple
+from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional
 
-
-class SpyCall(NamedTuple):
-    """A value object representing a call to a spy.
-
-    Attributes:
-        spy_id: Identifier of the spy that made the call.
-        spy_name: String name of the spy.
-        args: Arguments list of the call.
-        kwargs: Keyword arguments list of the call.
-    """
-
-    spy_id: int
-    spy_name: str
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
-
-
-class SpyRehearsal(SpyCall):
-    """A SpyCall that has been used as a rehearsal."""
-
-    pass
+from .spy_calls import SpyCall
 
 
 CallHandler = Callable[[SpyCall], Any]

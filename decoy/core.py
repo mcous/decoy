@@ -2,11 +2,13 @@
 from __future__ import annotations
 from typing import Any, Optional
 
+from .spy import SpyConfig, SpyFactory, create_spy as default_create_spy
+from .spy_calls import WhenRehearsal
 from .call_stack import CallStack
 from .stub_store import StubStore, StubBehavior
-from .spy import SpyConfig, SpyFactory, SpyRehearsal, create_spy as default_create_spy
 from .call_handler import CallHandler
 from .verifier import Verifier
+from .warning_checker import WarningChecker
 from .types import ReturnT
 
 
@@ -17,6 +19,7 @@ class DecoyCore:
         self,
         create_spy: Optional[SpyFactory] = None,
         verifier: Optional[Verifier] = None,
+        warning_checker: Optional[WarningChecker] = None,
         stub_store: Optional[StubStore] = None,
         call_stack: Optional[CallStack] = None,
         call_handler: Optional[CallHandler] = None,
@@ -24,6 +27,7 @@ class DecoyCore:
         """Initialize the DecoyCore with its dependencies."""
         self._create_spy = create_spy or default_create_spy
         self._verifier = verifier or Verifier()
+        self._warning_checker = warning_checker or WarningChecker()
         self._stub_store = stub_store or StubStore()
         self._call_stack = call_stack or CallStack()
         self._call_hander = call_handler or CallHandler(
@@ -42,12 +46,12 @@ class DecoyCore:
 
     def when(self, _rehearsal: ReturnT) -> StubCore:
         """Create a new stub from the last spy rehearsal."""
-        rehearsal = self._call_stack.consume_rehearsal()
+        rehearsal = self._call_stack.consume_when_rehearsal()
         return StubCore(rehearsal=rehearsal, stub_store=self._stub_store)
 
     def verify(self, *_rehearsals: ReturnT, times: Optional[int] = None) -> None:
         """Verify that a Spy or Spies were called."""
-        rehearsals = self._call_stack.consume_rehearsals(count=len(_rehearsals))
+        rehearsals = self._call_stack.consume_verify_rehearsals(count=len(_rehearsals))
         calls = self._call_stack.get_by_rehearsals(rehearsals)
 
         self._verifier.verify(rehearsals=rehearsals, calls=calls, times=times)
@@ -55,7 +59,7 @@ class DecoyCore:
     def reset(self) -> None:
         """Reset and remove all stored spies and stubs."""
         calls = self._call_stack.get_all()
-        self._verifier.verify_no_miscalled_stubs(calls)
+        self._warning_checker.check(calls)
         self._call_stack.clear()
         self._stub_store.clear()
 
@@ -63,7 +67,7 @@ class DecoyCore:
 class StubCore:
     """The StubCore class implements the main logic of a Decoy Stub."""
 
-    def __init__(self, rehearsal: SpyRehearsal, stub_store: StubStore) -> None:
+    def __init__(self, rehearsal: WhenRehearsal, stub_store: StubStore) -> None:
         """Initialize the Stub with a configuration."""
         self._rehearsal = rehearsal
         self._stub_store = stub_store

@@ -3,7 +3,8 @@ import pytest
 import inspect
 from typing import Any
 
-from decoy.spy import create_spy, AsyncSpy, SpyConfig, SpyCall
+from decoy.spy_calls import SpyCall
+from decoy.spy import create_spy, AsyncSpy, SpyConfig
 
 from .common import (
     noop,

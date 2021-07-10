@@ -1,10 +1,8 @@
 """Spy call verification."""
-from typing import Dict, List, Optional, Sequence
-from warnings import warn
+from typing import Optional, Sequence
 
-from .spy import SpyCall, SpyRehearsal
+from .spy_calls import SpyCall, VerifyRehearsal
 from .errors import VerifyError
-from .warnings import MiscalledStubWarning
 
 
 class Verifier:
@@ -12,7 +10,7 @@ class Verifier:
 
     @staticmethod
     def verify(
-        rehearsals: Sequence[SpyRehearsal],
+        rehearsals: Sequence[VerifyRehearsal],
         calls: Sequence[SpyCall],
         times: Optional[int] = None,
     ) -> None:
@@ -31,42 +29,3 @@ class Verifier:
             calls=calls,
             times=times,
         )
-
-    @staticmethod
-    def verify_no_miscalled_stubs(all_calls: Sequence[SpyCall]) -> None:
-        """Ensure every call matches a rehearsal, if the spy has rehearsals."""
-        all_calls_by_id: Dict[int, List[SpyCall]] = {}
-
-        for call in all_calls:
-            spy_id = call.spy_id
-            spy_calls = all_calls_by_id.get(spy_id, [])
-            all_calls_by_id[spy_id] = spy_calls + [call]
-
-        for spy_id, spy_calls in all_calls_by_id.items():
-            rehearsals: List[SpyRehearsal] = []
-            unmatched: List[SpyCall] = []
-
-            for call in spy_calls:
-                next_rehearsals = rehearsals
-                next_unmatched = unmatched
-
-                if isinstance(call, SpyRehearsal):
-                    next_rehearsals = rehearsals + [call]
-
-                    if len(unmatched) > 0:
-                        next_unmatched = []
-
-                        warn(
-                            MiscalledStubWarning(
-                                calls=unmatched,
-                                rehearsals=rehearsals,
-                            )
-                        )
-                elif len(rehearsals) > 0 and not any(rh == call for rh in rehearsals):
-                    next_unmatched = unmatched + [call]
-
-                rehearsals = next_rehearsals
-                unmatched = next_unmatched
-
-            if len(unmatched) > 0:
-                warn(MiscalledStubWarning(calls=unmatched, rehearsals=rehearsals))

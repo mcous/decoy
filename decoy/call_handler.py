@@ -3,7 +3,7 @@ from typing import Any
 
 from .call_stack import CallStack
 from .stub_store import StubStore
-from .spy import SpyCall
+from .spy_calls import SpyCall
 
 
 class CallHandler:

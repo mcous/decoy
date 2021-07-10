@@ -13,6 +13,7 @@ nav:
           - usage/when.md
           - usage/verify.md
           - usage/matchers.md
+          - usage/errors-and-warnings.md
     - api.md
     - why.md
     - contributing.md
