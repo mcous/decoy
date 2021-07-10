@@ -47,7 +47,8 @@ class SomeAsyncClass:
         ...
 
 
-def noop(*args: Any, **kwargs: Any) -> Any:
+# NOTE: these `Any`s are forward references for call signature testing purposes
+def noop(*args: "Any", **kwargs: "Any") -> "Any":
     """No-op."""
     pass
 
