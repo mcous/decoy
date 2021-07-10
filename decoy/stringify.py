@@ -1,10 +1,11 @@
 """Message string generation."""
 import os
 from typing import Sequence
-from .spy import SpyCall, SpyRehearsal
+
+from .spy_calls import BaseSpyCall, BaseSpyRehearsal, SpyCall
 
 
-def stringify_call(call: SpyCall) -> str:
+def stringify_call(call: BaseSpyCall) -> str:
     """Stringify the call to something human readable.
 
     `SpyCall(spy_id=42, spy_name="name", args=(1,), kwargs={"foo": False})`
@@ -16,7 +17,7 @@ def stringify_call(call: SpyCall) -> str:
     return f"{call.spy_name}({', '.join(args_list + kwargs_list)})"
 
 
-def stringify_call_list(calls: Sequence[SpyCall]) -> str:
+def stringify_call_list(calls: Sequence[BaseSpyCall]) -> str:
     """Stringify a sequence of calls into an ordered list."""
     return os.linesep.join(
         f"{i + 1}.\t{stringify_call(call)}" for i, call in enumerate(calls)
@@ -30,7 +31,7 @@ def count(count: int, noun: str) -> str:
 
 def stringify_error_message(
     heading: str,
-    rehearsals: Sequence[SpyRehearsal],
+    rehearsals: Sequence[BaseSpyRehearsal],
     calls: Sequence[SpyCall],
     include_calls: bool = True,
 ) -> str:

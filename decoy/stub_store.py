@@ -1,7 +1,7 @@
 """Stub creation and storage."""
 from typing import Any, List, NamedTuple, Optional
 
-from .spy import SpyCall, SpyRehearsal
+from .spy_calls import SpyCall, WhenRehearsal
 
 
 class StubBehavior(NamedTuple):
@@ -15,7 +15,7 @@ class StubBehavior(NamedTuple):
 class StubEntry(NamedTuple):
     """An entry in the StubStore for later behavior lookup."""
 
-    rehearsal: SpyRehearsal
+    rehearsal: WhenRehearsal
     behavior: StubBehavior
 
 
@@ -26,7 +26,7 @@ class StubStore:
         """Initialize a StubStore with an empty stubbings list."""
         self._stubs: List[StubEntry] = []
 
-    def add(self, rehearsal: SpyRehearsal, behavior: StubBehavior) -> None:
+    def add(self, rehearsal: WhenRehearsal, behavior: StubBehavior) -> None:
         """Create and add a new StubBehavior to the store."""
         self._stubs.append(StubEntry(rehearsal=rehearsal, behavior=behavior))
 

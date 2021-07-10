@@ -1,12 +1,23 @@
-"""Warning value objects."""
+"""Warnings raised by Decoy.
+
+See the [warnings guide][] for more details.
+
+[warnings guide]: ../usage/errors-and-warnings/#warnings
+"""
 import os
 from typing import Sequence
 
-from .spy import SpyCall, SpyRehearsal
-from .stringify import stringify_error_message, count
+from .spy_calls import SpyCall, WhenRehearsal, VerifyRehearsal
+from .stringify import stringify_call, stringify_error_message, count
 
 
-class MiscalledStubWarning(UserWarning):
+class DecoyWarning(UserWarning):
+    """Base class for Decoy warnings."""
+
+    pass
+
+
+class MiscalledStubWarning(DecoyWarning):
     """A warning when a configured Stub is called with non-matching arguments.
 
     This warning is raised if a mock is both:
@@ -14,17 +25,21 @@ class MiscalledStubWarning(UserWarning):
     - Configured as a stub with [`when`][decoy.Decoy.when]
     - Called with arguments that do not match any configured behaviors
 
+    See the [MiscalledStubWarning guide] for more details.
+
+    [MiscalledStubWarning guide]: ../usage/errors-and-warnings/#miscalledstubwarning
+
     Attributes:
         rehearsals: The mocks's configured rehearsals.
         calls: Actual calls to the mock.
     """
 
-    rehearsals: Sequence[SpyRehearsal]
+    rehearsals: Sequence[WhenRehearsal]
     calls: Sequence[SpyCall]
 
     def __init__(
         self,
-        rehearsals: Sequence[SpyRehearsal],
+        rehearsals: Sequence[WhenRehearsal],
         calls: Sequence[SpyCall],
     ) -> None:
         heading = os.linesep.join(
@@ -43,3 +58,29 @@ class MiscalledStubWarning(UserWarning):
         super().__init__(message)
         self.rehearsals = rehearsals
         self.calls = calls
+
+
+class RedundantVerifyWarning(DecoyWarning):
+    """A warning when a mock is redundantly checked with `verify`.
+
+    A `verify` assertion is redundant if:
+
+    - A given call is used as a [`when`][decoy.Decoy.when] rehearsal
+    - That same call is later used in a [`verify`][decoy.Decoy.verify] check
+
+    See the [RedundantVerifyWarning guide][] for more details.
+
+    [RedundantVerifyWarning guide]: ../usage/errors-and-warnings/#redundantverifywarning
+    """
+
+    def __init__(self, rehearsal: VerifyRehearsal) -> None:
+        message = os.linesep.join(
+            [
+                "The same rehearsal was used in both a `when` and a `verify`.",
+                "This is redundant and probably a misuse of the mock.",
+                f"\t{stringify_call(rehearsal)}",
+                "See https://mike.cousins.io/decoy/usage/errors-and-warnings/#miscalledstubwarning",  # noqa: E501
+            ]
+        )
+        super().__init__(message)
+        self.rehearsal = rehearsal
