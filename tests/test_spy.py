@@ -1,10 +1,12 @@
 """Tests for spy creation."""
 import pytest
+import inspect
 from typing import Any
 
 from decoy.spy import create_spy, AsyncSpy, SpyConfig, SpyCall
 
 from .common import (
+    noop,
     some_func,
     some_async_func,
     SomeClass,
@@ -294,3 +296,40 @@ async def test_spy_returns_handler_value() -> None:
         sync_spy(),
         await async_spy(),
     ] == [1, 2, 3, 4]
+
+
+def test_spy_passes_instance_of() -> None:
+    """A spy should pass instanceof checks."""
+    spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
+
+    assert isinstance(spy, SomeClass)
+
+
+def test_spy_matches_signature() -> None:
+    """It should pass `inspect.signature` checks."""
+    class_spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
+    actual_instance = SomeClass()
+    assert inspect.signature(class_spy) == inspect.signature(SomeClass)
+    assert inspect.signature(class_spy.foo) == inspect.signature(actual_instance.foo)
+    assert inspect.signature(class_spy.bar) == inspect.signature(actual_instance.bar)
+    assert inspect.signature(class_spy.do_the_thing) == inspect.signature(
+        actual_instance.do_the_thing
+    )
+
+    func_spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
+    assert inspect.signature(func_spy) == inspect.signature(some_func)
+
+    spy = create_spy(SpyConfig(handle_call=noop))
+    assert inspect.signature(spy) == inspect.signature(noop)
+
+
+def test_spy_repr() -> None:
+    """It should have an informative repr."""
+    class_spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
+    func_spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
+    spy = create_spy(SpyConfig(handle_call=noop))
+
+    assert repr(class_spy) == "<Decoy mock of tests.common.SomeClass>"
+    assert repr(class_spy.foo) == "<Decoy mock of tests.common.SomeClass.foo>"
+    assert repr(func_spy) == "<Decoy mock of tests.common.some_func>"
+    assert repr(spy) == "<Decoy spy function>"
