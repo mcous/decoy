@@ -2,7 +2,7 @@
 
 See the [errors guide][] for more details.
 
-[errors guide]: ../usage/errors-and-warnings/#warnings
+[errors guide]: ../usage/errors-and-warnings/#errors
 """
 from typing import Optional, Sequence
 
@@ -29,9 +29,9 @@ class MissingRehearsalError(ValueError):
 class VerifyError(AssertionError):
     """An error raised when actual calls do not match rehearsals given to `verify`.
 
-    See the [VerifyError guide][] for more details.
+    See [spying with verify][] for more details.
 
-    [VerifyError guide]: ../usage/errors-and-warnings/#verifyerror
+    [spying with verify]: ../usage/verify/
 
     Attributes:
         rehearsals: Rehearsals that were being verified.
