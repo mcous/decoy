@@ -83,11 +83,11 @@ def test_add_todo(decoy: Decoy) -> None:
 
 ### Create a mock
 
-Use `decoy.create_decoy` to create a mock based on some specification. From there, inject the mock into your test subject.
+Use `decoy.mock` to create a mock based on some specification. From there, inject the mock into your test subject.
 
 ```python
 def test_add_todo(decoy: Decoy) -> None:
-    todo_store = decoy.create_decoy(spec=TodoStore)
+    todo_store = decoy.mock(cls=TodoStore)
     subject = TodoAPI(store=todo_store)
     ...
 ```
@@ -101,7 +101,7 @@ Use `decoy.when` to configure your mock's behaviors. For example, you can set th
 ```python
 def test_add_todo(decoy: Decoy) -> None:
     """Adding a todo should create a TodoItem in the TodoStore."""
-    todo_store = decoy.create_decoy(spec=TodoStore)
+    todo_store = decoy.mock(cls=TodoStore)
     subject = TodoAPI(store=todo_store)
 
     decoy.when(
@@ -123,7 +123,7 @@ Use `decoy.verify` to assert that a mock was called in a certain way. This is be
 ```python
 def test_remove_todo(decoy: Decoy) -> None:
     """Removing a todo should remove the item from the TodoStore."""
-    todo_store = decoy.create_decoy(spec=TodoStore)
+    todo_store = decoy.mock(cls=TodoStore)
     subject = TodoAPI(store=todo_store)
 
     subject.remove("abc123")

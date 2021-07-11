@@ -8,7 +8,7 @@ A stub is a mock that is pre-configured to return a result or raise an error if 
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
-    database = decoy.create_decoy(spec=Database)
+    database = decoy.mock(cls=Database)
     subject = MyThing(database=database)
 
     decoy.when(database.get("some-id")).then_return(Model(id="some-id"))
@@ -32,7 +32,7 @@ You can configure your stub to raise an error if called in a certain way:
 
 ```python
 def test_my_thing_when_database_raises(decoy: Decoy) -> None:
-    database = decoy.create_decoy(spec=Database)
+    database = decoy.mock(cls=Database)
     subject = MyThing(database=database)
 
     decoy.when(database.get("foo")).then_raise(KeyError(f"foo does not exist"))
@@ -48,7 +48,7 @@ If your dependency uses async/await, simply add `await` to the rehearsal:
 ```python
 @pytest.mark.asyncio
 async def test_my_async_thing(decoy: Decoy) -> None:
-    database = decoy.create_decoy(spec=Database)
+    database = decoy.mock(cls=Database)
     subject = MyThing(database=database)
 
     decoy.when(await database.get("some-id")).then_return(Model(id="some-id"))

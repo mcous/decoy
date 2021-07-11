@@ -1,6 +1,48 @@
 # typing tests
 
-- case: class_decoy_mimics_type
+- case: mock_cls_mimics_type
+  main: |
+      from decoy import Decoy
+
+      class Dependency():
+          def do_thing(self, input: str) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+      reveal_type(fake)
+  out: |
+      main:9: note: Revealed type is "main.Dependency*"
+
+- case: mock_cls_mimics_abstract_class_type
+  main: |
+      from abc import ABC
+      from decoy import Decoy
+
+      class Dependency(ABC):
+          def do_thing(self, input: str) -> int:
+              ...
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+      reveal_type(fake)
+  out: |
+      main:10: note: Revealed type is "main.Dependency*"
+
+- case: mock_func_mimics_type
+  main: |
+      from decoy import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(func=do_thing)
+      reveal_type(fake)
+  out: |
+      main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
+
+- case: deprecated_create_decoy_mimics_type
   main: |
       from decoy import Decoy
 
@@ -14,7 +56,7 @@
   out: |
       main:9: note: Revealed type is "main.Dependency*"
 
-- case: class_decoy_mimics_abstract_class_type
+- case: deprecated_create_decoy_mimics_abstract_class_type
   main: |
       from abc import ABC
       from decoy import Decoy
@@ -29,7 +71,7 @@
   out: |
       main:10: note: Revealed type is "main.Dependency*"
 
-- case: function_decoy_mimics_type
+- case: deprecated_create_decoy_func_mimics_type
   main: |
       from decoy import Decoy
 
@@ -51,7 +93,7 @@
               return 42
 
       decoy = Decoy()
-      fake = decoy.create_decoy(spec=Dependency)
+      fake = decoy.mock(cls=Dependency)
 
       decoy.when(fake.do_thing("hello")).then_return(42)
       decoy.when(fake.do_thing("goodbye")).then_return("wrong-type")
@@ -66,7 +108,7 @@
           return 42
 
       decoy = Decoy()
-      fake = decoy.create_decoy_func(spec=do_thing)
+      fake = decoy.mock(func=do_thing)
 
       decoy.when(fake("hello")).then_return(42)
       decoy.when(fake("goodbye")).then_return("wrong-type")

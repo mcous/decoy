@@ -9,7 +9,7 @@ Decoy's job as a mocking library is to provide you, the user, with useful design
 A [decoy.errors.VerifyError][] will be raised if a call to [decoy.Decoy.verify][] does not match the given rehearsal. This is a normal assertion, and means your code under test isn't behaving according to your tests specifications.
 
 ```python
-func = decoy.create_decoy_func()
+func = decoy.mock()
 
 func("hello")
 
@@ -69,8 +69,8 @@ class Subject:
         return result
 
 def test_subject(decoy: Decoy):
-    data_getter = decoy.create_decoy(spec=DataGetter)
-    data_handler = decoy.create_decoy(spec=DataHandler)
+    data_getter = decoy.mock(cls=DataGetter)
+    data_handler = decoy.mock(cls=DataHandler)
     subject = Subject(data_getter=data_getter, data_handler=data_handler)
 
     decoy.when(data_getter.get("data-id")).then_return(42)
@@ -133,8 +133,8 @@ This, however, requires a sizable mentality shift in terms of how you use mocks 
 
 ```python
 def test_subject(decoy: Decoy):
-    data_getter = decoy.create_decoy(spec=DataGetter)
-    data_handler = decoy.create_decoy(spec=DataHandler)
+    data_getter = decoy.mock(cls=DataGetter)
+    data_handler = decoy.mock(cls=DataHandler)
     subject = Subject(data_getter=data_getter, data_handler=data_handler)
 
     decoy.when(data_getter.get("data-id")).then_return(42)
