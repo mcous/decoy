@@ -48,7 +48,7 @@ class Decoy:
                 only applies if you don't use `cls` nor `func`.
 
         Returns:
-            A spy, typecast as the object its imitating, if any.
+            A spy typecast as the object it's imitating, if any.
 
         Example:
             ```python
