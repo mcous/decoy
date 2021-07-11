@@ -22,7 +22,7 @@ The `verify` API uses the same "rehearsal" syntax as the [`when` API](./when).
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
-    database = decoy.create_decoy(spec=Database)
+    database = decoy.mock(cls=Database)
 
     subject = MyThing(database=database)
     subject.delete_model_by_id("some-id")
@@ -39,7 +39,7 @@ If your dependency uses async/await, simply add `await` to the rehearsal:
 ```python
 @pytest.mark.asyncio
 async def test_my_async_thing(decoy: Decoy) -> None:
-    database = decoy.create_decoy(spec=Database)
+    database = decoy.mock(cls=Database)
 
     subject = MyThing(database=database)
     await subject.delete_model_by_id("some-id")

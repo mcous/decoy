@@ -177,7 +177,7 @@ def decoy() -> Decoy:
 
 @pytest.fixture
 def mock_database(decoy: Decoy) -> Database:
-    return decoy.create_decoy(spec=Database)
+    return decoy.mock(cls=Database)
 
 @pytest.fixture
 def mock_book() -> Book:
@@ -265,7 +265,7 @@ def decoy() -> Decoy:
 
 @pytest.fixture
 def mock_logger(decoy: Decoy) -> Logger:
-    return decoy.create_decoy(spec=Logger)
+    return decoy.mock(cls=Logger)
 ```
 
 For verification of spies, Decoy doesn't do much except set out to add typechecking.

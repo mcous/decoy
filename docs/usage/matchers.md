@@ -17,7 +17,7 @@ from .logger import Logger
 from .my_thing import MyThing
 
 def test_log_warning(decoy: Decoy):
-    logger = decoy.create_decoy(spec=Logger)
+    logger = decoy.mock(cls=Logger)
 
     subject = MyThing(logger=logger)
 
@@ -46,7 +46,7 @@ from .event_consumer import EventConsumer
 
 
 def test_event_listener(decoy: Decoy):
-    event_source = decoy.create_decoy(spec=EventSource)
+    event_source = decoy.mock(cls=EventSource)
     subject = EventConsumer(event_source=event_source)
     captor = matchers.Captor()
 

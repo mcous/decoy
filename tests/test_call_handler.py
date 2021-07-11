@@ -11,13 +11,13 @@ from decoy.call_handler import CallHandler
 @pytest.fixture
 def call_stack(decoy: Decoy) -> CallStack:
     """Get a mock instance of a CallStack."""
-    return decoy.create_decoy(spec=CallStack)
+    return decoy.mock(cls=CallStack)
 
 
 @pytest.fixture
 def stub_store(decoy: Decoy) -> StubStore:
     """Get a mock instance of a StubStore."""
-    return decoy.create_decoy(spec=StubStore)
+    return decoy.mock(cls=StubStore)
 
 
 @pytest.fixture

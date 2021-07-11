@@ -1,6 +1,6 @@
 """Decoy stubbing and spying library."""
 from __future__ import annotations
-from typing import cast, Any, Callable, Generic, Optional
+from typing import Any, Callable, Generic, Optional, cast, overload
 
 from . import matchers, errors, warnings
 from .core import DecoyCore, StubCore
@@ -18,32 +18,58 @@ class Decoy:
         """
         self._core = DecoyCore()
 
+    @overload
+    def mock(self, *, cls: Callable[..., ClassT]) -> ClassT:
+        ...
+
+    @overload
+    def mock(self, *, func: FuncT) -> FuncT:
+        ...
+
+    @overload
+    def mock(self, *, is_async: bool = False) -> Any:
+        ...
+
+    def mock(
+        self,
+        *,
+        cls: Optional[Any] = None,
+        func: Optional[Any] = None,
+        is_async: bool = False,
+    ) -> Any:
+        """Create a mock.
+
+        See the [mock creation guide](../usage/create) for more details.
+
+        Arguments:
+            cls: A class definition that the mock should imitate.
+            func: A function definition the mock should imitate.
+            is_async: Force the returned spy to be asynchronous. This argument
+                only applies if you don't use `cls` nor `func`.
+
+        Returns:
+            A spy, typecast as the object its imitating, if any.
+
+        Example:
+            ```python
+            def test_get_something(decoy: Decoy):
+                db = decoy.mock(cls=Database)
+                # ...
+            ```
+        """
+        spec = cls or func
+        return self._core.mock(spec=spec, is_async=is_async)
+
     def create_decoy(
         self,
         spec: Callable[..., ClassT],
         *,
         is_async: bool = False,
     ) -> ClassT:
-        """Create a class decoy for `spec`.
+        """Create a class mock for `spec`.
 
-        See [decoy creation usage guide](../usage/create) for more details.
-
-        Arguments:
-            spec: A class definition that the decoy should mirror.
-            is_async: Force the returned spy to be asynchronous. In most cases,
-                this argument is unnecessary, since the Spy will use `spec` to
-                determine if a method should be asynchronous.
-
-        Returns:
-            A spy typecast as an instance of `spec`.
-
-        Example:
-            ```python
-            def test_get_something(decoy: Decoy):
-                db = decoy.create_decoy(spec=Database)
-                # ...
-            ```
-
+        !!! warning "Deprecated since v1.6.0"
+            Use [decoy.Decoy.mock][] with the `cls` parameter, instead.
         """
         spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(ClassT, spy)
@@ -54,25 +80,10 @@ class Decoy:
         *,
         is_async: bool = False,
     ) -> FuncT:
-        """Create a function decoy for `spec`.
+        """Create a function mock for `spec`.
 
-        See [decoy creation usage guide](../usage/create) for more details.
-
-        Arguments:
-            spec: A function that the decoy should mirror.
-            is_async: Force the returned spy to be asynchronous. In most cases,
-                this argument is unnecessary, since the Spy will use `spec` to
-                determine if the function should be asynchronous.
-
-        Returns:
-            A spy typecast as `spec` function.
-
-        Example:
-            ```python
-            def test_create_something(decoy: Decoy):
-                gen_id = decoy.create_decoy_func(spec=generate_unique_id)
-                # ...
-            ```
+        !!! warning "Deprecated since v1.6.0"
+            Use [decoy.Decoy.mock][] with the `func` parameter, instead.
         """
         spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(FuncT, spy)
@@ -90,7 +101,7 @@ class Decoy:
 
         Example:
             ```python
-            db = decoy.create_decoy(spec=Database)
+            db = decoy.mock(cls=Database)
             decoy.when(db.exists("some-id")).then_return(True)
             ```
 
@@ -119,7 +130,7 @@ class Decoy:
         Example:
             ```python
             def test_create_something(decoy: Decoy):
-                gen_id = decoy.create_decoy_func(spec=generate_unique_id)
+                gen_id = decoy.mock(func=generate_unique_id)
 
                 # ...
 

@@ -17,37 +17,37 @@ from .common import SomeClass, noop
 @pytest.fixture
 def create_spy(decoy: Decoy) -> SpyFactory:
     """Get a mock instance of a create_spy factory function."""
-    return decoy.create_decoy_func(spec=default_create_spy)
+    return decoy.mock(func=default_create_spy)
 
 
 @pytest.fixture
 def call_handler(decoy: Decoy) -> CallHandler:
     """Get a mock instance of a create_spy factory function."""
-    return decoy.create_decoy(spec=CallHandler)
+    return decoy.mock(cls=CallHandler)
 
 
 @pytest.fixture
 def call_stack(decoy: Decoy) -> CallStack:
     """Get a mock instance of a CallStack."""
-    return decoy.create_decoy(spec=CallStack)
+    return decoy.mock(cls=CallStack)
 
 
 @pytest.fixture
 def stub_store(decoy: Decoy) -> StubStore:
     """Get a mock instance of a StubStore."""
-    return decoy.create_decoy(spec=StubStore)
+    return decoy.mock(cls=StubStore)
 
 
 @pytest.fixture
 def verifier(decoy: Decoy) -> Verifier:
     """Get a mock instance of a Verifier."""
-    return decoy.create_decoy(spec=Verifier)
+    return decoy.mock(cls=Verifier)
 
 
 @pytest.fixture
 def warning_checker(decoy: Decoy) -> WarningChecker:
     """Get a mock instance of a Verifier."""
-    return decoy.create_decoy(spec=WarningChecker)
+    return decoy.mock(cls=WarningChecker)
 
 
 @pytest.fixture
