@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
     PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
     POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
-    POETRY_VIRTUALENVS_CREATE: false
+    POETRY_VIRTUALENVS_IN_PROJECT: true
     DEFAULT_PYTHON: "3.8"
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
               run: poetry install
 
             - name: "Run tests"
-              run: poetry run pytest --mypy-same-process
+              run: poetry run pytest
 
     check:
         name: "Lint and type checks"

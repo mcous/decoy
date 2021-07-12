@@ -5,8 +5,9 @@
 max-line-length = 88
 
 extend-exclude =
-    # ignore cache directory for CI
+    # ignore cache and venv directory for CI
     .cache
+    .venv
 
 extend-ignore =
     # ignore E203 because black might reformat it
