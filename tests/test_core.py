@@ -175,6 +175,28 @@ def test_when_then_raise(
     )
 
 
+def test_when_then_do(
+    decoy: Decoy,
+    call_stack: CallStack,
+    stub_store: StubStore,
+    subject: DecoyCore,
+) -> None:
+    """It should add an action behavior to a stub."""
+    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    decoy.when(call_stack.consume_when_rehearsal()).then_return(rehearsal)
+
+    action = lambda: "hello world"  # noqa: E731
+    result = subject.when("__rehearsal__")
+    result.then_do(action)
+
+    decoy.verify(
+        stub_store.add(
+            rehearsal=rehearsal,
+            behavior=StubBehavior(action=action),
+        )
+    )
+
+
 def test_verify(
     decoy: Decoy,
     call_stack: CallStack,

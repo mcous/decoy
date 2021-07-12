@@ -1,6 +1,6 @@
 """Decoy implementation logic."""
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from .spy import SpyConfig, SpyFactory, create_spy as default_create_spy
 from .spy_calls import WhenRehearsal
@@ -88,4 +88,11 @@ class StubCore:
         self._stub_store.add(
             rehearsal=self._rehearsal,
             behavior=StubBehavior(error=error),
+        )
+
+    def then_do(self, action: Callable[..., ReturnT]) -> None:
+        """Set the stub to perform an action."""
+        self._stub_store.add(
+            rehearsal=self._rehearsal,
+            behavior=StubBehavior(action=action),
         )

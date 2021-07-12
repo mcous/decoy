@@ -159,15 +159,16 @@ class Decoy:
 
 
 class Stub(Generic[ReturnT]):
-    """A rehearsed Stub that can be used to configure mock behaviors."""
+    """A rehearsed Stub that can be used to configure mock behaviors.
+
+    See [stubbing usage guide](../usage/when) for more details.
+    """
 
     def __init__(self, core: StubCore) -> None:
         self._core = core
 
     def then_return(self, *values: ReturnT) -> None:
-        """Set the stub to return value(s).
-
-        See [stubbing usage guide](../usage/when) for more details.
+        """Configure the stub to return value(s).
 
         Arguments:
             *values: Zero or more return values. Multiple values will result
@@ -177,9 +178,7 @@ class Stub(Generic[ReturnT]):
         self._core.then_return(*values)
 
     def then_raise(self, error: Exception) -> None:
-        """Set the stub to raise an error.
-
-        See [stubbing usage guide](../usage/when) for more details.
+        """Configure the stub to raise an error.
 
         Arguments:
             error: The error to raise.
@@ -190,6 +189,15 @@ class Stub(Generic[ReturnT]):
             to `when`, you'll need to wrap your rehearsal in a `try`.
         """
         self._core.then_raise(error)
+
+    def then_do(self, action: Callable[..., ReturnT]) -> None:
+        """Configure the stub to trigger an action.
+
+        Arguments:
+            action: The function to call. Called with whatever arguments
+                are actually passed to the stub.
+        """
+        self._core.then_do(action)
 
 
 __all__ = ["Decoy", "Stub", "matchers", "warnings", "errors"]
