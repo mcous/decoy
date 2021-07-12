@@ -32,8 +32,11 @@ jobs:
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
 
+            - name: "Install poetry"
+              run: pip install poetry
+
             - name: "Install dependencies"
-              run: pip install poetry && poetry install
+              run: poetry install
 
             - name: "Run tests"
               run: poetry run pytest
@@ -58,8 +61,11 @@ jobs:
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
 
+            - name: "Install poetry"
+              run: pip install poetry
+
             - name: "Install dependencies"
-              run: pip install poetry && poetry install
+              run: poetry install
 
             - name: "Check formatting"
               run: poetry run black --check .
@@ -91,8 +97,11 @@ jobs:
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
 
+            - name: "Install poetry"
+              run: pip install poetry
+
             - name: "Install dependencies"
-              run: pip install poetry && poetry install
+              run: poetry install
 
             - name: "Build artifacts"
               run: |
