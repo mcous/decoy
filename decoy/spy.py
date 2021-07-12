@@ -3,7 +3,6 @@
 Classes in this module are heavily inspired by the
 [unittest.mock library](https://docs.python.org/3/library/unittest.mock.html).
 """
-from __future__ import annotations
 from inspect import isclass, iscoroutinefunction, isfunction, signature
 from functools import partial
 from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional

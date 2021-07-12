@@ -1,14 +1,12 @@
 """Matcher tests."""
 import pytest
 from collections import namedtuple
-from dataclasses import dataclass
 from decoy import matchers
-from typing import Any, List
+from typing import Any, List, NamedTuple
 from .common import SomeClass
 
 
-@dataclass
-class _HelloClass:
+class _HelloClass(NamedTuple):
     hello: str = "world"
 
     @property

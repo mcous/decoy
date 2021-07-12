@@ -1,5 +1,4 @@
 """Decoy stubbing and spying library."""
-from __future__ import annotations
 from typing import Any, Callable, Generic, Optional, cast, overload
 
 from . import matchers, errors, warnings
@@ -88,7 +87,7 @@ class Decoy:
         spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(FuncT, spy)
 
-    def when(self, _rehearsal_result: ReturnT) -> Stub[ReturnT]:
+    def when(self, _rehearsal_result: ReturnT) -> "Stub[ReturnT]":
         """Create a [Stub][decoy.Stub] configuration using a rehearsal call.
 
         See [stubbing usage guide](../usage/when) for more details.

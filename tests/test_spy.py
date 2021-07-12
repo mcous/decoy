@@ -321,7 +321,22 @@ def test_spy_matches_signature() -> None:
     assert inspect.signature(func_spy) == inspect.signature(some_func)
 
     spy = create_spy(SpyConfig(handle_call=noop))
-    assert inspect.signature(spy) == inspect.signature(noop)
+
+    assert inspect.signature(spy) == inspect.Signature(
+        parameters=(
+            inspect.Parameter(
+                name="args",
+                annotation=Any,
+                kind=inspect.Parameter.VAR_POSITIONAL,
+            ),
+            inspect.Parameter(
+                name="kwargs",
+                annotation=Any,
+                kind=inspect.Parameter.VAR_KEYWORD,
+            ),
+        ),
+        return_annotation=Any,
+    )
 
 
 def test_spy_repr() -> None:

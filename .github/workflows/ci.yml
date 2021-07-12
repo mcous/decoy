@@ -10,11 +10,11 @@ env:
 jobs:
     test:
         name: "Test Python ${{ matrix.python-version }} on ${{ matrix.os }}"
-        runs-on: ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}-latest
         strategy:
             matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
-                python-version: ["3.7", "3.8", "3.9"]
+                os: [Ubuntu, Windows, macOS]
+                python-version: ["3.6", "3.7", "3.8", "3.9"]
         steps:
             - name: "Check out repository"
               uses: actions/checkout@v2
@@ -26,14 +26,18 @@ jobs:
 
             - name: "Set up dependency cache"
               uses: actions/cache@v2
+              if: ${{ matrix.os != 'Windows' || matrix.python-version != 3.6 }}
               with:
                   key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ matrix.python-version }}-${{ hashFiles('**/*.lock') }}
                   path: |
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
 
+            - name: "Install poetry"
+              run: pip install poetry
+
             - name: "Install dependencies"
-              run: pip install poetry && poetry install
+              run: poetry install
 
             - name: "Run tests"
               run: poetry run pytest
@@ -58,8 +62,11 @@ jobs:
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
 
+            - name: "Install poetry"
+              run: pip install poetry
+
             - name: "Install dependencies"
-              run: pip install poetry && poetry install
+              run: poetry install
 
             - name: "Check formatting"
               run: poetry run black --check .
@@ -91,8 +98,11 @@ jobs:
                       ${{ env.PIP_CACHE_DIR }}
                       ${{ env.POETRY_CACHE_DIR }}
 
+            - name: "Install poetry"
+              run: pip install poetry
+
             - name: "Install dependencies"
-              run: pip install poetry && poetry install
+              run: poetry install
 
             - name: "Build artifacts"
               run: |

@@ -1,5 +1,4 @@
 """Decoy implementation logic."""
-from __future__ import annotations
 from typing import Any, Callable, Optional
 
 from .spy import SpyConfig, SpyFactory, create_spy as default_create_spy
@@ -44,7 +43,7 @@ class DecoyCore:
         )
         return self._create_spy(config)
 
-    def when(self, _rehearsal: ReturnT) -> StubCore:
+    def when(self, _rehearsal: ReturnT) -> "StubCore":
         """Create a new stub from the last spy rehearsal."""
         rehearsal = self._call_stack.consume_when_rehearsal()
         return StubCore(rehearsal=rehearsal, stub_store=self._stub_store)
