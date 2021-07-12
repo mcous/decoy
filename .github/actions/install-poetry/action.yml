@@ -16,12 +16,12 @@ runs:
               python install-poetry.py --version ${{ env.POETRY_VERSION }}
               rm -rf install-poetry.py
 
-      - name: Update PATH
-        if: ${{ runner.os != 'Windows' }}
-        shell: bash
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+        - name: Update PATH
+          shell: bash
+          if: ${{ runner.os != 'Windows' }}
+          run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Update PATH for Windows
-        if: ${{ runner.os == 'Windows' }}
-        shell: bash
-        run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
+        - name: Update PATH for Windows
+          shell: bash
+          if: ${{ runner.os == 'Windows' }}
+          run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
