@@ -19,7 +19,6 @@
     <p>
         <a href="https://mike.cousins.io/decoy/">Usage guide and documentation</a>
     </p>
-
 </div>
 
 The Decoy library allows you to create, stub, and verify fully-typed, async/await-friendly mocks in your Python unit tests, so your tests are:
