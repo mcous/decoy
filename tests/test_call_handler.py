@@ -75,7 +75,7 @@ def test_handle_call_with_raise(
     stub_store: StubStore,
     subject: CallHandler,
 ) -> None:
-    """It return a Stub's configured return value."""
+    """It raise a Stub's configured error."""
     spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(), kwargs={})
     behavior = StubBehavior(error=RuntimeError("oh no"))
 
@@ -85,3 +85,22 @@ def test_handle_call_with_raise(
         subject.handle(spy_call)
 
     decoy.verify(call_stack.push(spy_call))
+
+
+def test_handle_call_with_action(
+    decoy: Decoy,
+    call_stack: CallStack,
+    stub_store: StubStore,
+    subject: CallHandler,
+) -> None:
+    """It should trigger a stub's configured action."""
+    action = decoy.mock()
+    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(1,), kwargs={"foo": "bar"})
+    behavior = StubBehavior(action=action)
+
+    decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
+    decoy.when(action(1, foo="bar")).then_return("hello world")
+
+    result = subject.handle(spy_call)
+
+    assert result == "hello world"

@@ -1,5 +1,5 @@
 """Stub creation and storage."""
-from typing import Any, List, NamedTuple, Optional
+from typing import Any, Callable, List, NamedTuple, Optional
 
 from .spy_calls import SpyCall, WhenRehearsal
 
@@ -9,6 +9,7 @@ class StubBehavior(NamedTuple):
 
     return_value: Optional[Any] = None
     error: Optional[Exception] = None
+    action: Optional[Callable[..., Any]] = None
     once: bool = False
 
 

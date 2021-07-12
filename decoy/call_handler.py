@@ -22,4 +22,7 @@ class CallHandler:
         if behavior.error:
             raise behavior.error
 
+        if behavior.action:
+            return behavior.action(*call.args, **call.kwargs)
+
         return behavior.return_value

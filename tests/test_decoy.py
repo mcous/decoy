@@ -50,11 +50,28 @@ def test_when_smoke_test(decoy: Decoy) -> None:
     subject = decoy.mock(func=some_func)
 
     decoy.when(subject("hello")).then_return("hello world")
+    decoy.when(subject("goodbye")).then_raise(ValueError("oh no"))
+
+    action_result = None
+
+    def _then_do_action(arg: str) -> str:
+        nonlocal action_result
+        action_result = arg
+        return "hello from the other side"
+
+    decoy.when(subject("what's up")).then_do(_then_do_action)
 
     result = subject("hello")
     assert result == "hello world"
 
-    result = subject("goodbye")
+    with pytest.raises(ValueError, match="oh no"):
+        subject("goodbye")
+
+    result = subject("what's up")
+    assert action_result == "what's up"
+    assert result == "hello from the other side"
+
+    result = subject("asdfghjkl")
     assert result is None
 
 
