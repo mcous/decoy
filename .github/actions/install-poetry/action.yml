@@ -15,3 +15,13 @@ runs:
               openssl sha256 install-poetry.py | grep ${{ env.POETRY_INSTALLER_SHA256 }}
               python install-poetry.py --version ${{ env.POETRY_VERSION }}
               rm -rf install-poetry.py
+
+      - name: Update PATH
+        if: ${{ runner.os != 'Windows' }}
+        shell: bash
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Update PATH for Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: bash
+        run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
