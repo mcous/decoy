@@ -1,0 +1,20 @@
+name: "Install Poetry"
+description: "Install the Poetry depedency manager"
+
+runs:
+    using: "composite"
+    steps:
+        - name: "Download and verify Poetry install script"
+          shell: bash
+          env:
+              POETRY_INSTALLER_COMMIT: b47de09d800b7f2e4ed7088c8657878aa5380714
+              POETRY_INSTALLER_SHA256: b35d059be6f343ac1f05ae56e8eaaaebb34da8c92424ee00133821d7f11e3a9c
+          run: |
+              curl -sSL -o install-poetry.py https://raw.githubusercontent.com/python-poetry/poetry/${{ env.POETRY_INSTALLER_COMMIT }}/install-poetry.py
+              echo "${{ env.POETRY_INSTALLER_SHA256 }} *install-poetry.py" | shasum -c -p -a 256
+
+        - name: "Run Poetry install script"
+          shell: bash
+          env:
+              POETRY_VERSION: "1.1.7"
+          run: python install-poetry.py --version ${{ env.POETRY_VERSION }}

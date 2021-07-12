@@ -5,6 +5,7 @@ on: [push, pull_request]
 env:
     PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
     POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
+    POETRY_VIRTUALENV_CREATE: false
     DEFAULT_PYTHON: "3.8"
 
 jobs:
@@ -33,7 +34,7 @@ jobs:
                       ${{ env.POETRY_CACHE_DIR }}
 
             - name: "Install poetry"
-              run: pip install poetry
+              uses: ./.github/actions/install-poetry
 
             - name: "Install dependencies"
               run: poetry install
@@ -62,7 +63,7 @@ jobs:
                       ${{ env.POETRY_CACHE_DIR }}
 
             - name: "Install poetry"
-              run: pip install poetry
+              uses: ./.github/actions/install-poetry
 
             - name: "Install dependencies"
               run: poetry install
@@ -98,7 +99,7 @@ jobs:
                       ${{ env.POETRY_CACHE_DIR }}
 
             - name: "Install poetry"
-              run: pip install poetry
+              uses: ./.github/actions/install-poetry
 
             - name: "Install dependencies"
               run: poetry install
