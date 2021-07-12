@@ -3,8 +3,6 @@ name: "Continuous integration"
 on: [push, pull_request]
 
 env:
-    PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
-    POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
     POETRY_VIRTUALENVS_IN_PROJECT: true
     DEFAULT_PYTHON: "3.8"
 
@@ -29,9 +27,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ matrix.python-version }}-${{ hashFiles('**/*.lock') }}
-                  path: |
-                      ${{ env.PIP_CACHE_DIR }}
-                      ${{ env.POETRY_CACHE_DIR }}
+                  path: .venv
 
             - name: "Install poetry"
               uses: ./.github/actions/install-poetry
@@ -58,9 +54,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
-                  path: |
-                      ${{ env.PIP_CACHE_DIR }}
-                      ${{ env.POETRY_CACHE_DIR }}
+                  path: .venv
 
             - name: "Install poetry"
               uses: ./.github/actions/install-poetry
@@ -94,9 +88,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
-                  path: |
-                      ${{ env.PIP_CACHE_DIR }}
-                      ${{ env.POETRY_CACHE_DIR }}
+                  path: .venv
 
             - name: "Install poetry"
               uses: ./.github/actions/install-poetry
