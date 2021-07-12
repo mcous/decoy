@@ -11,7 +11,7 @@ runs:
               POETRY_INSTALLER_SHA256: b35d059be6f343ac1f05ae56e8eaaaebb34da8c92424ee00133821d7f11e3a9c
           run: |
               curl -sSL -o install-poetry.py https://raw.githubusercontent.com/python-poetry/poetry/${{ env.POETRY_INSTALLER_COMMIT }}/install-poetry.py
-              echo "${{ env.POETRY_INSTALLER_SHA256 }} *install-poetry.py" | shasum -c -p -a 256
+              echo "${{ env.POETRY_INSTALLER_SHA256 }} *install-poetry.py" | shasum -c -a 256
 
         - name: "Run Poetry install script"
           shell: bash
