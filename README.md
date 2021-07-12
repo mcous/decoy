@@ -3,19 +3,23 @@
     <img src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
     <p>Opinionated mocking library for Python</p>
     <p>
-        <a href="https://github.com/mcous/decoy/actions">
-            <img title="CI Status" src="https://flat.badgen.net/github/checks/mcous/decoy/main">
+        <a title="CI Status" href="https://github.com/mcous/decoy/actions">
+            <img src="https://flat.badgen.net/github/checks/mcous/decoy/main">
         </a>
-        <a href="https://pypi.org/project/decoy/">
-            <img title="PyPI Version" src="https://flat.badgen.net/pypi/v/decoy">
+        <a title="License" href="https://github.com/mcous/decoy/blob/main/LICENSE">
+            <img src="https://flat.badgen.net/github/license/mcous/decoy">
         </a>
-        <a href="https://github.com/mcous/decoy/blob/main/LICENSE">
-            <img title="License" src="https://flat.badgen.net/github/license/mcous/decoy">
+        <a title="PyPI Version"href="https://pypi.org/project/decoy/">
+            <img src="https://flat.badgen.net/pypi/v/decoy">
+        </a>
+        <a title="Supported Python Versions" href="https://pypi.org/project/decoy/">
+            <img src="https://flat.badgen.net/pypi/python/decoy">
         </a>
     </p>
     <p>
         <a href="https://mike.cousins.io/decoy/">Usage guide and documentation</a>
     </p>
+
 </div>
 
 The Decoy library allows you to create, stub, and verify fully-typed, async/await-friendly mocks in your Python unit tests, so your tests are:
