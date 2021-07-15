@@ -26,37 +26,33 @@ def _check_no_miscalled_stubs(all_calls: Sequence[BaseSpyCall]) -> None:
         all_calls_by_id[spy_id] = spy_calls + [call]
 
     for spy_id, spy_calls in all_calls_by_id.items():
-        rehearsals: List[WhenRehearsal] = []
         unmatched: List[SpyCall] = []
 
-        for call in spy_calls:
-            next_rehearsals = rehearsals
-            next_unmatched = unmatched
+        for index, call in enumerate(spy_calls):
+            past_stubs = [
+                wr for wr in spy_calls[0:index] if isinstance(wr, WhenRehearsal)
+            ]
 
-            if isinstance(call, WhenRehearsal):
-                next_rehearsals = rehearsals + [call]
+            matched_past_stubs = [wr for wr in past_stubs if wr == call]
 
-                if len(unmatched) > 0:
-                    next_unmatched = []
+            matched_future_verifies = [
+                vr
+                for vr in spy_calls[index + 1 :]
+                if isinstance(vr, VerifyRehearsal) and vr == call
+            ]
 
-                    warn(
-                        MiscalledStubWarning(
-                            calls=unmatched,
-                            rehearsals=rehearsals,
-                        )
-                    )
-            elif (
+            if (
                 isinstance(call, SpyCall)
-                and len(rehearsals) > 0
-                and not any(rh == call for rh in rehearsals)
+                and len(past_stubs) > 0
+                and len(matched_past_stubs) == 0
+                and len(matched_future_verifies) == 0
             ):
-                next_unmatched = unmatched + [call]
-
-            rehearsals = next_rehearsals
-            unmatched = next_unmatched
-
-        if len(unmatched) > 0:
-            warn(MiscalledStubWarning(calls=unmatched, rehearsals=rehearsals))
+                unmatched = unmatched + [call]
+                if index == len(spy_calls) - 1:
+                    warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
+            elif isinstance(call, WhenRehearsal) and len(unmatched) > 0:
+                warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
+                unmatched = []
 
 
 def _check_no_redundant_verify(all_calls: Sequence[BaseSpyCall]) -> None:
