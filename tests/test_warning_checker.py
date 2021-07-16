@@ -1,6 +1,6 @@
-"""Tests for spy call verification."""
+"""Tests for the WarningChecker API."""
 import pytest
-from typing import Any, List, NamedTuple, Sequence
+from typing import List, NamedTuple, Sequence
 
 from decoy import matchers
 from decoy.spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal
@@ -172,6 +172,34 @@ warning_checker_specs = [
             ),
         ],
     ),
+    # it should not warn if a call misses a stubbing but is later verified
+    WarningCheckerSpec(
+        all_calls=[
+            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+            VerifyRehearsal(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+        ],
+        expected_warnings=[],
+    ),
+    # it should warn if a call misses a stubbing after it is verified
+    WarningCheckerSpec(
+        all_calls=[
+            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+            VerifyRehearsal(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+        ],
+        expected_warnings=[
+            MiscalledStubWarning(
+                rehearsals=[
+                    WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                ],
+                calls=[
+                    SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+                ],
+            ),
+        ],
+    ),
     # it should issue a redundant verify warning if a call has a when and a verify
     WarningCheckerSpec(
         all_calls=[
@@ -210,14 +238,16 @@ def test_verify_no_misscalled_stubs(
     subject = WarningChecker()
     subject.check(all_calls)
 
-    assert len(recwarn) == len(expected_warnings)
-    for expected in expected_warnings:
-        result: Any = recwarn.pop(DecoyWarning).message
-        expected_attr = {}
+    warning_matchers = []
 
-        if isinstance(expected, MiscalledStubWarning):
-            expected_attr = {"rehearsals": expected.rehearsals, "calls": expected.calls}
-        elif isinstance(expected, RedundantVerifyWarning):
-            expected_attr = {"rehearsal": expected.rehearsal}
+    for warning in expected_warnings:
+        if isinstance(warning, MiscalledStubWarning):
+            warning_attr = {"rehearsals": warning.rehearsals, "calls": warning.calls}
+        elif isinstance(warning, RedundantVerifyWarning):
+            warning_attr = {"rehearsal": warning.rehearsal}
 
-        assert result == matchers.IsA(type(expected), expected_attr)
+        warning_matchers.append(matchers.IsA(type(warning), warning_attr))
+
+    actual_warnings = [record.message for record in recwarn]
+
+    assert actual_warnings == warning_matchers
