@@ -46,6 +46,17 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+            VerifyRehearsal(spy_id=202, spy_name="spy_202", args=(7, 8, 9), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+        ],
+    ),
+    VerifySpec(
+        rehearsals=[
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
         ],
         calls=[
             SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
@@ -71,6 +82,19 @@ verify_pass_specs = [
             VerifyRehearsal(spy_id=202, spy_name="spy_202", args=(7, 8, 9), kwargs={}),
         ],
         calls=[
+            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+            SpyCall(spy_id=202, spy_name="spy_202", args=(7, 8, 9), kwargs={}),
+        ],
+    ),
+    VerifySpec(
+        rehearsals=[
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+            VerifyRehearsal(spy_id=202, spy_name="spy_202", args=(7, 8, 9), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=101, spy_name="spy_101", args=(0, 0, 0), kwargs={}),
             SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
             SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
             SpyCall(spy_id=202, spy_name="spy_202", args=(7, 8, 9), kwargs={}),
