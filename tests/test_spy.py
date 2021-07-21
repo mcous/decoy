@@ -265,9 +265,13 @@ async def test_create_nested_spy_using_non_runtime_type_hints() -> None:
     class _SomeClass:
         _property: "None[str]"
 
+        async def _do_something_async(self) -> None:
+            pass
+
     calls = []
     spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
     spy._property.do_something(7, eight=8, nine=9)
+    await spy._do_something_async()
 
     assert calls == [
         SpyCall(
@@ -275,6 +279,12 @@ async def test_create_nested_spy_using_non_runtime_type_hints() -> None:
             spy_name="_SomeClass._property.do_something",
             args=(7,),
             kwargs={"eight": 8, "nine": 9},
+        ),
+        SpyCall(
+            spy_id=id(spy._do_something_async),
+            spy_name="_SomeClass._do_something_async",
+            args=(),
+            kwargs={},
         ),
     ]
 

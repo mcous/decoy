@@ -23,6 +23,19 @@ class SpyConfig(NamedTuple):
     is_async: bool = False
 
 
+def _get_type_hints(obj: Any) -> Dict[str, Any]:
+    """Get type hints for an object, if possible.
+
+    The builtin `typing.get_type_hints` may fail at runtime,
+    e.g. if a type is subscriptable according to mypy but not
+    according to Python.
+    """
+    try:
+        return get_type_hints(obj)
+    except Exception:
+        return {}
+
+
 class BaseSpy:
     """Spy object base class.
 
@@ -88,23 +101,15 @@ class BaseSpy:
 
         if isclass(self._spec):
             try:
-                # NOTE: `get_type_hints` may fail at runtime,
-                # e.g. if a type is subscriptable according to mypy but not
-                # according to Python, `get_type_hints` will raise.
-                # Rather than fail to create a spy with an inscrutable error,
-                # gracefully fallback to a specification-less spy.
-                hints = get_type_hints(self._spec)
-                child_spec = getattr(
-                    self._spec,
-                    name,
-                    hints.get(name),
-                )
+                child_hint = _get_type_hints(self._spec).get(name)
             except Exception:
-                pass
+                child_hint = None
+
+            child_spec = getattr(self._spec, name, child_hint)
 
         if isinstance(child_spec, property):
-            hints = get_type_hints(child_spec.fget)
-            child_spec = hints.get("return")
+            child_spec = _get_type_hints(child_spec.fget).get("return")
+
         elif isclass(self._spec) and isfunction(child_spec):
             # `iscoroutinefunction` does not work for `partial` on Python < 3.8
             # check before we wrap it
