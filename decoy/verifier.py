@@ -21,7 +21,8 @@ class Verifier:
         else:
             for i, call in enumerate(calls):
                 calls_subset = calls[i : i + len(rehearsals)]
-                if all(r == calls_subset[j] for j, r in enumerate(rehearsals)):
+
+                if calls_subset == rehearsals:
                     return None
 
         raise VerifyError(
