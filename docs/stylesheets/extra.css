@@ -1,0 +1,7 @@
+h1.decoy-title {
+  margin-bottom: 1rem;
+}
+
+.md-typeset h1 {
+  color: var(--md-default-fg-color);
+}

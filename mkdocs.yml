@@ -4,7 +4,7 @@ site_author: "Mike Cousins"
 site_url: "https://mike.cousins.io/decoy/"
 repo_url: "https://github.com/mcous/decoy"
 repo_name: "mcous/decoy"
-edit_uri: "blob/main/docs/"
+edit_uri: ""
 
 nav:
     - Getting Started: index.md
@@ -23,10 +23,23 @@ theme:
     favicon: img/favicon.ico
     icon:
         logo: material/duck
-    palette:
-        scheme: preference
     features:
         - navigation.instant
+    font: "Open Sans"
+    code: "Fira Mono"
+    palette:
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: black
+          toggle:
+              icon: material/weather-sunny
+              name: Switch to dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: amber
+          toggle:
+              icon: material/weather-night
+              name: Switch to light mode
 
 plugins:
     - search
@@ -47,3 +60,6 @@ markdown_extensions:
     - admonition
     - pymdownx.highlight
     - pymdownx.superfences
+
+extra_css:
+    - stylesheets/extra.css

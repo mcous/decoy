@@ -149,7 +149,7 @@ class Decoy:
 
         This method should be called after every test to ensure spies and stubs
         don't leak between tests. The Decoy fixture provided by the pytest plugin
-        will do this automatically. See the [setup guide](../setup) for more details.
+        will do this automatically.
 
         The `reset` method may also trigger warnings if Decoy detects any questionable
         mock usage. See [decoy.warnings][] for more details.
