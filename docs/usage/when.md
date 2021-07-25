@@ -17,7 +17,7 @@ def test_my_thing(decoy: Decoy) -> None:
     ...
 ```
 
-Any time your dependency is called **in exactly the same way as the rehearsal**, whatever stub behaviors you configure will be triggered. If you need to loosen the "exact argument match" behavior, you can use [matchers](./matchers).
+Any time your dependency is called **in exactly the same way as the rehearsal**, whatever stub behaviors you configure will be triggered. If you need to loosen the "exact argument match" behavior, you can use [matchers](./matchers.md).
 
 The "rehearsal" API gives us the following benefits:
 

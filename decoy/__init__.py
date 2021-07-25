@@ -13,7 +13,7 @@ class Decoy:
         """Initialize the state container for test doubles and stubs.
 
         You should initialize a new Decoy instance for every test. See the
-        [setup guide](../setup) for more details.
+        [setup guide](../#setup) for more details.
         """
         self._core = DecoyCore()
 
@@ -38,7 +38,7 @@ class Decoy:
     ) -> Any:
         """Create a mock.
 
-        See the [mock creation guide](../usage/create) for more details.
+        See the [mock creation guide](../usage/create/) for more details.
 
         Arguments:
             cls: A class definition that the mock should imitate.
@@ -90,7 +90,7 @@ class Decoy:
     def when(self, _rehearsal_result: ReturnT) -> "Stub[ReturnT]":
         """Create a [Stub][decoy.Stub] configuration using a rehearsal call.
 
-        See [stubbing usage guide](../usage/when) for more details.
+        See [stubbing usage guide](../usage/when/) for more details.
 
         Arguments:
             _rehearsal_result: The return value of a rehearsal, used for typechecking.
@@ -116,7 +116,7 @@ class Decoy:
     def verify(self, *_rehearsal_results: Any, times: Optional[int] = None) -> None:
         """Verify a decoy was called using one or more rehearsals.
 
-        See [verification usage guide](../usage/verify) for more details.
+        See [verification usage guide](../usage/verify/) for more details.
 
         Arguments:
             _rehearsal_results: The return value of rehearsals, unused except
@@ -160,7 +160,7 @@ class Decoy:
 class Stub(Generic[ReturnT]):
     """A rehearsed Stub that can be used to configure mock behaviors.
 
-    See [stubbing usage guide](../usage/when) for more details.
+    See [stubbing usage guide](../usage/when/) for more details.
     """
 
     def __init__(self, core: StubCore) -> None:
