@@ -1,33 +1,22 @@
 <div align="center">
-    <h1>Decoy</h1>
-    <img src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
+    <img alt="Decoy logo" src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
+    <h1 class="decoy-title">Decoy</h1>
     <p>Opinionated mocking library for Python</p>
     <p>
         <a title="CI Status" href="https://github.com/mcous/decoy/actions">
-            <img src="https://flat.badgen.net/github/checks/mcous/decoy/main">
-        </a>
-        <a title="License" href="https://github.com/mcous/decoy/blob/main/LICENSE">
-            <img src="https://flat.badgen.net/github/license/mcous/decoy">
-        </a>
-        <a title="PyPI Version"href="https://pypi.org/project/decoy/">
-            <img src="https://flat.badgen.net/pypi/v/decoy">
-        </a>
-        <a title="Supported Python Versions" href="https://pypi.org/project/decoy/">
-            <img src="https://flat.badgen.net/pypi/python/decoy">
-        </a>
+        <img src="https://img.shields.io/github/workflow/status/mcous/decoy/Continuous%20integration/main?style=flat-square"></a>
+        <a title="License" href="https://github.com/mcous/decoy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mcous/decoy?style=flat-square"></a>
+        <a title="PyPI Version"href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/v/decoy?style=flat-square"></a>
+        <a title="Supported Python Versions" href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/pyversions/decoy?style=flat-square"></a>
     </p>
     <p>
         <a href="https://mike.cousins.io/decoy/">Usage guide and documentation</a>
     </p>
 </div>
 
-The Decoy library allows you to create, stub, and verify fully-typed, async/await-friendly mocks in your Python unit tests, so your tests are:
+Decoy is a mocking library designed for **effective and productive test-driven development** in Python. If you want to use tests to guide the structure of your code, Decoy might be for you!
 
--   Less prone to insufficient tests due to unconditional stubbing
--   Easier to fit into the Arrange-Act-Assert pattern
--   Covered by typechecking
-
-The Decoy API is heavily inspired by / stolen from the excellent [testdouble.js][] and [Mockito][] projects.
+Decoy mocks are **async/await** and **type-checking** friendly. Decoy is heavily inspired by (and/or stolen from) the excellent [testdouble.js][] and [Mockito][] projects. The Decoy API is powerful, easy to read, and strives to help you make good decisions about your code.
 
 ## Install
 
@@ -37,6 +26,9 @@ pip install decoy
 
 # poetry
 poetry add --dev decoy
+
+# pipenv
+pipenv install --dev decoy
 ```
 
 ## Setup
@@ -53,18 +45,13 @@ def test_my_thing_works(decoy: Decoy) -> None:
     # ...
 ```
 
-The `decoy` fixture is function-scoped and will ensure that all stub and spy state is reset between every test.
-
 ### Mypy Setup
 
-Decoy's API can be a bit confusing to [mypy][]. To suppress mypy errors that may be emitted during valid usage of the Decoy API, we have a mypy plugin that you should add to your configuration file:
+By default, Decoy is compatible with Python [typing][] and type-checkers like [mypy][]. However, stubbing functions that return `None` can trigger a [type checking error](https://mypy.readthedocs.io/en/stable/error_code_list.html#check-that-called-function-returns-a-value-func-returns-value) during correct usage of the Decoy API. To suppress these errors, add Decoy's plugin to your mypy configuration.
 
 ```ini
 # mypy.ini
-
-# ...
 plugins = decoy.mypy
-# ...
 ```
 
 ## Basic Usage
@@ -139,6 +126,7 @@ See [spying with verify][] for more details.
 [testdouble.js]: https://github.com/testdouble/testdouble.js
 [mockito]: https://site.mockito.org/
 [pytest]: https://docs.pytest.org/
+[typing]: https://docs.python.org/3/library/typing.html
 [mypy]: https://mypy.readthedocs.io/
 [documentation]: https://mike.cousins.io/decoy/
 [creating mocks]: https://mike.cousins.io/decoy/usage/create/

@@ -9,3 +9,5 @@
 ::: decoy.errors
 
 ::: decoy.warnings
+
+::: decoy.pytest_plugin
