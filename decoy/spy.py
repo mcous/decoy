@@ -3,7 +3,7 @@
 Classes in this module are heavily inspired by the
 [unittest.mock library](https://docs.python.org/3/library/unittest.mock.html).
 """
-from inspect import isclass, iscoroutinefunction, isfunction, signature
+from inspect import getattr_static, isclass, iscoroutinefunction, isfunction, signature
 from functools import partial
 from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional
 
@@ -105,15 +105,19 @@ class BaseSpy:
             except Exception:
                 child_hint = None
 
-            child_spec = getattr(self._spec, name, child_hint)
+            child_spec = getattr_static(self._spec, name, child_hint)
 
         if isinstance(child_spec, property):
             child_spec = _get_type_hints(child_spec.fget).get("return")
+
+        if isinstance(child_spec, staticmethod):
+            child_spec = child_spec.__func__
 
         elif isclass(self._spec) and isfunction(child_spec):
             # `iscoroutinefunction` does not work for `partial` on Python < 3.8
             # check before we wrap it
             child_is_async = iscoroutinefunction(child_spec)
+
             # consume the `self` argument of the method to ensure proper
             # signature reporting by wrapping it in a partial
             child_spec = partial(child_spec, None)  # type: ignore[arg-type]

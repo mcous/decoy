@@ -4,7 +4,7 @@ import inspect
 from typing import Any
 
 from decoy.spy_calls import SpyCall
-from decoy.spy import create_spy, AsyncSpy, SpyConfig
+from decoy.spy import create_spy, AsyncSpy, Spy, SpyConfig
 
 from .common import (
     noop,
@@ -347,6 +347,27 @@ def test_spy_matches_signature() -> None:
         ),
         return_annotation=Any,
     )
+
+
+def test_spy_matches_static_signature() -> None:
+    """It should pass `inspect.signature` checks on static methods."""
+
+    class _StaticClass:
+        @staticmethod
+        def foo(bar: int) -> float:
+            raise NotImplementedError()
+
+        @staticmethod
+        async def bar(baz: str) -> float:
+            raise NotImplementedError()
+
+    class_spy = create_spy(SpyConfig(spec=_StaticClass, handle_call=noop))
+    actual_instance = _StaticClass()
+
+    assert inspect.signature(class_spy.foo) == inspect.signature(actual_instance.foo)
+    assert inspect.signature(class_spy.bar) == inspect.signature(actual_instance.bar)
+    assert isinstance(class_spy.foo, Spy)
+    assert isinstance(class_spy.bar, AsyncSpy)
 
 
 def test_spy_repr() -> None:
