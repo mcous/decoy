@@ -42,7 +42,13 @@ jobs:
               run: poetry install
 
             - name: "Run tests"
-              run: poetry run pytest
+              run: poetry run coverage run --branch --source=decoy -m pytest
+
+            - name: "Generate coverage report"
+              run: poetry run coverage xml
+
+            - name: "Upload coverage report"
+              uses: codecov/codecov-action@v2
 
     check:
         name: "Lint and type checks"
