@@ -42,7 +42,7 @@ jobs:
               run: poetry install
 
             - name: "Run tests"
-              run: poetry run coverage run --branch --source=decoy -m pytest
+              run: poetry run coverage run --branch --source=decoy -m pytest --mypy-same-process
 
             - name: "Generate coverage report"
               run: poetry run coverage xml

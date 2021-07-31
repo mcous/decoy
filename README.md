@@ -5,6 +5,7 @@
     <p>
         <a title="CI Status" href="https://github.com/mcous/decoy/actions">
         <img src="https://img.shields.io/github/workflow/status/mcous/decoy/Continuous%20integration/main?style=flat-square"></a>
+        <a title="Code Coverage" href="https://app.codecov.io/gh/mcous/decoy/"><img src="https://img.shields.io/codecov/c/github/mcous/decoy?style=flat-square"></a>
         <a title="License" href="https://github.com/mcous/decoy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mcous/decoy?style=flat-square"></a>
         <a title="PyPI Version"href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/v/decoy?style=flat-square"></a>
         <a title="Supported Python Versions" href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/pyversions/decoy?style=flat-square"></a>
