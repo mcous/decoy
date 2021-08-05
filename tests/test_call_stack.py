@@ -21,8 +21,11 @@ def test_push_and_consume_when_rehearsal() -> None:
 def test_consume_when_rehearsal_raises_empty_error() -> None:
     """It should raise an error if the stack is empty on pop."""
     subject = CallStack()
-    call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
 
+    with pytest.raises(MissingRehearsalError):
+        subject.consume_when_rehearsal()
+
+    call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
     subject.push(call)
     subject.consume_when_rehearsal()
 
@@ -64,7 +67,7 @@ def test_consume_verify_rehearsals_raises_error() -> None:
 
 
 def test_get_by_rehearsal() -> None:
-    """It can get a list of calls made matching a given rehearsal."""
+    """It can get a list of calls made matching spy IDs of given rehearsals."""
     subject = CallStack()
     call_1 = SpyCall(spy_id=101, spy_name="spy_1", args=(1,), kwargs={})
     call_2 = SpyCall(spy_id=101, spy_name="spy_1", args=(2,), kwargs={})
@@ -88,7 +91,7 @@ def test_get_by_rehearsal() -> None:
             VerifyRehearsal(spy_id=202, spy_name="spy_2", args=(1,), kwargs={}),
         ]
     )
-    assert result == [call_3]
+    assert result == [call_1, call_3, call_4]
 
     result = subject.get_by_rehearsals(
         [VerifyRehearsal(spy_id=303, spy_name="spy_3", args=(1,), kwargs={})]
