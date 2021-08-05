@@ -37,7 +37,7 @@ pytest = "^6.1.2"
 pytest-asyncio = "^0.15.1"
 pytest-mypy-plugins = "^1.6.1"
 pytest-xdist = "^2.1.0"
-coverage = "^5.5"
+coverage = {extras = ["toml"], version = "^5.5"}
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"
@@ -50,6 +50,9 @@ files = ["decoy", "tests"]
 plugins = ["decoy/mypy/plugin.py"]
 strict = true
 show_error_codes = true
+
+[tool.coverage.report]
+exclude_lines = ["@overload"]
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]

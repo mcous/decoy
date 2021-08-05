@@ -100,11 +100,7 @@ class BaseSpy:
         child_is_async = False
 
         if isclass(self._spec):
-            try:
-                child_hint = _get_type_hints(self._spec).get(name)
-            except Exception:
-                child_hint = None
-
+            child_hint = _get_type_hints(self._spec).get(name)
             child_spec = getattr_static(self._spec, name, child_hint)
 
         if isinstance(child_spec, property):
