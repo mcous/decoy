@@ -23,7 +23,7 @@ class CallStack:
         """
         try:
             call = self._stack[-1]
-        except KeyError:
+        except IndexError:
             raise MissingRehearsalError()
         if not isinstance(call, SpyCall):
             raise MissingRehearsalError()
@@ -47,12 +47,12 @@ class CallStack:
         return rehearsals
 
     def get_by_rehearsals(self, rehearsals: Sequence[VerifyRehearsal]) -> List[SpyCall]:
-        """Get a list of all non-rehearsal calls to the given Spy IDs."""
+        """Get all non-rehearsal calls to the spies in the given rehearsals."""
         return [
             call
             for call in self._stack
             if isinstance(call, SpyCall)
-            and any(rehearsal == call for rehearsal in rehearsals)
+            and any(rehearsal.spy_id == call.spy_id for rehearsal in rehearsals)
         ]
 
     def get_all(self) -> List[BaseSpyCall]:

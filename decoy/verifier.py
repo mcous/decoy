@@ -18,8 +18,9 @@ class Verifier:
         if times is not None:
             if len(calls) == times:
                 return None
+
         else:
-            for i, call in enumerate(calls):
+            for i in range(len(calls)):
                 calls_subset = calls[i : i + len(rehearsals)]
 
                 if calls_subset == rehearsals:
