@@ -15,19 +15,17 @@ class Verifier:
         times: Optional[int] = None,
     ) -> None:
         """Verify that a list of calls satisfies a given list of rehearsals."""
-        if times is not None:
-            if len(calls) == times:
-                return None
+        match_count = 0
 
-        else:
-            for i in range(len(calls)):
-                calls_subset = calls[i : i + len(rehearsals)]
+        for i in range(len(calls)):
+            calls_subset = calls[i : i + len(rehearsals)]
 
-                if calls_subset == rehearsals:
-                    return None
+            if calls_subset == rehearsals:
+                match_count = match_count + 1
 
-        raise VerifyError(
-            rehearsals=rehearsals,
-            calls=calls,
-            times=times,
-        )
+        if match_count == 0 or (times is not None and match_count != times):
+            raise VerifyError(
+                rehearsals=rehearsals,
+                calls=calls,
+                times=times,
+            )
