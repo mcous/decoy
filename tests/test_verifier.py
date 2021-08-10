@@ -64,6 +64,16 @@ verify_raise_specs = [
         ],
         times=1,
     ),
+    VerifySpec(
+        rehearsals=[
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+        ],
+        times=0,
+    ),
 ]
 
 verify_pass_specs = [
@@ -119,6 +129,13 @@ verify_pass_specs = [
             SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
         ],
         times=1,
+    ),
+    VerifySpec(
+        rehearsals=[
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+        ],
+        calls=[],
+        times=0,
     ),
 ]
 
