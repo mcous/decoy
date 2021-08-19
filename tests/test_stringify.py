@@ -39,6 +39,16 @@ stringify_call_specs = [
         ),
         expected="some.name(1, 2, foo='bar', baz=False)",
     ),
+    StringifyCallSpec(
+        call=SpyCall(
+            spy_id=42,
+            spy_name="some.name",
+            args=(),
+            kwargs={},
+            ignore_extra_args=True,
+        ),
+        expected="some.name() - ignoring unspecified arguments",
+    ),
 ]
 
 

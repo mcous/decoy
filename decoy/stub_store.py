@@ -1,7 +1,7 @@
 """Stub creation and storage."""
 from typing import Any, Callable, List, NamedTuple, Optional
 
-from .spy_calls import SpyCall, WhenRehearsal
+from .spy_calls import SpyCall, WhenRehearsal, match_call
 
 
 class StubBehavior(NamedTuple):
@@ -38,7 +38,7 @@ class StubStore:
         for i in reversed_indices:
             stub = self._stubs[i]
 
-            if stub.rehearsal == call:
+            if match_call(call, stub.rehearsal):
                 if stub.behavior.once:
                     self._stubs.pop(i)
 

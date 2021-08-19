@@ -87,16 +87,24 @@ class Decoy:
         spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(FuncT, spy)
 
-    def when(self, _rehearsal_result: ReturnT) -> "Stub[ReturnT]":
+    def when(
+        self,
+        _rehearsal_result: ReturnT,
+        *,
+        ignore_extra_args: bool = False,
+    ) -> "Stub[ReturnT]":
         """Create a [Stub][decoy.Stub] configuration using a rehearsal call.
 
         See [stubbing usage guide](../usage/when/) for more details.
 
         Arguments:
             _rehearsal_result: The return value of a rehearsal, used for typechecking.
+            ignore_extra_args: Allow the rehearsal to specify fewer arguments than
+                the actual call. Decoy will compare and match any given arguments,
+                ignoring unspecified arguments.
 
         Returns:
-            A stub to configure using `then_return` or `then_raise`.
+            A stub to configure using `then_return`, `then_raise`, or `then_do`.
 
         Example:
             ```python
@@ -110,10 +118,18 @@ class Decoy:
             is a rehearsal for stub configuration purposes rather than a call
             from the code-under-test.
         """
-        stub_core = self._core.when(_rehearsal_result)
+        stub_core = self._core.when(
+            _rehearsal_result,
+            ignore_extra_args=ignore_extra_args,
+        )
         return Stub(core=stub_core)
 
-    def verify(self, *_rehearsal_results: Any, times: Optional[int] = None) -> None:
+    def verify(
+        self,
+        *_rehearsal_results: Any,
+        times: Optional[int] = None,
+        ignore_extra_args: bool = False,
+    ) -> None:
         """Verify a decoy was called using one or more rehearsals.
 
         See [verification usage guide](../usage/verify/) for more details.
@@ -125,6 +141,9 @@ class Decoy:
                 the call count must match exactly, otherwise the call must appear
                 at least once. The `times` argument must be used with exactly one
                 rehearsal.
+            ignore_extra_args: Allow the rehearsal to specify fewer arguments than
+                the actual call. Decoy will compare and match any given arguments,
+                ignoring unspecified arguments.
 
         Example:
             ```python
@@ -142,7 +161,11 @@ class Decoy:
             API sugar. Decoy will pop the last call(s) to _any_ fake off its
             call stack, which will end up being the call inside `verify`.
         """
-        self._core.verify(*_rehearsal_results, times=times)
+        self._core.verify(
+            *_rehearsal_results,
+            times=times,
+            ignore_extra_args=ignore_extra_args,
+        )
 
     def reset(self) -> None:
         """Reset all decoy state.

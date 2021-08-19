@@ -16,7 +16,7 @@ class CallStack:
         """Add a new spy call to the stack."""
         self._stack.append(spy_call)
 
-    def consume_when_rehearsal(self) -> WhenRehearsal:
+    def consume_when_rehearsal(self, ignore_extra_args: bool) -> WhenRehearsal:
         """Consume the last call to a Spy as a `when` rehearsal.
 
         This marks a call as a rehearsal but does not remove it from the stack.
@@ -28,11 +28,15 @@ class CallStack:
         if not isinstance(call, SpyCall):
             raise MissingRehearsalError()
 
-        rehearsal = WhenRehearsal(*call)
+        rehearsal = WhenRehearsal(*call)._replace(ignore_extra_args=ignore_extra_args)
         self._stack[-1] = rehearsal
         return rehearsal
 
-    def consume_verify_rehearsals(self, count: int) -> List[VerifyRehearsal]:
+    def consume_verify_rehearsals(
+        self,
+        count: int,
+        ignore_extra_args: bool,
+    ) -> List[VerifyRehearsal]:
         """Consume the last `count` calls to Spies as rehearsals.
 
         This marks calls as rehearsals but does not remove them from the stack.
@@ -42,7 +46,10 @@ class CallStack:
         if len(calls) != count or not all(isinstance(call, SpyCall) for call in calls):
             raise MissingRehearsalError()
 
-        rehearsals = [VerifyRehearsal(*call) for call in calls]
+        rehearsals = [
+            VerifyRehearsal(*call)._replace(ignore_extra_args=ignore_extra_args)
+            for call in calls
+        ]
         self._stack[-count:] = rehearsals
         return rehearsals
 

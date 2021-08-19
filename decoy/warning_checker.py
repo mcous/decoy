@@ -2,7 +2,7 @@
 from typing import Dict, List, Sequence
 from warnings import warn
 
-from .spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal
+from .spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal, match_call
 from .warnings import MiscalledStubWarning, RedundantVerifyWarning
 
 
@@ -33,12 +33,12 @@ def _check_no_miscalled_stubs(all_calls: Sequence[BaseSpyCall]) -> None:
                 wr for wr in spy_calls[0:index] if isinstance(wr, WhenRehearsal)
             ]
 
-            matched_past_stubs = [wr for wr in past_stubs if wr == call]
+            matched_past_stubs = [wr for wr in past_stubs if match_call(call, wr)]
 
             matched_future_verifies = [
                 vr
                 for vr in spy_calls[index + 1 :]
-                if isinstance(vr, VerifyRehearsal) and vr == call
+                if isinstance(vr, VerifyRehearsal) and match_call(call, vr)
             ]
 
             if (
