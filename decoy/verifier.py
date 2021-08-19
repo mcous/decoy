@@ -1,7 +1,7 @@
 """Spy call verification."""
 from typing import Optional, Sequence
 
-from .spy_calls import SpyCall, VerifyRehearsal
+from .spy_calls import SpyCall, VerifyRehearsal, match_call
 from .errors import VerifyError
 
 
@@ -30,8 +30,9 @@ class Verifier:
 
         for i in range(len(calls)):
             calls_subset = calls[i : i + len(rehearsals)]
+            matches = [match_call(c, r) for c, r in zip(calls_subset, rehearsals)]
 
-            if calls_subset == rehearsals:
+            if len(calls_subset) == len(rehearsals) and all(matches):
                 match_count = match_count + 1
 
         calls_verified = match_count != 0 if times is None else match_count == times

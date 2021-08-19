@@ -13,8 +13,10 @@ def stringify_call(call: BaseSpyCall) -> str:
     """
     args_list = [repr(arg) for arg in call.args]
     kwargs_list = [f"{key}={repr(val)}" for key, val in call.kwargs.items()]
-
-    return f"{call.spy_name}({', '.join(args_list + kwargs_list)})"
+    extra_args_msg = (
+        " - ignoring unspecified arguments" if call.ignore_extra_args else ""
+    )
+    return f"{call.spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
 
 
 def stringify_call_list(calls: Sequence[BaseSpyCall]) -> str:

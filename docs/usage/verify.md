@@ -75,3 +75,25 @@ decoy.verify(
 ```
 
 You may only use the `times` argument with single rehearsal.
+
+## Only specify some arguments
+
+If you don't care about some (or any) of the arguments passed to a spy, you can use the `ignore_extra_args` argument to tell Decoy to only check the arguments you pass.
+
+```python
+def log(message: str, meta: Optional[dict] = None) -> None:
+    ...
+
+# ...
+log("hello world", meta={"foo": "bar"})
+# ...
+
+decoy.verify(log("hello world"), ignore_extra_args=True)
+```
+
+This can be combined with `times=0` to say "this dependency was never called," but your typechecker may complain about this:
+
+```python
+# verify that something was never called in any way
+decoy.verify(do_something(), times=0, ignore_extra_args=True)
+```

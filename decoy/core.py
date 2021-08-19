@@ -43,14 +43,24 @@ class DecoyCore:
         )
         return self._create_spy(config)
 
-    def when(self, _rehearsal: ReturnT) -> "StubCore":
+    def when(self, _rehearsal: ReturnT, *, ignore_extra_args: bool) -> "StubCore":
         """Create a new stub from the last spy rehearsal."""
-        rehearsal = self._call_stack.consume_when_rehearsal()
+        rehearsal = self._call_stack.consume_when_rehearsal(
+            ignore_extra_args=ignore_extra_args
+        )
         return StubCore(rehearsal=rehearsal, stub_store=self._stub_store)
 
-    def verify(self, *_rehearsals: ReturnT, times: Optional[int] = None) -> None:
+    def verify(
+        self,
+        *_rehearsals: ReturnT,
+        times: Optional[int],
+        ignore_extra_args: bool,
+    ) -> None:
         """Verify that a Spy or Spies were called."""
-        rehearsals = self._call_stack.consume_verify_rehearsals(count=len(_rehearsals))
+        rehearsals = self._call_stack.consume_verify_rehearsals(
+            count=len(_rehearsals),
+            ignore_extra_args=ignore_extra_args,
+        )
         calls = self._call_stack.get_by_rehearsals(rehearsals)
 
         self._verifier.verify(rehearsals=rehearsals, calls=calls, times=times)

@@ -130,3 +130,24 @@ async def test_my_async_thing(decoy: Decoy) -> None:
 
     assert result == Model(id="some-id")
 ```
+
+## Only specify some arguments
+
+If you don't care about some (or any) of the arguments passed to a stub, you can yse the `ignore_extra_args` argument to tell Decoy to only check the arguments you pass.
+
+```python
+database = decoy.mock(cls=Database)
+
+decoy.when(
+    database.get("some-id"),
+    ignore_extra_args=True,
+).then_return(
+    Model(id="some-id")
+)
+
+# get_model_by_id called with more args than specified
+result = database.get("some-id", SomeDefaultModel())
+
+# stubbed behavior still works
+assert result == Model(id="some-id")
+```

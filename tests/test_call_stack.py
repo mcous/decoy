@@ -12,10 +12,22 @@ def test_push_and_consume_when_rehearsal() -> None:
     call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
 
     subject.push(call)
-    result = subject.consume_when_rehearsal()
+    result = subject.consume_when_rehearsal(ignore_extra_args=False)
 
     assert isinstance(result, WhenRehearsal)
     assert call == result
+
+
+def test_push_and_consume_when_rehearsal_ignore_extra_args() -> None:
+    """It should be able to push and pop from the stack while ignoring extra args."""
+    subject = CallStack()
+    call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
+
+    subject.push(call)
+    result = subject.consume_when_rehearsal(ignore_extra_args=True)
+
+    assert isinstance(result, WhenRehearsal)
+    assert result.ignore_extra_args is True
 
 
 def test_consume_when_rehearsal_raises_empty_error() -> None:
@@ -23,14 +35,14 @@ def test_consume_when_rehearsal_raises_empty_error() -> None:
     subject = CallStack()
 
     with pytest.raises(MissingRehearsalError):
-        subject.consume_when_rehearsal()
+        subject.consume_when_rehearsal(ignore_extra_args=False)
 
     call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
     subject.push(call)
-    subject.consume_when_rehearsal()
+    subject.consume_when_rehearsal(ignore_extra_args=False)
 
     with pytest.raises(MissingRehearsalError):
-        subject.consume_when_rehearsal()
+        subject.consume_when_rehearsal(ignore_extra_args=False)
 
 
 def test_consume_verify_rehearsals() -> None:
@@ -42,17 +54,37 @@ def test_consume_verify_rehearsals() -> None:
     subject.push(call_1)
     subject.push(call_2)
 
-    result = subject.consume_verify_rehearsals(count=2)
+    result = subject.consume_verify_rehearsals(count=2, ignore_extra_args=False)
     assert result == [
         VerifyRehearsal(spy_id=1, spy_name="spy_1", args=(), kwargs={}),
         VerifyRehearsal(spy_id=2, spy_name="spy_2", args=(), kwargs={}),
     ]
 
     with pytest.raises(MissingRehearsalError):
-        subject.consume_verify_rehearsals(count=1)
+        subject.consume_verify_rehearsals(count=1, ignore_extra_args=False)
 
     with pytest.raises(MissingRehearsalError):
-        subject.consume_when_rehearsal()
+        subject.consume_when_rehearsal(ignore_extra_args=False)
+
+
+def test_consume_verify_rehearsals_ignore_extra_args() -> None:
+    """It should be able to pop a slice off the stack, retaining order."""
+    subject = CallStack()
+    call_1 = SpyCall(spy_id=1, spy_name="spy_1", args=(), kwargs={})
+    call_2 = SpyCall(spy_id=2, spy_name="spy_2", args=(), kwargs={})
+
+    subject.push(call_1)
+    subject.push(call_2)
+
+    result = subject.consume_verify_rehearsals(count=2, ignore_extra_args=True)
+    assert result == [
+        VerifyRehearsal(
+            spy_id=1, spy_name="spy_1", args=(), kwargs={}, ignore_extra_args=True
+        ),
+        VerifyRehearsal(
+            spy_id=2, spy_name="spy_2", args=(), kwargs={}, ignore_extra_args=True
+        ),
+    ]
 
 
 def test_consume_verify_rehearsals_raises_error() -> None:
@@ -63,7 +95,7 @@ def test_consume_verify_rehearsals_raises_error() -> None:
     subject.push(call_1)
 
     with pytest.raises(MissingRehearsalError):
-        subject.consume_verify_rehearsals(count=2)
+        subject.consume_verify_rehearsals(count=2, ignore_extra_args=False)
 
 
 def test_get_by_rehearsal() -> None:
@@ -76,7 +108,7 @@ def test_get_by_rehearsal() -> None:
 
     subject.push(call_1)
     subject.push(call_2)
-    subject.consume_when_rehearsal()
+    subject.consume_when_rehearsal(ignore_extra_args=False)
     subject.push(call_3)
     subject.push(call_4)
 
@@ -107,10 +139,10 @@ def test_get_all() -> None:
     call_3 = SpyCall(spy_id=202, spy_name="spy_2", args=(), kwargs={})
 
     subject.push(call_1)
-    subject.consume_when_rehearsal()
+    subject.consume_when_rehearsal(ignore_extra_args=False)
     subject.push(call_2)
     subject.push(call_3)
-    subject.consume_when_rehearsal()
+    subject.consume_when_rehearsal(ignore_extra_args=False)
 
     assert subject.get_all() == [
         WhenRehearsal(spy_id=101, spy_name="spy_1", args=(), kwargs={}),
@@ -127,10 +159,10 @@ def test_clear() -> None:
     call_3 = SpyCall(spy_id=202, spy_name="spy_2", args=(), kwargs={})
 
     subject.push(call_1)
-    subject.consume_when_rehearsal()
+    subject.consume_when_rehearsal(ignore_extra_args=False)
     subject.push(call_2)
     subject.push(call_3)
-    subject.consume_when_rehearsal()
+    subject.consume_when_rehearsal(ignore_extra_args=False)
     subject.clear()
 
     assert subject.get_all() == []
