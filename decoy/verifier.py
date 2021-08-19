@@ -32,7 +32,7 @@ class Verifier:
             calls_subset = calls[i : i + len(rehearsals)]
             matches = [match_call(c, r) for c, r in zip(calls_subset, rehearsals)]
 
-            if len(calls_subset) == len(rehearsals) and all(matches):
+            if all(matches) and len(calls_subset) == len(rehearsals):
                 match_count = match_count + 1
 
         calls_verified = match_count != 0 if times is None else match_count == times
