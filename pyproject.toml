@@ -30,7 +30,7 @@ flake8 = "^3.8.4"
 flake8-annotations = { version = "^2.6.2", python = "^3.6.2" }
 flake8-docstrings = "^1.5.0"
 mkdocs = "^1.2.2"
-mkdocs-material = "^7.2.5"
+mkdocs-material = "^7.2.6"
 mkdocstrings = "^0.15.1"
 mypy = "^0.910"
 pytest = "^6.2.5"
