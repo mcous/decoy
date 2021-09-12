@@ -73,6 +73,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "chevron"
+version = "0.14.0"
+description = "Mustache templating language renderer"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "click"
 version = "8.0.1"
 description = "Composable command line interface toolkit"
@@ -465,14 +473,6 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
-name = "pystache"
-version = "0.5.4"
-description = "Mustache for Python"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "pytest"
 version = "6.2.5"
 description = "pytest: simple powerful testing with Python"
@@ -522,18 +522,20 @@ pytest = ">=3.10"
 
 [[package]]
 name = "pytest-mypy-plugins"
-version = "1.7.0"
+version = "1.9.1"
 description = "pytest plugin for writing tests for mypy plugins"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
+chevron = "*"
+dataclasses = {version = "*", markers = "python_version < \"3.7\""}
 decorator = "*"
 mypy = ">=0.790"
-pystache = ">=0.5.4"
 pytest = ">=6.0.0"
 pyyaml = "*"
+regex = "*"
 
 [[package]]
 name = "pytest-xdist"
@@ -681,7 +683,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "2bde45360fbc555417f3238a686ff807b26db9efe4e6746b4bac8d589468b281"
+content-hash = "d601efb250d9d60c8bad81dc2165e32245bd42ebd7c7d8b4d97ad75c5f87f339"
 
 [metadata.files]
 appdirs = [
@@ -707,6 +709,10 @@ black = [
 cached-property = [
     {file = "cached-property-1.5.2.tar.gz", hash = "sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130"},
     {file = "cached_property-1.5.2-py2.py3-none-any.whl", hash = "sha256:df4f613cf7ad9a588cc381aaf4a512d26265ecebd5eb9e1ba12f1319eb85a6a0"},
+]
+chevron = [
+    {file = "chevron-0.14.0-py3-none-any.whl", hash = "sha256:fbf996a709f8da2e745ef763f482ce2d311aa817d287593a5b990d6d6e4f0443"},
+    {file = "chevron-0.14.0.tar.gz", hash = "sha256:87613aafdf6d77b6a90ff073165a61ae5086e21ad49057aa0e53681601800ebf"},
 ]
 click = [
     {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},
@@ -966,9 +972,6 @@ pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
-pystache = [
-    {file = "pystache-0.5.4.tar.gz", hash = "sha256:f7bbc265fb957b4d6c7c042b336563179444ab313fb93a719759111eabd3b85a"},
-]
 pytest = [
     {file = "pytest-6.2.5-py3-none-any.whl", hash = "sha256:7310f8d27bc79ced999e760ca304d69f6ba6c6649c0b60fb0e04a4a77cacc134"},
     {file = "pytest-6.2.5.tar.gz", hash = "sha256:131b36680866a76e6781d13f101efb86cf674ebb9762eb70d3082b6f29889e89"},
@@ -982,8 +985,8 @@ pytest-forked = [
     {file = "pytest_forked-1.3.0-py2.py3-none-any.whl", hash = "sha256:dc4147784048e70ef5d437951728825a131b81714b398d5d52f17c7c144d8815"},
 ]
 pytest-mypy-plugins = [
-    {file = "pytest-mypy-plugins-1.7.0.tar.gz", hash = "sha256:55bd91add26adeb00a72112655b0e0e9f092745adff07a6c47a16b67c99e9b8d"},
-    {file = "pytest_mypy_plugins-1.7.0-py3-none-any.whl", hash = "sha256:922abd4ba66e73174aadc89c6f9f2f53ebfe2087d9ab211ef1f47983b040f082"},
+    {file = "pytest-mypy-plugins-1.9.1.tar.gz", hash = "sha256:33d93785af7afec86888ff0c3bf028f8846ec806feb7f897811562800458a22a"},
+    {file = "pytest_mypy_plugins-1.9.1-py3-none-any.whl", hash = "sha256:1d558c0ed21ce0fb13a128df3562b3c374ab15e8b118cd3d485ae34433ea5806"},
 ]
 pytest-xdist = [
     {file = "pytest-xdist-2.3.0.tar.gz", hash = "sha256:e8ecde2f85d88fbcadb7d28cb33da0fa29bca5cf7d5967fa89fc0e97e5299ea5"},
