@@ -60,7 +60,7 @@ class VerifyError(AssertionError):
             heading=heading,
             rehearsals=rehearsals,
             calls=calls,
-            include_calls=times is None,
+            include_calls=times is None or times == len(calls),
         )
 
         super().__init__(message)

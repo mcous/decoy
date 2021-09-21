@@ -92,6 +92,23 @@ verify_error_specs = [
             ]
         ),
     ),
+    VerifyErrorSpec(
+        rehearsals=[
+            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+        ],
+        calls=[
+            SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+        ],
+        times=1,
+        expected_message=os.linesep.join(
+            [
+                "Expected exactly 1 call:",
+                "1.\tspy_101(1, 2, 3)",
+                "Found 1 call:",
+                "1.\tspy_101(4, 5, 6)",
+            ]
+        ),
+    ),
 ]
 
 
