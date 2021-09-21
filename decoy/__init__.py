@@ -5,6 +5,9 @@ from . import matchers, errors, warnings
 from .core import DecoyCore, StubCore
 from .types import ClassT, FuncT, ReturnT
 
+# ensure decoy does not pollute pytest tracebacks
+__tracebackhide__ = True
+
 
 class Decoy:
     """Decoy test double state container."""

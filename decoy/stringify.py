@@ -31,6 +31,11 @@ def count(count: int, noun: str) -> str:
     return f"{count} {noun}{'s' if count != 1 else ''}"
 
 
+def join_lines(*lines: str) -> str:
+    """Join a list of lines with newline characters."""
+    return os.linesep.join(lines).strip()
+
+
 def stringify_error_message(
     heading: str,
     rehearsals: Sequence[BaseSpyRehearsal],
@@ -38,14 +43,12 @@ def stringify_error_message(
     include_calls: bool = True,
 ) -> str:
     """Stringify an error message about a rehearsals to calls comparison."""
-    return os.linesep.join(
-        [
-            heading,
-            stringify_call_list(rehearsals),
-            (
-                f"Found {count(len(calls), 'call')}"
-                f"{'.' if len(calls) == 0 or not include_calls else ':'}"
-            ),
-            stringify_call_list(calls) if include_calls else "",
-        ]
-    ).strip()
+    return join_lines(
+        heading,
+        stringify_call_list(rehearsals),
+        (
+            f"Found {count(len(calls), 'call')}"
+            f"{'.' if len(calls) == 0 or not include_calls else ':'}"
+        ),
+        stringify_call_list(calls) if include_calls else "",
+    )

@@ -4,6 +4,9 @@ from typing import Optional, Sequence
 from .spy_calls import SpyCall, VerifyRehearsal, match_call
 from .errors import VerifyError
 
+# ensure decoy.verifier does not pollute Pytest tracebacks
+__tracebackhide__ = True
+
 
 class Verifier:
     """An interface to verify that spies were called as expected."""

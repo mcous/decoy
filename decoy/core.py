@@ -10,6 +10,9 @@ from .verifier import Verifier
 from .warning_checker import WarningChecker
 from .types import ReturnT
 
+# ensure decoy.core does not pollute Pytest tracebacks
+__tracebackhide__ = True
+
 
 class DecoyCore:
     """The DecoyCore class implements the main logic of Decoy."""
