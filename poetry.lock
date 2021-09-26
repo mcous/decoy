@@ -333,20 +333,20 @@ mkdocs-material = ">=5.0.0"
 
 [[package]]
 name = "mkdocstrings"
-version = "0.15.2"
+version = "0.16.1"
 description = "Automatic documentation from sources, for MkDocs."
 category = "dev"
 optional = false
-python-versions = ">=3.6,<4.0"
+python-versions = ">=3.6"
 
 [package.dependencies]
 Jinja2 = ">=2.11.1,<4.0"
 Markdown = ">=3.3,<4.0"
 MarkupSafe = ">=1.1,<3.0"
-mkdocs = ">=1.1.1,<2.0.0"
-mkdocs-autorefs = ">=0.1,<0.3"
+mkdocs = ">=1.2,<2.0"
+mkdocs-autorefs = ">=0.1,<0.4"
 pymdown-extensions = ">=6.3,<9.0"
-pytkdocs = ">=0.2.0,<0.12.0"
+pytkdocs = ">=0.2.0,<0.13.0"
 
 [[package]]
 name = "mypy"
@@ -684,7 +684,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "47ae163dbbf41f3070ad08fff746ec3f6d7eca2d8a669a3e6dab4e48c125ca52"
+content-hash = "1cf953c02c1faf4c4117a1dc131002e3ec5ea38bf06691bfea3524f79d8170f5"
 
 [metadata.files]
 appdirs = [
@@ -902,8 +902,8 @@ mkdocs-material-extensions = [
     {file = "mkdocs_material_extensions-1.0.1-py3-none-any.whl", hash = "sha256:d90c807a88348aa6d1805657ec5c0b2d8d609c110e62b9dce4daf7fa981fa338"},
 ]
 mkdocstrings = [
-    {file = "mkdocstrings-0.15.2-py3-none-any.whl", hash = "sha256:8d6cbe64c07ae66739010979ca01d49dd2f64d1a45009f089d217b9cd2a65e36"},
-    {file = "mkdocstrings-0.15.2.tar.gz", hash = "sha256:c2fee9a3a644647c06eb2044fdfede1073adfd1a55bf6752005d3db10705fe73"},
+    {file = "mkdocstrings-0.16.1-py3-none-any.whl", hash = "sha256:24961e44f22f82e1583ef32d98dd7601ebfa73d050f57b4d6ba94a0672fec010"},
+    {file = "mkdocstrings-0.16.1.tar.gz", hash = "sha256:3436495ad8040196fb2ba52bc420a1ff12b74e49157d852374e5fb5260825d37"},
 ]
 mypy = [
     {file = "mypy-0.910-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:a155d80ea6cee511a3694b108c4494a39f42de11ee4e61e72bc424c490e46457"},
