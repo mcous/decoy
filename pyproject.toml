@@ -34,7 +34,7 @@ mkdocs-material = "^7.3.3"
 mkdocstrings = "^0.16.2"
 mypy = "^0.910"
 pytest = "^6.2.5"
-pytest-asyncio = "^0.15.1"
+pytest-asyncio = "^0.16.0"
 pytest-mypy-plugins = "^1.9.2"
 pytest-xdist = "^2.4.0"
 coverage = {extras = ["toml"], version = "^6.0"}
