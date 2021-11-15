@@ -61,7 +61,12 @@ class BaseSpy:
         if name is None and spec is not None and hasattr(spec, "__name__"):
             self._name = spec.__name__
 
-        if module_name is None and spec is not None and hasattr(spec, "__module__"):
+        if (
+            module_name is None
+            and spec is not None
+            and hasattr(spec, "__module__")
+            and not isinstance(spec, partial)
+        ):
             self._module_name = spec.__module__
 
         # ensure spy can pass inspect.signature checks
