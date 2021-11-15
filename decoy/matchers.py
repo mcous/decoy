@@ -24,7 +24,7 @@ Note:
     equality comparisons (`==`) for stubbing and verification.
 """
 from re import compile as compile_re
-from typing import cast, Any, List, Mapping, Optional, Pattern, Type
+from typing import cast, Any, List, Mapping, Optional, Pattern, Type, TypeVar
 
 
 __all__ = [
@@ -255,10 +255,10 @@ def StringMatching(match: str) -> str:
 
 
 class _ErrorMatching:
-    _error_type: Type[Exception]
+    _error_type: Type[BaseException]
     _string_matcher: Optional[_StringMatching]
 
-    def __init__(self, error: Type[Exception], match: Optional[str] = None) -> None:
+    def __init__(self, error: Type[BaseException], match: Optional[str] = None) -> None:
         """Initialize with the Exception type and optional message matcher."""
         self._error_type = error
         self._string_matcher = _StringMatching(match) if match is not None else None
@@ -281,7 +281,10 @@ class _ErrorMatching:
         )
 
 
-def ErrorMatching(error: Type[Exception], match: Optional[str] = None) -> Exception:
+ErrorT = TypeVar("ErrorT", bound=BaseException)
+
+
+def ErrorMatching(error: Type[ErrorT], match: Optional[str] = None) -> ErrorT:
     """Match any error matching an Exception type and optional message matcher.
 
     Arguments:
@@ -294,7 +297,7 @@ def ErrorMatching(error: Type[Exception], match: Optional[str] = None) -> Except
         assert ValueError("oh no!") == ErrorMatching(ValueError, match="no")
         ```
     """
-    return cast(Exception, _ErrorMatching(error, match))
+    return cast(ErrorT, _ErrorMatching(error, match))
 
 
 class _Captor:
