@@ -43,7 +43,7 @@ Decoy ships with its own [pytest][] plugin, so once Decoy is installed, you're r
 from decoy import Decoy
 
 def test_my_thing_works(decoy: Decoy) -> None:
-    # ...
+    ...
 ```
 
 ### Mypy Setup

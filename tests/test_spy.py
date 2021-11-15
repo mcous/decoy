@@ -29,15 +29,18 @@ def test_create_spy() -> None:
     spy(7, eight=8, nine=9)
 
     assert calls == [
-        SpyCall(spy_id=id(spy), spy_name="spy", args=(1, 2, 3), kwargs={}),
+        SpyCall(spy_id=id(spy), spy_name="decoy.spy.Spy", args=(1, 2, 3), kwargs={}),
         SpyCall(
             spy_id=id(spy),
-            spy_name="spy",
+            spy_name="decoy.spy.Spy",
             args=(),
             kwargs={"four": 4, "five": 5, "six": 6},
         ),
         SpyCall(
-            spy_id=id(spy), spy_name="spy", args=(7,), kwargs={"eight": 8, "nine": 9}
+            spy_id=id(spy),
+            spy_name="decoy.spy.Spy",
+            args=(7,),
+            kwargs={"eight": 8, "nine": 9},
         ),
     ]
 
@@ -374,9 +377,11 @@ def test_spy_repr() -> None:
     """It should have an informative repr."""
     class_spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
     func_spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
+    named_spy = create_spy(SpyConfig(name="hello", handle_call=noop))
     spy = create_spy(SpyConfig(handle_call=noop))
 
     assert repr(class_spy) == "<Decoy mock of tests.common.SomeClass>"
     assert repr(class_spy.foo) == "<Decoy mock of tests.common.SomeClass.foo>"
     assert repr(func_spy) == "<Decoy mock of tests.common.some_func>"
-    assert repr(spy) == "<Decoy spy function>"
+    assert repr(named_spy) == '<Decoy mock "hello">'
+    assert repr(spy) == "<Decoy mock>"
