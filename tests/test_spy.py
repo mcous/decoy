@@ -1,7 +1,8 @@
 """Tests for spy creation."""
 import pytest
 import inspect
-from typing import Any
+from functools import partial
+from typing import Any, NamedTuple
 
 from decoy.spy_calls import SpyCall
 from decoy.spy import create_spy, AsyncSpy, Spy, SpyConfig
@@ -25,14 +26,14 @@ def test_create_spy() -> None:
     spy = create_spy(SpyConfig(handle_call=lambda c: calls.append(c)))
 
     spy(1, 2, 3)
-    spy(four=4, five=5, six=6)
+    spy.child(four=4, five=5, six=6)
     spy(7, eight=8, nine=9)
 
     assert calls == [
         SpyCall(spy_id=id(spy), spy_name="decoy.spy.Spy", args=(1, 2, 3), kwargs={}),
         SpyCall(
-            spy_id=id(spy),
-            spy_name="decoy.spy.Spy",
+            spy_id=id(spy.child),
+            spy_name="child",
             args=(),
             kwargs={"four": 4, "five": 5, "six": 6},
         ),
@@ -373,15 +374,54 @@ def test_spy_matches_static_signature() -> None:
     assert isinstance(class_spy.bar, AsyncSpy)
 
 
-def test_spy_repr() -> None:
-    """It should have an informative repr."""
-    class_spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
-    func_spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
-    named_spy = create_spy(SpyConfig(name="hello", handle_call=noop))
-    spy = create_spy(SpyConfig(handle_call=noop))
+class SpyReprSpec(NamedTuple):
+    """Spec data for BaseSpy.__repr__ tests."""
 
-    assert repr(class_spy) == "<Decoy mock of tests.common.SomeClass>"
-    assert repr(class_spy.foo) == "<Decoy mock of tests.common.SomeClass.foo>"
-    assert repr(func_spy) == "<Decoy mock of tests.common.some_func>"
-    assert repr(named_spy) == '<Decoy mock "hello">'
-    assert repr(spy) == "<Decoy mock>"
+    config: SpyConfig
+    expected: str
+
+
+@pytest.mark.parametrize(
+    SpyReprSpec._fields,
+    [
+        SpyReprSpec(
+            config=SpyConfig(spec=SomeClass, handle_call=noop),
+            expected="<Decoy mock of tests.common.SomeClass>",
+        ),
+        SpyReprSpec(
+            config=SpyConfig(spec=some_func, handle_call=noop),
+            expected="<Decoy mock of tests.common.some_func>",
+        ),
+        SpyReprSpec(
+            config=SpyConfig(name="hello", handle_call=noop),
+            expected='<Decoy mock "hello">',
+        ),
+        SpyReprSpec(
+            config=SpyConfig(handle_call=noop),
+            expected="<Decoy mock>",
+        ),
+        SpyReprSpec(
+            config=SpyConfig(
+                spec=partial(SomeClass.foo, None),
+                name="SomeClass.foo",
+                module_name="tests.common",
+                handle_call=noop,
+            ),
+            expected="<Decoy mock of tests.common.SomeClass.foo>",
+        ),
+        SpyReprSpec(
+            config=SpyConfig(
+                spec=partial(SomeClass.foo, None),
+                name="SomeClass.foo",
+                handle_call=noop,
+            ),
+            expected="<Decoy mock of SomeClass.foo>",
+        ),
+    ],
+)
+def test_spy_repr(config: SpyConfig, expected: str) -> None:
+    """It should have an informative repr."""
+    subject = create_spy(config)
+    result = repr(subject)
+
+    assert result == expected

@@ -90,7 +90,7 @@ class BaseSpy:
         """Get a helpful string representation of the spy."""
         name = self._name
 
-        if self._spec:
+        if name and self._spec:
             if self._module_name:
                 name = f"{self._module_name}.{name}"
             return f"<Decoy mock of {name}>"
@@ -114,6 +114,7 @@ class BaseSpy:
 
         child_spec = None
         child_is_async = False
+        child_name = f"{self._name}.{name}" if self._name is not None else name
 
         if isclass(self._spec):
             child_hint = _get_type_hints(self._spec).get(name)
@@ -138,7 +139,7 @@ class BaseSpy:
             config=SpyConfig(
                 handle_call=self._handle_call,
                 spec=child_spec,
-                name=f"{self._name}.{name}",
+                name=child_name,
                 module_name=self._module_name,
                 is_async=child_is_async,
             ),
