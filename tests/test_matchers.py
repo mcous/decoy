@@ -95,7 +95,7 @@ def test_error_matching_matcher() -> None:
     """It should have an "any error that matches" matcher."""
     assert RuntimeError("ah!") == matchers.ErrorMatching(RuntimeError)
     assert RuntimeError("ah!") == matchers.ErrorMatching(RuntimeError, "ah")
-    assert RuntimeError("ah!") != matchers.ErrorMatching(TypeError, "ah")
+    assert RuntimeError("ah!") != matchers.ErrorMatching(TypeError, "ah")  # type: ignore[comparison-overlap]  # noqa: E501
     assert RuntimeError("ah!") != matchers.ErrorMatching(RuntimeError, "ah$")
 
 
