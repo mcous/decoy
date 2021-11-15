@@ -28,8 +28,9 @@ class Decoy:
     def mock(self, *, func: FuncT) -> FuncT:
         ...
 
+    # TODO(mc, 2021-11-14): make `name` required for specless mocks in v2.0
     @overload
-    def mock(self, *, is_async: bool = False) -> Any:
+    def mock(self, *, name: Optional[Any] = None, is_async: bool = False) -> Any:
         ...
 
     def mock(
@@ -37,6 +38,7 @@ class Decoy:
         *,
         cls: Optional[Any] = None,
         func: Optional[Any] = None,
+        name: Optional[str] = None,
         is_async: bool = False,
     ) -> Any:
         """Create a mock.
@@ -46,6 +48,8 @@ class Decoy:
         Arguments:
             cls: A class definition that the mock should imitate.
             func: A function definition the mock should imitate.
+            name: A name to use for the mock. If you do not use
+                `cls` or `func`, you should add a `name`.
             is_async: Force the returned spy to be asynchronous. This argument
                 only applies if you don't use `cls` nor `func`.
 
@@ -60,7 +64,7 @@ class Decoy:
             ```
         """
         spec = cls or func
-        return self._core.mock(spec=spec, is_async=is_async)
+        return self._core.mock(spec=spec, name=name, is_async=is_async)
 
     def create_decoy(
         self,

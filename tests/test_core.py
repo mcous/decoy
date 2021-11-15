@@ -77,11 +77,31 @@ def test_mock_no_spec(
     subject: DecoyCore,
 ) -> None:
     """It should create a generic spy by default."""
-    spy = Spy(handle_call=noop, name="my-spy")
+    spy = Spy(handle_call=noop)
     expected_config = SpyConfig(spec=None, handle_call=call_handler.handle)
     decoy.when(create_spy(expected_config)).then_return(spy)
 
     result = subject.mock()
+
+    assert result is spy
+
+
+def test_mock_with_name(
+    decoy: Decoy,
+    create_spy: SpyFactory,
+    call_handler: CallHandler,
+    subject: DecoyCore,
+) -> None:
+    """It should create a generic spy by default."""
+    spy = Spy(handle_call=noop, name="my-spy")
+    expected_config = SpyConfig(
+        spec=None,
+        name="my-spy",
+        handle_call=call_handler.handle,
+    )
+    decoy.when(create_spy(expected_config)).then_return(spy)
+
+    result = subject.mock(name="my-spy")
 
     assert result is spy
 

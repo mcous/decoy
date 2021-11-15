@@ -37,10 +37,17 @@ class DecoyCore:
             stub_store=self._stub_store,
         )
 
-    def mock(self, *, spec: Optional[Any] = None, is_async: bool = False) -> Any:
+    def mock(
+        self,
+        *,
+        spec: Optional[Any] = None,
+        name: Optional[str] = None,
+        is_async: bool = False,
+    ) -> Any:
         """Create and register a new spy."""
         config = SpyConfig(
             spec=spec,
+            name=name,
             is_async=is_async,
             handle_call=self._call_hander.handle,
         )

@@ -22,7 +22,7 @@ def test_decoy_creates_spy(decoy: Decoy) -> None:
 
 
 def test_decoy_creates_func_spy(decoy: Decoy) -> None:
-    """It should be able to create a Spy from a class."""
+    """It should be able to create a Spy from a function."""
     subject = decoy.mock(func=some_func)
 
     assert isinstance(subject, Spy)
@@ -33,15 +33,27 @@ def test_decoy_creates_func_spy(decoy: Decoy) -> None:
     assert isinstance(subject, Spy)
 
 
-def test_decoy_creates_async_func_spy(decoy: Decoy) -> None:
-    """It should be able to create a Spy from a class."""
-    subject = decoy.mock(is_async=True)
+def test_decoy_creates_specless_spy(decoy: Decoy) -> None:
+    """It should be able to create a spec-less spy."""
+    subject = decoy.mock()
+    assert isinstance(subject, Spy)
 
+    # test deprecated create_decoy_func method
+    subject = decoy.create_decoy_func()
+    assert isinstance(subject, Spy)
+
+    # test naming the spy
+    subject = decoy.mock(name="spy-name")
+    assert repr(subject) == '<Decoy mock "spy-name">'
+
+
+def test_decoy_creates_specless_async_spy(decoy: Decoy) -> None:
+    """It should be able to create an async specless spy."""
+    subject = decoy.mock(is_async=True)
     assert isinstance(subject, AsyncSpy)
 
     # test deprecated create_decoy_func method
     subject = decoy.create_decoy_func(is_async=True)
-
     assert isinstance(subject, AsyncSpy)
 
 

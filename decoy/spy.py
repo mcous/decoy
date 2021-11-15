@@ -55,10 +55,18 @@ class BaseSpy:
         self._handle_call: CallHandler = handle_call
         self._spy_children: Dict[str, BaseSpy] = {}
 
-        self._name = name or (spec.__name__ if spec is not None else "spy")
+        self._name = name
         self._module_name = module_name
 
-        if module_name is None and spec is not None and hasattr(spec, "__module__"):
+        if name is None and spec is not None and hasattr(spec, "__name__"):
+            self._name = spec.__name__
+
+        if (
+            module_name is None
+            and spec is not None
+            and hasattr(spec, "__module__")
+            and not isinstance(spec, partial)
+        ):
             self._module_name = spec.__module__
 
         # ensure spy can pass inspect.signature checks
@@ -75,13 +83,26 @@ class BaseSpy:
 
         return type(self)
 
+    @property
+    def _call_name(self) -> str:
+        """Get the name of the spy for the call log."""
+        if self._name:
+            return self._name
+        else:
+            return f"{type(self).__module__}.{type(self).__qualname__}"
+
     def __repr__(self) -> str:
         """Get a helpful string representation of the spy."""
         name = self._name
-        if self._module_name:
-            name = f"{self._module_name}.{name}"
 
-        return f"<Decoy mock of {name}>" if self._spec else "<Decoy spy function>"
+        if name and self._spec:
+            if self._module_name:
+                name = f"{self._module_name}.{name}"
+            return f"<Decoy mock of {name}>"
+        elif name:
+            return f'<Decoy mock "{name}">'
+        else:
+            return "<Decoy mock>"
 
     def __getattr__(self, name: str) -> Any:
         """Get a property of the spy.
@@ -98,6 +119,7 @@ class BaseSpy:
 
         child_spec = None
         child_is_async = False
+        child_name = f"{self._name}.{name}" if self._name is not None else name
 
         if isclass(self._spec):
             child_hint = _get_type_hints(self._spec).get(name)
@@ -122,7 +144,7 @@ class BaseSpy:
             config=SpyConfig(
                 handle_call=self._handle_call,
                 spec=child_spec,
-                name=f"{self._name}.{name}",
+                name=child_name,
                 module_name=self._module_name,
                 is_async=child_is_async,
             ),
@@ -138,7 +160,7 @@ class Spy(BaseSpy):
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy."""
-        return self._handle_call(SpyCall(id(self), self._name, args, kwargs))
+        return self._handle_call(SpyCall(id(self), self._call_name, args, kwargs))
 
 
 class AsyncSpy(BaseSpy):
@@ -146,7 +168,7 @@ class AsyncSpy(BaseSpy):
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy asynchronously."""
-        return self._handle_call(SpyCall(id(self), self._name, args, kwargs))
+        return self._handle_call(SpyCall(id(self), self._call_name, args, kwargs))
 
 
 SpyFactory = Callable[[SpyConfig], Any]
