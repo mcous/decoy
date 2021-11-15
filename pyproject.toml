@@ -27,17 +27,17 @@ python = "^3.6"
 [tool.poetry.dev-dependencies]
 black = { version = "^21.7b0", python = "^3.6.2" }
 flake8 = "^3.8.4"
-flake8-annotations = { version = "^2.6.2", python = "^3.6.2" }
+flake8-annotations = { version = "^2.7.0", python = "^3.6.2" }
 flake8-docstrings = "^1.5.0"
-mkdocs = "^1.2.2"
-mkdocs-material = "^7.2.6"
-mkdocstrings = "^0.15.1"
+mkdocs = "^1.2.3"
+mkdocs-material = "^7.3.3"
+mkdocstrings = "^0.16.2"
 mypy = "^0.910"
 pytest = "^6.2.5"
-pytest-asyncio = "^0.15.1"
-pytest-mypy-plugins = "^1.9.1"
-pytest-xdist = "^2.1.0"
-coverage = {extras = ["toml"], version = "^5.5"}
+pytest-asyncio = "^0.16.0"
+pytest-mypy-plugins = "^1.9.2"
+pytest-xdist = "^2.4.0"
+coverage = {extras = ["toml"], version = "^6.0"}
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"
