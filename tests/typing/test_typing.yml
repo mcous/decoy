@@ -130,5 +130,5 @@
       main:4: note: Revealed type is "Any"
       main:5: note: Revealed type is "Any"
       main:6: note: Revealed type is "builtins.str"
-      main:7: note: Revealed type is "builtins.Exception"
+      main:7: note: Revealed type is "builtins.RuntimeError*"
       main:8: note: Revealed type is "Any"
