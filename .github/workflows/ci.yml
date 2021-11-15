@@ -14,7 +14,7 @@ jobs:
         strategy:
             matrix:
                 os: [Ubuntu, Windows, macOS]
-                python-version: ["3.6", "3.7", "3.8", "3.9", "3.10.0-rc - 3.10"]
+                python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
         steps:
             - name: "Check out repository"
               uses: actions/checkout@v2
@@ -36,12 +36,10 @@ jobs:
                       ${{ env.POETRY_CACHE_DIR }}
 
             - name: "Install poetry"
-              run: pip install poetry
+              run: pip install "poetry==1.1.11"
 
             - name: "Install dependencies"
-              run: |
-                  poetry config experimental.new-installer false
-                  poetry install
+              run: poetry install
 
             - name: "Run tests"
               run: poetry run coverage run --branch --source=decoy -m pytest --mypy-same-process
@@ -73,7 +71,7 @@ jobs:
                       ${{ env.POETRY_CACHE_DIR }}
 
             - name: "Install poetry"
-              run: pip install poetry
+              run: pip install "poetry==1.1.11"
 
             - name: "Install dependencies"
               run: poetry install
@@ -109,7 +107,7 @@ jobs:
                       ${{ env.POETRY_CACHE_DIR }}
 
             - name: "Install poetry"
-              run: pip install poetry
+              run: pip install "poetry==1.1.11"
 
             - name: "Install dependencies"
               run: poetry install
