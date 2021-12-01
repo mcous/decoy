@@ -30,7 +30,7 @@ class Decoy:
 
     # TODO(mc, 2021-11-14): make `name` required for specless mocks in v2.0
     @overload
-    def mock(self, *, name: Optional[Any] = None, is_async: bool = False) -> Any:
+    def mock(self, *, name: Optional[str] = None, is_async: bool = False) -> Any:
         ...
 
     def mock(
