@@ -4,6 +4,7 @@ import inspect
 from functools import partial
 from typing import Any, NamedTuple
 
+from decoy.warnings import IncorrectCallWarning
 from decoy.spy_calls import SpyCall
 from decoy.spy import create_spy, AsyncSpy, Spy, SpyConfig
 
@@ -52,24 +53,12 @@ def test_create_spy_from_spec_function() -> None:
 
     spy = create_spy(SpyConfig(spec=some_func, handle_call=lambda c: calls.append(c)))
 
-    spy(1, 2, 3)
-    spy(four=4, five=5, six=6)
-    spy(7, eight=8, nine=9)
+    spy("hello")
+    spy(val="world")
 
     assert calls == [
-        SpyCall(spy_id=id(spy), spy_name="some_func", args=(1, 2, 3), kwargs={}),
-        SpyCall(
-            spy_id=id(spy),
-            spy_name="some_func",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
-        ),
-        SpyCall(
-            spy_id=id(spy),
-            spy_name="some_func",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
-        ),
+        SpyCall(spy_id=id(spy), spy_name="some_func", args=("hello",), kwargs={}),
+        SpyCall(spy_id=id(spy), spy_name="some_func", args=("world",), kwargs={}),
     ]
 
 
@@ -84,24 +73,12 @@ async def test_create_spy_from_async_spec_function() -> None:
         )
     )
 
-    await spy(1, 2, 3)
-    await spy(four=4, five=5, six=6)
-    await spy(7, eight=8, nine=9)
+    await spy(val="1")
+    await spy("6")
 
     assert calls == [
-        SpyCall(spy_id=id(spy), spy_name="some_async_func", args=(1, 2, 3), kwargs={}),
-        SpyCall(
-            spy_id=id(spy),
-            spy_name="some_async_func",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
-        ),
-        SpyCall(
-            spy_id=id(spy),
-            spy_name="some_async_func",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
-        ),
+        SpyCall(spy_id=id(spy), spy_name="some_async_func", args=("1",), kwargs={}),
+        SpyCall(spy_id=id(spy), spy_name="some_async_func", args=("6",), kwargs={}),
     ]
 
 
@@ -111,25 +88,23 @@ def test_create_spy_from_spec_class() -> None:
 
     spy = create_spy(SpyConfig(spec=SomeClass, handle_call=lambda c: calls.append(c)))
 
-    spy.foo(1, 2, 3)
-    spy.bar(four=4, five=5, six=6)
-    spy.do_the_thing(7, eight=8, nine=9)
+    spy.foo(val="1")
+    spy.bar(a=4, b=5.0, c="6")
+    spy.do_the_thing(flag=True)
 
     assert calls == [
-        SpyCall(
-            spy_id=id(spy.foo), spy_name="SomeClass.foo", args=(1, 2, 3), kwargs={}
-        ),
+        SpyCall(spy_id=id(spy.foo), spy_name="SomeClass.foo", args=("1",), kwargs={}),
         SpyCall(
             spy_id=id(spy.bar),
             spy_name="SomeClass.bar",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
+            args=(4, 5.0, "6"),
+            kwargs={},
         ),
         SpyCall(
             spy_id=id(spy.do_the_thing),
             spy_name="SomeClass.do_the_thing",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
+            args=(),
+            kwargs={"flag": True},
         ),
     ]
 
@@ -142,25 +117,28 @@ async def test_create_spy_from_async_spec_class() -> None:
         SpyConfig(spec=SomeAsyncClass, handle_call=lambda c: calls.append(c))
     )
 
-    await spy.foo(1, 2, 3)
-    await spy.bar(four=4, five=5, six=6)
-    await spy.do_the_thing(7, eight=8, nine=9)
+    await spy.foo(val="1")
+    await spy.bar(a=4, b=5.0, c="6")
+    await spy.do_the_thing(flag=True)
 
     assert calls == [
         SpyCall(
-            spy_id=id(spy.foo), spy_name="SomeAsyncClass.foo", args=(1, 2, 3), kwargs={}
+            spy_id=id(spy.foo),
+            spy_name="SomeAsyncClass.foo",
+            args=("1",),
+            kwargs={},
         ),
         SpyCall(
             spy_id=id(spy.bar),
             spy_name="SomeAsyncClass.bar",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
+            args=(4, 5.0, "6"),
+            kwargs={},
         ),
         SpyCall(
             spy_id=id(spy.do_the_thing),
             spy_name="SomeAsyncClass.do_the_thing",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
+            args=(),
+            kwargs={"flag": True},
         ),
     ]
 
@@ -173,28 +151,28 @@ def test_create_nested_spy() -> None:
         SpyConfig(spec=SomeNestedClass, handle_call=lambda c: calls.append(c))
     )
 
-    spy.foo(1, 2, 3)
-    spy.child.bar(four=4, five=5, six=6)
-    spy.child.do_the_thing(7, eight=8, nine=9)
+    spy.foo("1")
+    spy.child.bar(a=4, b=5.0, c="6")
+    spy.child.do_the_thing(flag=True)
 
     assert calls == [
         SpyCall(
             spy_id=id(spy.foo),
             spy_name="SomeNestedClass.foo",
-            args=(1, 2, 3),
+            args=("1",),
             kwargs={},
         ),
         SpyCall(
             spy_id=id(spy.child.bar),
             spy_name="SomeNestedClass.child.bar",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
+            args=(4, 5.0, "6"),
+            kwargs={},
         ),
         SpyCall(
             spy_id=id(spy.child.do_the_thing),
             spy_name="SomeNestedClass.child.do_the_thing",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
+            args=(),
+            kwargs={"flag": True},
         ),
     ]
 
@@ -214,21 +192,21 @@ async def test_create_nested_spy_using_property_type_hints() -> None:
     calls = []
     spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
 
-    await spy._async_child.bar(four=4, five=5, six=6)
-    spy._sync_child.do_the_thing(7, eight=8, nine=9)
+    await spy._async_child.bar(a=4, b=5.0, c="6")
+    spy._sync_child.do_the_thing(flag=True)
 
     assert calls == [
         SpyCall(
             spy_id=id(spy._async_child.bar),
             spy_name="_SomeClass._async_child.bar",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
+            args=(4, 5.0, "6"),
+            kwargs={},
         ),
         SpyCall(
             spy_id=id(spy._sync_child.do_the_thing),
             spy_name="_SomeClass._sync_child.do_the_thing",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
+            args=(),
+            kwargs={"flag": True},
         ),
     ]
 
@@ -243,21 +221,21 @@ async def test_create_nested_spy_using_class_type_hints() -> None:
     calls = []
     spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
 
-    await spy._async_child.bar(four=4, five=5, six=6)
-    spy._sync_child.do_the_thing(7, eight=8, nine=9)
+    await spy._async_child.bar(a=4, b=5.0, c="6")
+    spy._sync_child.do_the_thing(flag=False)
 
     assert calls == [
         SpyCall(
             spy_id=id(spy._async_child.bar),
             spy_name="_SomeClass._async_child.bar",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
+            args=(4, 5.0, "6"),
+            kwargs={},
         ),
         SpyCall(
             spy_id=id(spy._sync_child.do_the_thing),
             spy_name="_SomeClass._sync_child.do_the_thing",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
+            args=(),
+            kwargs={"flag": False},
         ),
     ]
 
@@ -293,6 +271,14 @@ async def test_create_nested_spy_using_non_runtime_type_hints() -> None:
     ]
 
 
+def test_warn_if_called_incorrectly() -> None:
+    """It should trigger a warning if the spy is called incorrectly."""
+    spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
+
+    with pytest.warns(IncorrectCallWarning, match="missing a required argument"):
+        spy(wrong_arg_name="1")
+
+
 async def test_spy_returns_handler_value() -> None:
     """The spy should return the value from its call handler when called."""
     call_count = 0
@@ -306,10 +292,10 @@ async def test_spy_returns_handler_value() -> None:
     async_spy = create_spy(SpyConfig(spec=some_async_func, handle_call=_handle_call))
 
     assert [
-        sync_spy(),
-        await async_spy(),
-        sync_spy(),
-        await async_spy(),
+        sync_spy("hello"),
+        await async_spy("from thr"),
+        sync_spy("other"),
+        await async_spy("side"),
     ] == [1, 2, 3, 4]
 
 

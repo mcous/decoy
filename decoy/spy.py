@@ -5,10 +5,11 @@ Classes in this module are heavily inspired by the
 """
 from inspect import getattr_static, isclass, iscoroutinefunction, isfunction, signature
 from functools import partial
+from warnings import warn
 from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional
 
 from .spy_calls import SpyCall
-
+from .warnings import IncorrectCallWarning
 
 CallHandler = Callable[[SpyCall], Any]
 
@@ -83,13 +84,25 @@ class BaseSpy:
 
         return type(self)
 
-    @property
-    def _call_name(self) -> str:
-        """Get the name of the spy for the call log."""
-        if self._name:
-            return self._name
-        else:
-            return f"{type(self).__module__}.{type(self).__qualname__}"
+    def _call(self, *args: Any, **kwargs: Any) -> Any:
+        spy_id = id(self)
+        spy_name = (
+            self._name
+            if self._name
+            else f"{type(self).__module__}.{type(self).__qualname__}"
+        )
+
+        if hasattr(self, "__signature__"):
+            try:
+                bound_args = self.__signature__.bind(*args, **kwargs)
+            except TypeError as e:
+                # stacklevel: 3 ensures warning is linked to call location
+                warn(IncorrectCallWarning(e), stacklevel=3)
+            else:
+                args = bound_args.args
+                kwargs = bound_args.kwargs
+
+        return self._handle_call(SpyCall(spy_id, spy_name, args, kwargs))
 
     def __repr__(self) -> str:
         """Get a helpful string representation of the spy."""
@@ -160,7 +173,7 @@ class Spy(BaseSpy):
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy."""
-        return self._handle_call(SpyCall(id(self), self._call_name, args, kwargs))
+        return self._call(*args, **kwargs)
 
 
 class AsyncSpy(BaseSpy):
@@ -168,7 +181,7 @@ class AsyncSpy(BaseSpy):
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy asynchronously."""
-        return self._handle_call(SpyCall(id(self), self._call_name, args, kwargs))
+        return self._call(*args, **kwargs)
 
 
 SpyFactory = Callable[[SpyConfig], Any]

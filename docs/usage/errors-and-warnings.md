@@ -151,6 +151,24 @@ Adding those `verify`s at the end may give you a feeling of "ok, good, now I'm c
 
 If Decoy detects a `verify` with the same configuration of a `when`, it will raise a `RedundantVerifyWarning` to encourage you to remove the redundant, over-constraining `verify` call.
 
+### IncorrectCallWarning
+
+If you provide a Decoy mock with a specification `cls` or `func`, any calls to that mock will be checked according to `inspect.signature`. If the call does not match the signature, Decoy will raise a `IncorrectCalWarning`.
+
+Decoy limits this to a warning, but in real life, this call would likely cause the Python engine to error at run time.
+
+```python
+def some_func(val: string) -> int:
+    ...
+
+spy = decoy.mock(func=some_func)
+
+spy("hello")                # ok
+spy(val="world")            # ok
+spy(wrong_name="ah!")       # triggers an IncorrectCallWarning
+spy("too", "many", "args")  # triggers an IncorrectCallWarning
+```
+
 [warnings system]: https://docs.python.org/3/library/warnings.html
 [warning filters]: https://docs.pytest.org/en/latest/how-to/capture-warnings.html
 [unittest.mock]: https://docs.python.org/3/library/unittest.mock.html

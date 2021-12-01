@@ -84,3 +84,15 @@ class RedundantVerifyWarning(DecoyWarning):
         )
         super().__init__(message)
         self.rehearsal = rehearsal
+
+
+class IncorrectCallWarning(DecoyWarning):
+    """A warning raised if a Decoy mock with a spec is called incorrectly.
+
+    If a call to a Decoy mock is incorrect according to `inspect.signature`,
+    this warning will be raised.
+
+    See the [IncorrectCallWarning guide][] for more details.
+
+    [IncorrectCallWarning guide]: ../usage/errors-and-warnings/#incorrectcallwarning
+    """
