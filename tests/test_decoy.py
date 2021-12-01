@@ -67,6 +67,9 @@ def test_when_then_return(decoy: Decoy) -> None:
     result = subject("hello")
     assert result == "hello world"
 
+    result = subject(val="hello")
+    assert result == "hello world"
+
     result = subject("asdfghjkl")
     assert result is None
 
@@ -119,6 +122,7 @@ def test_verify(decoy: Decoy) -> None:
     subject("hello")
 
     decoy.verify(subject("hello"))
+    decoy.verify(subject(val="hello"))
 
     with pytest.raises(errors.VerifyError):
         decoy.verify(subject("goodbye"))

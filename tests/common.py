@@ -13,7 +13,7 @@ class SomeClass:
         """Get the bar bool based on a few inputs."""
         ...
 
-    def do_the_thing(self, flag: bool) -> None:
+    def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
         ...
 
@@ -42,7 +42,7 @@ class SomeAsyncClass:
         """Get the bar bool based on a few inputs."""
         ...
 
-    async def do_the_thing(self, flag: bool) -> None:
+    async def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
         ...
 
