@@ -74,8 +74,10 @@ class _IsA:
 
     def __eq__(self, target: object) -> bool:
         """Return true if target is the correct type and matches attributes."""
-        matches_type = type(target) == self._match_type
-        matches_attrs = target == HasAttributes(self._attributes or {})
+        matches_type = isinstance(target, self._match_type)
+        matches_attrs = (
+            target == HasAttributes(self._attributes) if self._attributes else True
+        )
 
         return matches_type and matches_attrs
 

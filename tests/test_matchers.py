@@ -1,7 +1,7 @@
 """Matcher tests."""
 import pytest
 from collections import namedtuple
-from decoy import matchers
+from decoy import Decoy, matchers
 from typing import Any, List, NamedTuple
 from .common import SomeClass
 
@@ -39,6 +39,12 @@ def test_is_a_matcher() -> None:
 
     assert _HelloClass() != matchers.IsA(_HelloClass, {"hello": "warld"})
     assert _HelloClass() != matchers.IsA(_HelloClass, {"hella": "world"})
+
+
+def test_is_a_matcher_checks_instance(decoy: Decoy) -> None:
+    """The IsA matchers should respect ininstance logic."""
+    target = decoy.mock(cls=SomeClass)
+    assert target == matchers.IsA(SomeClass)
 
 
 def test_is_not_matcher() -> None:
