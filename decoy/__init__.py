@@ -10,12 +10,13 @@ __tracebackhide__ = True
 
 
 class Decoy:
-    """Decoy test double state container."""
+    """Decoy mock factory and state container."""
 
     def __init__(self) -> None:
-        """Initialize the state container for test doubles and stubs.
+        """Initialize a new mock factory.
 
-        You should initialize a new Decoy instance for every test. See the
+        You should create a new Decoy instance for every test. If you use
+        the `decoy` pytest fixture, this is done automatically. See the
         [setup guide](../#setup) for more details.
         """
         self._core = DecoyCore()
@@ -137,7 +138,7 @@ class Decoy:
         times: Optional[int] = None,
         ignore_extra_args: bool = False,
     ) -> None:
-        """Verify a decoy was called using one or more rehearsals.
+        """Verify a mock was called using one or more rehearsals.
 
         See [verification usage guide](../usage/verify/) for more details.
 
@@ -175,11 +176,11 @@ class Decoy:
         )
 
     def reset(self) -> None:
-        """Reset all decoy state.
+        """Reset all mock state.
 
         This method should be called after every test to ensure spies and stubs
-        don't leak between tests. The Decoy fixture provided by the pytest plugin
-        will do this automatically.
+        don't leak between tests. The `decoy` fixture provided by the pytest plugin
+        will call `reset` automatically.
 
         The `reset` method may also trigger warnings if Decoy detects any questionable
         mock usage. See [decoy.warnings][] for more details.

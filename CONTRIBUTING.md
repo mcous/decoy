@@ -64,7 +64,7 @@ poetry run mkdocs serve
 
 The library and documentation will be deployed to PyPI and GitHub Pages, respectively, by CI. To trigger the deploy, cut a new version and push it to GitHub.
 
-Deploy adheres to [semantic versioning][], so care should be taken to bump accurately.
+Decoy adheres to [semantic versioning][], so care should be taken to bump accurately.
 
 ```bash
 # checkout the main branch and pull down latest changes
