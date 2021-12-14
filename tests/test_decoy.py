@@ -1,5 +1,6 @@
 """Smoke and acceptance tests for main Decoy interface."""
 import contextlib
+import sys
 from typing import Any, AsyncIterator, ContextManager, Iterator, Optional
 
 import pytest
@@ -231,6 +232,11 @@ def test_generator_context_manager_mock(decoy: Decoy) -> None:
     assert result == 42
 
 
+# TODO(mc, 2021-12-14): remove skip when Python 3.6 support dropped in v2
+@pytest.mark.skipif(
+    sys.version_info < (3, 7),
+    reason="contextlib.asynccontextmanager added in Python 3.7",
+)
 async def test_async_generator_context_manager_mock(decoy: Decoy) -> None:
     """It should be able to mock a generator-based context manager."""
 
