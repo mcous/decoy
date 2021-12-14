@@ -2,7 +2,7 @@
 from typing import Dict, List, Sequence
 from warnings import warn
 
-from .spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal, match_call
+from .spy_calls import BaseSpyCall, SpyCall, VerifyRehearsal, WhenRehearsal, match_call
 from .warnings import MiscalledStubWarning, RedundantVerifyWarning
 
 
@@ -25,7 +25,7 @@ def _check_no_miscalled_stubs(all_calls: Sequence[BaseSpyCall]) -> None:
         spy_calls = all_calls_by_id.get(spy_id, [])
         all_calls_by_id[spy_id] = spy_calls + [call]
 
-    for spy_id, spy_calls in all_calls_by_id.items():
+    for spy_calls in all_calls_by_id.values():
         unmatched: List[SpyCall] = []
 
         for index, call in enumerate(spy_calls):

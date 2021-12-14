@@ -4,6 +4,7 @@ import inspect
 from functools import partial
 from typing import Any, NamedTuple
 
+from decoy import matchers
 from decoy.warnings import IncorrectCallWarning
 from decoy.spy_calls import SpyCall
 from decoy.spy import create_spy, AsyncSpy, Spy, SpyConfig
@@ -358,6 +359,66 @@ def test_spy_matches_static_signature() -> None:
     assert inspect.signature(class_spy.bar) == inspect.signature(actual_instance.bar)
     assert isinstance(class_spy.foo, Spy)
     assert isinstance(class_spy.bar, AsyncSpy)
+
+
+def test_spy_context_manager() -> None:
+    """It should be usable in a `with` statement."""
+    calls = []
+
+    def _handle_call(call: SpyCall) -> int:
+        nonlocal calls
+        calls.append(call)
+        return 42
+
+    subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
+
+    with subject as result:
+        assert result == 42
+
+    assert calls == [
+        SpyCall(
+            spy_id=matchers.Anything(),
+            spy_name="subject.__enter__",
+            args=(),
+            kwargs={},
+        ),
+        SpyCall(
+            spy_id=matchers.Anything(),
+            spy_name="subject.__exit__",
+            args=(None, None, None),
+            kwargs={},
+        ),
+    ]
+
+
+async def test_spy_async_context_manager() -> None:
+    """It should be usable in an `async with` statement."""
+    calls = []
+
+    async def _handle_call(call: SpyCall) -> int:
+        nonlocal calls
+        calls.append(call)
+        return 42
+
+    subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
+
+    async with subject as result:
+        assert result == 42
+
+    assert calls == [
+        SpyCall(
+            spy_id=matchers.Anything(),
+            spy_name="subject.__aenter__",
+            args=(),
+            kwargs={},
+        ),
+        SpyCall(
+            spy_id=matchers.Anything(),
+            spy_name="subject.__aexit__",
+            args=(None, None, None),
+            kwargs={},
+        ),
+    ]
 
 
 class SpyReprSpec(NamedTuple):

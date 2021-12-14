@@ -1,8 +1,8 @@
-# Loosening assertions with matchers
+# Asserting with matchers
 
 Sometimes, when you're stubbing or verifying calls (or really when you're doing any sort of equality assertion in a test), you need to loosen a given assertion. For example, you may want to assert that a dependency is called with a string, but you don't care about the full contents of that string.
 
-Decoy includes [decoy.matchers][], which has a set of Python classes with `__eq__` methods defined that you can use in rehearsals and/or assertions in place of actual values
+Decoy includes the [decoy.matchers][] module, which is a set of Python classes with `__eq__` methods defined that you can use in rehearsals and/or assertions in place of actual values
 
 ## Basic usage
 

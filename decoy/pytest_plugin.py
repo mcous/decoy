@@ -4,12 +4,14 @@ The plugin will be registered with pytest when you install Decoy. It adds a
 fixture without modifying any other pytest behavior. Its usage is optional
 but highly recommended.
 """
-import pytest
 from typing import Iterable
+
+import pytest
+
 from decoy import Decoy
 
 
-@pytest.fixture
+@pytest.fixture()
 def decoy() -> Iterable[Decoy]:
     """Get a [decoy.Decoy][] container and tear it down after the test.
 

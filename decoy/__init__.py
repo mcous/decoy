@@ -1,21 +1,27 @@
 """Decoy stubbing and spying library."""
-from typing import Any, Callable, Generic, Optional, cast, overload
+from typing import Any, Callable, Generic, Optional, Union, cast, overload
 
-from . import matchers, errors, warnings
+from . import errors, matchers, warnings
+from .context_managers import (
+    AsyncContextManager,
+    ContextManager,
+    GeneratorContextManager,
+)
 from .core import DecoyCore, StubCore
-from .types import ClassT, FuncT, ReturnT
+from .types import ClassT, ContextValueT, FuncT, ReturnT
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
 
 
 class Decoy:
-    """Decoy test double state container."""
+    """Decoy mock factory and state container."""
 
     def __init__(self) -> None:
-        """Initialize the state container for test doubles and stubs.
+        """Initialize a new mock factory.
 
-        You should initialize a new Decoy instance for every test. See the
+        You should create a new Decoy instance for every test. If you use
+        the `decoy` pytest fixture, this is done automatically. See the
         [setup guide](../#setup) for more details.
         """
         self._core = DecoyCore()
@@ -111,7 +117,8 @@ class Decoy:
                 ignoring unspecified arguments.
 
         Returns:
-            A stub to configure using `then_return`, `then_raise`, or `then_do`.
+            A stub to configure using `then_return`, `then_raise`, `then_do`, or
+            `then_enter_with`.
 
         Example:
             ```python
@@ -137,7 +144,7 @@ class Decoy:
         times: Optional[int] = None,
         ignore_extra_args: bool = False,
     ) -> None:
-        """Verify a decoy was called using one or more rehearsals.
+        """Verify a mock was called using one or more rehearsals.
 
         See [verification usage guide](../usage/verify/) for more details.
 
@@ -175,11 +182,11 @@ class Decoy:
         )
 
     def reset(self) -> None:
-        """Reset all decoy state.
+        """Reset all mock state.
 
         This method should be called after every test to ensure spies and stubs
-        don't leak between tests. The Decoy fixture provided by the pytest plugin
-        will do this automatically.
+        don't leak between tests. The `decoy` fixture provided by the pytest plugin
+        will call `reset` automatically.
 
         The `reset` method may also trigger warnings if Decoy detects any questionable
         mock usage. See [decoy.warnings][] for more details.
@@ -227,6 +234,48 @@ class Stub(Generic[ReturnT]):
                 are actually passed to the stub.
         """
         self._core.then_do(action)
+
+    @overload
+    def then_enter_with(
+        self: "Stub[ContextManager[ContextValueT]]",
+        value: ContextValueT,
+    ) -> None:
+        ...
+
+    @overload
+    def then_enter_with(
+        self: "Stub[AsyncContextManager[ContextValueT]]",
+        value: ContextValueT,
+    ) -> None:
+        ...
+
+    @overload
+    def then_enter_with(
+        self: "Stub[GeneratorContextManager[ContextValueT]]",
+        value: ContextValueT,
+    ) -> None:
+        ...
+
+    def then_enter_with(
+        self: Union[
+            "Stub[GeneratorContextManager[ContextValueT]]",
+            "Stub[ContextManager[ContextValueT]]",
+            "Stub[AsyncContextManager[ContextValueT]]",
+        ],
+        value: ContextValueT,
+    ) -> None:
+        """Configure the stub to return a value wrapped in a context manager.
+
+        The wrapping context manager is compatible with both the synchronous and
+        asynchronous context manager interfaces.
+
+        See the [context manager usage guide](../advanced/context-managers/)
+        for more details.
+
+        Arguments:
+            value: A return value to wrap in a ContextManager.
+        """
+        self._core.then_enter_with(value)
 
 
 __all__ = ["Decoy", "Stub", "matchers", "warnings", "errors"]

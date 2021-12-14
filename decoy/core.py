@@ -1,14 +1,15 @@
 """Decoy implementation logic."""
 from typing import Any, Callable, Optional
 
-from .spy import SpyConfig, SpyFactory, create_spy as default_create_spy
-from .spy_calls import WhenRehearsal
-from .call_stack import CallStack
-from .stub_store import StubStore, StubBehavior
 from .call_handler import CallHandler
+from .call_stack import CallStack
+from .spy import SpyConfig, SpyFactory
+from .spy import create_spy as default_create_spy
+from .spy_calls import WhenRehearsal
+from .stub_store import StubBehavior, StubStore
+from .types import ContextValueT, ReturnT
 from .verifier import Verifier
 from .warning_checker import WarningChecker
-from .types import ReturnT
 
 # ensure decoy.core does not pollute Pytest tracebacks
 __tracebackhide__ = True
@@ -114,4 +115,11 @@ class StubCore:
         self._stub_store.add(
             rehearsal=self._rehearsal,
             behavior=StubBehavior(action=action),
+        )
+
+    def then_enter_with(self, value: ContextValueT) -> None:
+        """Set the stub to return a ContextManager wrapped value."""
+        self._stub_store.add(
+            rehearsal=self._rehearsal,
+            behavior=StubBehavior(context_value=value),
         )
