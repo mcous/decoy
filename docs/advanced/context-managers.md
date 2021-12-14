@@ -1,6 +1,6 @@
-# Mocking Context Managers
+# Mocking context managers
 
-In Python, `with` statement [context managers][] provide an extremely useful interface to execute code inside a given "runtime context" that defines consistent and failsafe setup and teardown behavior. For example, Python's built-in file objects provide a context manager interface to ensure the underlying file resource is opened and closed cleanly, without the caller having to explicitly deal with it:
+In Python, `with` statement [context managers][] provide an extremely useful interface to execute code inside a given "runtime context." This context can define consistent, failsafe setup and teardown behavior. For example, Python's built-in file objects provide a context manager interface to ensure the underlying file resource is opened and closed cleanly, without the caller having to explicitly deal with it:
 
 ```python
 with open("hello-world.txt", "r") as f:
@@ -11,7 +11,7 @@ You can use Decoy to mock out your dependencies that should provide a context ma
 
 [context managers]: https://docs.python.org/3/reference/datamodel.html#context-managers
 
-## Generator-based Context Managers
+## Generator-based context managers
 
 Using the [contextlib][] module, you can [decorate a generator function][] or method to turn its yielded value into a context manager. This is a great API, and one that Decoy is well-suited to mock. To mock a generator function context manager, use [decoy.Stub.then_enter_with][].
 
@@ -76,7 +76,7 @@ class Core:
 [contextlib]: https://docs.python.org/3/library/contextlib.html
 [decorate a generator function]: https://docs.python.org/3/library/contextlib.html#contextlib.contextmanager
 
-## General Context Managers
+## General context managers
 
 A context manager is simply an object with both `__enter__` and `__exit__` methods defined. Decoy mocks have both these methods defined, so they are compatible with the `with` statement. In the author's opinion, tests that mock `__enter__` and `__exit__` (or any double-underscore method) are harder to read and understand than tests that do not, so generator-based context managers should be prefered where applicable.
 
@@ -150,7 +150,7 @@ class Core:
             return loaded_config.read(name)
 ```
 
-## Async Context Managers
+## Asynchronous context managers
 
 Decoy is also compatible with mocking the async `__aenter__` and `__aexit__` methods of async context managers.
 
