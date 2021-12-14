@@ -9,3 +9,6 @@ ClassT = TypeVar("ClassT", bound=object)
 
 ReturnT = TypeVar("ReturnT")
 """The return type of a given call."""
+
+ContextValueT = TypeVar("ContextValueT")
+"""A context manager value returned by a stub."""

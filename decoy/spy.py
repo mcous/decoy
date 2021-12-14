@@ -6,7 +6,18 @@ Classes in this module are heavily inspired by the
 from inspect import getattr_static, isclass, iscoroutinefunction, isfunction, signature
 from functools import partial
 from warnings import warn
-from typing import get_type_hints, Any, Callable, Dict, NamedTuple, Optional
+from types import TracebackType
+from typing import (
+    cast,
+    get_type_hints,
+    Any,
+    Callable,
+    ContextManager,
+    Dict,
+    NamedTuple,
+    Optional,
+    Type,
+)
 
 from .spy_calls import SpyCall
 from .warnings import IncorrectCallWarning
@@ -37,7 +48,7 @@ def _get_type_hints(obj: Any) -> Dict[str, Any]:
         return {}
 
 
-class BaseSpy:
+class BaseSpy(ContextManager[Any]):
     """Spy object base class.
 
     - Pretends to be another class, if another class is given as a spec
@@ -84,25 +95,35 @@ class BaseSpy:
 
         return type(self)
 
-    def _call(self, *args: Any, **kwargs: Any) -> Any:
-        spy_id = id(self)
-        spy_name = (
-            self._name
-            if self._name
-            else f"{type(self).__module__}.{type(self).__qualname__}"
-        )
+    def __enter__(self) -> Any:
+        """Allow a spy to be used as a context manager."""
+        enter_spy = self._get_or_create_child_spy("__enter__")
+        return enter_spy()
 
-        if hasattr(self, "__signature__"):
-            try:
-                bound_args = self.__signature__.bind(*args, **kwargs)
-            except TypeError as e:
-                # stacklevel: 3 ensures warning is linked to call location
-                warn(IncorrectCallWarning(e), stacklevel=3)
-            else:
-                args = bound_args.args
-                kwargs = bound_args.kwargs
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> Optional[bool]:
+        """Allow a spy to be used as a context manager."""
+        exit_spy = self._get_or_create_child_spy("__exit__")
+        return cast(Optional[bool], exit_spy(exc_type, exc_value, traceback))
 
-        return self._handle_call(SpyCall(spy_id, spy_name, args, kwargs))
+    async def __aenter__(self) -> Any:
+        """Allow a spy to be used as an async context manager."""
+        enter_spy = self._get_or_create_child_spy("__aenter__")
+        return await enter_spy()
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> Optional[bool]:
+        """Allow a spy to be used as a context manager."""
+        exit_spy = self._get_or_create_child_spy("__aexit__")
+        return cast(Optional[bool], await exit_spy(exc_type, exc_value, traceback))
 
     def __repr__(self) -> str:
         """Get a helpful string representation of the spy."""
@@ -118,14 +139,15 @@ class BaseSpy:
             return "<Decoy mock>"
 
     def __getattr__(self, name: str) -> Any:
-        """Get a property of the spy.
-
-        Lazily constructs child spies, basing them on type hints if available.
-        """
+        """Get a property of the spy, always returning a child spy."""
         # do not attempt to mock magic methods
         if name.startswith("__") and name.endswith("__"):
             return super().__getattribute__(name)
 
+        return self._get_or_create_child_spy(name)
+
+    def _get_or_create_child_spy(self, name: str) -> Any:
+        """Lazily construct a child spy, basing it on type hints if available."""
         # return previously constructed (and cached) child spies
         if name in self._spy_children:
             return self._spy_children[name]
@@ -166,6 +188,26 @@ class BaseSpy:
         self._spy_children[name] = spy
 
         return spy
+
+    def _call(self, *args: Any, **kwargs: Any) -> Any:
+        spy_id = id(self)
+        spy_name = (
+            self._name
+            if self._name
+            else f"{type(self).__module__}.{type(self).__qualname__}"
+        )
+
+        if hasattr(self, "__signature__"):
+            try:
+                bound_args = self.__signature__.bind(*args, **kwargs)
+            except TypeError as e:
+                # stacklevel: 3 ensures warning is linked to call location
+                warn(IncorrectCallWarning(e), stacklevel=3)
+            else:
+                args = bound_args.args
+                kwargs = bound_args.kwargs
+
+        return self._handle_call(SpyCall(spy_id, spy_name, args, kwargs))
 
 
 class Spy(BaseSpy):

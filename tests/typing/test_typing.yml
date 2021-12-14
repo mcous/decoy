@@ -115,6 +115,45 @@
   out: |
       main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
+- case: context_manager_stub_mimics_enter_type
+  main: |
+      import contextlib
+      from typing import Iterator
+      from decoy import Decoy
+
+      @contextlib.contextmanager
+      def do_thing(input: str) -> Iterator[int]:
+          yield 42
+
+      decoy = Decoy()
+      fake_cm = decoy.mock(func=do_thing)
+
+      decoy.when(fake_cm("hello")).then_enter_with(42)
+      decoy.when(fake_cm("goodbye")).then_enter_with("wrong-type")
+
+  out: |
+      main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: context_manager_stub_rejects_wrong_spec
+  main: |
+      from decoy import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake_not_cm = decoy.mock(func=do_thing)
+      fake_any = decoy.mock()
+
+      decoy.when(fake_not_cm("hello")).then_enter_with(42)
+      decoy.when(fake_any("hello")).then_enter_with(42)
+
+  out: |
+      main:10: error: Invalid self argument "Stub[int]" to attribute function "then_enter_with" with type "Callable[[Stub[ContextManager[ContextValueT]], ContextValueT], None]"  [misc]
+      main:10: error: No overload variant of "then_enter_with" of "Stub" matches argument type "int"  [call-overload]
+      main:10: note: Possible overload variants:
+      main:10: note:     def then_enter_with(self, value: <nothing>) -> None
+
 - case: matchers_mimic_types
   main: |
       from decoy import matchers

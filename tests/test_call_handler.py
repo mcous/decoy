@@ -2,25 +2,25 @@
 import pytest
 
 from decoy import Decoy
-from decoy.spy_calls import SpyCall
-from decoy.call_stack import CallStack
-from decoy.stub_store import StubStore, StubBehavior
 from decoy.call_handler import CallHandler
+from decoy.call_stack import CallStack
+from decoy.spy_calls import SpyCall
+from decoy.stub_store import StubBehavior, StubStore
 
 
-@pytest.fixture
+@pytest.fixture()
 def call_stack(decoy: Decoy) -> CallStack:
     """Get a mock instance of a CallStack."""
     return decoy.mock(cls=CallStack)
 
 
-@pytest.fixture
+@pytest.fixture()
 def stub_store(decoy: Decoy) -> StubStore:
     """Get a mock instance of a StubStore."""
     return decoy.mock(cls=StubStore)
 
 
-@pytest.fixture
+@pytest.fixture()
 def subject(
     decoy: Decoy,
     call_stack: CallStack,
@@ -104,3 +104,21 @@ def test_handle_call_with_action(
     result = subject.handle(spy_call)
 
     assert result == "hello world"
+
+
+def test_handle_call_with_context_enter(
+    decoy: Decoy,
+    call_stack: CallStack,
+    stub_store: StubStore,
+    subject: CallHandler,
+) -> None:
+    """It return a Stub's configured context value."""
+    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(), kwargs={})
+    behavior = StubBehavior(context_value="hello world")
+
+    decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
+
+    with subject.handle(spy_call) as result:
+        assert result == "hello world"
+
+    decoy.verify(call_stack.push(spy_call))

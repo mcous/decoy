@@ -1,8 +1,8 @@
 """Tests for Decoy's pytest plugin."""
-from pytest import Testdir
+import pytest
 
 
-def test_pytest_decoy_fixture(testdir: Testdir) -> None:
+def test_pytest_decoy_fixture(testdir: pytest.Testdir) -> None:
     """It should add a decoy test fixture."""
     # create a temporary pytest test file
     testdir.makepyfile(

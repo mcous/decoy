@@ -1,10 +1,15 @@
 """Smoke and acceptance tests for main Decoy interface."""
-import pytest
-from decoy import Decoy, errors
-from decoy.spy import Spy, AsyncSpy
-from typing import Optional
+import contextlib
+from typing import Any, AsyncIterator, ContextManager, Iterator, Optional
 
-from .common import SomeClass, SomeAsyncClass, some_func
+import pytest
+
+from decoy import Decoy, errors
+from decoy.spy import AsyncSpy, Spy
+
+from .common import SomeAsyncClass, SomeClass, some_func
+
+pytestmark = pytest.mark.asyncio
 
 
 def test_decoy_creates_spy(decoy: Decoy) -> None:
@@ -166,7 +171,6 @@ def test_verify_ignore_extra_args(decoy: Decoy) -> None:
         )
 
 
-@pytest.mark.asyncio
 async def test_when_async(decoy: Decoy) -> None:
     """It should be able to stub an async method."""
     subject = decoy.mock(cls=SomeAsyncClass)
@@ -180,7 +184,6 @@ async def test_when_async(decoy: Decoy) -> None:
         await subject.bar(0, 1.0, "2")
 
 
-@pytest.mark.asyncio
 async def test_verify_async(decoy: Decoy) -> None:
     """It should be able to configure a verification with an async rehearsal."""
     subject = decoy.mock(cls=SomeAsyncClass)
@@ -202,3 +205,124 @@ def test_reset(decoy: Decoy) -> None:
 
     with pytest.raises(AssertionError):
         decoy.verify(subject.foo("hello"))
+
+
+def test_generator_context_manager_mock(decoy: Decoy) -> None:
+    """It should be able to mock a generator-based context manager."""
+
+    class _ValueReader:
+        def get_value(self) -> int:
+            ...
+
+    class _ValueReaderLoader:
+        @contextlib.contextmanager
+        def get_value_reader(self) -> Iterator[_ValueReader]:
+            ...
+
+    value_reader_loader = decoy.mock(cls=_ValueReaderLoader)
+    value_reader = decoy.mock(cls=_ValueReader)
+
+    decoy.when(value_reader_loader.get_value_reader()).then_enter_with(value_reader)
+    decoy.when(value_reader.get_value()).then_return(42)
+
+    with value_reader_loader.get_value_reader() as subject:
+        result = subject.get_value()
+
+    assert result == 42
+
+
+async def test_async_generator_context_manager_mock(decoy: Decoy) -> None:
+    """It should be able to mock a generator-based context manager."""
+
+    class _ValueReader:
+        def get_value(self) -> int:
+            ...
+
+    class _ValueReaderLoader:
+        @contextlib.asynccontextmanager
+        async def get_value_reader(self) -> AsyncIterator[_ValueReader]:
+            raise NotImplementedError()
+            yield
+
+    value_reader_loader = decoy.mock(cls=_ValueReaderLoader)
+    value_reader = decoy.mock(cls=_ValueReader)
+
+    decoy.when(value_reader_loader.get_value_reader()).then_enter_with(value_reader)
+    decoy.when(value_reader.get_value()).then_return(42)
+
+    async with value_reader_loader.get_value_reader() as subject:
+        result = subject.get_value()
+
+    assert result == 42
+
+
+def test_context_manager_mock(decoy: Decoy) -> None:
+    """It should be able to mock a context manager."""
+
+    class _ValueReader(ContextManager[Any]):
+        def __enter__(self) -> "_ValueReader":
+            ...
+
+        def __exit__(self, *args: Any) -> None:
+            ...
+
+        def get_value(self) -> int:
+            ...
+
+    value_reader = decoy.mock(cls=_ValueReader)
+
+    def _handle_enter() -> _ValueReader:
+        decoy.when(value_reader.get_value()).then_return(42)
+        return value_reader
+
+    def _handle_exit(*args: Any) -> None:
+        decoy.when(value_reader.get_value()).then_raise(
+            AssertionError("Context manager exited")
+        )
+
+    decoy.when(value_reader.__enter__()).then_do(_handle_enter)
+    decoy.when(value_reader.__exit__(None, None, None)).then_do(_handle_exit)
+
+    with value_reader as subject:
+        result = subject.get_value()
+
+    assert result == 42
+
+    with pytest.raises(AssertionError, match="exited"):
+        subject.get_value()
+
+
+async def test_async_context_manager_mock(decoy: Decoy) -> None:
+    """It should be able to mock an async context manager."""
+
+    class _ValueReader(ContextManager[Any]):
+        async def __aenter__(self) -> "_ValueReader":
+            ...
+
+        async def __aexit__(self, *args: Any) -> None:
+            ...
+
+        def get_value(self) -> int:
+            ...
+
+    value_reader = decoy.mock(cls=_ValueReader)
+
+    def _handle_enter() -> _ValueReader:
+        decoy.when(value_reader.get_value()).then_return(42)
+        return value_reader
+
+    def _handle_exit(*args: Any) -> None:
+        decoy.when(value_reader.get_value()).then_raise(
+            AssertionError("Context manager exited")
+        )
+
+    decoy.when(await value_reader.__aenter__()).then_do(_handle_enter)
+    decoy.when(await value_reader.__aexit__(None, None, None)).then_do(_handle_exit)
+
+    async with value_reader as subject:
+        result = subject.get_value()
+
+    assert result == 42
+
+    with pytest.raises(AssertionError, match="exited"):
+        subject.get_value()

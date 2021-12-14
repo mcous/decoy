@@ -2,8 +2,9 @@
 from typing import Any
 
 from .call_stack import CallStack
-from .stub_store import StubStore
+from .context_managers import ContextWrapper
 from .spy_calls import SpyCall
+from .stub_store import StubStore
 
 
 class CallHandler:
@@ -24,5 +25,8 @@ class CallHandler:
 
         if behavior.action:
             return behavior.action(*call.args, **call.kwargs)
+
+        if behavior.context_value:
+            return ContextWrapper(behavior.context_value)
 
         return behavior.return_value

@@ -2,55 +2,56 @@
 import pytest
 
 from decoy import Decoy
-from decoy.core import DecoyCore
 from decoy.call_handler import CallHandler
 from decoy.call_stack import CallStack
-from decoy.stub_store import StubStore, StubBehavior
+from decoy.core import DecoyCore
+from decoy.spy import Spy, SpyConfig, SpyFactory
+from decoy.spy import create_spy as default_create_spy
+from decoy.spy_calls import SpyCall, VerifyRehearsal, WhenRehearsal
+from decoy.stub_store import StubBehavior, StubStore
 from decoy.verifier import Verifier
 from decoy.warning_checker import WarningChecker
-from decoy.spy_calls import SpyCall, VerifyRehearsal, WhenRehearsal
-from decoy.spy import Spy, SpyConfig, SpyFactory, create_spy as default_create_spy
 
 from .common import SomeClass, noop
 
 
-@pytest.fixture
+@pytest.fixture()
 def create_spy(decoy: Decoy) -> SpyFactory:
     """Get a mock instance of a create_spy factory function."""
     return decoy.mock(func=default_create_spy)
 
 
-@pytest.fixture
+@pytest.fixture()
 def call_handler(decoy: Decoy) -> CallHandler:
     """Get a mock instance of a create_spy factory function."""
     return decoy.mock(cls=CallHandler)
 
 
-@pytest.fixture
+@pytest.fixture()
 def call_stack(decoy: Decoy) -> CallStack:
     """Get a mock instance of a CallStack."""
     return decoy.mock(cls=CallStack)
 
 
-@pytest.fixture
+@pytest.fixture()
 def stub_store(decoy: Decoy) -> StubStore:
     """Get a mock instance of a StubStore."""
     return decoy.mock(cls=StubStore)
 
 
-@pytest.fixture
+@pytest.fixture()
 def verifier(decoy: Decoy) -> Verifier:
     """Get a mock instance of a Verifier."""
     return decoy.mock(cls=Verifier)
 
 
-@pytest.fixture
+@pytest.fixture()
 def warning_checker(decoy: Decoy) -> WarningChecker:
     """Get a mock instance of a Verifier."""
     return decoy.mock(cls=WarningChecker)
 
 
-@pytest.fixture
+@pytest.fixture()
 def subject(
     create_spy: SpyFactory,
     verifier: Verifier,
@@ -221,6 +222,29 @@ def test_when_then_do(
         stub_store.add(
             rehearsal=rehearsal,
             behavior=StubBehavior(action=action),
+        )
+    )
+
+
+def test_when_then_enter_with(
+    decoy: Decoy,
+    call_stack: CallStack,
+    stub_store: StubStore,
+    subject: DecoyCore,
+) -> None:
+    """It should be able to register a ContextManager stubbing."""
+    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+        rehearsal
+    )
+
+    result = subject.when("__rehearsal__", ignore_extra_args=False)
+    result.then_enter_with("hello")
+
+    decoy.verify(
+        stub_store.add(
+            rehearsal=rehearsal,
+            behavior=StubBehavior(context_value="hello", once=False),
         )
     )
 
