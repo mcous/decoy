@@ -173,7 +173,7 @@ class BaseSpy(ContextManager[Any]):
 
             # consume the `self` argument of the method to ensure proper
             # signature reporting by wrapping it in a partial
-            child_spec = partial(child_spec, None)  # type: ignore[arg-type]
+            child_spec = partial(child_spec, None)
 
         spy = create_spy(
             config=SpyConfig(
