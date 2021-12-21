@@ -19,6 +19,7 @@ nav:
     - api.md
     - why.md
     - contributing.md
+    - license.md
 
 theme:
     name: "material"
@@ -27,6 +28,7 @@ theme:
         logo: material/duck
     features:
         - navigation.instant
+        - navigation.sections
     font: "Open Sans"
     code: "Fira Mono"
     palette:

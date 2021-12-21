@@ -1,4 +1,4 @@
-# Asserting with matchers
+# Comparing with matchers
 
 Sometimes, when you're stubbing or verifying calls (or really when you're doing any sort of equality assertion in a test), you need to loosen a given assertion. For example, you may want to assert that a dependency is called with a string, but you don't care about the full contents of that string.
 

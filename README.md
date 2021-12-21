@@ -11,7 +11,7 @@
         <a title="Supported Python Versions" href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/pyversions/decoy?style=flat-square"></a>
     </p>
     <p>
-        <a href="https://mike.cousins.io/decoy/">Usage guide and documentation</a>
+        <a href="https://mike.cousins.io/decoy/" class="decoy-hidden">Usage guide and documentation</a>
     </p>
 </div>
 
@@ -57,7 +57,7 @@ plugins = decoy.mypy
 
 ## Basic Usage
 
-This example assumes you are using [pytest][]. See Decoy's [documentation][] for a more detailed usage guide and API reference.
+This basic example assumes you are using [pytest][]. For more detailed documentation, see Decoy's [usage guide][] and [API reference][].
 
 ### Define your test
 
@@ -129,7 +129,8 @@ See [spying with verify][] for more details.
 [pytest]: https://docs.pytest.org/
 [typing]: https://docs.python.org/3/library/typing.html
 [mypy]: https://mypy.readthedocs.io/
-[documentation]: https://mike.cousins.io/decoy/
+[api reference]: https://mike.cousins.io/decoy/api/
+[usage guide]: https://mike.cousins.io/decoy/usage/create/
 [creating mocks]: https://mike.cousins.io/decoy/usage/create/
 [stubbing with when]: https://mike.cousins.io/decoy/usage/when/
 [spying with verify]: https://mike.cousins.io/decoy/usage/verify/

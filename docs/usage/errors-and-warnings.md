@@ -125,11 +125,11 @@ Coming from [unittest.mock][], you're probably used to this workflow for mocks t
 
 Decoy, however, believes that, for data provider dependencies, asserting that a mock was called correctly is an over-constraint of the system. Instead, you set up Decoy stubs with:
 
-1. Configure a return value or side effect **if and only if it is given specific input**
+1. Configure a return value or side effect **if and only if it is given the correct input**
 2. Call your test subject
     - Your test subject will only trigger the configured behavior if it calls the mock correctly
 
-This, however, requires a sizable mentality shift in terms of how you use mocks in your test. Until that shift happens, you may be tempted to write:
+This, however, may require a shift in how you think about mocks in your tests. Until that shift happens, you may be tempted to write:
 
 ```python
 def test_subject(decoy: Decoy):
@@ -147,15 +147,15 @@ def test_subject(decoy: Decoy):
     decoy.verify(data_getter.handler(42))     # redundant, but feels good
 ```
 
-Adding those `verify`s at the end may give you a feeling of "ok, good, now I'm completely testing the interaction," but that feeling is a fallacy. Thanks to the input specification in `when`, the test will already pass or fail correctly. At best, the `verify` calls do nothing, and at worst, they punish the test subject if it's able to accomplish its work in some other way, coupling our test to subject's implementation unnecessarily.
+Adding those `verify`s at the end may give you a feeling of "ok, good, now I'm completely testing the interaction," but that feeling is a fallacy. Thanks to the input specification in `when`, the test will already pass or fail correctly. At best, the `verify` calls do nothing, and at worst, they punish the test subject if it's able to accomplish its work in some other way, coupling our test to the subject's implementation unnecessarily.
 
 If Decoy detects a `verify` with the same configuration of a `when`, it will raise a `RedundantVerifyWarning` to encourage you to remove the redundant, over-constraining `verify` call.
 
 ### IncorrectCallWarning
 
-If you provide a Decoy mock with a specification `cls` or `func`, any calls to that mock will be checked according to `inspect.signature`. If the call does not match the signature, Decoy will raise a `IncorrectCalWarning`.
+If you provide a Decoy mock with a specification `cls` or `func`, any calls to that mock will be checked according to `inspect.signature`. If the call does not match the signature, Decoy will raise a [decoy.warnings.IncorrectCallWarning][].
 
-Decoy limits this to a warning, but in real life, this call would likely cause the Python engine to error at run time.
+While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored.
 
 ```python
 def some_func(val: string) -> int:
