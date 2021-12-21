@@ -1,11 +1,6 @@
 # Creating mocks
 
-Decoy can create two kinds of mocks:
-
--   Mocks of a class instance
--   Mocks of a function
-
-Mocks are created using the [decoy.Decoy.mock][] method.
+Decoy mocks are flexible objects that can be used in place of a class instance or a callable object, like a function. Mocks are created using the [decoy.Decoy.mock][] method.
 
 ## Mocking a class
 
@@ -29,12 +24,14 @@ def test_my_thing(decoy: Decoy) -> None:
 
 To type checkers, the mock will appear to have the exact same type as the `func` argument. The function mock will pass `inspect.signature` checks.
 
-## Creating an anonymous mock
+## Creating a mock without a spec
 
-If you use neither `cls` nor `func` when calling `decoy.mock`, you will get an anonymous mock. You can use the `is_async` argument to return an asynchronous mock.
+You can call `decoy.mock` without using `cls` or `func`. A spec-less mock is useful for dependency interfaces like callback functions.
+
+When creating a mock without a spec, you should use the `name` argument to get more useful assertion messages. You must use the `is_async` argument if the created mock will be used as an asynchronous callable.
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
-    anon_function = decoy.mock()
-    async_anon_function = decoy.mock(is_async=True)
+    callback = decoy.mock(name="callback")
+    async_callback = decoy.mock(name="async_callback", is_async=True)
 ```
