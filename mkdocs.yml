@@ -17,7 +17,6 @@ nav:
     - Advanced Usage:
           - advanced/context-managers.md
     - api.md
-    - why.md
     - contributing.md
     - license.md
 
