@@ -1,5 +1,7 @@
 # Contributing Guide
 
+All contributions are greatly appreciated! Before contributing, please read the [code of conduct][].
+
 ## Development Setup
 
 This project uses [Poetry][] to manage dependencies and builds, and you will need to install it before working on Decoy.
@@ -85,6 +87,7 @@ git tag -a v${release_version} -m "chore(release): ${release_version}"
 git push --follow-tags
 ```
 
+[code of conduct]: https://github.com/mcous/decoy/blob/main/CODE_OF_CONDUCT.md
 [poetry]: https://python-poetry.org/
 [pytest]: https://docs.pytest.org/
 [pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
