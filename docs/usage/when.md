@@ -101,11 +101,12 @@ def test_my_thing_when_database_raises(decoy: Decoy) -> None:
     decoy.when(
         database.get("foo") # <-- when `database.get` is called with "foo"
     ).then_do(
-        _side_effect # <-- then run `_side_effect`
+        _side_effect # <-- then run `_side_effect` and return its result
     )
 
-    with pytest.raises(KeyError):
-        subject.get_model_by_id("foo")
+    result = subject.get_model_by_id("foo")
+
+    assert result == Model(id="foo")
 ```
 
 The action function passed to `then_do` will be passed any arguments given to the stub, and the stub will return whatever value is returned by the action.

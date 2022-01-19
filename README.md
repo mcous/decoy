@@ -46,7 +46,7 @@ def test_my_thing_works(decoy: Decoy) -> None:
     ...
 ```
 
-### Mypy Setup
+### Mypy setup
 
 By default, Decoy is compatible with Python [typing][] and type-checkers like [mypy][]. However, stubbing functions that return `None` can trigger a [type checking error](https://mypy.readthedocs.io/en/stable/error_code_list.html#check-that-called-function-returns-a-value-func-returns-value) during correct usage of the Decoy API. To suppress these errors, add Decoy's plugin to your mypy configuration.
 
@@ -54,6 +54,15 @@ By default, Decoy is compatible with Python [typing][] and type-checkers like [m
 # mypy.ini
 plugins = decoy.mypy
 ```
+
+### Other testing libraries
+
+Decoy works well with [pytest][], but if you use another testing library or framework, you can still use Decoy! You just need to do two things:
+
+1. Create a new instance of [`Decoy()`](https://mike.cousins.io/decoy/api/#decoy.Decoy) before each test
+2. Call [`decoy.reset()`](https://mike.cousins.io/decoy/api/#decoy.Decoy.reset) after each test
+
+For example, using the built-in [unittest][] framework, you would use the `setUp` fixture method to do `self.decoy = Decoy()` and the `tearDown` method to call `self.decoy.reset()`. For a working example, see [`tests/test_unittest.py`](https://github.com/mcous/decoy/blob/main/tests/test_unittest.py).
 
 ## Basic Usage
 
@@ -127,6 +136,7 @@ See [spying with verify][] for more details.
 [testdouble.js]: https://github.com/testdouble/testdouble.js
 [mockito]: https://site.mockito.org/
 [pytest]: https://docs.pytest.org/
+[unittest]: https://docs.python.org/3/library/unittest.html
 [typing]: https://docs.python.org/3/library/typing.html
 [mypy]: https://mypy.readthedocs.io/
 [api reference]: https://mike.cousins.io/decoy/api/

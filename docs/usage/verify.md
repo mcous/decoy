@@ -11,10 +11,10 @@ Asserting that calls happened after the fact can be useful, but **should only be
 -   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](./when.md)
 -   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
 
-Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same dependency, then one or more of these is true:
+Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same dependency, then one or more of these is probably true:
 
 -   The `verify` assertion is redundant
--   The dependency is doing too much based and should be refactored
+-   The dependency is doing too much and should be refactored
 
 ## Using rehearsals to verify a call
 
