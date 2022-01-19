@@ -62,7 +62,7 @@ Decoy works well with [pytest][], but if you use another testing library or fram
 1. Create a new instance of [`Decoy()`](https://mike.cousins.io/decoy/api/#decoy.Decoy) before each test
 2. Call [`decoy.reset()`](https://mike.cousins.io/decoy/api/#decoy.Decoy.reset) after each test
 
-For example, using the built-in [unittest][] framework, you would use the `setUp` and `tearDown` fixture methods to attach a `Decoy` instance to `self.decoy`. For a working example, see [`tests/test_unittest.py`](https://github.com/mcous/decoy/blob/main/tests/test_unittest.py).
+For example, using the built-in [unittest][] framework, you would use the `setUp` fixture method to do `self.decoy = Decoy()` and the `tearDown` method to call `self.decoy.reset()`. For a working example, see [`tests/test_unittest.py`](https://github.com/mcous/decoy/blob/main/tests/test_unittest.py).
 
 ## Basic Usage
 
