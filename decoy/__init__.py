@@ -21,8 +21,8 @@ class Decoy:
         """Initialize a new mock factory.
 
         You should create a new Decoy instance for every test. If you use
-        the `decoy` pytest fixture, this is done automatically. See the
-        [setup guide](../#setup) for more details.
+        the [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
+        automatically. See the [setup guide](../#setup) for more details.
         """
         self._core = DecoyCore()
 

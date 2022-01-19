@@ -13,7 +13,7 @@ from decoy import Decoy
 
 @pytest.fixture()
 def decoy() -> Iterable[Decoy]:
-    """Get a [decoy.Decoy][] container and tear it down after the test.
+    """Get a [decoy.Decoy][] container and [reset it][decoy.Decoy.reset] after the test.
 
     This function is function-scoped [pytest fixture][] that will be
     automatically inserted by the plugin.
