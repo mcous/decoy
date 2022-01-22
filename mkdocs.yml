@@ -1,5 +1,5 @@
 site_name: Decoy
-site_description: "Opinionated, typed stubbing and verification library for Python."
+site_description: "Opinionated mocking library for Python."
 site_author: "Mike Cousins"
 site_url: "https://mike.cousins.io/decoy/"
 repo_url: "https://github.com/mcous/decoy"
