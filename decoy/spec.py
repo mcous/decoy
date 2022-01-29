@@ -88,10 +88,10 @@ class Spec:
         if isinstance(source, functools.partial):
             source = source.func
 
+        # check if spec source is a class with a __call__ method
         elif inspect.isclass(source):
             call_method = inspect.getattr_static(source, "__call__", None)
-
-            if call_method is not None:
+            if inspect.isfunction(call_method):
                 source = call_method
 
         return inspect.iscoroutinefunction(source)
