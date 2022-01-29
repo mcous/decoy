@@ -13,6 +13,11 @@ class SomeClass:
         """Get the bar bool based on a few inputs."""
         ...
 
+    @staticmethod
+    def fizzbuzz(hello: str) -> int:
+        """Fizz some buzzes."""
+        ...
+
     def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
         ...
@@ -20,6 +25,8 @@ class SomeClass:
 
 class SomeNestedClass:
     """Nested testing class."""
+
+    child_attr: SomeClass
 
     def foo(self, val: str) -> str:
         """Get the foo string."""
@@ -44,6 +51,14 @@ class SomeAsyncClass:
 
     async def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
+        ...
+
+
+class SomeAsyncCallableClass:
+    """Async callable class."""
+
+    async def __call__(self) -> int:
+        """Get an integer."""
         ...
 
 

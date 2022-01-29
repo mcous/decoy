@@ -37,13 +37,13 @@ def test_get_by_call_prefers_latest() -> None:
 
 
 def test_get_by_call_empty() -> None:
-    """It should return a no-op StubBehavior if store is empty."""
+    """It should return None if store is empty."""
     subject = StubStore()
     result = subject.get_by_call(
         call=SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
     )
 
-    assert result == StubBehavior()
+    assert result is None
 
 
 @pytest.mark.parametrize(
@@ -86,7 +86,7 @@ def test_get_by_call_no_match(call: SpyCall) -> None:
     subject.add(rehearsal=rehearsal, behavior=behavior)
 
     result = subject.get_by_call(call=call)
-    assert result == StubBehavior()
+    assert result is None
 
 
 def test_get_by_call_once_behavior() -> None:
@@ -107,7 +107,7 @@ def test_get_by_call_once_behavior() -> None:
         call=SpyCall(spy_id=42, spy_name="my_spy", args=(1, 2, 3), kwargs={})
     )
 
-    assert result == StubBehavior()
+    assert result is None
 
 
 def test_clear() -> None:
@@ -122,4 +122,4 @@ def test_clear() -> None:
 
     result = subject.get_by_call(call=call)
 
-    assert result == StubBehavior()
+    assert result is None

@@ -28,11 +28,15 @@ class StubStore:
         """Initialize a StubStore with an empty stubbings list."""
         self._stubs: List[StubEntry] = []
 
-    def add(self, rehearsal: WhenRehearsal, behavior: StubBehavior) -> None:
+    def add(
+        self,
+        rehearsal: WhenRehearsal,
+        behavior: StubBehavior,
+    ) -> None:
         """Create and add a new StubBehavior to the store."""
         self._stubs.append(StubEntry(rehearsal=rehearsal, behavior=behavior))
 
-    def get_by_call(self, call: SpyCall) -> StubBehavior:
+    def get_by_call(self, call: SpyCall) -> Optional[StubBehavior]:
         """Get the latest StubBehavior matching this call."""
         reversed_indices = range(len(self._stubs) - 1, -1, -1)
 
@@ -45,7 +49,7 @@ class StubStore:
 
                 return stub.behavior
 
-        return StubBehavior()
+        return None
 
     def clear(self) -> None:
         """Remove all stored Stubs."""

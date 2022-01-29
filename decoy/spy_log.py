@@ -1,15 +1,14 @@
-"""Spy creation and storage."""
+"""Spy activity log."""
 from typing import List, Sequence
 
-from .spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal
 from .errors import MissingRehearsalError
+from .spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal
 
 
-class CallStack:
-    """SpyCall stack for all Spies in the Decoy container."""
+class SpyLog:
+    """Log of all Spy activities in the Decoy container."""
 
     def __init__(self) -> None:
-        """Initialize a stack for all SpyCalls."""
         self._stack: List[BaseSpyCall] = []
 
     def push(self, spy_call: SpyCall) -> None:

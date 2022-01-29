@@ -1,474 +1,241 @@
-"""Tests for spy creation."""
+"""Tests for spies and spy creation."""
 import pytest
 import inspect
-from functools import partial
-from typing import Any, NamedTuple
+import sys
+from decoy import Decoy
 
-from decoy import matchers
-from decoy.warnings import IncorrectCallWarning
+from decoy.call_handler import CallHandler
+from decoy.spec import Spec, BoundArgs
+from decoy.spy import SpyCreator, Spy, AsyncSpy
 from decoy.spy_calls import SpyCall
-from decoy.spy import create_spy, AsyncSpy, Spy, SpyConfig
 
-from .common import (
-    noop,
-    some_func,
-    some_async_func,
-    SomeClass,
-    SomeAsyncClass,
-    SomeNestedClass,
-)
+from .common import SomeClass, some_func
+
 
 pytestmark = pytest.mark.asyncio
 
 
-def test_create_spy() -> None:
-    """It should be able to create a test spy."""
-    calls = []
-
-    spy = create_spy(SpyConfig(handle_call=lambda c: calls.append(c)))
-
-    spy(1, 2, 3)
-    spy.child(four=4, five=5, six=6)
-    spy(7, eight=8, nine=9)
-
-    assert calls == [
-        SpyCall(spy_id=id(spy), spy_name="decoy.spy.Spy", args=(1, 2, 3), kwargs={}),
-        SpyCall(
-            spy_id=id(spy.child),
-            spy_name="child",
-            args=(),
-            kwargs={"four": 4, "five": 5, "six": 6},
-        ),
-        SpyCall(
-            spy_id=id(spy),
-            spy_name="decoy.spy.Spy",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
-        ),
-    ]
+@pytest.fixture()
+def call_handler(decoy: Decoy) -> CallHandler:
+    """Get a mock CallHandler."""
+    return decoy.mock(cls=CallHandler)
 
 
-def test_create_spy_from_spec_function() -> None:
-    """It should be able to create a test spy from a spec function."""
-    calls = []
-
-    spy = create_spy(SpyConfig(spec=some_func, handle_call=lambda c: calls.append(c)))
-
-    spy("hello")
-    spy(val="world")
-
-    assert calls == [
-        SpyCall(spy_id=id(spy), spy_name="some_func", args=("hello",), kwargs={}),
-        SpyCall(spy_id=id(spy), spy_name="some_func", args=("world",), kwargs={}),
-    ]
+@pytest.fixture()
+def spy_creator(decoy: Decoy) -> SpyCreator:
+    """Get a mock SpyCreator."""
+    return decoy.mock(cls=SpyCreator)
 
 
-async def test_create_spy_from_async_spec_function() -> None:
-    """It should be able to create a test spy from an async function."""
-    calls = []
+@pytest.fixture()
+def spec(decoy: Decoy) -> Spec:
+    """Get a mock Spec."""
+    return decoy.mock(cls=Spec)
 
-    spy: AsyncSpy = create_spy(
-        SpyConfig(
-            spec=some_async_func,
-            handle_call=lambda c: calls.append(c),
+
+def test_create_spy(decoy: Decoy, call_handler: CallHandler) -> None:
+    """It should get default configurations from the spec."""
+    spec = decoy.mock(cls=Spec)
+    sig = inspect.signature(some_func)
+
+    decoy.when(spec.get_full_name()).then_return("hello.world")
+    decoy.when(spec.get_signature()).then_return(sig)
+    decoy.when(spec.get_class_type()).then_return(SomeClass)
+
+    subject = SpyCreator(call_handler=call_handler)
+    result = subject.create(spec=spec, name="foo")
+
+    assert isinstance(result, Spy)
+    assert isinstance(result, SomeClass)
+    assert inspect.signature(result) == sig
+    assert repr(result) == "<Decoy mock `hello.world`>"
+
+
+def test_create_async_spy(decoy: Decoy, call_handler: CallHandler) -> None:
+    """It should get default configurations from the spec."""
+    spec = decoy.mock(cls=Spec)
+
+    decoy.when(spec.get_is_async()).then_return(True)
+
+    subject = SpyCreator(call_handler=call_handler)
+    result = subject.create(spec=spec)
+
+    assert isinstance(result, AsyncSpy)
+
+
+def test_child_spy(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+) -> None:
+    """It should create a child spy."""
+    parent_spec = decoy.mock(cls=Spec)
+    child_spec = decoy.mock(cls=Spec)
+    child_spy = decoy.mock(cls=Spy)
+
+    decoy.when(parent_spec.get_child_spec("child")).then_return(child_spec)
+    decoy.when(spy_creator.create(spec=child_spec, is_async=False)).then_return(
+        child_spy
+    )
+
+    subject = Spy(
+        spec=parent_spec,
+        call_handler=call_handler,
+        spy_creator=spy_creator,
+    )
+
+    result = subject.child
+    assert result is child_spy
+
+
+def test_child_spy_caching(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+) -> None:
+    """It should create a child spy only once."""
+    parent_spec = decoy.mock(cls=Spec)
+    child_spec = decoy.mock(cls=Spec)
+    child_spy = decoy.mock(cls=Spy)
+    wrong_spy = decoy.mock(cls=Spy)
+
+    decoy.when(parent_spec.get_child_spec("child")).then_return(child_spec)
+    decoy.when(spy_creator.create(spec=child_spec, is_async=False)).then_return(
+        child_spy,
+        wrong_spy,
+    )
+
+    subject = Spy(
+        spec=parent_spec,
+        call_handler=call_handler,
+        spy_creator=spy_creator,
+    )
+
+    assert subject.child is child_spy
+    assert subject.child is child_spy
+
+
+def test_spy_calls(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should send any calls to the call handler."""
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+
+    decoy.when(spec.get_name()).then_return("spy_name")
+    decoy.when(spec.bind_args(1, 2, three=3)).then_return(
+        BoundArgs(args=(1, 2, 3), kwargs={})
+    )
+    decoy.when(
+        call_handler.handle(
+            SpyCall(spy_id=id(subject), spy_name="spy_name", args=(1, 2, 3), kwargs={})
         )
-    )
+    ).then_return(42)
 
-    await spy(val="1")
-    await spy("6")
+    result = subject(1, 2, three=3)
 
-    assert calls == [
-        SpyCall(spy_id=id(spy), spy_name="some_async_func", args=("1",), kwargs={}),
-        SpyCall(spy_id=id(spy), spy_name="some_async_func", args=("6",), kwargs={}),
-    ]
+    assert result == 42
 
 
-def test_create_spy_from_spec_class() -> None:
-    """It should be able to create a test spy from a spec class."""
-    calls = []
-
-    spy = create_spy(SpyConfig(spec=SomeClass, handle_call=lambda c: calls.append(c)))
-
-    spy.foo(val="1")
-    spy.bar(a=4, b=5.0, c="6")
-    spy.do_the_thing(flag=True)
-
-    assert calls == [
-        SpyCall(spy_id=id(spy.foo), spy_name="SomeClass.foo", args=("1",), kwargs={}),
-        SpyCall(
-            spy_id=id(spy.bar),
-            spy_name="SomeClass.bar",
-            args=(4, 5.0, "6"),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy.do_the_thing),
-            spy_name="SomeClass.do_the_thing",
-            args=(),
-            kwargs={"flag": True},
-        ),
-    ]
-
-
-async def test_create_spy_from_async_spec_class() -> None:
-    """It should be able to create a test spy from a class with async methods."""
-    calls = []
-
-    spy = create_spy(
-        SpyConfig(spec=SomeAsyncClass, handle_call=lambda c: calls.append(c))
-    )
-
-    await spy.foo(val="1")
-    await spy.bar(a=4, b=5.0, c="6")
-    await spy.do_the_thing(flag=True)
-
-    assert calls == [
-        SpyCall(
-            spy_id=id(spy.foo),
-            spy_name="SomeAsyncClass.foo",
-            args=("1",),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy.bar),
-            spy_name="SomeAsyncClass.bar",
-            args=(4, 5.0, "6"),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy.do_the_thing),
-            spy_name="SomeAsyncClass.do_the_thing",
-            args=(),
-            kwargs={"flag": True},
-        ),
-    ]
-
-
-def test_create_nested_spy() -> None:
-    """It should be able to create a spy that goes several properties deep."""
-    calls = []
-
-    spy = create_spy(
-        SpyConfig(spec=SomeNestedClass, handle_call=lambda c: calls.append(c))
-    )
-
-    spy.foo("1")
-    spy.child.bar(a=4, b=5.0, c="6")
-    spy.child.do_the_thing(flag=True)
-
-    assert calls == [
-        SpyCall(
-            spy_id=id(spy.foo),
-            spy_name="SomeNestedClass.foo",
-            args=("1",),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy.child.bar),
-            spy_name="SomeNestedClass.child.bar",
-            args=(4, 5.0, "6"),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy.child.do_the_thing),
-            spy_name="SomeNestedClass.child.do_the_thing",
-            args=(),
-            kwargs={"flag": True},
-        ),
-    ]
-
-
-async def test_create_nested_spy_using_property_type_hints() -> None:
-    """It should be able to dive using type hints on @property getters."""
-
-    class _SomeClass:
-        @property
-        def _async_child(self) -> SomeAsyncClass:
-            ...
-
-        @property
-        def _sync_child(self) -> SomeClass:
-            ...
-
-    calls = []
-    spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
-
-    await spy._async_child.bar(a=4, b=5.0, c="6")
-    spy._sync_child.do_the_thing(flag=True)
-
-    assert calls == [
-        SpyCall(
-            spy_id=id(spy._async_child.bar),
-            spy_name="_SomeClass._async_child.bar",
-            args=(4, 5.0, "6"),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy._sync_child.do_the_thing),
-            spy_name="_SomeClass._sync_child.do_the_thing",
-            args=(),
-            kwargs={"flag": True},
-        ),
-    ]
-
-
-async def test_create_nested_spy_using_class_type_hints() -> None:
-    """It should be able to dive using type hints on the class."""
-
-    class _SomeClass:
-        _async_child: SomeAsyncClass
-        _sync_child: SomeClass
-
-    calls = []
-    spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
-
-    await spy._async_child.bar(a=4, b=5.0, c="6")
-    spy._sync_child.do_the_thing(flag=False)
-
-    assert calls == [
-        SpyCall(
-            spy_id=id(spy._async_child.bar),
-            spy_name="_SomeClass._async_child.bar",
-            args=(4, 5.0, "6"),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=id(spy._sync_child.do_the_thing),
-            spy_name="_SomeClass._sync_child.do_the_thing",
-            args=(),
-            kwargs={"flag": False},
-        ),
-    ]
-
-
-@pytest.mark.filterwarnings("ignore:'NoneType' object is not subscriptable")
-async def test_create_nested_spy_using_non_runtime_type_hints() -> None:
-    """It should gracefully degrade if type hints cannot be resolved."""
-
-    class _SomeClass:
-        _property: "None[str]"
-
-        async def _do_something_async(self) -> None:
-            pass
-
-    calls = []
-    spy = create_spy(SpyConfig(spec=_SomeClass, handle_call=lambda c: calls.append(c)))
-    spy._property.do_something(7, eight=8, nine=9)
-    await spy._do_something_async()
-
-    assert calls == [
-        SpyCall(
-            spy_id=id(spy._property.do_something),
-            spy_name="_SomeClass._property.do_something",
-            args=(7,),
-            kwargs={"eight": 8, "nine": 9},
-        ),
-        SpyCall(
-            spy_id=id(spy._do_something_async),
-            spy_name="_SomeClass._do_something_async",
-            args=(),
-            kwargs={},
-        ),
-    ]
-
-
-def test_warn_if_called_incorrectly() -> None:
-    """It should trigger a warning if the spy is called incorrectly."""
-    spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
-
-    with pytest.warns(IncorrectCallWarning, match="missing a required argument"):
-        spy(wrong_arg_name="1")
-
-
-async def test_spy_returns_handler_value() -> None:
-    """The spy should return the value from its call handler when called."""
-    call_count = 0
-
-    def _handle_call(call: Any) -> int:
-        nonlocal call_count
-        call_count = call_count + 1
-        return call_count
-
-    sync_spy = create_spy(SpyConfig(spec=some_func, handle_call=_handle_call))
-    async_spy = create_spy(SpyConfig(spec=some_async_func, handle_call=_handle_call))
-
-    assert [
-        sync_spy("hello"),
-        await async_spy("from thr"),
-        sync_spy("other"),
-        await async_spy("side"),
-    ] == [1, 2, 3, 4]
-
-
-def test_spy_passes_instance_of() -> None:
-    """A spy should pass instanceof checks."""
-    spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
-
-    assert isinstance(spy, SomeClass)
-
-
-def test_spy_matches_signature() -> None:
-    """It should pass `inspect.signature` checks."""
-    class_spy = create_spy(SpyConfig(spec=SomeClass, handle_call=noop))
-    actual_instance = SomeClass()
-    assert inspect.signature(class_spy) == inspect.signature(SomeClass)
-    assert inspect.signature(class_spy.foo) == inspect.signature(actual_instance.foo)
-    assert inspect.signature(class_spy.bar) == inspect.signature(actual_instance.bar)
-    assert inspect.signature(class_spy.do_the_thing) == inspect.signature(
-        actual_instance.do_the_thing
-    )
-
-    func_spy = create_spy(SpyConfig(spec=some_func, handle_call=noop))
-    assert inspect.signature(func_spy) == inspect.signature(some_func)
-
-    spy = create_spy(SpyConfig(handle_call=noop))
-
-    assert inspect.signature(spy) == inspect.Signature(
-        parameters=(
-            inspect.Parameter(
-                name="args",
-                annotation=Any,
-                kind=inspect.Parameter.VAR_POSITIONAL,
-            ),
-            inspect.Parameter(
-                name="kwargs",
-                annotation=Any,
-                kind=inspect.Parameter.VAR_KEYWORD,
-            ),
-        ),
-        return_annotation=Any,
-    )
-
-
-def test_spy_matches_static_signature() -> None:
-    """It should pass `inspect.signature` checks on static methods."""
-
-    class _StaticClass:
-        @staticmethod
-        def foo(bar: int) -> float:
-            raise NotImplementedError()
-
-        @staticmethod
-        async def bar(baz: str) -> float:
-            raise NotImplementedError()
-
-    class_spy = create_spy(SpyConfig(spec=_StaticClass, handle_call=noop))
-    actual_instance = _StaticClass()
-
-    assert inspect.signature(class_spy.foo) == inspect.signature(actual_instance.foo)
-    assert inspect.signature(class_spy.bar) == inspect.signature(actual_instance.bar)
-    assert isinstance(class_spy.foo, Spy)
-    assert isinstance(class_spy.bar, AsyncSpy)
-
-
-def test_spy_context_manager() -> None:
+def test_spy_context_manager(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
     """It should be usable in a `with` statement."""
-    calls = []
+    enter_spec = decoy.mock(cls=Spec)
+    exit_spec = decoy.mock(cls=Spec)
+    enter_spy = decoy.mock(cls=Spy)
+    exit_spy = decoy.mock(cls=Spy)
+    error = RuntimeError("oh no")
 
-    def _handle_call(call: SpyCall) -> int:
-        nonlocal calls
-        calls.append(call)
-        return 42
+    decoy.when(spec.get_name()).then_return("spy_name")
+    decoy.when(spec.get_child_spec("__enter__")).then_return(enter_spec)
+    decoy.when(spec.get_child_spec("__exit__")).then_return(exit_spec)
+    decoy.when(spy_creator.create(spec=enter_spec, is_async=False)).then_return(
+        enter_spy
+    )
+    decoy.when(spy_creator.create(spec=exit_spec, is_async=False)).then_return(exit_spy)
+    decoy.when(enter_spy()).then_return(42)
 
-    subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+    tb = None
 
-    with subject as result:
-        assert result == 42
+    try:
+        with subject as result:
+            assert result == 42
+            raise error
+    except RuntimeError:
+        tb = sys.exc_info()[2]
+        pass
 
-    assert calls == [
-        SpyCall(
-            spy_id=matchers.Anything(),
-            spy_name="subject.__enter__",
-            args=(),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=matchers.Anything(),
-            spy_name="subject.__exit__",
-            args=(None, None, None),
-            kwargs={},
-        ),
-    ]
-
-
-async def test_spy_async_context_manager() -> None:
-    """It should be usable in an `async with` statement."""
-    calls = []
-
-    async def _handle_call(call: SpyCall) -> int:
-        nonlocal calls
-        calls.append(call)
-        return 42
-
-    subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
-
-    async with subject as result:
-        assert result == 42
-
-    assert calls == [
-        SpyCall(
-            spy_id=matchers.Anything(),
-            spy_name="subject.__aenter__",
-            args=(),
-            kwargs={},
-        ),
-        SpyCall(
-            spy_id=matchers.Anything(),
-            spy_name="subject.__aexit__",
-            args=(None, None, None),
-            kwargs={},
-        ),
-    ]
+    decoy.verify(exit_spy(RuntimeError, error, tb))
 
 
-class SpyReprSpec(NamedTuple):
-    """Spec data for BaseSpy.__repr__ tests."""
+async def test_spy_async_context_manager(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should be usable in a `with` statement."""
+    enter_spec = decoy.mock(cls=Spec)
+    exit_spec = decoy.mock(cls=Spec)
+    enter_spy = decoy.mock(cls=AsyncSpy)
+    exit_spy = decoy.mock(cls=AsyncSpy)
+    error = RuntimeError("oh no")
 
-    config: SpyConfig
-    expected: str
+    decoy.when(spec.get_name()).then_return("spy_name")
+    decoy.when(spec.get_child_spec("__aenter__")).then_return(enter_spec)
+    decoy.when(spec.get_child_spec("__aexit__")).then_return(exit_spec)
+    decoy.when(spy_creator.create(spec=enter_spec, is_async=True)).then_return(
+        enter_spy
+    )
+    decoy.when(spy_creator.create(spec=exit_spec, is_async=True)).then_return(exit_spy)
+    decoy.when(await enter_spy()).then_return(42)
+
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+    tb = None
+
+    try:
+        async with subject as result:
+            assert result == 42
+            raise error
+    except RuntimeError:
+        tb = sys.exc_info()[2]
+        pass
+
+    decoy.verify(await exit_spy(RuntimeError, error, tb))
 
 
-@pytest.mark.parametrize(
-    SpyReprSpec._fields,
-    [
-        SpyReprSpec(
-            config=SpyConfig(spec=SomeClass, handle_call=noop),
-            expected="<Decoy mock of tests.common.SomeClass>",
-        ),
-        SpyReprSpec(
-            config=SpyConfig(spec=some_func, handle_call=noop),
-            expected="<Decoy mock of tests.common.some_func>",
-        ),
-        SpyReprSpec(
-            config=SpyConfig(name="hello", handle_call=noop),
-            expected='<Decoy mock "hello">',
-        ),
-        SpyReprSpec(
-            config=SpyConfig(handle_call=noop),
-            expected="<Decoy mock>",
-        ),
-        SpyReprSpec(
-            config=SpyConfig(
-                spec=partial(SomeClass.foo, None),
-                name="SomeClass.foo",
-                module_name="tests.common",
-                handle_call=noop,
-            ),
-            expected="<Decoy mock of tests.common.SomeClass.foo>",
-        ),
-        SpyReprSpec(
-            config=SpyConfig(
-                spec=partial(SomeClass.foo, None),
-                name="SomeClass.foo",
-                handle_call=noop,
-            ),
-            expected="<Decoy mock of SomeClass.foo>",
-        ),
-    ],
-)
-def test_spy_repr(config: SpyConfig, expected: str) -> None:
-    """It should have an informative repr."""
-    subject = create_spy(config)
-    result = repr(subject)
+# async def test_spy_async_context_manager() -> None:
+#     """It should be usable in an `async with` statement."""
+#     calls = []
 
-    assert result == expected
+#     def _handle_call(call: SpyCall) -> Optional[CallResult]:
+#         nonlocal calls
+#         calls.append(call)
+#         return CallResult(42)
+
+#     subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
+
+#     async with subject as result:
+#         assert result == 42
+
+#     assert calls == [
+#         SpyCall(
+#             spy_id=matchers.Anything(),
+#             spy_name="subject.__aenter__",
+#             args=(),
+#             kwargs={},
+#         ),
+#         SpyCall(
+#             spy_id=matchers.Anything(),
+#             spy_name="subject.__aexit__",
+#             args=(None, None, None),
+#             kwargs={},
+#         ),
+#     ]

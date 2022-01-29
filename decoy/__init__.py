@@ -1,4 +1,5 @@
 """Decoy stubbing and spying library."""
+from warnings import warn
 from typing import Any, Callable, Generic, Optional, Union, cast, overload
 
 from . import errors, matchers, warnings
@@ -15,15 +16,25 @@ __tracebackhide__ = True
 
 
 class Decoy:
-    """Decoy mock factory and state container."""
+    """Decoy mock factory and state container.
+
+    You should create a new Decoy instance before each test and call
+    [reset][decoy.Decoy.reset] after each test. If you use the
+    [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
+    automatically. See the [setup guide](../#setup) for more details.
+
+    Example:
+        ```python
+        decoy = Decoy()
+
+        # test your subject
+        ...
+
+        decoy.reset()
+        ```
+    """
 
     def __init__(self) -> None:
-        """Initialize a new mock factory.
-
-        You should create a new Decoy instance for every test. If you use
-        the [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
-        automatically. See the [setup guide](../#setup) for more details.
-        """
         self._core = DecoyCore()
 
     @overload
@@ -47,9 +58,9 @@ class Decoy:
         name: Optional[str] = None,
         is_async: bool = False,
     ) -> Any:
-        """Create a mock.
+        """Create a mock. See the [mock creation guide] for more details.
 
-        See the [mock creation guide](../usage/create/) for more details.
+        [mock creation guide]: ../usage/create/
 
         Arguments:
             cls: A class definition that the mock should imitate.
@@ -83,6 +94,11 @@ class Decoy:
         !!! warning "Deprecated since v1.6.0"
             Use [decoy.Decoy.mock][] with the `cls` parameter, instead.
         """
+        warn(
+            "decoy.create_decoy is deprecated; use decoy.mock(cls=...) instead.",
+            DeprecationWarning,
+        )
+
         spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(ClassT, spy)
 
@@ -97,6 +113,11 @@ class Decoy:
         !!! warning "Deprecated since v1.6.0"
             Use [decoy.Decoy.mock][] with the `func` parameter, instead.
         """
+        warn(
+            "decoy.create_decoy_func is deprecated; use decoy.mock(func=...) instead.",
+            DeprecationWarning,
+        )
+
         spy = self._core.mock(spec=spec, is_async=is_async)
         return cast(FuncT, spy)
 

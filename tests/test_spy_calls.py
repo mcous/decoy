@@ -1,6 +1,7 @@
 """Tests for the spy call values."""
 import pytest
 from typing import List, NamedTuple
+
 from decoy.spy_calls import SpyCall, BaseSpyRehearsal, match_call
 
 
