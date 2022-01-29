@@ -27,7 +27,7 @@ class Spec:
 
     """
 
-    _DEFAULT_SPY_NAME = "spy"
+    _DEFAULT_SPY_NAME = "unnamed"
 
     def __init__(
         self,

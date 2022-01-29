@@ -23,16 +23,13 @@ class CallHandler:
         if behavior is None:
             return None
 
-        elif behavior.error:
+        if behavior.error:
             raise behavior.error
 
-        elif behavior.action:
-            return_value = behavior.action(*call.args, **call.kwargs)
+        if behavior.action:
+            return behavior.action(*call.args, **call.kwargs)
 
-        elif behavior.context_value:
-            return_value = ContextWrapper(behavior.context_value)
+        if behavior.context_value:
+            return ContextWrapper(behavior.context_value)
 
-        else:
-            return_value = behavior.return_value
-
-        return return_value
+        return behavior.return_value

@@ -37,8 +37,8 @@ class GetNameSpec(NamedTuple):
     [
         GetNameSpec(
             subject=Spec(source=None, name=None),
-            expected_name="spy",
-            expected_full_name="spy",
+            expected_name="unnamed",
+            expected_full_name="unnamed",
         ),
         GetNameSpec(
             subject=Spec(source=some_func, name=None),

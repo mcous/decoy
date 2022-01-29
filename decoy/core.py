@@ -2,11 +2,9 @@
 from typing import Any, Callable, Optional
 
 from .call_handler import CallHandler
-from .spy_log import SpyLog
-
-# from .spy import SpyConfig
 from .spy import SpyCreator
 from .spy_calls import WhenRehearsal
+from .spy_log import SpyLog
 from .stub_store import StubBehavior, StubStore
 from .types import ContextValueT, ReturnT
 from .verifier import Verifier
