@@ -3,12 +3,12 @@ import pytest
 
 from decoy.errors import MissingRehearsalError
 from decoy.spy_calls import SpyCall, WhenRehearsal, VerifyRehearsal
-from decoy.call_stack import CallStack
+from decoy.spy_log import SpyLog
 
 
 def test_push_and_consume_when_rehearsal() -> None:
     """It should be able to push and pop from the stack."""
-    subject = CallStack()
+    subject = SpyLog()
     call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
 
     subject.push(call)
@@ -20,7 +20,7 @@ def test_push_and_consume_when_rehearsal() -> None:
 
 def test_push_and_consume_when_rehearsal_ignore_extra_args() -> None:
     """It should be able to push and pop from the stack while ignoring extra args."""
-    subject = CallStack()
+    subject = SpyLog()
     call = SpyCall(spy_id=42, spy_name="my_spy", args=(), kwargs={})
 
     subject.push(call)
@@ -32,7 +32,7 @@ def test_push_and_consume_when_rehearsal_ignore_extra_args() -> None:
 
 def test_consume_when_rehearsal_raises_empty_error() -> None:
     """It should raise an error if the stack is empty on pop."""
-    subject = CallStack()
+    subject = SpyLog()
 
     with pytest.raises(MissingRehearsalError):
         subject.consume_when_rehearsal(ignore_extra_args=False)
@@ -47,7 +47,7 @@ def test_consume_when_rehearsal_raises_empty_error() -> None:
 
 def test_consume_verify_rehearsals() -> None:
     """It should be able to pop a slice off the stack, retaining order."""
-    subject = CallStack()
+    subject = SpyLog()
     call_1 = SpyCall(spy_id=1, spy_name="spy_1", args=(), kwargs={})
     call_2 = SpyCall(spy_id=2, spy_name="spy_2", args=(), kwargs={})
 
@@ -69,7 +69,7 @@ def test_consume_verify_rehearsals() -> None:
 
 def test_consume_verify_rehearsals_ignore_extra_args() -> None:
     """It should be able to pop a slice off the stack, retaining order."""
-    subject = CallStack()
+    subject = SpyLog()
     call_1 = SpyCall(spy_id=1, spy_name="spy_1", args=(), kwargs={})
     call_2 = SpyCall(spy_id=2, spy_name="spy_2", args=(), kwargs={})
 
@@ -89,7 +89,7 @@ def test_consume_verify_rehearsals_ignore_extra_args() -> None:
 
 def test_consume_verify_rehearsals_raises_error() -> None:
     """It should raise an error if the stack has too few members to pop a slice."""
-    subject = CallStack()
+    subject = SpyLog()
     call_1 = SpyCall(spy_id=1, spy_name="spy_1", args=(), kwargs={})
 
     subject.push(call_1)
@@ -100,7 +100,7 @@ def test_consume_verify_rehearsals_raises_error() -> None:
 
 def test_get_by_rehearsal() -> None:
     """It can get a list of calls made matching spy IDs of given rehearsals."""
-    subject = CallStack()
+    subject = SpyLog()
     call_1 = SpyCall(spy_id=101, spy_name="spy_1", args=(1,), kwargs={})
     call_2 = SpyCall(spy_id=101, spy_name="spy_1", args=(2,), kwargs={})
     call_3 = SpyCall(spy_id=202, spy_name="spy_2", args=(1,), kwargs={})
@@ -133,7 +133,7 @@ def test_get_by_rehearsal() -> None:
 
 def test_get_all() -> None:
     """It can get a list of all calls and rehearsals."""
-    subject = CallStack()
+    subject = SpyLog()
     call_1 = SpyCall(spy_id=101, spy_name="spy_1", args=(), kwargs={})
     call_2 = SpyCall(spy_id=101, spy_name="spy_1", args=(), kwargs={})
     call_3 = SpyCall(spy_id=202, spy_name="spy_2", args=(), kwargs={})
@@ -153,7 +153,7 @@ def test_get_all() -> None:
 
 def test_clear() -> None:
     """It can clear all calls and rehearsals."""
-    subject = CallStack()
+    subject = SpyLog()
     call_1 = SpyCall(spy_id=101, spy_name="spy_1", args=(), kwargs={})
     call_2 = SpyCall(spy_id=101, spy_name="spy_1", args=(), kwargs={})
     call_3 = SpyCall(spy_id=202, spy_name="spy_2", args=(), kwargs={})

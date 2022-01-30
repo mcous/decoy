@@ -3,34 +3,33 @@ import pytest
 
 from decoy import Decoy
 from decoy.call_handler import CallHandler
-from decoy.call_stack import CallStack
+from decoy.spy_log import SpyLog
 from decoy.core import DecoyCore
-from decoy.spy import Spy, SpyConfig, SpyFactory
-from decoy.spy import create_spy as default_create_spy
+from decoy.spy import Spy, SpyCreator
 from decoy.spy_calls import SpyCall, VerifyRehearsal, WhenRehearsal
 from decoy.stub_store import StubBehavior, StubStore
 from decoy.verifier import Verifier
 from decoy.warning_checker import WarningChecker
 
-from .common import SomeClass, noop
+from .common import SomeClass
 
 
 @pytest.fixture()
-def create_spy(decoy: Decoy) -> SpyFactory:
-    """Get a mock instance of a create_spy factory function."""
-    return decoy.mock(func=default_create_spy)
+def spy_creator(decoy: Decoy) -> SpyCreator:
+    """Get a mock instance of a SpyCreator."""
+    return decoy.mock(cls=SpyCreator)
 
 
 @pytest.fixture()
 def call_handler(decoy: Decoy) -> CallHandler:
-    """Get a mock instance of a create_spy factory function."""
+    """Get a mock instance of a CallHandler."""
     return decoy.mock(cls=CallHandler)
 
 
 @pytest.fixture()
-def call_stack(decoy: Decoy) -> CallStack:
-    """Get a mock instance of a CallStack."""
-    return decoy.mock(cls=CallStack)
+def spy_log(decoy: Decoy) -> SpyLog:
+    """Get a mock instance of a SpyLog."""
+    return decoy.mock(cls=SpyLog)
 
 
 @pytest.fixture()
@@ -53,34 +52,36 @@ def warning_checker(decoy: Decoy) -> WarningChecker:
 
 @pytest.fixture()
 def subject(
-    create_spy: SpyFactory,
     verifier: Verifier,
     warning_checker: WarningChecker,
     stub_store: StubStore,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     call_handler: CallHandler,
+    spy_creator: SpyCreator,
 ) -> DecoyCore:
     """Get a DecoyCore instance with its dependencies mocked out."""
     return DecoyCore(
-        create_spy=create_spy,
         verifier=verifier,
         warning_checker=warning_checker,
         stub_store=stub_store,
-        call_stack=call_stack,
+        spy_log=spy_log,
         call_handler=call_handler,
+        spy_creator=spy_creator,
     )
 
 
 def test_mock_no_spec(
     decoy: Decoy,
-    create_spy: SpyFactory,
+    spy_creator: SpyCreator,
     call_handler: CallHandler,
     subject: DecoyCore,
 ) -> None:
     """It should create a generic spy by default."""
-    spy = Spy(handle_call=noop)
-    expected_config = SpyConfig(spec=None, handle_call=call_handler.handle)
-    decoy.when(create_spy(expected_config)).then_return(spy)
+    spy = decoy.mock(cls=Spy)
+
+    decoy.when(spy_creator.create(spec=None, name=None, is_async=False)).then_return(
+        spy
+    )
 
     result = subject.mock()
 
@@ -89,18 +90,16 @@ def test_mock_no_spec(
 
 def test_mock_with_name(
     decoy: Decoy,
-    create_spy: SpyFactory,
+    spy_creator: SpyCreator,
     call_handler: CallHandler,
     subject: DecoyCore,
 ) -> None:
     """It should create a generic spy by default."""
-    spy = Spy(handle_call=noop, name="my-spy")
-    expected_config = SpyConfig(
-        spec=None,
-        name="my-spy",
-        handle_call=call_handler.handle,
-    )
-    decoy.when(create_spy(expected_config)).then_return(spy)
+    spy = decoy.mock(cls=Spy)
+
+    decoy.when(
+        spy_creator.create(spec=None, name="my-spy", is_async=False)
+    ).then_return(spy)
 
     result = subject.mock(name="my-spy")
 
@@ -109,15 +108,16 @@ def test_mock_with_name(
 
 def test_mock_spec(
     decoy: Decoy,
-    create_spy: SpyFactory,
+    spy_creator: SpyCreator,
     call_handler: CallHandler,
     subject: DecoyCore,
 ) -> None:
     """It should create a generic spy by default."""
-    spy = Spy(handle_call=noop, name="my-spy")
-    expected_config = SpyConfig(spec=SomeClass, handle_call=call_handler.handle)
+    spy = decoy.mock(cls=Spy)
 
-    decoy.when(create_spy(expected_config)).then_return(spy)
+    decoy.when(
+        spy_creator.create(spec=SomeClass, name=None, is_async=False)
+    ).then_return(spy)
 
     result = subject.mock(spec=SomeClass)
 
@@ -126,13 +126,13 @@ def test_mock_spec(
 
 def test_when_then_return(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a new stubbing."""
     rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
 
@@ -149,13 +149,13 @@ def test_when_then_return(
 
 def test_when_then_return_multiple_values(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     subject: DecoyCore,
 ) -> None:
     """It should add multiple return values to a stub."""
     rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
 
@@ -180,13 +180,13 @@ def test_when_then_return_multiple_values(
 
 def test_when_then_raise(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     subject: DecoyCore,
 ) -> None:
     """It should add a raise behavior to a stub."""
     rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
 
@@ -204,13 +204,13 @@ def test_when_then_raise(
 
 def test_when_then_do(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     subject: DecoyCore,
 ) -> None:
     """It should add an action behavior to a stub."""
     rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
 
@@ -228,13 +228,13 @@ def test_when_then_do(
 
 def test_when_then_enter_with(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a ContextManager stubbing."""
     rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
 
@@ -251,13 +251,13 @@ def test_when_then_enter_with(
 
 def test_when_ignore_extra_args(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a new stubbing."""
     rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
-    decoy.when(call_stack.consume_when_rehearsal(ignore_extra_args=True)).then_return(
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=True)).then_return(
         rehearsal
     )
 
@@ -274,7 +274,7 @@ def test_when_ignore_extra_args(
 
 def test_verify(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     verifier: Verifier,
     subject: DecoyCore,
 ) -> None:
@@ -284,9 +284,9 @@ def test_verify(
     call = SpyCall(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
 
     decoy.when(
-        call_stack.consume_verify_rehearsals(count=1, ignore_extra_args=False)
+        spy_log.consume_verify_rehearsals(count=1, ignore_extra_args=False)
     ).then_return([rehearsal])
-    decoy.when(call_stack.get_by_rehearsals([rehearsal])).then_return([call])
+    decoy.when(spy_log.get_by_rehearsals([rehearsal])).then_return([call])
 
     subject.verify("__rehearsal__", times=None, ignore_extra_args=False)
 
@@ -295,7 +295,7 @@ def test_verify(
 
 def test_verify_multiple_calls(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     verifier: Verifier,
     subject: DecoyCore,
 ) -> None:
@@ -310,9 +310,9 @@ def test_verify_multiple_calls(
     calls = [SpyCall(spy_id=spy_id_1, spy_name="spy_1", args=(), kwargs={})]
 
     decoy.when(
-        call_stack.consume_verify_rehearsals(count=2, ignore_extra_args=False)
+        spy_log.consume_verify_rehearsals(count=2, ignore_extra_args=False)
     ).then_return(rehearsals)
-    decoy.when(call_stack.get_by_rehearsals(rehearsals)).then_return(calls)
+    decoy.when(spy_log.get_by_rehearsals(rehearsals)).then_return(calls)
 
     subject.verify(
         "__rehearsal_1__",
@@ -326,7 +326,7 @@ def test_verify_multiple_calls(
 
 def test_verify_call_times(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     verifier: Verifier,
     subject: DecoyCore,
 ) -> None:
@@ -336,9 +336,9 @@ def test_verify_call_times(
     call = SpyCall(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
 
     decoy.when(
-        call_stack.consume_verify_rehearsals(count=1, ignore_extra_args=False)
+        spy_log.consume_verify_rehearsals(count=1, ignore_extra_args=False)
     ).then_return([rehearsal])
-    decoy.when(call_stack.get_by_rehearsals([rehearsal])).then_return([call])
+    decoy.when(spy_log.get_by_rehearsals([rehearsal])).then_return([call])
 
     subject.verify("__rehearsal__", times=2, ignore_extra_args=False)
 
@@ -347,7 +347,7 @@ def test_verify_call_times(
 
 def test_reset(
     decoy: Decoy,
-    call_stack: CallStack,
+    spy_log: SpyLog,
     stub_store: StubStore,
     warning_checker: WarningChecker,
     subject: DecoyCore,
@@ -355,12 +355,12 @@ def test_reset(
     """It should reset the stores."""
     call = SpyCall(spy_id=1, spy_name="my_spy", args=(), kwargs={})
 
-    decoy.when(call_stack.get_all()).then_return([call])
+    decoy.when(spy_log.get_all()).then_return([call])
 
     subject.reset()
 
     decoy.verify(
         warning_checker.check([call]),
-        call_stack.clear(),
+        spy_log.clear(),
         stub_store.clear(),
     )

@@ -27,7 +27,9 @@ def test_my_thing(decoy: Decoy) -> None:
     subject = MyThing(database=database)
     subject.delete_model_by_id("some-id")
 
-    decoy.verify(database.remove("some-id"))
+    decoy.verify(
+        database.remove("some-id")  # <-- rehearsal
+    )
 ```
 
 If Decoy is unable to find any calls matching the rehearsal inside `verify`, a [decoy.errors.VerifyError][] will be raised.

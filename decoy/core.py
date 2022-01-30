@@ -2,10 +2,9 @@
 from typing import Any, Callable, Optional
 
 from .call_handler import CallHandler
-from .call_stack import CallStack
-from .spy import SpyConfig, SpyFactory
-from .spy import create_spy as default_create_spy
+from .spy import SpyCreator
 from .spy_calls import WhenRehearsal
+from .spy_log import SpyLog
 from .stub_store import StubBehavior, StubStore
 from .types import ContextValueT, ReturnT
 from .verifier import Verifier
@@ -20,23 +19,23 @@ class DecoyCore:
 
     def __init__(
         self,
-        create_spy: Optional[SpyFactory] = None,
         verifier: Optional[Verifier] = None,
         warning_checker: Optional[WarningChecker] = None,
         stub_store: Optional[StubStore] = None,
-        call_stack: Optional[CallStack] = None,
+        spy_log: Optional[SpyLog] = None,
         call_handler: Optional[CallHandler] = None,
+        spy_creator: Optional[SpyCreator] = None,
     ) -> None:
         """Initialize the DecoyCore with its dependencies."""
-        self._create_spy = create_spy or default_create_spy
         self._verifier = verifier or Verifier()
         self._warning_checker = warning_checker or WarningChecker()
         self._stub_store = stub_store or StubStore()
-        self._call_stack = call_stack or CallStack()
+        self._spy_log = spy_log or SpyLog()
         self._call_hander = call_handler or CallHandler(
-            call_stack=self._call_stack,
+            spy_log=self._spy_log,
             stub_store=self._stub_store,
         )
+        self._spy_creator = spy_creator or SpyCreator(call_handler=self._call_hander)
 
     def mock(
         self,
@@ -46,17 +45,11 @@ class DecoyCore:
         is_async: bool = False,
     ) -> Any:
         """Create and register a new spy."""
-        config = SpyConfig(
-            spec=spec,
-            name=name,
-            is_async=is_async,
-            handle_call=self._call_hander.handle,
-        )
-        return self._create_spy(config)
+        return self._spy_creator.create(spec=spec, name=name, is_async=is_async)
 
     def when(self, _rehearsal: ReturnT, *, ignore_extra_args: bool) -> "StubCore":
         """Create a new stub from the last spy rehearsal."""
-        rehearsal = self._call_stack.consume_when_rehearsal(
+        rehearsal = self._spy_log.consume_when_rehearsal(
             ignore_extra_args=ignore_extra_args
         )
         return StubCore(rehearsal=rehearsal, stub_store=self._stub_store)
@@ -68,19 +61,19 @@ class DecoyCore:
         ignore_extra_args: bool,
     ) -> None:
         """Verify that a Spy or Spies were called."""
-        rehearsals = self._call_stack.consume_verify_rehearsals(
+        rehearsals = self._spy_log.consume_verify_rehearsals(
             count=len(_rehearsals),
             ignore_extra_args=ignore_extra_args,
         )
-        calls = self._call_stack.get_by_rehearsals(rehearsals)
+        calls = self._spy_log.get_by_rehearsals(rehearsals)
 
         self._verifier.verify(rehearsals=rehearsals, calls=calls, times=times)
 
     def reset(self) -> None:
         """Reset and remove all stored spies and stubs."""
-        calls = self._call_stack.get_all()
+        calls = self._spy_log.get_all()
         self._warning_checker.check(calls)
-        self._call_stack.clear()
+        self._spy_log.clear()
         self._stub_store.clear()
 
 

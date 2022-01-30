@@ -13,6 +13,7 @@ from .common import SomeAsyncClass, SomeClass, some_func
 pytestmark = pytest.mark.asyncio
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_spy(decoy: Decoy) -> None:
     """It should be able to create a Spy from a class."""
     subject = decoy.mock(cls=SomeClass)
@@ -27,6 +28,7 @@ def test_decoy_creates_spy(decoy: Decoy) -> None:
     assert isinstance(subject, Spy)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_func_spy(decoy: Decoy) -> None:
     """It should be able to create a Spy from a function."""
     subject = decoy.mock(func=some_func)
@@ -39,6 +41,7 @@ def test_decoy_creates_func_spy(decoy: Decoy) -> None:
     assert isinstance(subject, Spy)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_specless_spy(decoy: Decoy) -> None:
     """It should be able to create a spec-less spy."""
     subject = decoy.mock()
@@ -49,10 +52,11 @@ def test_decoy_creates_specless_spy(decoy: Decoy) -> None:
     assert isinstance(subject, Spy)
 
     # test naming the spy
-    subject = decoy.mock(name="spy-name")
-    assert repr(subject) == '<Decoy mock "spy-name">'
+    subject = decoy.mock(name="spy_name")
+    assert repr(subject) == "<Decoy mock `spy_name`>"
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_specless_async_spy(decoy: Decoy) -> None:
     """It should be able to create an async specless spy."""
     subject = decoy.mock(is_async=True)
@@ -70,7 +74,7 @@ def test_when_then_return(decoy: Decoy) -> None:
 
     decoy.when(subject("hello")).then_return("hello world")
 
-    result = subject("hello")
+    result = subject(val="hello")
     assert result == "hello world"
 
     result = subject(val="hello")
@@ -314,6 +318,31 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
     value_reader = decoy.mock(cls=_ValueReader)
 
     def _handle_enter() -> _ValueReader:
+        decoy.when(value_reader.get_value()).then_return(42)
+        return value_reader
+
+    def _handle_exit(*args: Any) -> None:
+        decoy.when(value_reader.get_value()).then_raise(
+            AssertionError("Context manager exited")
+        )
+
+    decoy.when(await value_reader.__aenter__()).then_do(_handle_enter)
+    decoy.when(await value_reader.__aexit__(None, None, None)).then_do(_handle_exit)
+
+    async with value_reader as subject:
+        result = subject.get_value()
+
+    assert result == 42
+
+    with pytest.raises(AssertionError, match="exited"):
+        subject.get_value()
+
+
+async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
+    """It should be able to mock an async context manager, even without a spec."""
+    value_reader = decoy.mock()
+
+    def _handle_enter() -> Any:
         decoy.when(value_reader.get_value()).then_return(42)
         return value_reader
 
