@@ -1,10 +1,10 @@
-"""Tests for the SpyCall handling."""
+"""Tests for the SpyEvent handling."""
 import pytest
 
 from decoy import Decoy
 from decoy.call_handler import CallHandler
 from decoy.spy_log import SpyLog
-from decoy.spy_calls import SpyCall
+from decoy.spy_events import SpyCall, SpyEvent
 from decoy.stub_store import StubBehavior, StubStore
 
 
@@ -40,7 +40,9 @@ def test_handle_call_with_no_stubbing(
     subject: CallHandler,
 ) -> None:
     """It should noop and add the call to the stack if no stubbing is configured."""
-    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(), kwargs={})
+    spy_call = SpyEvent(
+        spy_id=42, spy_name="spy_name", payload=SpyCall(args=(), kwargs={})
+    )
     behavior = None
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
@@ -58,7 +60,9 @@ def test_handle_call_with_return(
     subject: CallHandler,
 ) -> None:
     """It return a Stub's configured return value."""
-    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(), kwargs={})
+    spy_call = SpyEvent(
+        spy_id=42, spy_name="spy_name", payload=SpyCall(args=(), kwargs={})
+    )
     behavior = StubBehavior(return_value="hello world")
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
@@ -76,7 +80,9 @@ def test_handle_call_with_raise(
     subject: CallHandler,
 ) -> None:
     """It raise a Stub's configured error."""
-    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(), kwargs={})
+    spy_call = SpyEvent(
+        spy_id=42, spy_name="spy_name", payload=SpyCall(args=(), kwargs={})
+    )
     behavior = StubBehavior(error=RuntimeError("oh no"))
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
@@ -95,7 +101,11 @@ def test_handle_call_with_action(
 ) -> None:
     """It should trigger a stub's configured action."""
     action = decoy.mock()
-    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(1,), kwargs={"foo": "bar"})
+    spy_call = SpyEvent(
+        spy_id=42,
+        spy_name="spy_name",
+        payload=SpyCall(args=(1,), kwargs={"foo": "bar"}),
+    )
     behavior = StubBehavior(action=action)
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
@@ -113,7 +123,9 @@ def test_handle_call_with_context_enter(
     subject: CallHandler,
 ) -> None:
     """It return a Stub's configured context value."""
-    spy_call = SpyCall(spy_id=42, spy_name="spy_name", args=(), kwargs={})
+    spy_call = SpyEvent(
+        spy_id=42, spy_name="spy_name", payload=SpyCall(args=(), kwargs={})
+    )
     behavior = StubBehavior(context_value="hello world")
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)

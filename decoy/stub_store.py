@@ -1,7 +1,7 @@
 """Stub creation and storage."""
 from typing import Any, Callable, List, NamedTuple, Optional
 
-from .spy_calls import SpyCall, WhenRehearsal, match_call
+from .spy_events import SpyEvent, WhenRehearsal, match_event
 
 
 class StubBehavior(NamedTuple):
@@ -36,14 +36,14 @@ class StubStore:
         """Create and add a new StubBehavior to the store."""
         self._stubs.append(StubEntry(rehearsal=rehearsal, behavior=behavior))
 
-    def get_by_call(self, call: SpyCall) -> Optional[StubBehavior]:
+    def get_by_call(self, call: SpyEvent) -> Optional[StubBehavior]:
         """Get the latest StubBehavior matching this call."""
         reversed_indices = range(len(self._stubs) - 1, -1, -1)
 
         for i in reversed_indices:
             stub = self._stubs[i]
 
-            if match_call(call, stub.rehearsal):
+            if match_event(call, stub.rehearsal):
                 if stub.behavior.once:
                     self._stubs.pop(i)
 

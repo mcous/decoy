@@ -2,24 +2,29 @@
 import os
 from typing import Sequence
 
-from .spy_calls import BaseSpyCall, BaseSpyRehearsal, SpyCall
+from .spy_events import BaseSpyEvent, BaseSpyRehearsal, SpyCall, SpyEvent
 
 
-def stringify_call(call: BaseSpyCall) -> str:
+def stringify_call(event: BaseSpyEvent) -> str:
     """Stringify the call to something human readable.
 
-    `SpyCall(spy_id=42, spy_name="name", args=(1,), kwargs={"foo": False})`
+    `SpyEvent(spy_id=42, spy_name="name", payload=SpyCall(args=(1,), kwargs={"foo": False}))`
     would stringify as `"name(1, foo=False)"`
     """
-    args_list = [repr(arg) for arg in call.args]
-    kwargs_list = [f"{key}={repr(val)}" for key, val in call.kwargs.items()]
+    spy_id, spy_name, payload = event
+
+    if not isinstance(payload, SpyCall):
+        raise NotImplementedError("Property handling not implemented")
+
+    args_list = [repr(arg) for arg in payload.args]
+    kwargs_list = [f"{key}={repr(val)}" for key, val in payload.kwargs.items()]
     extra_args_msg = (
-        " - ignoring unspecified arguments" if call.ignore_extra_args else ""
+        " - ignoring unspecified arguments" if payload.ignore_extra_args else ""
     )
-    return f"{call.spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
+    return f"{spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
 
 
-def stringify_call_list(calls: Sequence[BaseSpyCall]) -> str:
+def stringify_call_list(calls: Sequence[BaseSpyEvent]) -> str:
     """Stringify a sequence of calls into an ordered list."""
     return os.linesep.join(
         f"{i + 1}.\t{stringify_call(call)}" for i, call in enumerate(calls)
@@ -39,7 +44,7 @@ def join_lines(*lines: str) -> str:
 def stringify_error_message(
     heading: str,
     rehearsals: Sequence[BaseSpyRehearsal],
-    calls: Sequence[SpyCall],
+    calls: Sequence[SpyEvent],
     include_calls: bool = True,
 ) -> str:
     """Stringify an error message about a rehearsals to calls comparison."""

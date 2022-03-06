@@ -7,7 +7,7 @@ from decoy import Decoy
 from decoy.call_handler import CallHandler
 from decoy.spec import Spec, BoundArgs
 from decoy.spy import SpyCreator, Spy, AsyncSpy
-from decoy.spy_calls import SpyCall
+from decoy.spy_events import SpyCall, SpyEvent
 
 from .common import SomeClass, some_func
 
@@ -130,7 +130,11 @@ def test_spy_calls(
     )
     decoy.when(
         call_handler.handle(
-            SpyCall(spy_id=id(subject), spy_name="spy_name", args=(1, 2, 3), kwargs={})
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            )
         )
     ).then_return(42)
 
@@ -181,7 +185,7 @@ async def test_spy_async_context_manager(
     spy_creator: SpyCreator,
     spec: Spec,
 ) -> None:
-    """It should be usable in a `with` statement."""
+    """It should be usable in an `async with` statement."""
     enter_spec = decoy.mock(cls=Spec)
     exit_spec = decoy.mock(cls=Spec)
     enter_spy = decoy.mock(cls=AsyncSpy)
@@ -209,33 +213,3 @@ async def test_spy_async_context_manager(
         pass
 
     decoy.verify(await exit_spy(RuntimeError, error, tb))
-
-
-# async def test_spy_async_context_manager() -> None:
-#     """It should be usable in an `async with` statement."""
-#     calls = []
-
-#     def _handle_call(call: SpyCall) -> Optional[CallResult]:
-#         nonlocal calls
-#         calls.append(call)
-#         return CallResult(42)
-
-#     subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
-
-#     async with subject as result:
-#         assert result == 42
-
-#     assert calls == [
-#         SpyCall(
-#             spy_id=matchers.Anything(),
-#             spy_name="subject.__aenter__",
-#             args=(),
-#             kwargs={},
-#         ),
-#         SpyCall(
-#             spy_id=matchers.Anything(),
-#             spy_name="subject.__aexit__",
-#             args=(None, None, None),
-#             kwargs={},
-#         ),
-#     ]

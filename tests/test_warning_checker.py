@@ -3,7 +3,13 @@ import pytest
 from typing import List, NamedTuple, Sequence
 
 from decoy import matchers
-from decoy.spy_calls import BaseSpyCall, SpyCall, WhenRehearsal, VerifyRehearsal
+from decoy.spy_events import (
+    BaseSpyEvent,
+    SpyCall,
+    SpyEvent,
+    WhenRehearsal,
+    VerifyRehearsal,
+)
 from decoy.warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
 from decoy.warning_checker import WarningChecker
 
@@ -11,7 +17,7 @@ from decoy.warning_checker import WarningChecker
 class WarningCheckerSpec(NamedTuple):
     """Spec data for MiscalledStubWarning tests."""
 
-    all_calls: Sequence[BaseSpyCall]
+    all_calls: Sequence[BaseSpyEvent]
     expected_warnings: Sequence[DecoyWarning]
 
 
@@ -24,56 +30,78 @@ warning_checker_specs = [
     # it should not warn if rehearsals and calls match
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
         ],
         expected_warnings=[],
     ),
     # it should not warn if a call is made and there are no rehearsals
     WarningCheckerSpec(
         all_calls=[
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
         ],
         expected_warnings=[],
     ),
     # it should warn if a spy has a rehearsal and a call that doesn't match
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={})
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    )
                 ],
-                calls=[SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={})],
+                calls=[
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    )
+                ],
             )
         ],
     ),
     # it should not warn if a spy's verify rehearsal doesn't match
     WarningCheckerSpec(
         all_calls=[
-            VerifyRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            VerifyRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
         ],
         expected_warnings=[],
     ),
     # it should warn if a spy has multiple rehearsals without a matching call
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(0,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(0,), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(0,), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    ),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(0,), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
             )
         ],
@@ -81,17 +109,23 @@ warning_checker_specs = [
     # it should ignore spies that don't need warnings
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=2, spy_name="yps", args=(2,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
+            SpyEvent(spy_id=2, spy_name="yps", payload=SpyCall(args=(2,), kwargs={})),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
             )
         ],
@@ -99,17 +133,25 @@ warning_checker_specs = [
     # it should ignore rehearsals that come after a given call
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
             )
         ],
@@ -117,26 +159,38 @@ warning_checker_specs = [
     # it should issue multiple warnings for multiple spies
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            WhenRehearsal(spy_id=2, spy_name="yps", args=(1,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=2, spy_name="yps", args=(), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            WhenRehearsal(
+                spy_id=2, spy_name="yps", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
+            SpyEvent(spy_id=2, spy_name="yps", payload=SpyCall(args=(), kwargs={})),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
             ),
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=2, spy_name="yps", args=(1,), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=2, spy_name="yps", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=2, spy_name="yps", args=(), kwargs={}),
+                    SpyEvent(
+                        spy_id=2, spy_name="yps", payload=SpyCall(args=(), kwargs={})
+                    ),
                 ],
             ),
         ],
@@ -145,29 +199,45 @@ warning_checker_specs = [
     # if the rehearsal list changes
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(3,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(3,), kwargs={})),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-                    SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})
+                    ),
                 ],
             ),
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                    ),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(3,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(3,), kwargs={})
+                    ),
                 ],
             ),
         ],
@@ -175,27 +245,39 @@ warning_checker_specs = [
     # it should not warn if a call misses a stubbing but is later verified
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
-            VerifyRehearsal(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})),
+            VerifyRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})
+            ),
         ],
         expected_warnings=[],
     ),
     # it should warn if a call misses a stubbing after it is verified
     WarningCheckerSpec(
         all_calls=[
-            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
-            VerifyRehearsal(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})),
+            VerifyRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})
+            ),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
-                    WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                    WhenRehearsal(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                    ),
                 ],
                 calls=[
-                    SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+                    SpyEvent(
+                        spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})
+                    ),
                 ],
             ),
         ],
@@ -203,16 +285,22 @@ warning_checker_specs = [
     # it should issue a redundant verify warning if a call has a when and a verify
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            VerifyRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            VerifyRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
         ],
         expected_warnings=[
             RedundantVerifyWarning(
                 rehearsal=VerifyRehearsal(
                     spy_id=1,
                     spy_name="spy",
-                    args=(1,),
-                    kwargs={},
+                    payload=SpyCall(
+                        args=(1,),
+                        kwargs={},
+                    ),
                 ),
             ),
         ],
@@ -220,8 +308,12 @@ warning_checker_specs = [
     # it should not warn if the verify and when rehearsals are different
     WarningCheckerSpec(
         all_calls=[
-            WhenRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-            VerifyRehearsal(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+            WhenRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
+            VerifyRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})
+            ),
         ],
         expected_warnings=[],
     ),
@@ -230,7 +322,7 @@ warning_checker_specs = [
 
 @pytest.mark.parametrize(WarningCheckerSpec._fields, warning_checker_specs)
 def test_verify_no_misscalled_stubs(
-    all_calls: List[SpyCall],
+    all_calls: List[SpyEvent],
     expected_warnings: List[MiscalledStubWarning],
     recwarn: pytest.WarningsRecorder,
 ) -> None:

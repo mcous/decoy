@@ -3,7 +3,7 @@ import pytest
 import os
 from typing import List, NamedTuple, Optional
 
-from decoy.spy_calls import SpyCall, VerifyRehearsal
+from decoy.spy_events import SpyCall, SpyEvent, VerifyRehearsal
 from decoy.errors import VerifyError
 
 
@@ -11,7 +11,7 @@ class VerifyErrorSpec(NamedTuple):
     """Spec data for VerifyError tests."""
 
     rehearsals: List[VerifyRehearsal]
-    calls: List[SpyCall]
+    calls: List[SpyEvent]
     times: Optional[int]
     expected_message: str
 
@@ -19,7 +19,9 @@ class VerifyErrorSpec(NamedTuple):
 verify_error_specs = [
     VerifyErrorSpec(
         rehearsals=[
-            VerifyRehearsal(spy_id=42, spy_name="my_spy", args=(), kwargs={}),
+            VerifyRehearsal(
+                spy_id=42, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+            ),
         ],
         calls=[],
         times=None,
@@ -33,11 +35,21 @@ verify_error_specs = [
     ),
     VerifyErrorSpec(
         rehearsals=[
-            VerifyRehearsal(spy_id=42, spy_name="my_spy", args=(), kwargs={}),
+            VerifyRehearsal(
+                spy_id=42, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+            ),
         ],
         calls=[
-            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
-            SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(4, 5, 6), kwargs={}),
+            ),
         ],
         times=None,
         expected_message=os.linesep.join(
@@ -52,14 +64,38 @@ verify_error_specs = [
     ),
     VerifyErrorSpec(
         rehearsals=[
-            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
-            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
-            VerifyRehearsal(spy_id=202, spy_name="spy_202", args=(7, 8, 9), kwargs={}),
+            VerifyRehearsal(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
+            VerifyRehearsal(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(4, 5, 6), kwargs={}),
+            ),
+            VerifyRehearsal(
+                spy_id=202,
+                spy_name="spy_202",
+                payload=SpyCall(args=(7, 8, 9), kwargs={}),
+            ),
         ],
         calls=[
-            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
-            SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
-            SpyCall(spy_id=202, spy_name="spy_202", args=("oh no",), kwargs={}),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(4, 5, 6), kwargs={}),
+            ),
+            SpyEvent(
+                spy_id=202,
+                spy_name="spy_202",
+                payload=SpyCall(args=("oh no",), kwargs={}),
+            ),
         ],
         times=None,
         expected_message=os.linesep.join(
@@ -77,11 +113,23 @@ verify_error_specs = [
     ),
     VerifyErrorSpec(
         rehearsals=[
-            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            VerifyRehearsal(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
         ],
         calls=[
-            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
-            SpyCall(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
         ],
         times=1,
         expected_message=os.linesep.join(
@@ -94,10 +142,18 @@ verify_error_specs = [
     ),
     VerifyErrorSpec(
         rehearsals=[
-            VerifyRehearsal(spy_id=101, spy_name="spy_101", args=(1, 2, 3), kwargs={}),
+            VerifyRehearsal(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            ),
         ],
         calls=[
-            SpyCall(spy_id=101, spy_name="spy_101", args=(4, 5, 6), kwargs={}),
+            SpyEvent(
+                spy_id=101,
+                spy_name="spy_101",
+                payload=SpyCall(args=(4, 5, 6), kwargs={}),
+            ),
         ],
         times=1,
         expected_message=os.linesep.join(
@@ -115,7 +171,7 @@ verify_error_specs = [
 @pytest.mark.parametrize(VerifyErrorSpec._fields, verify_error_specs)
 def test_verify_error(
     rehearsals: List[VerifyRehearsal],
-    calls: List[SpyCall],
+    calls: List[SpyEvent],
     times: Optional[int],
     expected_message: str,
 ) -> None:

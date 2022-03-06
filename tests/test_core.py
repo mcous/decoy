@@ -6,7 +6,7 @@ from decoy.call_handler import CallHandler
 from decoy.spy_log import SpyLog
 from decoy.core import DecoyCore
 from decoy.spy import Spy, SpyCreator
-from decoy.spy_calls import SpyCall, VerifyRehearsal, WhenRehearsal
+from decoy.spy_events import SpyCall, SpyEvent, VerifyRehearsal, WhenRehearsal
 from decoy.stub_store import StubBehavior, StubStore
 from decoy.verifier import Verifier
 from decoy.warning_checker import WarningChecker
@@ -131,7 +131,9 @@ def test_when_then_return(
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a new stubbing."""
-    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = WhenRehearsal(
+        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
@@ -154,7 +156,9 @@ def test_when_then_return_multiple_values(
     subject: DecoyCore,
 ) -> None:
     """It should add multiple return values to a stub."""
-    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = WhenRehearsal(
+        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
@@ -185,7 +189,9 @@ def test_when_then_raise(
     subject: DecoyCore,
 ) -> None:
     """It should add a raise behavior to a stub."""
-    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = WhenRehearsal(
+        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
@@ -209,7 +215,9 @@ def test_when_then_do(
     subject: DecoyCore,
 ) -> None:
     """It should add an action behavior to a stub."""
-    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = WhenRehearsal(
+        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
@@ -233,7 +241,9 @@ def test_when_then_enter_with(
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a ContextManager stubbing."""
-    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = WhenRehearsal(
+        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
     )
@@ -256,7 +266,9 @@ def test_when_ignore_extra_args(
     subject: DecoyCore,
 ) -> None:
     """It should be able to register a new stubbing."""
-    rehearsal = WhenRehearsal(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = WhenRehearsal(
+        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=True)).then_return(
         rehearsal
     )
@@ -280,8 +292,12 @@ def test_verify(
 ) -> None:
     """It should be able to verify a call."""
     spy_id = 42
-    rehearsal = VerifyRehearsal(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
-    call = SpyCall(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = VerifyRehearsal(
+        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
+    call = SpyEvent(
+        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
 
     decoy.when(
         spy_log.consume_verify_rehearsals(count=1, ignore_extra_args=False)
@@ -304,10 +320,16 @@ def test_verify_multiple_calls(
     spy_id_2 = 9001
 
     rehearsals = [
-        VerifyRehearsal(spy_id=spy_id_1, spy_name="spy_1", args=(), kwargs={}),
-        VerifyRehearsal(spy_id=spy_id_2, spy_name="spy_2", args=(), kwargs={}),
+        VerifyRehearsal(
+            spy_id=spy_id_1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={})
+        ),
+        VerifyRehearsal(
+            spy_id=spy_id_2, spy_name="spy_2", payload=SpyCall(args=(), kwargs={})
+        ),
     ]
-    calls = [SpyCall(spy_id=spy_id_1, spy_name="spy_1", args=(), kwargs={})]
+    calls = [
+        SpyEvent(spy_id=spy_id_1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
+    ]
 
     decoy.when(
         spy_log.consume_verify_rehearsals(count=2, ignore_extra_args=False)
@@ -332,8 +354,12 @@ def test_verify_call_times(
 ) -> None:
     """It should be able to verify the call count."""
     spy_id = 42
-    rehearsal = VerifyRehearsal(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
-    call = SpyCall(spy_id=spy_id, spy_name="my_spy", args=(), kwargs={})
+    rehearsal = VerifyRehearsal(
+        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
+    call = SpyEvent(
+        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+    )
 
     decoy.when(
         spy_log.consume_verify_rehearsals(count=1, ignore_extra_args=False)
@@ -353,7 +379,7 @@ def test_reset(
     subject: DecoyCore,
 ) -> None:
     """It should reset the stores."""
-    call = SpyCall(spy_id=1, spy_name="my_spy", args=(), kwargs={})
+    call = SpyEvent(spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={}))
 
     decoy.when(spy_log.get_all()).then_return([call])
 

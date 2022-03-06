@@ -6,7 +6,7 @@ See the [errors guide][] for more details.
 """
 from typing import Optional, Sequence
 
-from .spy_calls import SpyCall, VerifyRehearsal
+from .spy_events import SpyEvent, VerifyRehearsal
 from .stringify import count, stringify_error_message
 
 
@@ -40,13 +40,13 @@ class VerifyError(AssertionError):
     """
 
     rehearsals: Sequence[VerifyRehearsal]
-    calls: Sequence[SpyCall]
+    calls: Sequence[SpyEvent]
     times: Optional[int]
 
     def __init__(
         self,
         rehearsals: Sequence[VerifyRehearsal],
-        calls: Sequence[SpyCall],
+        calls: Sequence[SpyEvent],
         times: Optional[int],
     ) -> None:
         if times is not None:

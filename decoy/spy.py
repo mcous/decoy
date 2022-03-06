@@ -8,7 +8,7 @@ from typing import Any, ContextManager, Dict, Optional, Type, Union, cast
 
 from .call_handler import CallHandler
 from .spec import Spec
-from .spy_calls import SpyCall
+from .spy_events import SpyCall, SpyEvent
 
 
 class BaseSpy(ContextManager[Any]):
@@ -92,11 +92,13 @@ class BaseSpy(ContextManager[Any]):
 
     def _call(self, *args: Any, **kwargs: Any) -> Any:
         bound_args, bound_kwargs = self._spec.bind_args(*args, **kwargs)
-        call = SpyCall(
+        call = SpyEvent(
             spy_id=id(self),
             spy_name=self._spec.get_name(),
-            args=bound_args,
-            kwargs=bound_kwargs,
+            payload=SpyCall(
+                args=bound_args,
+                kwargs=bound_kwargs,
+            ),
         )
 
         return self._call_handler.handle(call)

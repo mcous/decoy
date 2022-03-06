@@ -1,7 +1,7 @@
 """Spy call verification."""
 from typing import Optional, Sequence
 
-from .spy_calls import SpyCall, VerifyRehearsal, match_call
+from .spy_events import SpyEvent, VerifyRehearsal, match_event
 from .errors import VerifyError
 
 # ensure decoy.verifier does not pollute Pytest tracebacks
@@ -14,7 +14,7 @@ class Verifier:
     @staticmethod
     def verify(
         rehearsals: Sequence[VerifyRehearsal],
-        calls: Sequence[SpyCall],
+        calls: Sequence[SpyEvent],
         times: Optional[int] = None,
     ) -> None:
         """Verify that a list of calls satisfies a given list of rehearsals.
@@ -33,7 +33,7 @@ class Verifier:
 
         for i in range(len(calls)):
             calls_subset = calls[i : i + len(rehearsals)]
-            matches = [match_call(c, r) for c, r in zip(calls_subset, rehearsals)]
+            matches = [match_event(c, r) for c, r in zip(calls_subset, rehearsals)]
 
             if all(matches) and len(calls_subset) == len(rehearsals):
                 match_count = match_count + 1
