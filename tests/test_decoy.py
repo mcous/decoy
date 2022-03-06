@@ -361,3 +361,59 @@ async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
 
     with pytest.raises(AssertionError, match="exited"):
         subject.get_value()
+
+
+@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
+def test_property_getter_stub_then_return(decoy: Decoy) -> None:
+    """It should be able to stub a property getter."""
+    subject = decoy.mock()
+    decoy.when(subject.prop_name).then_return(42)
+
+    assert subject.prop_name == 42
+
+
+@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
+def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
+    """It should be able to stub a property getter with multiple return values."""
+    subject = decoy.mock()
+    decoy.when(subject.prop_name).then_return(43, 44)
+
+    assert subject.prop_name == 43
+    assert subject.prop_name == 44
+    assert subject.prop_name == 44
+
+
+@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
+def test_property_getter_stub_then_do(decoy: Decoy) -> None:
+    """It should be able to stub a property getter to act."""
+
+    def _handle_get(*args: Any, **kwargs: Any) -> int:
+        return 84
+
+    subject = decoy.mock()
+    decoy.when(subject.prop_name).then_do(_handle_get)
+
+    assert subject.prop_name == 84
+
+
+@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
+def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
+    """It should be able to stub a property getter to raise."""
+    subject = decoy.mock()
+
+    decoy.when(subject.prop_name).then_raise(ValueError("oh no"))
+
+    with pytest.raises(ValueError, match="oh no"):
+        subject.prop_name
+
+
+@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
+def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
+    """It should be able to reconfigure a property getter."""
+    subject = decoy.mock()
+
+    decoy.when(subject.prop_name).then_return(42)
+    assert subject.prop_name == 42
+
+    decoy.when(subject.prop_name).then_return(43)
+    assert subject.prop_name == 43

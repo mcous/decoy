@@ -202,6 +202,10 @@ class Decoy:
             ignore_extra_args=ignore_extra_args,
         )
 
+    def prop(self, _rehearsal_result: ReturnT) -> "Prop[ReturnT]":
+        """Create property setter and deleter rehearsals."""
+        ...
+
     def reset(self) -> None:
         """Reset all mock state.
 
@@ -299,4 +303,14 @@ class Stub(Generic[ReturnT]):
         self._core.then_enter_with(value)
 
 
-__all__ = ["Decoy", "Stub", "matchers", "warnings", "errors"]
+class Prop(Generic[ReturnT]):
+    """Rehearsal creator for mocking property setters and deleters."""
+
+    def set(self, value: ReturnT) -> None:
+        """Create a property setter rehearsal."""
+
+    def delete(self) -> None:
+        """Create a property deleter rehearsal."""
+
+
+__all__ = ["Decoy", "Stub", "Prop", "matchers", "warnings", "errors"]

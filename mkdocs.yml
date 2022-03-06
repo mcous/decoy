@@ -15,6 +15,7 @@ nav:
           - usage/matchers.md
           - usage/errors-and-warnings.md
     - Advanced Usage:
+          - advanced/properties.md
           - advanced/context-managers.md
     - api.md
     - contributing.md
