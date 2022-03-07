@@ -9,6 +9,7 @@ from .common import (
     SomeClass,
     SomeAsyncClass,
     SomeAsyncCallableClass,
+    SomeCallableClass,
     SomeNestedClass,
     some_func,
     some_async_func,
@@ -159,6 +160,19 @@ class GetSignatureSpec(NamedTuple):
                         name="hello",
                         kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
                         annotation=str,
+                    )
+                ],
+                return_annotation=int,
+            ),
+        ),
+        GetSignatureSpec(
+            subject=Spec(source=SomeCallableClass, name=None),
+            expected_signature=inspect.Signature(
+                parameters=[
+                    inspect.Parameter(
+                        name="val",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        annotation=int,
                     )
                 ],
                 return_annotation=int,

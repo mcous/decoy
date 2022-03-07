@@ -57,7 +57,15 @@ class SomeAsyncClass:
 class SomeAsyncCallableClass:
     """Async callable class."""
 
-    async def __call__(self) -> int:
+    async def __call__(self, val: int) -> int:
+        """Get an integer."""
+        ...
+
+
+class SomeCallableClass:
+    """Async callable class."""
+
+    async def __call__(self, val: int) -> int:
         """Get an integer."""
         ...
 

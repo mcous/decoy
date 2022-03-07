@@ -71,8 +71,10 @@ class Spec:
 
     def get_signature(self) -> Optional[inspect.Signature]:
         """Get the Spec's signature, if Spec represents a callable."""
+        source = self._get_source()
+
         try:
-            return inspect.signature(self._source)  # type: ignore[arg-type]
+            return inspect.signature(source)
         except TypeError:
             return None
 
@@ -82,17 +84,11 @@ class Spec:
 
     def get_is_async(self) -> bool:
         """Get whether the Spec represents an async. callable."""
-        source = self._source
+        source = self._get_source()
 
         # `iscoroutinefunction` does not work for `partial` on Python < 3.8
         if isinstance(source, functools.partial):
             source = source.func
-
-        # check if spec source is a class with a __call__ method
-        elif inspect.isclass(source):
-            call_method = inspect.getattr_static(source, "__call__", None)
-            if inspect.isfunction(call_method):
-                source = call_method
 
         return inspect.iscoroutinefunction(source)
 
@@ -140,6 +136,19 @@ class Spec:
                 child_source = functools.partial(child_source, None)
 
         return Spec(source=child_source, name=child_name, module_name=self._module_name)
+
+    def _get_source(self) -> Any:
+        source = self._source
+
+        # check if spec source is a class with a __call__ method
+        if inspect.isclass(source):
+            call_method = inspect.getattr_static(source, "__call__", None)
+            if inspect.isfunction(call_method):
+                # consume the `self` argument of the method to ensure proper
+                # signature reporting by wrapping it in a partial
+                source = functools.partial(call_method, None)
+
+        return source
 
 
 def _get_type_hints(obj: Any) -> Dict[str, Any]:
