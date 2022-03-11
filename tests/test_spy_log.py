@@ -2,7 +2,15 @@
 import pytest
 
 from decoy.errors import MissingRehearsalError
-from decoy.spy_events import SpyCall, SpyEvent, WhenRehearsal, VerifyRehearsal
+from decoy.spy_events import (
+    SpyCall,
+    SpyEvent,
+    SpyPropAccess,
+    PropAccessType,
+    WhenRehearsal,
+    VerifyRehearsal,
+    PropRehearsal,
+)
 from decoy.spy_log import SpyLog
 
 
@@ -39,6 +47,21 @@ def test_push_and_consume_when_rehearsal_ignore_extra_args() -> None:
     assert result.payload.ignore_extra_args is True
 
 
+def test_push_and_consume_prop_rehearsal_for_when() -> None:
+    """It should be able to push and consume a prop rehearsal for stubbing."""
+    subject = SpyLog()
+    event = SpyEvent(
+        spy_id=42,
+        spy_name="my_spy",
+        payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
+    )
+
+    subject.push(event)
+    result = subject.consume_when_rehearsal(ignore_extra_args=False)
+    assert isinstance(result, WhenRehearsal)
+    assert result == event
+
+
 def test_consume_when_rehearsal_raises_empty_error() -> None:
     """It should raise an error if the stack is empty on pop."""
     subject = SpyLog()
@@ -56,6 +79,60 @@ def test_consume_when_rehearsal_raises_empty_error() -> None:
 
     with pytest.raises(MissingRehearsalError):
         subject.consume_when_rehearsal(ignore_extra_args=False)
+
+
+def test_push_and_consume_prop_rehearsal_for_prop() -> None:
+    """It should be able to push and consume a prop rehearsal for more rehearsals."""
+    subject = SpyLog()
+    event = SpyEvent(
+        spy_id=42,
+        spy_name="my_spy",
+        payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
+    )
+
+    subject.push(event)
+    result = subject.consume_prop_rehearsal()
+    assert isinstance(result, PropRehearsal)
+    assert result == event
+
+
+def test_consume_prop_rehearsal_raises_empty_error() -> None:
+    """It should raise an error a valid rehearsal event isn't found."""
+    subject = SpyLog()
+
+    with pytest.raises(MissingRehearsalError):
+        subject.consume_prop_rehearsal()
+
+    event = SpyEvent(
+        spy_id=42,
+        spy_name="my_spy",
+        payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
+    )
+    subject.push(event)
+    subject.consume_prop_rehearsal()
+
+    with pytest.raises(MissingRehearsalError):
+        subject.consume_prop_rehearsal()
+
+    call = SpyEvent(
+        spy_id=42,
+        spy_name="my_spy",
+        payload=SpyCall(args=(), kwargs={}),
+    )
+    subject.push(call)
+
+    with pytest.raises(MissingRehearsalError):
+        subject.consume_prop_rehearsal()
+
+    event = SpyEvent(
+        spy_id=42,
+        spy_name="my_spy",
+        payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.DELETE),
+    )
+    subject.push(event)
+
+    with pytest.raises(MissingRehearsalError):
+        subject.consume_prop_rehearsal()
 
 
 def test_consume_verify_rehearsals() -> None:

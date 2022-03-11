@@ -8,7 +8,7 @@ from typing import Any, ContextManager, Dict, Optional, Type, Union, cast
 
 from .call_handler import CallHandler
 from .spec import Spec
-from .spy_events import SpyCall, SpyEvent
+from .spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 
 
 class BaseSpy(ContextManager[Any]):
@@ -80,6 +80,21 @@ class BaseSpy(ContextManager[Any]):
 
     def _get_or_create_child_spy(self, name: str, child_is_async: bool = False) -> Any:
         """Lazily construct a child spy, basing it on type hints if available."""
+        # check for any stubbed behaviors for property getter
+        get_result = self._call_handler.handle(
+            SpyEvent(
+                spy_id=id(self),
+                spy_name=self._spec.get_name(),
+                payload=SpyPropAccess(
+                    prop_name=name,
+                    access_type=PropAccessType.GET,
+                ),
+            )
+        )
+
+        if get_result:
+            return get_result.value
+
         # return previously constructed (and cached) child spies
         if name in self._spy_children:
             return self._spy_children[name]
@@ -101,7 +116,8 @@ class BaseSpy(ContextManager[Any]):
             ),
         )
 
-        return self._call_handler.handle(call)
+        result = self._call_handler.handle(call)
+        return result.value if result else None
 
 
 class Spy(BaseSpy):

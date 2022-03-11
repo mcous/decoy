@@ -3,7 +3,7 @@ from typing import Dict, List, Sequence
 from warnings import warn
 
 from .spy_events import (
-    BaseSpyEvent,
+    AnySpyEvent,
     SpyEvent,
     VerifyRehearsal,
     WhenRehearsal,
@@ -16,15 +16,15 @@ class WarningChecker:
     """An interface to inspect the call list and trigger any necessary warnings."""
 
     @staticmethod
-    def check(all_calls: Sequence[BaseSpyEvent]) -> None:
+    def check(all_calls: Sequence[AnySpyEvent]) -> None:
         """Check full call and rehearsal list for any potential misuse."""
         _check_no_miscalled_stubs(all_calls)
         _check_no_redundant_verify(all_calls)
 
 
-def _check_no_miscalled_stubs(all_calls: Sequence[BaseSpyEvent]) -> None:
+def _check_no_miscalled_stubs(all_calls: Sequence[AnySpyEvent]) -> None:
     """Ensure every call matches a rehearsal, if the spy has rehearsals."""
-    all_calls_by_id: Dict[int, List[BaseSpyEvent]] = {}
+    all_calls_by_id: Dict[int, List[AnySpyEvent]] = {}
 
     for call in all_calls:
         spy_id = call.spy_id
@@ -61,7 +61,7 @@ def _check_no_miscalled_stubs(all_calls: Sequence[BaseSpyEvent]) -> None:
                 unmatched = []
 
 
-def _check_no_redundant_verify(all_calls: Sequence[BaseSpyEvent]) -> None:
+def _check_no_redundant_verify(all_calls: Sequence[AnySpyEvent]) -> None:
     when_rehearsals = [c for c in all_calls if isinstance(c, WhenRehearsal)]
     verify_rehearsals = [c for c in all_calls if isinstance(c, VerifyRehearsal)]
 

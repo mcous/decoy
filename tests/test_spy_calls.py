@@ -2,14 +2,21 @@
 import pytest
 from typing import List, NamedTuple
 
-from decoy.spy_events import SpyCall, SpyEvent, BaseSpyRehearsal, match_event
+from decoy.spy_events import (
+    SpyCall,
+    SpyEvent,
+    SpyRehearsal,
+    WhenRehearsal,
+    VerifyRehearsal,
+    match_event,
+)
 
 
 class MatchEventSpec(NamedTuple):
     """Spec data for testing `match_event`."""
 
     event: SpyEvent
-    rehearsal: BaseSpyRehearsal
+    rehearsal: SpyRehearsal
     expected_result: bool
 
 
@@ -20,7 +27,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(), kwargs={}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=WhenRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(), kwargs={}),
@@ -33,7 +40,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=VerifyRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
@@ -46,7 +53,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=WhenRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(1,), kwargs={"baz": "qux"}, ignore_extra_args=True),
@@ -59,7 +66,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(), kwargs={}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=VerifyRehearsal(
             spy_id=21,
             spy_name="my_spy",
             payload=SpyCall(args=(), kwargs={}),
@@ -72,7 +79,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1,), kwargs={}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=WhenRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(), kwargs={}),
@@ -85,7 +92,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(), kwargs={}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=VerifyRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(1,), kwargs={}),
@@ -98,7 +105,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=WhenRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(2,), kwargs={"baz": "qux"}, ignore_extra_args=True),
@@ -111,7 +118,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=VerifyRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "qux"}, ignore_extra_args=True),
@@ -124,7 +131,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=WhenRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(
@@ -141,7 +148,7 @@ match_event_specs: List[MatchEventSpec] = [
             spy_name="my_spy",
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
-        rehearsal=BaseSpyRehearsal(
+        rehearsal=VerifyRehearsal(
             spy_id=42,
             spy_name="my_spy",
             payload=SpyCall(
@@ -158,7 +165,7 @@ match_event_specs: List[MatchEventSpec] = [
 @pytest.mark.parametrize(MatchEventSpec._fields, match_event_specs)
 def test_match_event(
     event: SpyEvent,
-    rehearsal: BaseSpyRehearsal,
+    rehearsal: SpyRehearsal,
     expected_result: bool,
 ) -> None:
     """It should match a call to a rehearsal."""

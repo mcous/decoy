@@ -2,14 +2,23 @@
 from typing import List, Sequence
 
 from .errors import MissingRehearsalError
-from .spy_events import BaseSpyEvent, SpyCall, SpyEvent, WhenRehearsal, VerifyRehearsal
+from .spy_events import (
+    AnySpyEvent,
+    SpyCall,
+    SpyEvent,
+    SpyPropAccess,
+    WhenRehearsal,
+    VerifyRehearsal,
+    PropAccessType,
+    PropRehearsal,
+)
 
 
 class SpyLog:
     """Log of all Spy activities in the Decoy container."""
 
     def __init__(self) -> None:
-        self._stack: List[BaseSpyEvent] = []
+        self._stack: List[AnySpyEvent] = []
 
     def push(self, spy_call: SpyEvent) -> None:
         """Add a new spy call to the stack."""
@@ -54,6 +63,26 @@ class SpyLog:
         self._stack[-count:] = rehearsals
         return rehearsals
 
+    def consume_prop_rehearsal(self) -> PropRehearsal:
+        """Consume the last property get as a rehearsal."""
+        try:
+            event = self._stack[-1]
+        except IndexError:
+            raise MissingRehearsalError()
+
+        spy_id, spy_name, payload = event
+
+        if (
+            not isinstance(event, SpyEvent)
+            or not isinstance(payload, SpyPropAccess)
+            or payload.access_type != PropAccessType.GET
+        ):
+            raise MissingRehearsalError()
+
+        rehearsal = PropRehearsal(spy_id, spy_name, payload)
+        self._stack[-1] = rehearsal
+        return rehearsal
+
     def get_by_rehearsals(
         self, rehearsals: Sequence[VerifyRehearsal]
     ) -> List[SpyEvent]:
@@ -65,7 +94,7 @@ class SpyLog:
             and any(rehearsal.spy_id == call.spy_id for rehearsal in rehearsals)
         ]
 
-    def get_all(self) -> List[BaseSpyEvent]:
+    def get_all(self) -> List[AnySpyEvent]:
         """Get a list of all calls and rehearsals made."""
         return list(self._stack)
 
@@ -74,12 +103,10 @@ class SpyLog:
         self._stack.clear()
 
 
-def _apply_ignore_extra_args(
-    event: BaseSpyEvent, ignore_extra_args: bool
-) -> BaseSpyEvent:
+def _apply_ignore_extra_args(event: AnySpyEvent, ignore_extra_args: bool) -> SpyEvent:
     spy_id, spy_name, payload = event
 
     if isinstance(payload, SpyCall):
         payload = payload._replace(ignore_extra_args=ignore_extra_args)
 
-    return BaseSpyEvent(spy_id=spy_id, spy_name=spy_name, payload=payload)
+    return SpyEvent(spy_id=spy_id, spy_name=spy_name, payload=payload)

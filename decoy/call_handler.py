@@ -1,10 +1,14 @@
 """Spy call handling."""
-from typing import Any
+from typing import Any, NamedTuple, Optional
 
 from .spy_log import SpyLog
 from .context_managers import ContextWrapper
 from .spy_events import SpyCall, SpyEvent
 from .stub_store import StubStore
+
+
+class CallHandlerResult(NamedTuple):
+    value: Any
 
 
 class CallHandler:
@@ -15,11 +19,8 @@ class CallHandler:
         self._spy_log = spy_log
         self._stub_store = stub_store
 
-    def handle(self, call: SpyEvent) -> Any:
+    def handle(self, call: SpyEvent) -> Optional[CallHandlerResult]:
         """Handle a Spy's call, triggering stub behavior if necessary."""
-        if not isinstance(call.payload, SpyCall):
-            raise NotImplementedError("Property handling not implemented")
-
         behavior = self._stub_store.get_by_call(call)
         self._spy_log.push(call)
 
@@ -29,10 +30,17 @@ class CallHandler:
         if behavior.error:
             raise behavior.error
 
+        return_value: Any
+
         if behavior.action:
-            return behavior.action(*call.payload.args, **call.payload.kwargs)
+            if not isinstance(call.payload, SpyCall):
+                raise NotImplementedError("Property handling not implemented")
+            return_value = behavior.action(*call.payload.args, **call.payload.kwargs)
 
-        if behavior.context_value:
-            return ContextWrapper(behavior.context_value)
+        elif behavior.context_value:
+            return_value = ContextWrapper(behavior.context_value)
 
-        return behavior.return_value
+        else:
+            return_value = behavior.return_value
+
+        return CallHandlerResult(return_value)

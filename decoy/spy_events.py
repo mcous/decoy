@@ -22,47 +22,49 @@ class SpyCall(NamedTuple):
 class SpyPropAccess(NamedTuple):
     """Spy event payload representing a get/set/delete of a property."""
 
-    access_type: PropAccessType
     prop_name: str
+    access_type: PropAccessType
     value: Optional[Any] = None
 
 
-class BaseSpyEvent(NamedTuple):
-    """A value object representing an interaction event with a spy.
-
-    This base class should not be used directly.
-
-    Attributes:
-        spy_id: Identifier of the spy that made the call.
-        spy_name: String name of the spy.
-        args: Arguments list of the call.
-        kwargs: Keyword arguments list of the call.
-        ignore_extra_args: Whether extra arguments to the call should
-            be ignored during comparison. Only used by rehearsals.
-    """
+class SpyEvent(NamedTuple):
+    """An interaction with a spy by the code under test."""
 
     spy_id: int
     spy_name: str
     payload: Union[SpyCall, SpyPropAccess]
 
 
-class SpyEvent(BaseSpyEvent):
-    """An interaction with a spy by the code under test."""
-
-
-class BaseSpyRehearsal(BaseSpyEvent):
-    """A base class for rehearsals made to `when` or `verify`."""
-
-
-class WhenRehearsal(BaseSpyRehearsal):
+class WhenRehearsal(NamedTuple):
     """A spy interaction that has been used as a rehearsal for `when`."""
 
+    spy_id: int
+    spy_name: str
+    payload: Union[SpyCall, SpyPropAccess]
 
-class VerifyRehearsal(BaseSpyRehearsal):
+
+class VerifyRehearsal(NamedTuple):
     """A spy interaction that has been used as a rehearsal for `verify`."""
 
+    spy_id: int
+    spy_name: str
+    payload: Union[SpyCall, SpyPropAccess]
 
-def match_event(event: BaseSpyEvent, rehearsal: BaseSpyRehearsal) -> bool:
+
+class PropRehearsal(NamedTuple):
+    """A spy interaction that has been used as a rehearsal for `prop`."""
+
+    spy_id: int
+    spy_name: str
+    payload: SpyPropAccess
+
+
+SpyRehearsal = Union[WhenRehearsal, VerifyRehearsal, PropRehearsal]
+
+AnySpyEvent = Union[SpyEvent, SpyRehearsal]
+
+
+def match_event(event: AnySpyEvent, rehearsal: SpyRehearsal) -> bool:
     """Check if a call matches a given rehearsal."""
     if event.spy_id != rehearsal.spy_id:
         return False

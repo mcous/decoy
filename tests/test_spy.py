@@ -4,10 +4,10 @@ import inspect
 import sys
 from decoy import Decoy
 
-from decoy.call_handler import CallHandler
+from decoy.call_handler import CallHandler, CallHandlerResult
 from decoy.spec import Spec, BoundArgs
 from decoy.spy import SpyCreator, Spy, AsyncSpy
-from decoy.spy_events import SpyCall, SpyEvent
+from decoy.spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 
 from .common import SomeClass, some_func
 
@@ -136,7 +136,7 @@ def test_spy_calls(
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             )
         )
-    ).then_return(42)
+    ).then_return(CallHandlerResult(42))
 
     result = subject(1, 2, three=3)
 
@@ -213,3 +213,31 @@ async def test_spy_async_context_manager(
         pass
 
     decoy.verify(await exit_spy(RuntimeError, error, tb))
+
+
+def test_spy_prop_get(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should record a property get call."""
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+
+    decoy.when(spec.get_name()).then_return("spy_name")
+    decoy.when(
+        call_handler.handle(
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyPropAccess(
+                    prop_name="some_property",
+                    access_type=PropAccessType.GET,
+                ),
+            ),
+        )
+    ).then_return(CallHandlerResult(42))
+
+    result = subject.some_property
+
+    assert result == 42

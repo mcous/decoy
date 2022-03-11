@@ -6,7 +6,15 @@ from decoy.call_handler import CallHandler
 from decoy.spy_log import SpyLog
 from decoy.core import DecoyCore
 from decoy.spy import Spy, SpyCreator
-from decoy.spy_events import SpyCall, SpyEvent, VerifyRehearsal, WhenRehearsal
+from decoy.spy_events import (
+    SpyCall,
+    SpyPropAccess,
+    SpyEvent,
+    VerifyRehearsal,
+    WhenRehearsal,
+    PropRehearsal,
+    PropAccessType,
+)
 from decoy.stub_store import StubBehavior, StubStore
 from decoy.verifier import Verifier
 from decoy.warning_checker import WarningChecker
@@ -369,6 +377,45 @@ def test_verify_call_times(
     subject.verify("__rehearsal__", times=2, ignore_extra_args=False)
 
     decoy.verify(verifier.verify(rehearsals=[rehearsal], calls=[call], times=2))
+
+
+def test_prop(
+    decoy: Decoy,
+    spy_log: SpyLog,
+    subject: DecoyCore,
+) -> None:
+    """It should be able to create set and delete rehearsals."""
+    rehearsal = PropRehearsal(
+        spy_id=1,
+        spy_name="my_spy",
+        payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
+    )
+
+    decoy.when(spy_log.consume_prop_rehearsal()).then_return(rehearsal)
+
+    result = subject.prop("__rehearsal__")
+
+    result.set("hello")
+
+    expected_set_event = SpyEvent(
+        spy_id=1,
+        spy_name="my_spy",
+        payload=SpyPropAccess(
+            prop_name="my_prop",
+            access_type=PropAccessType.SET,
+            value="hello",
+        ),
+    )
+    decoy.verify(spy_log.push(expected_set_event), times=1)
+
+    result.delete()
+
+    expected_delete_event = SpyEvent(
+        spy_id=1,
+        spy_name="my_spy",
+        payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.DELETE),
+    )
+    decoy.verify(spy_log.push(expected_delete_event), times=1)
 
 
 def test_reset(

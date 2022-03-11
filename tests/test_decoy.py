@@ -8,7 +8,7 @@ import pytest
 from decoy import Decoy, errors
 from decoy.spy import AsyncSpy, Spy
 
-from .common import SomeAsyncClass, SomeClass, some_func
+from .common import SomeAsyncClass, SomeClass, SomeNestedClass, some_func
 
 pytestmark = pytest.mark.asyncio
 
@@ -173,6 +173,32 @@ def test_verify_ignore_extra_args(decoy: Decoy) -> None:
         decoy.verify(
             subject("wrong-id"),
             ignore_extra_args=True,
+        )
+
+
+def test_verify_call_list(decoy: Decoy) -> None:
+    """It should be able to verify multiple calls."""
+    subject_1 = decoy.mock(cls=SomeClass)
+    subject_2 = decoy.mock(cls=SomeNestedClass)
+
+    subject_1.foo("hello")
+    subject_2.child.bar(1, 2.0, "3")
+    subject_1.foo("goodbye")
+
+    decoy.verify(
+        subject_1.foo("hello"),
+        subject_2.child.bar(1, 2.0, "3"),
+        subject_1.foo("goodbye"),
+    )
+
+    for item in decoy._core._spy_log._stack:
+        print(item)
+
+    with pytest.raises(errors.VerifyError):
+        decoy.verify(
+            subject_1.foo("hello"),
+            subject_1.foo("goodbye"),
+            subject_2.child.bar(1, 2.0, "3"),
         )
 
 
@@ -363,7 +389,6 @@ async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
         subject.get_value()
 
 
-@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
 def test_property_getter_stub_then_return(decoy: Decoy) -> None:
     """It should be able to stub a property getter."""
     subject = decoy.mock()
@@ -372,7 +397,6 @@ def test_property_getter_stub_then_return(decoy: Decoy) -> None:
     assert subject.prop_name == 42
 
 
-@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
 def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
     """It should be able to stub a property getter with multiple return values."""
     subject = decoy.mock()
@@ -383,7 +407,7 @@ def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
     assert subject.prop_name == 44
 
 
-@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
+@pytest.mark.xfail(raises=NotImplementedError, strict=True)
 def test_property_getter_stub_then_do(decoy: Decoy) -> None:
     """It should be able to stub a property getter to act."""
 
@@ -396,7 +420,6 @@ def test_property_getter_stub_then_do(decoy: Decoy) -> None:
     assert subject.prop_name == 84
 
 
-@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
 def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
     """It should be able to stub a property getter to raise."""
     subject = decoy.mock()
@@ -407,7 +430,6 @@ def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
         subject.prop_name
 
 
-@pytest.mark.xfail(raises=errors.MissingRehearsalError, strict=True)
 def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
     """It should be able to reconfigure a property getter."""
     subject = decoy.mock()

@@ -2,14 +2,21 @@
 import os
 from typing import Sequence
 
-from .spy_events import BaseSpyEvent, BaseSpyRehearsal, SpyCall, SpyEvent
+from .spy_events import AnySpyEvent, SpyCall, SpyEvent, SpyRehearsal
 
 
-def stringify_call(event: BaseSpyEvent) -> str:
+def stringify_call(event: AnySpyEvent) -> str:
     """Stringify the call to something human readable.
 
-    `SpyEvent(spy_id=42, spy_name="name", payload=SpyCall(args=(1,), kwargs={"foo": False}))`
-    would stringify as `"name(1, foo=False)"`
+    ```python
+    SpyEvent(
+        spy_id=42,
+        spy_name="some_func",
+        payload=SpyCall(args=(1,), kwargs={"foo": False})
+    )
+    ```
+
+    ...would stringify as `"some_func(1, foo=False)"`
     """
     spy_id, spy_name, payload = event
 
@@ -24,7 +31,7 @@ def stringify_call(event: BaseSpyEvent) -> str:
     return f"{spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
 
 
-def stringify_call_list(calls: Sequence[BaseSpyEvent]) -> str:
+def stringify_call_list(calls: Sequence[AnySpyEvent]) -> str:
     """Stringify a sequence of calls into an ordered list."""
     return os.linesep.join(
         f"{i + 1}.\t{stringify_call(call)}" for i, call in enumerate(calls)
@@ -43,7 +50,7 @@ def join_lines(*lines: str) -> str:
 
 def stringify_error_message(
     heading: str,
-    rehearsals: Sequence[BaseSpyRehearsal],
+    rehearsals: Sequence[SpyRehearsal],
     calls: Sequence[SpyEvent],
     include_calls: bool = True,
 ) -> str:

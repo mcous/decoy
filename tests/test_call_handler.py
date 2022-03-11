@@ -2,7 +2,7 @@
 import pytest
 
 from decoy import Decoy
-from decoy.call_handler import CallHandler
+from decoy.call_handler import CallHandler, CallHandlerResult
 from decoy.spy_log import SpyLog
 from decoy.spy_events import SpyCall, SpyEvent
 from decoy.stub_store import StubBehavior, StubStore
@@ -69,7 +69,7 @@ def test_handle_call_with_return(
 
     result = subject.handle(spy_call)
 
-    assert result == "hello world"
+    assert result == CallHandlerResult("hello world")
     decoy.verify(spy_log.push(spy_call))
 
 
@@ -113,7 +113,7 @@ def test_handle_call_with_action(
 
     result = subject.handle(spy_call)
 
-    assert result == "hello world"
+    assert result == CallHandlerResult("hello world")
 
 
 def test_handle_call_with_context_enter(
@@ -130,7 +130,7 @@ def test_handle_call_with_context_enter(
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
 
-    with subject.handle(spy_call) as result:
+    with subject.handle(spy_call).value as result:  # type: ignore[union-attr]
         assert result == "hello world"
 
     decoy.verify(spy_log.push(spy_call))

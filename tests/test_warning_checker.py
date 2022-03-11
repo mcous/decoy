@@ -4,7 +4,7 @@ from typing import List, NamedTuple, Sequence
 
 from decoy import matchers
 from decoy.spy_events import (
-    BaseSpyEvent,
+    AnySpyEvent,
     SpyCall,
     SpyEvent,
     WhenRehearsal,
@@ -17,7 +17,7 @@ from decoy.warning_checker import WarningChecker
 class WarningCheckerSpec(NamedTuple):
     """Spec data for MiscalledStubWarning tests."""
 
-    all_calls: Sequence[BaseSpyEvent]
+    all_calls: Sequence[AnySpyEvent]
     expected_warnings: Sequence[DecoyWarning]
 
 
