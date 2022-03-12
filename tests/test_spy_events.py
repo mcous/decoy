@@ -3,8 +3,10 @@ import pytest
 from typing import List, NamedTuple
 
 from decoy.spy_events import (
+    PropAccessType,
     SpyCall,
     SpyEvent,
+    SpyPropAccess,
     SpyRehearsal,
     WhenRehearsal,
     VerifyRehearsal,
@@ -156,6 +158,32 @@ match_event_specs: List[MatchEventSpec] = [
                 kwargs={"foo": "bar", "baz": "qux", "fizz": "buzz"},
                 ignore_extra_args=True,
             ),
+        ),
+        expected_result=False,
+    ),
+    MatchEventSpec(
+        event=SpyEvent(
+            spy_id=42,
+            spy_name="my_spy",
+            payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
+        ),
+        rehearsal=WhenRehearsal(
+            spy_id=42,
+            spy_name="my_spy",
+            payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
+        ),
+        expected_result=True,
+    ),
+    MatchEventSpec(
+        event=SpyEvent(
+            spy_id=42,
+            spy_name="my_spy",
+            payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.DELETE),
+        ),
+        rehearsal=WhenRehearsal(
+            spy_id=42,
+            spy_name="my_spy",
+            payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
         ),
         expected_result=False,
     ),
