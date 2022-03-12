@@ -4,7 +4,7 @@ import pytest
 from decoy import Decoy
 from decoy.call_handler import CallHandler, CallHandlerResult
 from decoy.spy_log import SpyLog
-from decoy.spy_events import SpyCall, SpyEvent
+from decoy.spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 from decoy.stub_store import StubBehavior, StubStore
 
 
@@ -110,6 +110,29 @@ def test_handle_call_with_action(
 
     decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
     decoy.when(action(1, foo="bar")).then_return("hello world")
+
+    result = subject.handle(spy_call)
+
+    assert result == CallHandlerResult("hello world")
+
+
+def test_handle_prop_get_with_action(
+    decoy: Decoy,
+    spy_log: SpyLog,
+    stub_store: StubStore,
+    subject: CallHandler,
+) -> None:
+    """It should trigger a prop get stub's configured action."""
+    action = decoy.mock()
+    spy_call = SpyEvent(
+        spy_id=42,
+        spy_name="spy_name",
+        payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
+    )
+    behavior = StubBehavior(action=action)
+
+    decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
+    decoy.when(action()).then_return("hello world")
 
     result = subject.handle(spy_call)
 

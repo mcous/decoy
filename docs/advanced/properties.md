@@ -1,6 +1,6 @@
 # Mocking property attributes
 
-Python [property attributes][] provide an interface for creating read-only properties and properties with getters, setters, and deleters. You can use Decoy to stub property getters and verify calls to property setters and deleters.
+Python [property attributes][] provide an interface for creating read-only properties and properties with getters, setters, and deleters. You can use Decoy to stub properties and verify calls to property setters and deleters.
 
 [property attributes]: https://docs.python.org/3/library/functions.html#property
 
@@ -60,14 +60,13 @@ The `prop` method allows you to create rehearsals of setters and deleters. Use [
 
 ```python
 dep = decoy.mock()
-some_property_rehearser = decoy.prop(dep.some_property)
 
 decoy.when(
-    some_property_rehearser.set(42)
+    decoy.prop(dep.some_property).set(42)
 ).then_return(RuntimeError("oh no"))
 
 decoy.when(
-    some_property_rehearser.delete()
+    decoy.prop(dep.some_property).delete()
 ).then_return(RuntimeError("what a disaster"))
 
 with pytest.raises(RuntimeError, match="oh no"):
@@ -117,7 +116,7 @@ dep = decoy.mock()
 del dep.some_property
 
 decoy.verify(
-    decoy.prop(dep.some_property).delete  # <- "rehearsal" of a property setter
+    decoy.prop(dep.some_property).delete()  # <- "rehearsal" of a property setter
 ).then_return(42)
 ```
 

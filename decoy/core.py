@@ -65,11 +65,12 @@ class DecoyCore:
             count=len(_rehearsals),
             ignore_extra_args=ignore_extra_args,
         )
-        calls = self._spy_log.get_by_rehearsals(rehearsals)
+        calls = self._spy_log.get_calls_to_verify([r.spy_id for r in rehearsals])
 
         self._verifier.verify(rehearsals=rehearsals, calls=calls, times=times)
 
     def prop(self, _rehearsal: ReturnT) -> "PropCore":
+        """Get a property setter/deleter rehearser."""
         spy_id, spy_name, payload = self._spy_log.consume_prop_rehearsal()
 
         return PropCore(
@@ -132,7 +133,11 @@ class PropCore:
     """Main logic of a property access rehearser."""
 
     def __init__(
-        self, spy_id: int, spy_name: str, prop_name: str, spy_log: SpyLog
+        self,
+        spy_id: int,
+        spy_name: str,
+        prop_name: str,
+        spy_log: SpyLog,
     ) -> None:
         self._spy_id = spy_id
         self._spy_name = spy_name
@@ -140,6 +145,7 @@ class PropCore:
         self._spy_log = spy_log
 
     def set(self, value: Any) -> None:
+        """Create a property setter rehearsal."""
         event = SpyEvent(
             spy_id=self._spy_id,
             spy_name=self._spy_name,
@@ -152,6 +158,7 @@ class PropCore:
         self._spy_log.push(event)
 
     def delete(self) -> None:
+        """Create a property deleter rehearsal."""
         event = SpyEvent(
             spy_id=self._spy_id,
             spy_name=self._spy_name,

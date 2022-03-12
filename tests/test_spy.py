@@ -241,3 +241,60 @@ def test_spy_prop_get(
     result = subject.some_property
 
     assert result == 42
+
+
+def test_spy_prop_set(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should record a property set call."""
+    decoy.when(spec.get_name()).then_return("spy_name")
+
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+    subject.some_property = 42
+    assert subject.some_property == 42
+
+    decoy.verify(
+        call_handler.handle(
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyPropAccess(
+                    prop_name="some_property",
+                    access_type=PropAccessType.SET,
+                    value=42,
+                ),
+            ),
+        )
+    )
+
+
+def test_spy_prop_delete(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should record a property set call."""
+    decoy.when(spec.get_name()).then_return("spy_name")
+
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+    subject.some_property = 42
+    del subject.some_property
+
+    assert subject.some_property != 42
+
+    decoy.verify(
+        call_handler.handle(
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyPropAccess(
+                    prop_name="some_property",
+                    access_type=PropAccessType.DELETE,
+                ),
+            ),
+        )
+    )

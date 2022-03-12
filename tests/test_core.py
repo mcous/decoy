@@ -310,7 +310,8 @@ def test_verify(
     decoy.when(
         spy_log.consume_verify_rehearsals(count=1, ignore_extra_args=False)
     ).then_return([rehearsal])
-    decoy.when(spy_log.get_by_rehearsals([rehearsal])).then_return([call])
+
+    decoy.when(spy_log.get_calls_to_verify([spy_id])).then_return([call])
 
     subject.verify("__rehearsal__", times=None, ignore_extra_args=False)
 
@@ -342,7 +343,7 @@ def test_verify_multiple_calls(
     decoy.when(
         spy_log.consume_verify_rehearsals(count=2, ignore_extra_args=False)
     ).then_return(rehearsals)
-    decoy.when(spy_log.get_by_rehearsals(rehearsals)).then_return(calls)
+    decoy.when(spy_log.get_calls_to_verify([spy_id_1, spy_id_2])).then_return(calls)
 
     subject.verify(
         "__rehearsal_1__",
@@ -372,7 +373,7 @@ def test_verify_call_times(
     decoy.when(
         spy_log.consume_verify_rehearsals(count=1, ignore_extra_args=False)
     ).then_return([rehearsal])
-    decoy.when(spy_log.get_by_rehearsals([rehearsal])).then_return([call])
+    decoy.when(spy_log.get_calls_to_verify([spy_id])).then_return([call])
 
     subject.verify("__rehearsal__", times=2, ignore_extra_args=False)
 

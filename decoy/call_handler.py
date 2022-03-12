@@ -8,6 +8,8 @@ from .stub_store import StubStore
 
 
 class CallHandlerResult(NamedTuple):
+    """A return value from a call."""
+
     value: Any
 
 
@@ -33,9 +35,13 @@ class CallHandler:
         return_value: Any
 
         if behavior.action:
-            if not isinstance(call.payload, SpyCall):
-                raise NotImplementedError("Property handling not implemented")
-            return_value = behavior.action(*call.payload.args, **call.payload.kwargs)
+            if isinstance(call.payload, SpyCall):
+                return_value = behavior.action(
+                    *call.payload.args,
+                    **call.payload.kwargs,
+                )
+            else:
+                return_value = behavior.action()
 
         elif behavior.context_value:
             return_value = ContextWrapper(behavior.context_value)

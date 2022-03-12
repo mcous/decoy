@@ -2,7 +2,7 @@
 import os
 from typing import Sequence
 
-from .spy_events import AnySpyEvent, SpyCall, SpyEvent, SpyRehearsal
+from .spy_events import AnySpyEvent, SpyCall, SpyEvent, SpyRehearsal, PropAccessType
 
 
 def stringify_call(event: AnySpyEvent) -> str:
@@ -21,14 +21,22 @@ def stringify_call(event: AnySpyEvent) -> str:
     spy_id, spy_name, payload = event
 
     if not isinstance(payload, SpyCall):
-        raise NotImplementedError("Property handling not implemented")
+        full_prop_name = f"{spy_name}.{payload.prop_name}"
 
-    args_list = [repr(arg) for arg in payload.args]
-    kwargs_list = [f"{key}={repr(val)}" for key, val in payload.kwargs.items()]
-    extra_args_msg = (
-        " - ignoring unspecified arguments" if payload.ignore_extra_args else ""
-    )
-    return f"{spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
+        if payload.access_type == PropAccessType.SET:
+            return f"{full_prop_name} = {payload.value}"
+        elif payload.access_type == PropAccessType.DELETE:
+            return f"del {full_prop_name}"
+
+        return full_prop_name
+
+    else:
+        args_list = [repr(arg) for arg in payload.args]
+        kwargs_list = [f"{key}={repr(val)}" for key, val in payload.kwargs.items()]
+        extra_args_msg = (
+            " - ignoring unspecified arguments" if payload.ignore_extra_args else ""
+        )
+        return f"{spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
 
 
 def stringify_call_list(calls: Sequence[AnySpyEvent]) -> str:

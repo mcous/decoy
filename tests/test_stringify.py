@@ -2,7 +2,7 @@
 import pytest
 from typing import NamedTuple
 
-from decoy.spy_events import SpyCall, SpyEvent
+from decoy.spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 from decoy.stringify import stringify_call
 
 
@@ -62,6 +62,34 @@ stringify_call_specs = [
             ),
         ),
         expected="some.name() - ignoring unspecified arguments",
+    ),
+    StringifyCallSpec(
+        call=SpyEvent(
+            spy_id=42,
+            spy_name="some",
+            payload=SpyPropAccess(prop_name="name", access_type=PropAccessType.GET),
+        ),
+        expected="some.name",
+    ),
+    StringifyCallSpec(
+        call=SpyEvent(
+            spy_id=42,
+            spy_name="some",
+            payload=SpyPropAccess(
+                prop_name="name",
+                access_type=PropAccessType.SET,
+                value=42,
+            ),
+        ),
+        expected="some.name = 42",
+    ),
+    StringifyCallSpec(
+        call=SpyEvent(
+            spy_id=42,
+            spy_name="some",
+            payload=SpyPropAccess(prop_name="name", access_type=PropAccessType.DELETE),
+        ),
+        expected="del some.name",
     ),
 ]
 

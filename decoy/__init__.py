@@ -8,7 +8,7 @@ from .context_managers import (
     ContextManager,
     GeneratorContextManager,
 )
-from .core import DecoyCore, StubCore
+from .core import DecoyCore, StubCore, PropCore
 from .types import ClassT, ContextValueT, FuncT, ReturnT
 
 # ensure decoy does not pollute pytest tracebacks
@@ -19,7 +19,7 @@ class Decoy:
     """Decoy mock factory and state container.
 
     You should create a new Decoy instance before each test and call
-    [reset][decoy.Decoy.reset] after each test. If you use the
+    [`reset`][decoy.Decoy.reset] after each test. If you use the
     [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
     automatically. See the [setup guide](../#setup) for more details.
 
@@ -92,7 +92,7 @@ class Decoy:
         """Create a class mock for `spec`.
 
         !!! warning "Deprecated since v1.6.0"
-            Use [decoy.Decoy.mock][] with the `cls` parameter, instead.
+            Use [`mock`][decoy.Decoy.mock] with the `cls` parameter, instead.
         """
         warn(
             "decoy.create_decoy is deprecated; use decoy.mock(cls=...) instead.",
@@ -111,7 +111,7 @@ class Decoy:
         """Create a function mock for `spec`.
 
         !!! warning "Deprecated since v1.6.0"
-            Use [decoy.Decoy.mock][] with the `func` parameter, instead.
+            Use [`mock`][decoy.Decoy.mock] with the `func` parameter, instead.
         """
         warn(
             "decoy.create_decoy_func is deprecated; use decoy.mock(func=...) instead.",
@@ -127,7 +127,7 @@ class Decoy:
         *,
         ignore_extra_args: bool = False,
     ) -> "Stub[ReturnT]":
-        """Create a [Stub][decoy.Stub] configuration using a rehearsal call.
+        """Create a [`Stub`][decoy.Stub] configuration using a rehearsal call.
 
         See [stubbing usage guide](../usage/when/) for more details.
 
@@ -138,8 +138,9 @@ class Decoy:
                 ignoring unspecified arguments.
 
         Returns:
-            A stub to configure using `then_return`, `then_raise`, `then_do`, or
-            `then_enter_with`.
+            A stub to configure using [`then_return`][decoy.Stub.then_return],
+            [`then_raise`][decoy.Stub.then_raise], [`then_do`][decoy.Stub.then_do],
+            or [`then_enter_with`][decoy.Stub.then_enter_with].
 
         Example:
             ```python
@@ -204,14 +205,15 @@ class Decoy:
 
     def prop(self, _rehearsal_result: ReturnT) -> "Prop[ReturnT]":
         """Create property setter and deleter rehearsals."""
-        ...
+        prop_core = self._core.prop(_rehearsal_result)
+        return Prop(core=prop_core)
 
     def reset(self) -> None:
         """Reset all mock state.
 
         This method should be called after every test to ensure spies and stubs
-        don't leak between tests. The `decoy` fixture provided by the pytest plugin
-        will call `reset` automatically.
+        don't leak between tests. The [`decoy`][decoy.pytest_plugin.decoy] fixture
+        provided by the pytest plugin will call `reset` automatically.
 
         The `reset` method may also trigger warnings if Decoy detects any questionable
         mock usage. See [decoy.warnings][] for more details.
@@ -247,7 +249,8 @@ class Stub(Generic[ReturnT]):
         Note:
             Setting a stub to raise will prevent you from writing new
             rehearsals, because they will raise. If you need to make more calls
-            to `when`, you'll need to wrap your rehearsal in a `try`.
+            to [`when`][decoy.Decoy.when], you'll need to wrap your rehearsal
+            in a `try`.
         """
         self._core.then_raise(error)
 
@@ -304,13 +307,49 @@ class Stub(Generic[ReturnT]):
 
 
 class Prop(Generic[ReturnT]):
-    """Rehearsal creator for mocking property setters and deleters."""
+    """Rehearsal creator for mocking property setters and deleters.
+
+    See [property mocking guide](../advanced/properties/) for more details.
+    """
+
+    def __init__(self, core: PropCore) -> None:
+        self._core = core
 
     def set(self, value: ReturnT) -> None:
-        """Create a property setter rehearsal."""
+        """Create a property setter rehearsal.
+
+        By wrapping `set` in a call to [`when`][decoy.Decoy.when] or
+        [`verify`][decoy.Decoy.verify], you can stub or verify a call
+        to a property setter.
+
+        Arguments:
+            value: The value
+
+        Example:
+            ```python
+            some_obj = decoy.mock()
+            some_obj.prop = 42
+            decoy.verify(decoy.prop(some_obj.prop).set(42))
+            ```
+        """
+        self._core.set(value)
 
     def delete(self) -> None:
-        """Create a property deleter rehearsal."""
+        """Create a property deleter rehearsal.
+
+        By wrapping `delete` in a call to [`when`][decoy.Decoy.when] or
+        [`verify`][decoy.Decoy.verify], you can stub or verify a call
+        to a property deleter.
+
+
+        Example:
+            ```python
+            some_obj = decoy.mock()
+            del some_obj.prop
+            decoy.verify(decoy.prop(some_obj.prop).delete())
+            ```
+        """
+        self._core.delete()
 
 
 __all__ = ["Decoy", "Stub", "Prop", "matchers", "warnings", "errors"]

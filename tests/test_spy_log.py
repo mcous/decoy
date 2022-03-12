@@ -189,6 +189,52 @@ def test_consume_verify_rehearsals_ignore_extra_args() -> None:
     ]
 
 
+def test_consume_verify_rehearsals_ignores_prop_gets() -> None:
+    """It should be able to pop a slice off the stack, retaining order."""
+    subject = SpyLog()
+    call_1 = SpyEvent(
+        spy_id=101, spy_name="spy_1", payload=SpyCall(args=(1,), kwargs={})
+    )
+    call_2 = SpyEvent(
+        spy_id=101,
+        spy_name="spy_1",
+        payload=SpyPropAccess(prop_name="child", access_type=PropAccessType.GET),
+    )
+    call_3 = SpyEvent(
+        spy_id=102,
+        spy_name="spy_1.child",
+        payload=SpyCall(args=(2,), kwargs={}),
+    )
+    call_4 = SpyEvent(
+        spy_id=102,
+        spy_name="spy_1.child",
+        payload=SpyPropAccess(prop_name="fizz", access_type=PropAccessType.DELETE),
+    )
+    subject.push(call_1)
+    subject.push(call_2)
+    subject.push(call_3)
+    subject.push(call_4)
+
+    result = subject.consume_verify_rehearsals(count=3, ignore_extra_args=False)
+    assert result == [
+        VerifyRehearsal(
+            spy_id=101,
+            spy_name="spy_1",
+            payload=SpyCall(args=(1,), kwargs={}),
+        ),
+        VerifyRehearsal(
+            spy_id=102,
+            spy_name="spy_1.child",
+            payload=SpyCall(args=(2,), kwargs={}),
+        ),
+        VerifyRehearsal(
+            spy_id=102,
+            spy_name="spy_1.child",
+            payload=SpyPropAccess(prop_name="fizz", access_type=PropAccessType.DELETE),
+        ),
+    ]
+
+
 def test_consume_verify_rehearsals_raises_error() -> None:
     """It should raise an error if the stack has too few members to pop a slice."""
     subject = SpyLog()
@@ -200,7 +246,7 @@ def test_consume_verify_rehearsals_raises_error() -> None:
         subject.consume_verify_rehearsals(count=2, ignore_extra_args=False)
 
 
-def test_get_by_rehearsal() -> None:
+def test_get_calls_to_verify() -> None:
     """It can get a list of calls made matching spy IDs of given rehearsals."""
     subject = SpyLog()
     call_1 = SpyEvent(
@@ -230,43 +276,47 @@ def test_get_by_rehearsal() -> None:
     subject.push(call_3)
     subject.push(call_4)
 
-    result = subject.get_by_rehearsals(
-        [
-            VerifyRehearsal(
-                spy_id=101,
-                spy_name="spy_1",
-                payload=SpyCall(args=(1,), kwargs={}),
-            )
-        ]
-    )
+    result = subject.get_calls_to_verify([101])
     assert result == [call_1, call_4]
 
-    result = subject.get_by_rehearsals(
-        [
-            VerifyRehearsal(
-                spy_id=101,
-                spy_name="spy_1",
-                payload=SpyCall(args=(2,), kwargs={}),
-            ),
-            VerifyRehearsal(
-                spy_id=202,
-                spy_name="spy_2",
-                payload=SpyCall(args=(1,), kwargs={}),
-            ),
-        ]
-    )
+    result = subject.get_calls_to_verify([101, 202])
     assert result == [call_1, call_3, call_4]
 
-    result = subject.get_by_rehearsals(
-        [
-            VerifyRehearsal(
-                spy_id=303,
-                spy_name="spy_3",
-                payload=SpyCall(args=(1,), kwargs={}),
-            )
-        ]
-    )
+    result = subject.get_calls_to_verify([303])
     assert result == []
+
+
+def test_get_calls_to_verify_skips_prop_gets() -> None:
+    """It does not return prop getters for verification."""
+    subject = SpyLog()
+
+    call_1 = SpyEvent(
+        spy_id=101,
+        spy_name="spy_1",
+        payload=SpyPropAccess(prop_name="child", access_type=PropAccessType.GET),
+    )
+    call_2 = PropRehearsal(
+        spy_id=101,
+        spy_name="spy_1",
+        payload=SpyPropAccess(prop_name="child", access_type=PropAccessType.GET),
+    )
+    call_3 = SpyEvent(
+        spy_id=102,
+        spy_name="spy_1.child",
+        payload=SpyCall(args=(2,), kwargs={}),
+    )
+    call_4 = SpyEvent(
+        spy_id=102,
+        spy_name="spy_1.child",
+        payload=SpyPropAccess(prop_name="fizz", access_type=PropAccessType.DELETE),
+    )
+
+    subject.push(call_1)
+    subject.push(call_2)
+    subject.push(call_3)
+    subject.push(call_4)
+    result = subject.get_calls_to_verify([101, 102])
+    assert result == [call_3, call_4]
 
 
 def test_get_all() -> None:
