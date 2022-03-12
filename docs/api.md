@@ -7,6 +7,8 @@
 
 ::: decoy.Stub
 
+::: decoy.Prop
+
 ::: decoy.matchers
 
 ::: decoy.errors

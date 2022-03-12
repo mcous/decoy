@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional
 
 from .call_handler import CallHandler
 from .spy import SpyCreator
-from .spy_calls import WhenRehearsal
+from .spy_events import WhenRehearsal, PropAccessType, SpyEvent, SpyPropAccess
 from .spy_log import SpyLog
 from .stub_store import StubBehavior, StubStore
 from .types import ContextValueT, ReturnT
@@ -65,9 +65,20 @@ class DecoyCore:
             count=len(_rehearsals),
             ignore_extra_args=ignore_extra_args,
         )
-        calls = self._spy_log.get_by_rehearsals(rehearsals)
+        calls = self._spy_log.get_calls_to_verify([r.spy_id for r in rehearsals])
 
         self._verifier.verify(rehearsals=rehearsals, calls=calls, times=times)
+
+    def prop(self, _rehearsal: ReturnT) -> "PropCore":
+        """Get a property setter/deleter rehearser."""
+        spy_id, spy_name, payload = self._spy_log.consume_prop_rehearsal()
+
+        return PropCore(
+            spy_id=spy_id,
+            spy_name=spy_name,
+            prop_name=payload.prop_name,
+            spy_log=self._spy_log,
+        )
 
     def reset(self) -> None:
         """Reset and remove all stored spies and stubs."""
@@ -116,3 +127,44 @@ class StubCore:
             rehearsal=self._rehearsal,
             behavior=StubBehavior(context_value=value),
         )
+
+
+class PropCore:
+    """Main logic of a property access rehearser."""
+
+    def __init__(
+        self,
+        spy_id: int,
+        spy_name: str,
+        prop_name: str,
+        spy_log: SpyLog,
+    ) -> None:
+        self._spy_id = spy_id
+        self._spy_name = spy_name
+        self._prop_name = prop_name
+        self._spy_log = spy_log
+
+    def set(self, value: Any) -> None:
+        """Create a property setter rehearsal."""
+        event = SpyEvent(
+            spy_id=self._spy_id,
+            spy_name=self._spy_name,
+            payload=SpyPropAccess(
+                prop_name=self._prop_name,
+                access_type=PropAccessType.SET,
+                value=value,
+            ),
+        )
+        self._spy_log.push(event)
+
+    def delete(self) -> None:
+        """Create a property deleter rehearsal."""
+        event = SpyEvent(
+            spy_id=self._spy_id,
+            spy_name=self._spy_name,
+            payload=SpyPropAccess(
+                prop_name=self._prop_name,
+                access_type=PropAccessType.DELETE,
+            ),
+        )
+        self._spy_log.push(event)

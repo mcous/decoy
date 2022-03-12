@@ -2,24 +2,44 @@
 import os
 from typing import Sequence
 
-from .spy_calls import BaseSpyCall, BaseSpyRehearsal, SpyCall
+from .spy_events import AnySpyEvent, SpyCall, SpyEvent, SpyRehearsal, PropAccessType
 
 
-def stringify_call(call: BaseSpyCall) -> str:
+def stringify_call(event: AnySpyEvent) -> str:
     """Stringify the call to something human readable.
 
-    `SpyCall(spy_id=42, spy_name="name", args=(1,), kwargs={"foo": False})`
-    would stringify as `"name(1, foo=False)"`
-    """
-    args_list = [repr(arg) for arg in call.args]
-    kwargs_list = [f"{key}={repr(val)}" for key, val in call.kwargs.items()]
-    extra_args_msg = (
-        " - ignoring unspecified arguments" if call.ignore_extra_args else ""
+    ```python
+    SpyEvent(
+        spy_id=42,
+        spy_name="some_func",
+        payload=SpyCall(args=(1,), kwargs={"foo": False})
     )
-    return f"{call.spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
+    ```
+
+    ...would stringify as `"some_func(1, foo=False)"`
+    """
+    spy_id, spy_name, payload = event
+
+    if not isinstance(payload, SpyCall):
+        full_prop_name = f"{spy_name}.{payload.prop_name}"
+
+        if payload.access_type == PropAccessType.SET:
+            return f"{full_prop_name} = {payload.value}"
+        elif payload.access_type == PropAccessType.DELETE:
+            return f"del {full_prop_name}"
+
+        return full_prop_name
+
+    else:
+        args_list = [repr(arg) for arg in payload.args]
+        kwargs_list = [f"{key}={repr(val)}" for key, val in payload.kwargs.items()]
+        extra_args_msg = (
+            " - ignoring unspecified arguments" if payload.ignore_extra_args else ""
+        )
+        return f"{spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
 
 
-def stringify_call_list(calls: Sequence[BaseSpyCall]) -> str:
+def stringify_call_list(calls: Sequence[AnySpyEvent]) -> str:
     """Stringify a sequence of calls into an ordered list."""
     return os.linesep.join(
         f"{i + 1}.\t{stringify_call(call)}" for i, call in enumerate(calls)
@@ -38,8 +58,8 @@ def join_lines(*lines: str) -> str:
 
 def stringify_error_message(
     heading: str,
-    rehearsals: Sequence[BaseSpyRehearsal],
-    calls: Sequence[SpyCall],
+    rehearsals: Sequence[SpyRehearsal],
+    calls: Sequence[SpyEvent],
     include_calls: bool = True,
 ) -> str:
     """Stringify an error message about a rehearsals to calls comparison."""

@@ -6,16 +6,17 @@ See the [errors guide][] for more details.
 """
 from typing import Optional, Sequence
 
-from .spy_calls import SpyCall, VerifyRehearsal
+from .spy_events import SpyEvent, VerifyRehearsal
 from .stringify import count, stringify_error_message
 
 
 class MissingRehearsalError(ValueError):
-    """An error raised when `when` or `verify` is called without rehearsal(s).
+    """An error raised when a Decoy method is called without rehearsal(s).
 
-    This error is raised if you use Decoy incorrectly in your tests. When
-    using async/await, this error can be triggered if you forget to include
-    `await` with your rehearsal.
+    This error is raised if you use [`when`][decoy.Decoy.when],
+    [`verify`][decoy.Decoy.verify], or [`prop`][decoy.Decoy.prop] incorrectly
+    in your tests. When using async/await, this error can be triggered if you
+    forget to include `await` with your rehearsal.
 
     See the [MissingRehearsalError guide][] for more details.
 
@@ -23,7 +24,7 @@ class MissingRehearsalError(ValueError):
     """
 
     def __init__(self) -> None:
-        super().__init__("Rehearsal not found for when/verify.")
+        super().__init__("Rehearsal not found.")
 
 
 class VerifyError(AssertionError):
@@ -40,13 +41,13 @@ class VerifyError(AssertionError):
     """
 
     rehearsals: Sequence[VerifyRehearsal]
-    calls: Sequence[SpyCall]
+    calls: Sequence[SpyEvent]
     times: Optional[int]
 
     def __init__(
         self,
         rehearsals: Sequence[VerifyRehearsal],
-        calls: Sequence[SpyCall],
+        calls: Sequence[SpyEvent],
         times: Optional[int],
     ) -> None:
         if times is not None:

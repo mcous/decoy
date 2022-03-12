@@ -3,7 +3,7 @@ import pytest
 import os
 from typing import NamedTuple
 
-from decoy.spy_calls import SpyCall, WhenRehearsal, VerifyRehearsal
+from decoy.spy_events import SpyCall, SpyEvent, WhenRehearsal, VerifyRehearsal
 from decoy.warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
 
 
@@ -18,10 +18,14 @@ warning_specs = [
     WarningSpec(
         warning=MiscalledStubWarning(
             rehearsals=[
-                WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+                WhenRehearsal(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                ),
             ],
             calls=[
-                SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                SpyEvent(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                ),
             ],
         ),
         expected_message=os.linesep.join(
@@ -37,11 +41,17 @@ warning_specs = [
     WarningSpec(
         warning=MiscalledStubWarning(
             rehearsals=[
-                WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
-                WhenRehearsal(spy_id=1, spy_name="spy", args=(0,), kwargs={}),
+                WhenRehearsal(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                ),
+                WhenRehearsal(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(0,), kwargs={})
+                ),
             ],
             calls=[
-                SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+                SpyEvent(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                ),
             ],
         ),
         expected_message=os.linesep.join(
@@ -58,11 +68,17 @@ warning_specs = [
     WarningSpec(
         warning=MiscalledStubWarning(
             rehearsals=[
-                WhenRehearsal(spy_id=1, spy_name="spy", args=(), kwargs={}),
+                WhenRehearsal(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
+                ),
             ],
             calls=[
-                SpyCall(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
-                SpyCall(spy_id=1, spy_name="spy", args=(2,), kwargs={}),
+                SpyEvent(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+                ),
+                SpyEvent(
+                    spy_id=1, spy_name="spy", payload=SpyCall(args=(2,), kwargs={})
+                ),
             ],
         ),
         expected_message=os.linesep.join(
@@ -78,7 +94,9 @@ warning_specs = [
     ),
     WarningSpec(
         warning=RedundantVerifyWarning(
-            rehearsal=VerifyRehearsal(spy_id=1, spy_name="spy", args=(1,), kwargs={}),
+            rehearsal=VerifyRehearsal(
+                spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})
+            ),
         ),
         expected_message=os.linesep.join(
             [

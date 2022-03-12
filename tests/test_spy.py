@@ -4,10 +4,10 @@ import inspect
 import sys
 from decoy import Decoy
 
-from decoy.call_handler import CallHandler
+from decoy.call_handler import CallHandler, CallHandlerResult
 from decoy.spec import Spec, BoundArgs
 from decoy.spy import SpyCreator, Spy, AsyncSpy
-from decoy.spy_calls import SpyCall
+from decoy.spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 
 from .common import SomeClass, some_func
 
@@ -130,9 +130,13 @@ def test_spy_calls(
     )
     decoy.when(
         call_handler.handle(
-            SpyCall(spy_id=id(subject), spy_name="spy_name", args=(1, 2, 3), kwargs={})
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            )
         )
-    ).then_return(42)
+    ).then_return(CallHandlerResult(42))
 
     result = subject(1, 2, three=3)
 
@@ -181,7 +185,7 @@ async def test_spy_async_context_manager(
     spy_creator: SpyCreator,
     spec: Spec,
 ) -> None:
-    """It should be usable in a `with` statement."""
+    """It should be usable in an `async with` statement."""
     enter_spec = decoy.mock(cls=Spec)
     exit_spec = decoy.mock(cls=Spec)
     enter_spy = decoy.mock(cls=AsyncSpy)
@@ -211,31 +215,86 @@ async def test_spy_async_context_manager(
     decoy.verify(await exit_spy(RuntimeError, error, tb))
 
 
-# async def test_spy_async_context_manager() -> None:
-#     """It should be usable in an `async with` statement."""
-#     calls = []
+def test_spy_prop_get(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should record a property get call."""
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
 
-#     def _handle_call(call: SpyCall) -> Optional[CallResult]:
-#         nonlocal calls
-#         calls.append(call)
-#         return CallResult(42)
+    decoy.when(spec.get_name()).then_return("spy_name")
+    decoy.when(
+        call_handler.handle(
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyPropAccess(
+                    prop_name="some_property",
+                    access_type=PropAccessType.GET,
+                ),
+            ),
+        )
+    ).then_return(CallHandlerResult(42))
 
-#     subject = create_spy(SpyConfig(name="subject", handle_call=_handle_call))
+    result = subject.some_property
 
-#     async with subject as result:
-#         assert result == 42
+    assert result == 42
 
-#     assert calls == [
-#         SpyCall(
-#             spy_id=matchers.Anything(),
-#             spy_name="subject.__aenter__",
-#             args=(),
-#             kwargs={},
-#         ),
-#         SpyCall(
-#             spy_id=matchers.Anything(),
-#             spy_name="subject.__aexit__",
-#             args=(None, None, None),
-#             kwargs={},
-#         ),
-#     ]
+
+def test_spy_prop_set(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should record a property set call."""
+    decoy.when(spec.get_name()).then_return("spy_name")
+
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+    subject.some_property = 42
+    assert subject.some_property == 42
+
+    decoy.verify(
+        call_handler.handle(
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyPropAccess(
+                    prop_name="some_property",
+                    access_type=PropAccessType.SET,
+                    value=42,
+                ),
+            ),
+        )
+    )
+
+
+def test_spy_prop_delete(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spec: Spec,
+) -> None:
+    """It should record a property set call."""
+    decoy.when(spec.get_name()).then_return("spy_name")
+
+    subject = Spy(spec=spec, call_handler=call_handler, spy_creator=spy_creator)
+    subject.some_property = 42
+    del subject.some_property
+
+    assert subject.some_property != 42
+
+    decoy.verify(
+        call_handler.handle(
+            SpyEvent(
+                spy_id=id(subject),
+                spy_name="spy_name",
+                payload=SpyPropAccess(
+                    prop_name="some_property",
+                    access_type=PropAccessType.DELETE,
+                ),
+            ),
+        )
+    )

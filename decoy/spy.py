@@ -8,7 +8,7 @@ from typing import Any, ContextManager, Dict, Optional, Type, Union, cast
 
 from .call_handler import CallHandler
 from .spec import Spec
-from .spy_calls import SpyCall
+from .spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 
 
 class BaseSpy(ContextManager[Any]):
@@ -18,6 +18,12 @@ class BaseSpy(ContextManager[Any]):
     - Lazily constructs child spies when an attribute is accessed
     """
 
+    _spec: Spec
+    _call_handler: CallHandler
+    _spy_creator: "SpyCreator"
+    _spy_children: Dict[str, "BaseSpy"]
+    _spy_property_values: Dict[str, Any]
+
     def __init__(
         self,
         spec: Spec,
@@ -25,11 +31,12 @@ class BaseSpy(ContextManager[Any]):
         spy_creator: "SpyCreator",
     ) -> None:
         """Initialize a BaseSpy from a call handler and an optional spec object."""
-        self._spec = spec
-        self._call_handler = call_handler
-        self._spy_creator = spy_creator
-        self._spy_children: Dict[str, BaseSpy] = {}
-        self.__signature__ = self._spec.get_signature()
+        super().__setattr__("_spec", spec)
+        super().__setattr__("_call_handler", call_handler)
+        super().__setattr__("_spy_creator", spy_creator)
+        super().__setattr__("_spy_children", {})
+        super().__setattr__("_spy_property_values", {})
+        super().__setattr__("__signature__", self._spec.get_signature())
 
     @property  # type: ignore[misc]
     def __class__(self) -> Any:
@@ -78,8 +85,50 @@ class BaseSpy(ContextManager[Any]):
 
         return self._get_or_create_child_spy(name)
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Set a property on the spy, recording the call."""
+        event = SpyEvent(
+            spy_id=id(self),
+            spy_name=self._spec.get_name(),
+            payload=SpyPropAccess(
+                prop_name=name,
+                access_type=PropAccessType.SET,
+                value=value,
+            ),
+        )
+        self._call_handler.handle(event)
+        self._spy_property_values[name] = value
+
+    def __delattr__(self, name: str) -> None:
+        """Delete a property on the spy, recording the call."""
+        event = SpyEvent(
+            spy_id=id(self),
+            spy_name=self._spec.get_name(),
+            payload=SpyPropAccess(prop_name=name, access_type=PropAccessType.DELETE),
+        )
+        self._call_handler.handle(event)
+        self._spy_property_values.pop(name, None)
+
     def _get_or_create_child_spy(self, name: str, child_is_async: bool = False) -> Any:
         """Lazily construct a child spy, basing it on type hints if available."""
+        # check for any stubbed behaviors for property getter
+        get_result = self._call_handler.handle(
+            SpyEvent(
+                spy_id=id(self),
+                spy_name=self._spec.get_name(),
+                payload=SpyPropAccess(
+                    prop_name=name,
+                    access_type=PropAccessType.GET,
+                ),
+            )
+        )
+
+        if get_result:
+            return get_result.value
+
+        if name in self._spy_property_values:
+            return self._spy_property_values[name]
+
         # return previously constructed (and cached) child spies
         if name in self._spy_children:
             return self._spy_children[name]
@@ -92,14 +141,17 @@ class BaseSpy(ContextManager[Any]):
 
     def _call(self, *args: Any, **kwargs: Any) -> Any:
         bound_args, bound_kwargs = self._spec.bind_args(*args, **kwargs)
-        call = SpyCall(
+        call = SpyEvent(
             spy_id=id(self),
             spy_name=self._spec.get_name(),
-            args=bound_args,
-            kwargs=bound_kwargs,
+            payload=SpyCall(
+                args=bound_args,
+                kwargs=bound_kwargs,
+            ),
         )
 
-        return self._call_handler.handle(call)
+        result = self._call_handler.handle(call)
+        return result.value if result else None
 
 
 class Spy(BaseSpy):

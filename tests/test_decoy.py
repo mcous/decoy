@@ -8,7 +8,7 @@ import pytest
 from decoy import Decoy, errors
 from decoy.spy import AsyncSpy, Spy
 
-from .common import SomeAsyncClass, SomeClass, some_func
+from .common import SomeAsyncClass, SomeClass, SomeNestedClass, some_func
 
 pytestmark = pytest.mark.asyncio
 
@@ -173,6 +173,29 @@ def test_verify_ignore_extra_args(decoy: Decoy) -> None:
         decoy.verify(
             subject("wrong-id"),
             ignore_extra_args=True,
+        )
+
+
+def test_verify_call_list(decoy: Decoy) -> None:
+    """It should be able to verify multiple calls."""
+    subject_1 = decoy.mock(cls=SomeClass)
+    subject_2 = decoy.mock(cls=SomeNestedClass)
+
+    subject_1.foo("hello")
+    subject_2.child.bar(1, 2.0, "3")
+    subject_1.foo("goodbye")
+
+    decoy.verify(
+        subject_1.foo("hello"),
+        subject_2.child.bar(1, 2.0, "3"),
+        subject_1.foo("goodbye"),
+    )
+
+    with pytest.raises(errors.VerifyError):
+        decoy.verify(
+            subject_1.foo("hello"),
+            subject_1.foo("goodbye"),
+            subject_2.child.bar(1, 2.0, "3"),
         )
 
 
@@ -361,3 +384,105 @@ async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
 
     with pytest.raises(AssertionError, match="exited"):
         subject.get_value()
+
+
+def test_property_getter_stub_then_return(decoy: Decoy) -> None:
+    """It should be able to stub a property getter."""
+    subject = decoy.mock()
+    decoy.when(subject.prop_name).then_return(42)
+
+    assert subject.prop_name == 42
+
+
+def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
+    """It should be able to stub a property getter with multiple return values."""
+    subject = decoy.mock()
+    decoy.when(subject.prop_name).then_return(43, 44)
+
+    assert subject.prop_name == 43
+    assert subject.prop_name == 44
+    assert subject.prop_name == 44
+
+
+def test_property_getter_stub_then_do(decoy: Decoy) -> None:
+    """It should be able to stub a property getter to act."""
+
+    def _handle_get(*args: Any, **kwargs: Any) -> int:
+        return 84
+
+    subject = decoy.mock()
+    decoy.when(subject.prop_name).then_do(_handle_get)
+
+    assert subject.prop_name == 84
+
+
+def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
+    """It should be able to stub a property getter to raise."""
+    subject = decoy.mock()
+
+    decoy.when(subject.prop_name).then_raise(ValueError("oh no"))
+
+    with pytest.raises(ValueError, match="oh no"):
+        subject.prop_name
+
+
+def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
+    """It should be able to reconfigure a property getter."""
+    subject = decoy.mock()
+
+    decoy.when(subject.prop_name).then_return(42)
+    assert subject.prop_name == 42
+
+    decoy.when(subject.prop_name).then_return(43)
+    assert subject.prop_name == 43
+
+
+def test_property_setter_stub_then_raise(decoy: Decoy) -> None:
+    """It should be able to stub a property setter to raise."""
+    subject = decoy.mock()
+    prop_rehearser = decoy.prop(subject.prop_name)
+
+    decoy.when(prop_rehearser.set(42)).then_raise(ValueError("oh no"))
+
+    subject.prop_name = 41
+    assert subject.prop_name == 41
+
+    with pytest.raises(ValueError, match="oh no"):
+        subject.prop_name = 42
+
+
+def test_property_deleter_stub_then_rase(decoy: Decoy) -> None:
+    """It should be able to stub a property deleter to raise."""
+    subject = decoy.mock()
+    prop_rehearser = decoy.prop(subject.prop_name)
+
+    decoy.when(prop_rehearser.delete()).then_raise(ValueError("oh no"))
+
+    with pytest.raises(ValueError, match="oh no"):
+        del subject.prop_name
+
+
+def test_verify_property_access(decoy: Decoy) -> None:
+    """It should be able to verify property setters and deleters."""
+    subject_1 = decoy.mock()
+    subject_2 = decoy.mock()
+
+    subject_1.hello("world")
+    subject_1.some_property = "fizzbuzz"
+    del subject_2.another_property
+    subject_2.answer(42)
+
+    decoy.verify(
+        subject_1.hello("world"),
+        decoy.prop(subject_1.some_property).set("fizzbuzz"),
+        decoy.prop(subject_2.another_property).delete(),
+        subject_2.answer(42),
+    )
+
+    with pytest.raises(errors.VerifyError):
+        decoy.verify(
+            subject_1.hello("world"),
+            decoy.prop(subject_1.some_property).set("fizzbuzz"),
+            subject_2.answer(42),
+            decoy.prop(subject_2.another_property).delete(),
+        )
