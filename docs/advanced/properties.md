@@ -92,7 +92,7 @@ Mocking and verifying property setters and deleters is most useful for testing c
 
     You cannot verify getters with `Decoy.verify`. The `verify` method is for verifying side-effects, and it is the opinion of the author that property getters should not trigger side-effects. Getter-triggered side effects are confusing and do not communicate the design intent of a system.
 
-### Verify a setter
+### Verifying a setter
 
 Use [decoy.Prop.set][] to create a setter rehearsal to use in [decoy.Decoy.verify][].
 
@@ -106,7 +106,7 @@ decoy.verify(
 )
 ```
 
-### Verify a deleter
+### Verifying a deleter
 
 Use [decoy.Prop.delete][] to create a deleter rehearsal to use in [decoy.Decoy.verify][].
 
@@ -116,8 +116,8 @@ dep = decoy.mock()
 del dep.some_property
 
 decoy.verify(
-    decoy.prop(dep.some_property).delete()  # <- "rehearsal" of a property setter
-).then_return(42)
+    decoy.prop(dep.some_property).delete()  # <- "rehearsal" of a property deleter
+)
 ```
 
 ## Example
