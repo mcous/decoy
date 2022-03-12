@@ -204,7 +204,17 @@ class Decoy:
         )
 
     def prop(self, _rehearsal_result: ReturnT) -> "Prop[ReturnT]":
-        """Create property setter and deleter rehearsals."""
+        """Create property setter and deleter rehearsals.
+
+        See [property mocking guide](../advanced/properties/) for more details.
+
+        Arguments:
+            _rehearsal_result: The property to mock, for typechecking.
+
+        Returns:
+            A prop rehearser on which you can call [`set`][decoy.Prop.set] or
+            [`delete`][decoy.Prop.delete] to create property rehearsals.
+        """
         prop_core = self._core.prop(_rehearsal_result)
         return Prop(core=prop_core)
 
