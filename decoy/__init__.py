@@ -1,16 +1,29 @@
 """Decoy stubbing and spying library."""
 from warnings import warn
-from typing import Any, Callable, Generic, Optional, Union, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Optional,
+    Union,
+    cast,
+    overload,
+)
 
 from . import errors, matchers, warnings
 from .context_managers import (
     AsyncContextManager,
-    AsyncGeneratorContextManager,
     ContextManager,
     GeneratorContextManager,
 )
 from .core import DecoyCore, StubCore, PropCore
 from .types import ClassT, ContextValueT, FuncT, ReturnT
+
+# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
+# Python 3.6 does not have async generator context managers
+if TYPE_CHECKING:
+    from .context_managers import AsyncGeneratorContextManager
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
