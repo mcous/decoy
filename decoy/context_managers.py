@@ -3,6 +3,7 @@ import contextlib
 from typing import Any, AsyncContextManager, ContextManager, Generic, TypeVar
 
 GeneratorContextManager = contextlib._GeneratorContextManager
+AsyncGeneratorContextManager = contextlib._AsyncGeneratorContextManager
 
 _EnterT = TypeVar("_EnterT")
 
@@ -40,7 +41,8 @@ class ContextWrapper(
 
 __all__ = [
     "AsyncContextManager",
-    "GeneratorContextManager",
+    "AsyncGeneratorContextManager",
     "ContextManager",
+    "GeneratorContextManager",
     "ContextWrapper",
 ]

@@ -5,6 +5,7 @@ from typing import Any, Callable, Generic, Optional, Union, cast, overload
 from . import errors, matchers, warnings
 from .context_managers import (
     AsyncContextManager,
+    AsyncGeneratorContextManager,
     ContextManager,
     GeneratorContextManager,
 )
@@ -294,11 +295,19 @@ class Stub(Generic[ReturnT]):
     ) -> None:
         ...
 
+    @overload
+    def then_enter_with(
+        self: "Stub[AsyncGeneratorContextManager[ContextValueT]]",
+        value: ContextValueT,
+    ) -> None:
+        ...
+
     def then_enter_with(
         self: Union[
-            "Stub[GeneratorContextManager[ContextValueT]]",
             "Stub[ContextManager[ContextValueT]]",
+            "Stub[GeneratorContextManager[ContextValueT]]",
             "Stub[AsyncContextManager[ContextValueT]]",
+            "Stub[AsyncGeneratorContextManager[ContextValueT]]",
         ],
         value: ContextValueT,
     ) -> None:
