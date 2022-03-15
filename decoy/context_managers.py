@@ -1,8 +1,20 @@
 """Wrappers around contextlib types and fallbacks."""
-import contextlib
-from typing import Any, AsyncContextManager, ContextManager, Generic, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    ContextManager,
+    Generic,
+    TypeVar,
+)
 
-GeneratorContextManager = contextlib._GeneratorContextManager
+# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
+# Python 3.6 does not have async generator context managers
+if TYPE_CHECKING:
+    from contextlib import (  # type: ignore[attr-defined]
+        _GeneratorContextManager as GeneratorContextManager,
+        _AsyncGeneratorContextManager as AsyncGeneratorContextManager,
+    )
 
 _EnterT = TypeVar("_EnterT")
 
@@ -40,7 +52,8 @@ class ContextWrapper(
 
 __all__ = [
     "AsyncContextManager",
-    "GeneratorContextManager",
+    "AsyncGeneratorContextManager",
     "ContextManager",
+    "GeneratorContextManager",
     "ContextWrapper",
 ]

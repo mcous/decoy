@@ -116,6 +116,7 @@
       main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_mimics_enter_type
+  skip: sys.version_info < (3, 7)
   main: |
       import contextlib
       from typing import Iterator
@@ -135,6 +136,7 @@
       main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_rejects_wrong_spec
+  skip: sys.version_info < (3, 7)
   main: |
       from decoy import Decoy
 
