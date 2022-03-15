@@ -12,13 +12,16 @@ from typing import (
 )
 
 from . import errors, matchers, warnings
-from .context_managers import (
-    AsyncContextManager,
-    ContextManager,
-    GeneratorContextManager,
-)
 from .core import DecoyCore, StubCore, PropCore
 from .types import ClassT, ContextValueT, FuncT, ReturnT
+
+# TODO(mc, 2022-03-14): hide under TYPE_CHECKING block for Python 3.6
+if TYPE_CHECKING:
+    from .context_managers import (
+        ContextManager,
+        AsyncContextManager,
+        GeneratorContextManager,
+    )
 
 # TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
 # Python 3.6 does not have async generator context managers
