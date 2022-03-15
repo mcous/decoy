@@ -51,12 +51,14 @@ plugins = ["decoy/mypy/plugin.py"]
 strict = true
 show_error_codes = true
 
+# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
+# Python 3.6 does not have async generator context managers
 [[tool.mypy.overrides]]
 module = "decoy.context_managers"
 warn_unused_ignores = false
 
 [tool.coverage.report]
-exclude_lines = ["@overload"]
+exclude_lines = ["@overload", "if TYPE_CHECKING:"]
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]

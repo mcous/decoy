@@ -15,18 +15,15 @@ from . import errors, matchers, warnings
 from .core import DecoyCore, StubCore, PropCore
 from .types import ClassT, ContextValueT, FuncT, ReturnT
 
-# TODO(mc, 2022-03-14): hide under TYPE_CHECKING block for Python 3.6
+# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
+# Python 3.6 does not have async generator context managers
 if TYPE_CHECKING:
     from .context_managers import (
         ContextManager,
         AsyncContextManager,
         GeneratorContextManager,
+        AsyncGeneratorContextManager,
     )
-
-# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
-# Python 3.6 does not have async generator context managers
-if TYPE_CHECKING:
-    from .context_managers import AsyncGeneratorContextManager
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
