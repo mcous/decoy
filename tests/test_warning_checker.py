@@ -7,6 +7,8 @@ from decoy.spy_events import (
     AnySpyEvent,
     SpyCall,
     SpyEvent,
+    SpyPropAccess,
+    PropAccessType,
     WhenRehearsal,
     VerifyRehearsal,
 )
@@ -74,6 +76,31 @@ warning_checker_specs = [
                 spy_id=1, spy_name="spy", payload=SpyCall(args=(), kwargs={})
             ),
             SpyEvent(spy_id=1, spy_name="spy", payload=SpyCall(args=(1,), kwargs={})),
+        ],
+        expected_warnings=[],
+    ),
+    # it should not warn due to spy prop access
+    WarningCheckerSpec(
+        all_calls=[
+            WhenRehearsal(
+                spy_id=1,
+                spy_name="spy",
+                payload=SpyPropAccess(
+                    prop_name="prop_name", access_type=PropAccessType.GET
+                ),
+            ),
+            SpyEvent(
+                spy_id=1,
+                spy_name="spy",
+                payload=SpyPropAccess(
+                    prop_name="other_prop", access_type=PropAccessType.GET
+                ),
+            ),
+            WhenRehearsal(
+                spy_id=2,
+                spy_name="spy.other_prop",
+                payload=SpyCall(args=(), kwargs={}, ignore_extra_args=False),
+            ),
         ],
         expected_warnings=[],
     ),
