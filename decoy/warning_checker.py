@@ -4,6 +4,7 @@ from warnings import warn
 
 from .spy_events import (
     AnySpyEvent,
+    SpyCall,
     SpyEvent,
     VerifyRehearsal,
     WhenRehearsal,
@@ -22,14 +23,15 @@ class WarningChecker:
         _check_no_redundant_verify(all_calls)
 
 
-def _check_no_miscalled_stubs(all_calls: Sequence[AnySpyEvent]) -> None:
+def _check_no_miscalled_stubs(all_events: Sequence[AnySpyEvent]) -> None:
     """Ensure every call matches a rehearsal, if the spy has rehearsals."""
     all_calls_by_id: Dict[int, List[AnySpyEvent]] = {}
 
-    for call in all_calls:
-        spy_id = call.spy_id
-        spy_calls = all_calls_by_id.get(spy_id, [])
-        all_calls_by_id[spy_id] = spy_calls + [call]
+    for event in all_events:
+        if isinstance(event.payload, SpyCall):
+            spy_id = event.spy_id
+            spy_calls = all_calls_by_id.get(spy_id, [])
+            all_calls_by_id[spy_id] = spy_calls + [event]
 
     for spy_calls in all_calls_by_id.values():
         unmatched: List[SpyEvent] = []
