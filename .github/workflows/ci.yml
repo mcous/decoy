@@ -25,7 +25,7 @@ jobs:
                   python-version: ${{ matrix.python-version }}
 
             - name: "Set up dependency cache"
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               # poetry venv restore is buggy on windows
               # https://github.com/python-poetry/poetry/issues/2629
               if: ${{ matrix.os != 'Windows' }}
@@ -63,7 +63,7 @@ jobs:
                   python-version: ${{ env.DEFAULT_PYTHON }}
 
             - name: "Set up dependency cache"
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               with:
                   key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
                   path: |
@@ -99,7 +99,7 @@ jobs:
                   python-version: ${{ env.DEFAULT_PYTHON }}
 
             - name: "Set up dependency cache"
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               with:
                   key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
                   path: |
