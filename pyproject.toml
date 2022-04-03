@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "decoy"
-version = "1.10.1"
+version = "0.0.0"
 description = "Opinionated mocking library for Python"
 authors = ["Mike Cousins <mike@cousins.io>"]
 license = "MIT"
@@ -38,6 +38,7 @@ pytest-asyncio = "^0.16.0"
 pytest-mypy-plugins = "^1.9.3"
 pytest-xdist = "^2.5.0"
 coverage = { extras = ["toml"], version = "^6.2" }
+dunamai = "^1.11.0"
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"

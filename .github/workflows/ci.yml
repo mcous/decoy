@@ -1,11 +1,15 @@
 name: "Continuous integration"
 
-on: [push, pull_request]
+on:
+    push:
+        branches: "*"
+    pull_request:
+        branches: "*"
 
 env:
     PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
     POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
-    DEFAULT_PYTHON: "3.8"
+    DEFAULT_PYTHON: "3.10"
 
 jobs:
     test:
@@ -112,13 +116,26 @@ jobs:
             - name: "Install dependencies"
               run: poetry install
 
+            - id: "version"
+              name: "Get version"
+              run: |
+                  most_recent_tag=$(git describe --abbrev=0)
+                  current_describe=$(git describe)
+                  if [[ "${most_recent_tag}" == "${current_describe}" ]]; then
+                    version=${current_describe}
+                  else
+                    version=$(poetry run dunamai from git --style semver --bump)
+                  fi
+                  echo "::set-output name=version::${version}"
+
             - name: "Build artifacts"
               run: |
+                  poetry version ${{ steps.version.outputs.version }}
                   poetry build
                   poetry run mkdocs build
 
             - name: "Deploy to PyPI and GitHub Pages"
-              if: startsWith(github.ref, 'refs/tags/v')
+              if: github.ref == 'refs/heads/main'
               env:
                   USER_NAME: ${{ github.actor }}
                   USER_ID: ${{ github.event.sender.id }}
