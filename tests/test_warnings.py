@@ -103,7 +103,7 @@ warning_specs = [
                 "The same rehearsal was used in both a `when` and a `verify`.",
                 "This is redundant and probably a misuse of the mock.",
                 "\tspy(1)",
-                "See https://mike.cousins.io/decoy/usage/errors-and-warnings/#miscalledstubwarning",  # noqa: E501
+                "See https://mike.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",  # noqa: E501
             ]
         ),
     ),
