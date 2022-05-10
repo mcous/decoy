@@ -119,6 +119,12 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
+            subject=Spec(source=SomeClass, name=None).get_child_spec(
+                "primitive_property"
+            ),
+            expected_signature=None,
+        ),
+        GetSignatureSpec(
             subject=(
                 Spec(source=SomeNestedClass, name=None)
                 .get_child_spec("child")

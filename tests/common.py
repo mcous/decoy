@@ -22,6 +22,11 @@ class SomeClass:
         """Perform a side-effect without a return value."""
         ...
 
+    @property
+    def primitive_property(self) -> str:
+        """Get a primitive computed property."""
+        ...
+
 
 class SomeNestedClass:
     """Nested testing class."""

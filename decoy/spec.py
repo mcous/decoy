@@ -75,7 +75,7 @@ class Spec:
 
         try:
             return inspect.signature(source)
-        except TypeError:
+        except (ValueError, TypeError):
             return None
 
     def get_class_type(self) -> Optional[Type[Any]]:
