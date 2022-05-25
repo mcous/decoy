@@ -74,7 +74,7 @@ class Spec:
         source = self._get_source()
 
         try:
-            return inspect.signature(source)
+            return inspect.signature(source, follow_wrapped=True)
         except (ValueError, TypeError):
             return None
 
@@ -130,10 +130,13 @@ class Spec:
             elif isinstance(child_source, staticmethod):
                 child_source = child_source.__func__
 
-            elif inspect.isfunction(child_source):
-                # consume the `self` argument of the method to ensure proper
-                # signature reporting by wrapping it in a partial
-                child_source = functools.partial(child_source, None)
+            else:
+                child_source = inspect.unwrap(child_source)
+
+                if inspect.isfunction(child_source):
+                    # consume the `self` argument of the method to ensure proper
+                    # signature reporting by wrapping it in a partial
+                    child_source = functools.partial(child_source, None)
 
         return Spec(source=child_source, name=child_name, module_name=self._module_name)
 

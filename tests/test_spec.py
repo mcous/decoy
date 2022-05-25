@@ -13,6 +13,7 @@ from .common import (
     SomeNestedClass,
     some_func,
     some_async_func,
+    some_wrapped_func,
 )
 
 
@@ -184,6 +185,34 @@ class GetSignatureSpec(NamedTuple):
                 return_annotation=int,
             ),
         ),
+        GetSignatureSpec(
+            subject=Spec(source=some_wrapped_func, name=None),
+            expected_signature=inspect.Signature(
+                parameters=[
+                    inspect.Parameter(
+                        name="val",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        annotation=str,
+                    )
+                ],
+                return_annotation=str,
+            ),
+        ),
+        GetSignatureSpec(
+            subject=Spec(source=SomeClass, name=None).get_child_spec(
+                "some_wrapped_method"
+            ),
+            expected_signature=inspect.Signature(
+                parameters=[
+                    inspect.Parameter(
+                        name="val",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        annotation=str,
+                    )
+                ],
+                return_annotation=str,
+            ),
+        ),
     ],
 )
 def test_get_signature(
@@ -310,6 +339,13 @@ class GetBindArgsSpec(NamedTuple):
         ),
         GetBindArgsSpec(
             subject=Spec(source=some_func, name=None),
+            input_args=(),
+            input_kwargs={"val": "hello"},
+            expected_args=("hello",),
+            expected_kwargs={},
+        ),
+        GetBindArgsSpec(
+            subject=Spec(source=some_wrapped_func, name=None),
             input_args=(),
             input_kwargs={"val": "hello"},
             expected_args=("hello",),
