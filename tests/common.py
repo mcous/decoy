@@ -1,4 +1,5 @@
 """Common test interfaces."""
+from functools import lru_cache
 from typing import Any
 
 
@@ -25,6 +26,11 @@ class SomeClass:
     @property
     def primitive_property(self) -> str:
         """Get a primitive computed property."""
+        ...
+
+    @lru_cache(maxsize=None)
+    def some_wrapped_method(self, val: str) -> str:
+        """Get a thing through a wrapped method."""
         ...
 
 
@@ -75,17 +81,22 @@ class SomeCallableClass:
         ...
 
 
-# NOTE: these `Any`s are forward references for call signature testing purposes
 def noop(*args: Any, **kwargs: Any) -> Any:
     """No-op."""
-    pass
+    ...
 
 
 def some_func(val: str) -> str:
     """Test function."""
-    return "can't touch this"
+    ...
 
 
 async def some_async_func(val: str) -> str:
     """Async test function."""
-    return "can't touch this"
+    ...
+
+
+@lru_cache(maxsize=None)
+def some_wrapped_func(val: str) -> str:
+    """Wrapped test function."""
+    ...
