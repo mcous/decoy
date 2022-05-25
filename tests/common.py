@@ -28,7 +28,7 @@ class SomeClass:
         """Get a primitive computed property."""
         ...
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def some_wrapped_method(self, val: str) -> str:
         """Get a thing through a wrapped method."""
         ...
@@ -96,7 +96,7 @@ async def some_async_func(val: str) -> str:
     ...
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def some_wrapped_func(val: str) -> str:
     """Wrapped test function."""
     ...
