@@ -5,8 +5,11 @@ from decoy import Decoy
 from decoy.call_handler import CallHandler
 from decoy.spy_log import SpyLog
 from decoy.core import DecoyCore
+
+# from decoy.errors import MockNotAsyncError
 from decoy.spy import Spy, SpyCreator
 from decoy.spy_events import (
+    SpyInfo,
     SpyCall,
     SpyPropAccess,
     SpyEvent,
@@ -120,7 +123,7 @@ def test_mock_spec(
     call_handler: CallHandler,
     subject: DecoyCore,
 ) -> None:
-    """It should create a generic spy by default."""
+    """It should create a spy from a source object."""
     spy = decoy.mock(cls=Spy)
 
     decoy.when(
@@ -140,7 +143,7 @@ def test_when_then_return(
 ) -> None:
     """It should be able to register a new stubbing."""
     rehearsal = WhenRehearsal(
-        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -165,7 +168,7 @@ def test_when_then_return_multiple_values(
 ) -> None:
     """It should add multiple return values to a stub."""
     rehearsal = WhenRehearsal(
-        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -198,7 +201,7 @@ def test_when_then_raise(
 ) -> None:
     """It should add a raise behavior to a stub."""
     rehearsal = WhenRehearsal(
-        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -224,7 +227,8 @@ def test_when_then_do(
 ) -> None:
     """It should add an action behavior to a stub."""
     rehearsal = WhenRehearsal(
-        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy"),
+        payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -250,7 +254,7 @@ def test_when_then_enter_with(
 ) -> None:
     """It should be able to register a ContextManager stubbing."""
     rehearsal = WhenRehearsal(
-        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -275,7 +279,7 @@ def test_when_ignore_extra_args(
 ) -> None:
     """It should be able to register a new stubbing."""
     rehearsal = WhenRehearsal(
-        spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=True)).then_return(
         rehearsal
@@ -301,10 +305,10 @@ def test_verify(
     """It should be able to verify a call."""
     spy_id = 42
     rehearsal = VerifyRehearsal(
-        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     call = SpyEvent(
-        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
 
     decoy.when(
@@ -330,14 +334,16 @@ def test_verify_multiple_calls(
 
     rehearsals = [
         VerifyRehearsal(
-            spy_id=spy_id_1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={})
+            spy=SpyInfo(id=spy_id_1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
         ),
         VerifyRehearsal(
-            spy_id=spy_id_2, spy_name="spy_2", payload=SpyCall(args=(), kwargs={})
+            spy=SpyInfo(id=spy_id_2, name="spy_2"), payload=SpyCall(args=(), kwargs={})
         ),
     ]
     calls = [
-        SpyEvent(spy_id=spy_id_1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
+        SpyEvent(
+            spy=SpyInfo(id=spy_id_1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+        )
     ]
 
     decoy.when(
@@ -364,10 +370,10 @@ def test_verify_call_times(
     """It should be able to verify the call count."""
     spy_id = 42
     rehearsal = VerifyRehearsal(
-        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
     call = SpyEvent(
-        spy_id=spy_id, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
     )
 
     decoy.when(
@@ -387,8 +393,7 @@ def test_prop(
 ) -> None:
     """It should be able to create set and delete rehearsals."""
     rehearsal = PropRehearsal(
-        spy_id=1,
-        spy_name="my_spy",
+        spy=SpyInfo(id=1, name="my_spy"),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
     )
 
@@ -399,8 +404,7 @@ def test_prop(
     result.set("hello")
 
     expected_set_event = SpyEvent(
-        spy_id=1,
-        spy_name="my_spy",
+        spy=SpyInfo(id=1, name="my_spy"),
         payload=SpyPropAccess(
             prop_name="my_prop",
             access_type=PropAccessType.SET,
@@ -412,8 +416,7 @@ def test_prop(
     result.delete()
 
     expected_delete_event = SpyEvent(
-        spy_id=1,
-        spy_name="my_spy",
+        spy=SpyInfo(id=1, name="my_spy"),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.DELETE),
     )
     decoy.verify(spy_log.push(expected_delete_event), times=1)
@@ -427,7 +430,9 @@ def test_reset(
     subject: DecoyCore,
 ) -> None:
     """It should reset the stores."""
-    call = SpyEvent(spy_id=1, spy_name="my_spy", payload=SpyCall(args=(), kwargs={}))
+    call = SpyEvent(
+        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+    )
 
     decoy.when(spy_log.get_all()).then_return([call])
 

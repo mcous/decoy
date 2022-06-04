@@ -3,7 +3,7 @@ import pytest
 import os
 from typing import List, NamedTuple, Optional
 
-from decoy.spy_events import SpyCall, SpyEvent, VerifyRehearsal
+from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, VerifyRehearsal
 from decoy.errors import VerifyError
 
 
@@ -20,7 +20,7 @@ verify_error_specs = [
     VerifyErrorSpec(
         rehearsals=[
             VerifyRehearsal(
-                spy_id=42, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=42, name="my_spy"), payload=SpyCall(args=(), kwargs={})
             ),
         ],
         calls=[],
@@ -36,18 +36,16 @@ verify_error_specs = [
     VerifyErrorSpec(
         rehearsals=[
             VerifyRehearsal(
-                spy_id=42, spy_name="my_spy", payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=42, name="my_spy"), payload=SpyCall(args=(), kwargs={})
             ),
         ],
         calls=[
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
         ],
@@ -65,35 +63,29 @@ verify_error_specs = [
     VerifyErrorSpec(
         rehearsals=[
             VerifyRehearsal(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             VerifyRehearsal(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             VerifyRehearsal(
-                spy_id=202,
-                spy_name="spy_202",
+                spy=SpyInfo(id=202, name="spy_202"),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             SpyEvent(
-                spy_id=202,
-                spy_name="spy_202",
+                spy=SpyInfo(id=202, name="spy_202"),
                 payload=SpyCall(args=("oh no",), kwargs={}),
             ),
         ],
@@ -114,20 +106,17 @@ verify_error_specs = [
     VerifyErrorSpec(
         rehearsals=[
             VerifyRehearsal(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
@@ -143,15 +132,13 @@ verify_error_specs = [
     VerifyErrorSpec(
         rehearsals=[
             VerifyRehearsal(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy_id=101,
-                spy_name="spy_101",
+                spy=SpyInfo(id=101, name="spy_101"),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
         ],

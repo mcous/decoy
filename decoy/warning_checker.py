@@ -29,7 +29,7 @@ def _check_no_miscalled_stubs(all_events: Sequence[AnySpyEvent]) -> None:
 
     for event in all_events:
         if isinstance(event.payload, SpyCall):
-            spy_id = event.spy_id
+            spy_id = event.spy.id
             spy_calls = all_calls_by_id.get(spy_id, [])
             all_calls_by_id[spy_id] = spy_calls + [event]
 
