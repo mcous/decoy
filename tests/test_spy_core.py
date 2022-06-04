@@ -5,7 +5,7 @@ from typing import Any, Dict, NamedTuple, Optional, Tuple, Type
 
 from decoy.spy_core import SpyCore, BoundArgs
 from decoy.warnings import IncorrectCallWarning
-from .common import (
+from .fixtures import (
     SomeClass,
     SomeAsyncClass,
     SomeAsyncCallableClass,
@@ -48,7 +48,7 @@ class GetNameSpec(NamedTuple):
         GetNameSpec(
             subject=SpyCore(source=some_func, name=None),
             expected_name="some_func",
-            expected_full_name="tests.common.some_func",
+            expected_full_name="tests.fixtures.some_func",
         ),
         GetNameSpec(
             subject=SpyCore(
@@ -67,7 +67,7 @@ class GetNameSpec(NamedTuple):
                 "foo", is_async=False
             ),
             expected_name="SomeClass.foo",
-            expected_full_name="tests.common.SomeClass.foo",
+            expected_full_name="tests.fixtures.SomeClass.foo",
         ),
         GetNameSpec(
             subject=(
@@ -76,7 +76,7 @@ class GetNameSpec(NamedTuple):
                 .create_child_core("foo", is_async=False)
             ),
             expected_name="SomeNestedClass.child.foo",
-            expected_full_name="tests.common.SomeNestedClass.child.foo",
+            expected_full_name="tests.fixtures.SomeNestedClass.child.foo",
         ),
     ],
 )

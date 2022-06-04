@@ -27,6 +27,17 @@ class MissingRehearsalError(ValueError):
         super().__init__("Rehearsal not found.")
 
 
+class MockNotAsyncError(TypeError):
+    """An error raised when an asynchronous function is used with a synchronous mock.
+
+    This error is raised if you pass an `async def` function
+    to a synchronous stub's `then_do` method.
+    See the [MockNotAsyncError guide][] for more details.
+
+    [MockNotAsyncError guide]: ../usage/errors-and-warnings/#mocknotasyncerror
+    """
+
+
 class VerifyError(AssertionError):
     """An error raised when actual calls do not match rehearsals given to `verify`.
 

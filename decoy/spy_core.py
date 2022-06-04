@@ -1,4 +1,4 @@
-"""Mock specification."""
+"""Core spy logic."""
 import inspect
 import functools
 import warnings
@@ -27,7 +27,7 @@ _DEFAULT_SPY_NAME = "unnamed"
 
 
 class SpyCore:
-    """Spy configuration values.
+    """Core spy logic for mimicing a given `source` object.
 
     Arguments:
         source: The source object the Spy is mimicing.
@@ -55,10 +55,10 @@ class SpyCore:
         self._full_name = (
             f"{self._module_name}.{self._name}" if self._module_name else self._name
         )
-        self._info = SpyInfo(id=id(self), name=self._name)
         self._class_type = self._source if inspect.isclass(self._source) else None
         self._signature = _get_signature(source)
         self._is_async = is_async or _get_is_async(source)
+        self._info = SpyInfo(id=id(self), name=self._name, is_async=self._is_async)
 
     @property
     def info(self) -> SpyInfo:

@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
     Generic,
     Optional,
     Union,
@@ -195,6 +196,9 @@ class Decoy:
                 the actual call. Decoy will compare and match any given arguments,
                 ignoring unspecified arguments.
 
+        Raises:
+            VerifyError: The verification was not satisfied.
+
         Example:
             ```python
             def test_create_something(decoy: Decoy):
@@ -278,12 +282,20 @@ class Stub(Generic[ReturnT]):
         """
         self._core.then_raise(error)
 
-    def then_do(self, action: Callable[..., ReturnT]) -> None:
+    def then_do(
+        self,
+        action: Callable[..., Union[ReturnT, Coroutine[Any, Any, ReturnT]]],
+    ) -> None:
         """Configure the stub to trigger an action.
 
         Arguments:
             action: The function to call. Called with whatever arguments
-                are actually passed to the stub.
+                are actually passed to the stub. May be an `async def`
+                function if the mock is also asynchronous.
+
+        Raises:
+            MockNotAsyncError: `action` was an `async def` function,
+                but the mock is synchronous.
         """
         self._core.then_do(action)
 

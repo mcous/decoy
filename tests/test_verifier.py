@@ -19,7 +19,8 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=42, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=42, name="my_spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
         ],
         calls=[],
@@ -27,16 +28,17 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=42, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=42, name="my_spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
         ],
@@ -44,29 +46,29 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=("oh no",), kwargs={}),
             ),
         ],
@@ -74,25 +76,25 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
         ],
@@ -100,17 +102,17 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
@@ -119,17 +121,17 @@ verify_raise_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
@@ -141,13 +143,13 @@ verify_pass_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=42, name="my_spy"),
+                spy=SpyInfo(id=42, name="my_spy", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=42, name="my_spy"),
+                spy=SpyInfo(id=42, name="my_spy", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
@@ -155,29 +157,29 @@ verify_pass_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
@@ -185,33 +187,33 @@ verify_pass_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(0, 0, 0), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=202, name="spy_202"),
+                spy=SpyInfo(id=202, name="spy_202", is_async=False),
                 payload=SpyCall(args=(7, 8, 9), kwargs={}),
             ),
         ],
@@ -219,17 +221,17 @@ verify_pass_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
@@ -238,17 +240,17 @@ verify_pass_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
         calls=[
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(4, 5, 6), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],
@@ -257,7 +259,7 @@ verify_pass_specs = [
     VerifySpec(
         rehearsals=[
             VerifyRehearsal(
-                spy=SpyInfo(id=101, name="spy_101"),
+                spy=SpyInfo(id=101, name="spy_101", is_async=False),
                 payload=SpyCall(args=(1, 2, 3), kwargs={}),
             ),
         ],

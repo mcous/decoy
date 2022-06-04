@@ -1,7 +1,9 @@
 """Decoy implementation logic."""
+import inspect
 from typing import Any, Callable, Optional
 
 from .call_handler import CallHandler
+from .errors import MockNotAsyncError
 from .spy import SpyCreator
 from .spy_events import WhenRehearsal, PropAccessType, SpyEvent, SpyInfo, SpyPropAccess
 from .spy_log import SpyLog
@@ -111,6 +113,14 @@ class StubCore:
 
     def then_do(self, action: Callable[..., ReturnT]) -> None:
         """Set the stub to perform an action."""
+        spy_info = self._rehearsal.spy
+
+        if inspect.iscoroutinefunction(action) and not spy_info.is_async:
+            raise MockNotAsyncError(
+                f"Cannot configure {spy_info.name} to call {action}"
+                f" because {spy_info.name} is not asynchronous."
+            )
+
         self._stub_store.add(
             rehearsal=self._rehearsal,
             behavior=StubBehavior(action=action),

@@ -2,6 +2,7 @@
 import pytest
 import inspect
 import sys
+
 from decoy import Decoy
 
 from decoy.call_handler import CallHandler, CallHandlerResult
@@ -9,7 +10,7 @@ from decoy.spy import AsyncSpy, Spy, SpyCreator
 from decoy.spy_core import BoundArgs, SpyCore
 from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, SpyPropAccess, PropAccessType
 
-from .common import SomeClass, some_func
+from .fixtures import SomeClass, some_func
 
 
 pytestmark = pytest.mark.asyncio
@@ -125,7 +126,7 @@ def test_spy_calls(
     spy_core: SpyCore,
 ) -> None:
     """It should send any calls to the call handler."""
-    spy_info = SpyInfo(id=123456, name="spy_name")
+    spy_info = SpyInfo(id=123456, name="spy_name", is_async=False)
 
     decoy.when(spy_core.info).then_return(spy_info)
     decoy.when(spy_core.bind_args(1, 2, three=3)).then_return(
@@ -142,6 +143,43 @@ def test_spy_calls(
 
     subject = Spy(core=spy_core, call_handler=call_handler, spy_creator=spy_creator)
     result = subject(1, 2, three=3)
+
+    assert result == 42
+
+
+async def test_async_spy_calls(
+    decoy: Decoy,
+    call_handler: CallHandler,
+    spy_creator: SpyCreator,
+    spy_core: SpyCore,
+) -> None:
+    """It should understand async returns from the call handler."""
+    spy_info = SpyInfo(id=123456, name="spy_name", is_async=True)
+
+    async def _get_call_result() -> int:
+        return 42
+
+    decoy.when(spy_core.info).then_return(spy_info)
+    decoy.when(spy_core.bind_args(1, 2, three=3)).then_return(
+        BoundArgs(args=(1, 2, 3), kwargs={})
+    )
+
+    subject = AsyncSpy(
+        core=spy_core,
+        call_handler=call_handler,
+        spy_creator=spy_creator,
+    )
+
+    decoy.when(
+        call_handler.handle(
+            SpyEvent(
+                spy=spy_info,
+                payload=SpyCall(args=(1, 2, 3), kwargs={}),
+            )
+        )
+    ).then_return(CallHandlerResult(_get_call_result()))
+
+    result = await subject(1, 2, three=3)
 
     assert result == 42
 
@@ -227,7 +265,7 @@ def test_spy_prop_get(
     spy_core: SpyCore,
 ) -> None:
     """It should record a property get call."""
-    spy_info = SpyInfo(id=123456, name="spy_name")
+    spy_info = SpyInfo(id=123456, name="spy_name", is_async=False)
 
     decoy.when(spy_core.info).then_return(spy_info)
     decoy.when(
@@ -255,7 +293,7 @@ def test_spy_prop_set(
     spy_core: SpyCore,
 ) -> None:
     """It should record a property set call."""
-    spy_info = SpyInfo(id=123456, name="spy_name")
+    spy_info = SpyInfo(id=123456, name="spy_name", is_async=False)
 
     decoy.when(spy_core.info).then_return(spy_info)
 
@@ -284,7 +322,7 @@ def test_spy_prop_delete(
     spy_core: SpyCore,
 ) -> None:
     """It should record a property set call."""
-    spy_info = SpyInfo(id=123456, name="spy_name")
+    spy_info = SpyInfo(id=123456, name="spy_name", is_async=False)
 
     decoy.when(spy_core.info).then_return(spy_info)
 

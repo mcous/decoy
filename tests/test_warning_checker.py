@@ -34,10 +34,12 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[],
@@ -46,7 +48,8 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[],
@@ -55,23 +58,25 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     )
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     )
                 ],
@@ -82,10 +87,12 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             VerifyRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[],
@@ -94,19 +101,19 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"),
+                spy=SpyInfo(id=1, name="spy", is_async=False),
                 payload=SpyPropAccess(
                     prop_name="prop_name", access_type=PropAccessType.GET
                 ),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"),
+                spy=SpyInfo(id=1, name="spy", is_async=False),
                 payload=SpyPropAccess(
                     prop_name="other_prop", access_type=PropAccessType.GET
                 ),
             ),
             WhenRehearsal(
-                spy=SpyInfo(id=2, name="spy.other_prop"),
+                spy=SpyInfo(id=2, name="spy.other_prop", is_async=False),
                 payload=SpyCall(args=(), kwargs={}, ignore_extra_args=False),
             ),
         ],
@@ -116,30 +123,33 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(0,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(0,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(0,), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
@@ -150,26 +160,29 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=2, name="yps"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=2, name="yps", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
@@ -180,26 +193,29 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
@@ -210,29 +226,33 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             WhenRehearsal(
-                spy=SpyInfo(id=2, name="yps"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=2, name="yps", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=2, name="yps"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=2, name="yps", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
@@ -240,13 +260,13 @@ warning_checker_specs = [
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=2, name="yps"),
+                        spy=SpyInfo(id=2, name="yps", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=2, name="yps"),
+                        spy=SpyInfo(id=2, name="yps", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                 ],
@@ -258,36 +278,41 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(3,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(3,), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(2,), kwargs={}),
                     ),
                 ],
@@ -295,17 +320,17 @@ warning_checker_specs = [
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(), kwargs={}),
                     ),
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(3,), kwargs={}),
                     ),
                 ],
@@ -316,13 +341,16 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
         ],
         expected_warnings=[],
@@ -331,29 +359,33 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             SpyEvent(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
         ],
         expected_warnings=[
             MiscalledStubWarning(
                 rehearsals=[
                     WhenRehearsal(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(1,), kwargs={}),
                     ),
                 ],
                 calls=[
                     SpyEvent(
-                        spy=SpyInfo(id=1, name="spy"),
+                        spy=SpyInfo(id=1, name="spy", is_async=False),
                         payload=SpyCall(args=(2,), kwargs={}),
                     ),
                 ],
@@ -364,16 +396,18 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
         ],
         expected_warnings=[
             RedundantVerifyWarning(
                 rehearsal=VerifyRehearsal(
-                    spy=SpyInfo(id=1, name="spy"),
+                    spy=SpyInfo(id=1, name="spy", is_async=False),
                     payload=SpyCall(
                         args=(1,),
                         kwargs={},
@@ -386,10 +420,12 @@ warning_checker_specs = [
     WarningCheckerSpec(
         all_calls=[
             WhenRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(1,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(1,), kwargs={}),
             ),
             VerifyRehearsal(
-                spy=SpyInfo(id=1, name="spy"), payload=SpyCall(args=(2,), kwargs={})
+                spy=SpyInfo(id=1, name="spy", is_async=False),
+                payload=SpyCall(args=(2,), kwargs={}),
             ),
         ],
         expected_warnings=[],

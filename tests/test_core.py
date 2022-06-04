@@ -6,7 +6,7 @@ from decoy.call_handler import CallHandler
 from decoy.spy_log import SpyLog
 from decoy.core import DecoyCore
 
-# from decoy.errors import MockNotAsyncError
+from decoy.errors import MockNotAsyncError
 from decoy.spy import Spy, SpyCreator
 from decoy.spy_events import (
     SpyInfo,
@@ -22,7 +22,9 @@ from decoy.stub_store import StubBehavior, StubStore
 from decoy.verifier import Verifier
 from decoy.warning_checker import WarningChecker
 
-from .common import SomeClass
+from .fixtures import SomeClass
+
+pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture()
@@ -143,7 +145,8 @@ def test_when_then_return(
 ) -> None:
     """It should be able to register a new stubbing."""
     rehearsal = WhenRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -168,7 +171,8 @@ def test_when_then_return_multiple_values(
 ) -> None:
     """It should add multiple return values to a stub."""
     rehearsal = WhenRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -201,7 +205,8 @@ def test_when_then_raise(
 ) -> None:
     """It should add a raise behavior to a stub."""
     rehearsal = WhenRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -227,7 +232,7 @@ def test_when_then_do(
 ) -> None:
     """It should add an action behavior to a stub."""
     rehearsal = WhenRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"),
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
         payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
@@ -246,6 +251,59 @@ def test_when_then_do(
     )
 
 
+def test_when_then_do_async(
+    decoy: Decoy,
+    spy_log: SpyLog,
+    stub_store: StubStore,
+    subject: DecoyCore,
+) -> None:
+    """It should add an async action behavior to an async stub."""
+    rehearsal = WhenRehearsal(
+        spy=SpyInfo(id=1, name="my_spy", is_async=True),
+        payload=SpyCall(args=(), kwargs={}),
+    )
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+        rehearsal
+    )
+
+    async def action() -> str:
+        ...
+
+    result = subject.when("__rehearsal__", ignore_extra_args=False)
+    result.then_do(action)
+
+    decoy.verify(
+        stub_store.add(
+            rehearsal=rehearsal,
+            behavior=StubBehavior(action=action),
+        )
+    )
+
+
+async def test_when_then_do_async_not_allowed(
+    decoy: Decoy,
+    spy_log: SpyLog,
+    stub_store: StubStore,
+    subject: DecoyCore,
+) -> None:
+    """It should disallow an async action behavior with a sync stub."""
+    rehearsal = WhenRehearsal(
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
+    )
+    decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
+        rehearsal
+    )
+
+    async def action() -> str:
+        ...
+
+    result = subject.when("__rehearsal__", ignore_extra_args=False)
+
+    with pytest.raises(MockNotAsyncError):
+        result.then_do(action)
+
+
 def test_when_then_enter_with(
     decoy: Decoy,
     spy_log: SpyLog,
@@ -254,7 +312,8 @@ def test_when_then_enter_with(
 ) -> None:
     """It should be able to register a ContextManager stubbing."""
     rehearsal = WhenRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=False)).then_return(
         rehearsal
@@ -279,7 +338,8 @@ def test_when_ignore_extra_args(
 ) -> None:
     """It should be able to register a new stubbing."""
     rehearsal = WhenRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     decoy.when(spy_log.consume_when_rehearsal(ignore_extra_args=True)).then_return(
         rehearsal
@@ -305,10 +365,12 @@ def test_verify(
     """It should be able to verify a call."""
     spy_id = 42
     rehearsal = VerifyRehearsal(
-        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     call = SpyEvent(
-        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
 
     decoy.when(
@@ -334,15 +396,18 @@ def test_verify_multiple_calls(
 
     rehearsals = [
         VerifyRehearsal(
-            spy=SpyInfo(id=spy_id_1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+            spy=SpyInfo(id=spy_id_1, name="spy_1", is_async=False),
+            payload=SpyCall(args=(), kwargs={}),
         ),
         VerifyRehearsal(
-            spy=SpyInfo(id=spy_id_2, name="spy_2"), payload=SpyCall(args=(), kwargs={})
+            spy=SpyInfo(id=spy_id_2, name="spy_2", is_async=False),
+            payload=SpyCall(args=(), kwargs={}),
         ),
     ]
     calls = [
         SpyEvent(
-            spy=SpyInfo(id=spy_id_1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+            spy=SpyInfo(id=spy_id_1, name="spy_1", is_async=False),
+            payload=SpyCall(args=(), kwargs={}),
         )
     ]
 
@@ -370,10 +435,12 @@ def test_verify_call_times(
     """It should be able to verify the call count."""
     spy_id = 42
     rehearsal = VerifyRehearsal(
-        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     call = SpyEvent(
-        spy=SpyInfo(id=spy_id, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=spy_id, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
 
     decoy.when(
@@ -393,7 +460,7 @@ def test_prop(
 ) -> None:
     """It should be able to create set and delete rehearsals."""
     rehearsal = PropRehearsal(
-        spy=SpyInfo(id=1, name="my_spy"),
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
     )
 
@@ -404,7 +471,7 @@ def test_prop(
     result.set("hello")
 
     expected_set_event = SpyEvent(
-        spy=SpyInfo(id=1, name="my_spy"),
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
         payload=SpyPropAccess(
             prop_name="my_prop",
             access_type=PropAccessType.SET,
@@ -416,7 +483,7 @@ def test_prop(
     result.delete()
 
     expected_delete_event = SpyEvent(
-        spy=SpyInfo(id=1, name="my_spy"),
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.DELETE),
     )
     decoy.verify(spy_log.push(expected_delete_event), times=1)
@@ -431,7 +498,8 @@ def test_reset(
 ) -> None:
     """It should reset the stores."""
     call = SpyEvent(
-        spy=SpyInfo(id=1, name="my_spy"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=1, name="my_spy", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
 
     decoy.when(spy_log.get_all()).then_return([call])

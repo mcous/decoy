@@ -3,7 +3,7 @@ import pytest
 from collections import namedtuple
 from decoy import Decoy, matchers
 from typing import Any, List, NamedTuple
-from .common import SomeClass
+from .fixtures import SomeClass
 
 
 class _HelloClass(NamedTuple):
