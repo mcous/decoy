@@ -11,6 +11,13 @@ class PropAccessType(str, enum.Enum):
     DELETE = "delete"
 
 
+class SpyInfo(NamedTuple):
+    """Spy information and configuration."""
+
+    id: int
+    name: str
+
+
 class SpyCall(NamedTuple):
     """Spy event payload representing a call to a function or method."""
 
@@ -30,32 +37,28 @@ class SpyPropAccess(NamedTuple):
 class SpyEvent(NamedTuple):
     """An interaction with a spy by the code under test."""
 
-    spy_id: int
-    spy_name: str
+    spy: SpyInfo
     payload: Union[SpyCall, SpyPropAccess]
 
 
 class WhenRehearsal(NamedTuple):
     """A spy interaction that has been used as a rehearsal for `when`."""
 
-    spy_id: int
-    spy_name: str
+    spy: SpyInfo
     payload: Union[SpyCall, SpyPropAccess]
 
 
 class VerifyRehearsal(NamedTuple):
     """A spy interaction that has been used as a rehearsal for `verify`."""
 
-    spy_id: int
-    spy_name: str
+    spy: SpyInfo
     payload: Union[SpyCall, SpyPropAccess]
 
 
 class PropRehearsal(NamedTuple):
     """A spy interaction that has been used as a rehearsal for `prop`."""
 
-    spy_id: int
-    spy_name: str
+    spy: SpyInfo
     payload: SpyPropAccess
 
 
@@ -66,7 +69,7 @@ AnySpyEvent = Union[SpyEvent, SpyRehearsal]
 
 def match_event(event: AnySpyEvent, rehearsal: SpyRehearsal) -> bool:
     """Check if a call matches a given rehearsal."""
-    if event.spy_id != rehearsal.spy_id:
+    if event.spy != rehearsal.spy:
         return False
 
     if (

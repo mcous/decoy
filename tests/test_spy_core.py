@@ -1,9 +1,9 @@
-"""Tests for Spec instances."""
+"""Tests for SpyCore instances."""
 import pytest
 import inspect
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Type
 
-from decoy.spec import Spec, BoundArgs
+from decoy.spy_core import SpyCore, BoundArgs
 from decoy.warnings import IncorrectCallWarning
 from .common import (
     SomeClass,
@@ -19,17 +19,20 @@ from .common import (
 
 def test_init() -> None:
     """It should have default spec properties."""
-    subject = Spec(source=None, name=None)
+    subject = SpyCore(source=None, name=None)
 
-    assert subject.get_signature() is None
-    assert subject.get_class_type() is None
-    assert subject.get_is_async() is False
+    assert isinstance(subject.info.id, int)
+    assert subject.signature is None
+    assert subject.class_type is None
+    assert subject.is_async is False
+
+    assert subject.info.id != SpyCore(source=None, name=None).info.id
 
 
 class GetNameSpec(NamedTuple):
-    """Spec data to test get_name and get_full_name."""
+    """Spec data to test info and full_name."""
 
-    subject: Spec
+    subject: SpyCore
     expected_name: str
     expected_full_name: str
 
@@ -38,51 +41,57 @@ class GetNameSpec(NamedTuple):
     GetNameSpec._fields,
     [
         GetNameSpec(
-            subject=Spec(source=None, name=None),
+            subject=SpyCore(source=None, name=None),
             expected_name="unnamed",
             expected_full_name="unnamed",
         ),
         GetNameSpec(
-            subject=Spec(source=some_func, name=None),
+            subject=SpyCore(source=some_func, name=None),
             expected_name="some_func",
             expected_full_name="tests.common.some_func",
         ),
         GetNameSpec(
-            subject=Spec(source=some_func, name="spy_name", module_name="module_name"),
+            subject=SpyCore(
+                source=some_func, name="spy_name", module_name="module_name"
+            ),
             expected_name="spy_name",
             expected_full_name="module_name.spy_name",
         ),
         GetNameSpec(
-            subject=Spec(source=some_func, name="spy_name", module_name=None),
+            subject=SpyCore(source=some_func, name="spy_name", module_name=None),
             expected_name="spy_name",
             expected_full_name="spy_name",
         ),
         GetNameSpec(
-            subject=Spec(source=SomeClass, name=None).get_child_spec("foo"),
+            subject=SpyCore(source=SomeClass, name=None).create_child_core(
+                "foo", is_async=False
+            ),
             expected_name="SomeClass.foo",
             expected_full_name="tests.common.SomeClass.foo",
         ),
         GetNameSpec(
             subject=(
-                Spec(source=SomeNestedClass, name=None)
-                .get_child_spec("child")
-                .get_child_spec("foo")
+                SpyCore(source=SomeNestedClass, name=None)
+                .create_child_core("child", is_async=False)
+                .create_child_core("foo", is_async=False)
             ),
             expected_name="SomeNestedClass.child.foo",
             expected_full_name="tests.common.SomeNestedClass.child.foo",
         ),
     ],
 )
-def test_get_name(subject: Spec, expected_name: str, expected_full_name: str) -> None:
+def test_get_name(
+    subject: SpyCore, expected_name: str, expected_full_name: str
+) -> None:
     """It should assign names from args or spec."""
-    assert subject.get_name() == expected_name
-    assert subject.get_full_name() == expected_full_name
+    assert subject.info.name == expected_name
+    assert subject.full_name == expected_full_name
 
 
 class GetSignatureSpec(NamedTuple):
     """Spec data to test get_signature."""
 
-    subject: Spec
+    subject: SpyCore
     expected_signature: Optional[inspect.Signature]
 
 
@@ -90,11 +99,11 @@ class GetSignatureSpec(NamedTuple):
     GetSignatureSpec._fields,
     [
         GetSignatureSpec(
-            subject=Spec(source=None, name=None),
+            subject=SpyCore(source=None, name=None),
             expected_signature=None,
         ),
         GetSignatureSpec(
-            subject=Spec(source=some_func, name=None),
+            subject=SpyCore(source=some_func, name=None),
             expected_signature=inspect.Signature(
                 parameters=[
                     inspect.Parameter(
@@ -107,7 +116,9 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
-            subject=Spec(source=SomeClass, name=None).get_child_spec("foo"),
+            subject=SpyCore(source=SomeClass, name=None).create_child_core(
+                "foo", is_async=False
+            ),
             expected_signature=inspect.Signature(
                 parameters=[
                     inspect.Parameter(
@@ -120,16 +131,16 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
-            subject=Spec(source=SomeClass, name=None).get_child_spec(
-                "primitive_property"
+            subject=SpyCore(source=SomeClass, name=None).create_child_core(
+                "primitive_property", is_async=False
             ),
             expected_signature=None,
         ),
         GetSignatureSpec(
             subject=(
-                Spec(source=SomeNestedClass, name=None)
-                .get_child_spec("child")
-                .get_child_spec("foo")
+                SpyCore(source=SomeNestedClass, name=None)
+                .create_child_core("child", is_async=False)
+                .create_child_core("foo", is_async=False)
             ),
             expected_signature=inspect.Signature(
                 parameters=[
@@ -144,9 +155,9 @@ class GetSignatureSpec(NamedTuple):
         ),
         GetSignatureSpec(
             subject=(
-                Spec(source=SomeNestedClass, name=None)
-                .get_child_spec("child_attr")
-                .get_child_spec("foo")
+                SpyCore(source=SomeNestedClass, name=None)
+                .create_child_core("child_attr", is_async=False)
+                .create_child_core("foo", is_async=False)
             ),
             expected_signature=inspect.Signature(
                 parameters=[
@@ -160,7 +171,9 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
-            subject=Spec(source=SomeClass, name=None).get_child_spec("fizzbuzz"),
+            subject=SpyCore(source=SomeClass, name=None).create_child_core(
+                "fizzbuzz", is_async=False
+            ),
             expected_signature=inspect.Signature(
                 parameters=[
                     inspect.Parameter(
@@ -173,7 +186,7 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
-            subject=Spec(source=SomeCallableClass, name=None),
+            subject=SpyCore(source=SomeCallableClass, name=None),
             expected_signature=inspect.Signature(
                 parameters=[
                     inspect.Parameter(
@@ -186,7 +199,7 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
-            subject=Spec(source=some_wrapped_func, name=None),
+            subject=SpyCore(source=some_wrapped_func, name=None),
             expected_signature=inspect.Signature(
                 parameters=[
                     inspect.Parameter(
@@ -199,8 +212,8 @@ class GetSignatureSpec(NamedTuple):
             ),
         ),
         GetSignatureSpec(
-            subject=Spec(source=SomeClass, name=None).get_child_spec(
-                "some_wrapped_method"
+            subject=SpyCore(source=SomeClass, name=None).create_child_core(
+                "some_wrapped_method", is_async=False
             ),
             expected_signature=inspect.Signature(
                 parameters=[
@@ -216,11 +229,11 @@ class GetSignatureSpec(NamedTuple):
     ],
 )
 def test_get_signature(
-    subject: Spec,
+    subject: SpyCore,
     expected_signature: Optional[inspect.Signature],
 ) -> None:
     """It should inspect the spec source's signature."""
-    assert subject.get_signature() == expected_signature
+    assert subject.signature == expected_signature
 
 
 @pytest.mark.filterwarnings("ignore:'NoneType' object is not subscriptable")
@@ -233,9 +246,11 @@ def test_get_signature_no_type_hints() -> None:
         def _ok(self, hello: str) -> None:
             ...
 
-    subject = Spec(source=_BadTypeHints, name=None).get_child_spec("_ok")
+    subject = SpyCore(source=_BadTypeHints, name=None).create_child_core(
+        "_ok", is_async=False
+    )
 
-    assert subject.get_signature() == inspect.Signature(
+    assert subject.signature == inspect.Signature(
         parameters=[
             inspect.Parameter(
                 name="hello",
@@ -250,7 +265,7 @@ def test_get_signature_no_type_hints() -> None:
 class GetClassTypeSpec(NamedTuple):
     """Spec data to test get_class_type."""
 
-    subject: Spec
+    subject: SpyCore
     expected_class_type: Optional[Type[Any]]
 
 
@@ -258,28 +273,28 @@ class GetClassTypeSpec(NamedTuple):
     GetClassTypeSpec._fields,
     [
         GetClassTypeSpec(
-            subject=Spec(source=None, name=None),
+            subject=SpyCore(source=None, name=None),
             expected_class_type=None,
         ),
         GetClassTypeSpec(
-            subject=Spec(source=some_func, name=None),
+            subject=SpyCore(source=some_func, name=None),
             expected_class_type=None,
         ),
         GetClassTypeSpec(
-            subject=Spec(source=SomeClass, name=None),
+            subject=SpyCore(source=SomeClass, name=None),
             expected_class_type=SomeClass,
         ),
     ],
 )
-def test_get_class_type(subject: Spec, expected_class_type: Type[Any]) -> None:
+def test_get_class_type(subject: SpyCore, expected_class_type: Type[Any]) -> None:
     """It should get the class type, if source is a class."""
-    assert subject.get_class_type() == expected_class_type
+    assert subject.class_type == expected_class_type
 
 
 class GetIsAsyncSpec(NamedTuple):
     """Spec data to test get_is_async."""
 
-    subject: Spec
+    subject: SpyCore
     expected_is_async: bool
 
 
@@ -287,40 +302,52 @@ class GetIsAsyncSpec(NamedTuple):
     GetIsAsyncSpec._fields,
     [
         GetIsAsyncSpec(
-            subject=Spec(source=None, name=None),
+            subject=SpyCore(source=None, name=None),
             expected_is_async=False,
         ),
         GetIsAsyncSpec(
-            subject=Spec(source=some_func, name=None),
-            expected_is_async=False,
-        ),
-        GetIsAsyncSpec(
-            subject=Spec(source=SomeClass, name=None),
-            expected_is_async=False,
-        ),
-        GetIsAsyncSpec(
-            subject=Spec(source=some_async_func, name=None),
+            subject=SpyCore(source=None, name=None, is_async=True),
             expected_is_async=True,
         ),
         GetIsAsyncSpec(
-            subject=Spec(source=SomeAsyncCallableClass, name=None),
+            subject=SpyCore(source=some_func, name=None),
+            expected_is_async=False,
+        ),
+        GetIsAsyncSpec(
+            subject=SpyCore(source=SomeClass, name=None),
+            expected_is_async=False,
+        ),
+        GetIsAsyncSpec(
+            subject=SpyCore(source=some_async_func, name=None),
             expected_is_async=True,
         ),
         GetIsAsyncSpec(
-            subject=Spec(source=SomeAsyncClass, name=None).get_child_spec("foo"),
+            subject=SpyCore(source=SomeAsyncCallableClass, name=None),
+            expected_is_async=True,
+        ),
+        GetIsAsyncSpec(
+            subject=SpyCore(source=SomeAsyncClass, name=None).create_child_core(
+                "foo", is_async=False
+            ),
+            expected_is_async=True,
+        ),
+        GetIsAsyncSpec(
+            subject=SpyCore(source=None, name=None).create_child_core(
+                "foo", is_async=True
+            ),
             expected_is_async=True,
         ),
     ],
 )
-def test_get_is_async(subject: Spec, expected_is_async: bool) -> None:
+def test_get_is_async(subject: SpyCore, expected_is_async: bool) -> None:
     """It should get whether the Spec represents an async callable."""
-    assert subject.get_is_async() is expected_is_async
+    assert subject.is_async is expected_is_async
 
 
 class GetBindArgsSpec(NamedTuple):
     """Spec data to test bind_args."""
 
-    subject: Spec
+    subject: SpyCore
     input_args: Tuple[Any, ...]
     input_kwargs: Dict[str, Any]
     expected_args: Tuple[Any, ...]
@@ -331,21 +358,21 @@ class GetBindArgsSpec(NamedTuple):
     GetBindArgsSpec._fields,
     [
         GetBindArgsSpec(
-            subject=Spec(source=None, name=None),
+            subject=SpyCore(source=None, name=None),
             input_args=(1, 2, 3),
             input_kwargs={"four": "five", "six": "seven"},
             expected_args=(1, 2, 3),
             expected_kwargs={"four": "five", "six": "seven"},
         ),
         GetBindArgsSpec(
-            subject=Spec(source=some_func, name=None),
+            subject=SpyCore(source=some_func, name=None),
             input_args=(),
             input_kwargs={"val": "hello"},
             expected_args=("hello",),
             expected_kwargs={},
         ),
         GetBindArgsSpec(
-            subject=Spec(source=some_wrapped_func, name=None),
+            subject=SpyCore(source=some_wrapped_func, name=None),
             input_args=(),
             input_kwargs={"val": "hello"},
             expected_args=("hello",),
@@ -354,7 +381,7 @@ class GetBindArgsSpec(NamedTuple):
     ],
 )
 def test_bind_args(
-    subject: Spec,
+    subject: SpyCore,
     input_args: Tuple[Any, ...],
     input_kwargs: Dict[str, Any],
     expected_args: Tuple[Any, ...],
@@ -368,7 +395,7 @@ def test_bind_args(
 
 def test_warn_if_called_incorrectly() -> None:
     """It should trigger a warning if bound_args is called incorrectly."""
-    subject = Spec(source=some_func, name=None)
+    subject = SpyCore(source=some_func, name=None)
 
     with pytest.warns(IncorrectCallWarning, match="missing a required argument"):
         subject.bind_args(wrong_arg_name="1")

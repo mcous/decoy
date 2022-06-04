@@ -9,19 +9,17 @@ def stringify_call(event: AnySpyEvent) -> str:
     """Stringify the call to something human readable.
 
     ```python
-    SpyEvent(
-        spy_id=42,
-        spy_name="some_func",
+    SpyEvent(spy=SpyInfo(id=42, name="some_func"),
         payload=SpyCall(args=(1,), kwargs={"foo": False})
     )
     ```
 
     ...would stringify as `"some_func(1, foo=False)"`
     """
-    spy_id, spy_name, payload = event
+    spy, payload = event
 
     if not isinstance(payload, SpyCall):
-        full_prop_name = f"{spy_name}.{payload.prop_name}"
+        full_prop_name = f"{spy.name}.{payload.prop_name}"
 
         if payload.access_type == PropAccessType.SET:
             return f"{full_prop_name} = {payload.value}"
@@ -36,7 +34,7 @@ def stringify_call(event: AnySpyEvent) -> str:
         extra_args_msg = (
             " - ignoring unspecified arguments" if payload.ignore_extra_args else ""
         )
-        return f"{spy_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
+        return f"{spy.name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
 
 
 def stringify_call_list(calls: Sequence[AnySpyEvent]) -> str:

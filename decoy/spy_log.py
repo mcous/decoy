@@ -36,9 +36,9 @@ class SpyLog:
         if not isinstance(event, SpyEvent):
             raise MissingRehearsalError()
 
-        spy_id, spy_name, payload = _apply_ignore_extra_args(event, ignore_extra_args)
+        spy, payload = _apply_ignore_extra_args(event, ignore_extra_args)
 
-        rehearsal = WhenRehearsal(spy_id=spy_id, spy_name=spy_name, payload=payload)
+        rehearsal = WhenRehearsal(spy=spy, payload=payload)
         self._log[-1] = rehearsal
         return rehearsal
 
@@ -82,7 +82,7 @@ class SpyLog:
         except IndexError:
             raise MissingRehearsalError()
 
-        spy_id, spy_name, payload = event
+        spy, payload = event
 
         if (
             not isinstance(event, SpyEvent)
@@ -91,7 +91,7 @@ class SpyLog:
         ):
             raise MissingRehearsalError()
 
-        rehearsal = PropRehearsal(spy_id, spy_name, payload)
+        rehearsal = PropRehearsal(spy, payload)
         self._log[-1] = rehearsal
         return rehearsal
 
@@ -100,7 +100,7 @@ class SpyLog:
         return [
             event
             for event in self._log
-            if event.spy_id in spy_ids
+            if event.spy.id in spy_ids
             and isinstance(event, SpyEvent)
             and _is_verifiable(event)
         ]
@@ -122,9 +122,9 @@ def _is_verifiable(event: AnySpyEvent) -> bool:
 
 
 def _apply_ignore_extra_args(event: AnySpyEvent, ignore_extra_args: bool) -> SpyEvent:
-    spy_id, spy_name, payload = event
+    spy, payload = event
 
     if isinstance(payload, SpyCall):
         payload = payload._replace(ignore_extra_args=ignore_extra_args)
 
-    return SpyEvent(spy_id=spy_id, spy_name=spy_name, payload=payload)
+    return SpyEvent(spy=spy, payload=payload)

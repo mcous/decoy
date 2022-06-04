@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional
 
 from .call_handler import CallHandler
 from .spy import SpyCreator
-from .spy_events import WhenRehearsal, PropAccessType, SpyEvent, SpyPropAccess
+from .spy_events import WhenRehearsal, PropAccessType, SpyEvent, SpyInfo, SpyPropAccess
 from .spy_log import SpyLog
 from .stub_store import StubBehavior, StubStore
 from .types import ContextValueT, ReturnT
@@ -65,20 +65,15 @@ class DecoyCore:
             count=len(_rehearsals),
             ignore_extra_args=ignore_extra_args,
         )
-        calls = self._spy_log.get_calls_to_verify([r.spy_id for r in rehearsals])
+        calls = self._spy_log.get_calls_to_verify([r.spy.id for r in rehearsals])
 
         self._verifier.verify(rehearsals=rehearsals, calls=calls, times=times)
 
     def prop(self, _rehearsal: ReturnT) -> "PropCore":
         """Get a property setter/deleter rehearser."""
-        spy_id, spy_name, payload = self._spy_log.consume_prop_rehearsal()
+        spy, payload = self._spy_log.consume_prop_rehearsal()
 
-        return PropCore(
-            spy_id=spy_id,
-            spy_name=spy_name,
-            prop_name=payload.prop_name,
-            spy_log=self._spy_log,
-        )
+        return PropCore(spy=spy, prop_name=payload.prop_name, spy_log=self._spy_log)
 
     def reset(self) -> None:
         """Reset and remove all stored spies and stubs."""
@@ -134,21 +129,18 @@ class PropCore:
 
     def __init__(
         self,
-        spy_id: int,
-        spy_name: str,
+        spy: SpyInfo,
         prop_name: str,
         spy_log: SpyLog,
     ) -> None:
-        self._spy_id = spy_id
-        self._spy_name = spy_name
+        self._spy = spy
         self._prop_name = prop_name
         self._spy_log = spy_log
 
     def set(self, value: Any) -> None:
         """Create a property setter rehearsal."""
         event = SpyEvent(
-            spy_id=self._spy_id,
-            spy_name=self._spy_name,
+            spy=self._spy,
             payload=SpyPropAccess(
                 prop_name=self._prop_name,
                 access_type=PropAccessType.SET,
@@ -160,8 +152,7 @@ class PropCore:
     def delete(self) -> None:
         """Create a property deleter rehearsal."""
         event = SpyEvent(
-            spy_id=self._spy_id,
-            spy_name=self._spy_name,
+            spy=self._spy,
             payload=SpyPropAccess(
                 prop_name=self._prop_name,
                 access_type=PropAccessType.DELETE,

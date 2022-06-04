@@ -4,10 +4,10 @@ Classes in this module are heavily inspired by the
 [unittest.mock library](https://docs.python.org/3/library/unittest.mock.html).
 """
 from types import TracebackType
-from typing import Any, ContextManager, Dict, Optional, Type, Union, cast
+from typing import Any, ContextManager, Dict, Optional, Type, Union, cast, overload
 
 from .call_handler import CallHandler
-from .spec import Spec
+from .spy_core import SpyCore
 from .spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
 
 
@@ -18,7 +18,7 @@ class BaseSpy(ContextManager[Any]):
     - Lazily constructs child spies when an attribute is accessed
     """
 
-    _spec: Spec
+    _core: SpyCore
     _call_handler: CallHandler
     _spy_creator: "SpyCreator"
     _spy_children: Dict[str, "BaseSpy"]
@@ -26,22 +26,22 @@ class BaseSpy(ContextManager[Any]):
 
     def __init__(
         self,
-        spec: Spec,
+        core: SpyCore,
         call_handler: CallHandler,
         spy_creator: "SpyCreator",
     ) -> None:
         """Initialize a BaseSpy from a call handler and an optional spec object."""
-        super().__setattr__("_spec", spec)
+        super().__setattr__("_core", core)
         super().__setattr__("_call_handler", call_handler)
         super().__setattr__("_spy_creator", spy_creator)
         super().__setattr__("_spy_children", {})
         super().__setattr__("_spy_property_values", {})
-        super().__setattr__("__signature__", self._spec.get_signature())
+        super().__setattr__("__signature__", self._core.signature)
 
     @property  # type: ignore[misc]
     def __class__(self) -> Any:
         """Ensure Spy can pass `instanceof` checks."""
-        return self._spec.get_class_type() or type(self)
+        return self._core.class_type or type(self)
 
     def __enter__(self) -> Any:
         """Allow a spy to be used as a context manager."""
@@ -75,7 +75,7 @@ class BaseSpy(ContextManager[Any]):
 
     def __repr__(self) -> str:
         """Get a helpful string representation of the spy."""
-        return f"<Decoy mock `{self._spec.get_full_name()}`>"
+        return f"<Decoy mock `{self._core.full_name}`>"
 
     def __getattr__(self, name: str) -> Any:
         """Get a property of the spy, always returning a child spy."""
@@ -88,8 +88,7 @@ class BaseSpy(ContextManager[Any]):
     def __setattr__(self, name: str, value: Any) -> None:
         """Set a property on the spy, recording the call."""
         event = SpyEvent(
-            spy_id=id(self),
-            spy_name=self._spec.get_name(),
+            spy=self._core.info,
             payload=SpyPropAccess(
                 prop_name=name,
                 access_type=PropAccessType.SET,
@@ -102,8 +101,7 @@ class BaseSpy(ContextManager[Any]):
     def __delattr__(self, name: str) -> None:
         """Delete a property on the spy, recording the call."""
         event = SpyEvent(
-            spy_id=id(self),
-            spy_name=self._spec.get_name(),
+            spy=self._core.info,
             payload=SpyPropAccess(prop_name=name, access_type=PropAccessType.DELETE),
         )
         self._call_handler.handle(event)
@@ -114,8 +112,7 @@ class BaseSpy(ContextManager[Any]):
         # check for any stubbed behaviors for property getter
         get_result = self._call_handler.handle(
             SpyEvent(
-                spy_id=id(self),
-                spy_name=self._spec.get_name(),
+                spy=self._core.info,
                 payload=SpyPropAccess(
                     prop_name=name,
                     access_type=PropAccessType.GET,
@@ -133,17 +130,16 @@ class BaseSpy(ContextManager[Any]):
         if name in self._spy_children:
             return self._spy_children[name]
 
-        child_spec = self._spec.get_child_spec(name)
-        child_spy = self._spy_creator.create(spec=child_spec, is_async=child_is_async)
+        child_core = self._core.create_child_core(name=name, is_async=child_is_async)
+        child_spy = self._spy_creator.create(core=child_core)
         self._spy_children[name] = child_spy
 
         return child_spy
 
     def _call(self, *args: Any, **kwargs: Any) -> Any:
-        bound_args, bound_kwargs = self._spec.bind_args(*args, **kwargs)
+        bound_args, bound_kwargs = self._core.bind_args(*args, **kwargs)
         call = SpyEvent(
-            spy_id=id(self),
-            spy_name=self._spec.get_name(),
+            spy=self._core.info,
             payload=SpyCall(
                 args=bound_args,
                 kwargs=bound_kwargs,
@@ -154,14 +150,6 @@ class BaseSpy(ContextManager[Any]):
         return result.value if result else None
 
 
-class Spy(BaseSpy):
-    """An object that records all calls made to itself and its children."""
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        """Handle a call to the spy."""
-        return self._call(*args, **kwargs)
-
-
 class AsyncSpy(BaseSpy):
     """An object that records all async. calls made to itself and its children."""
 
@@ -170,31 +158,53 @@ class AsyncSpy(BaseSpy):
         return self._call(*args, **kwargs)
 
 
+class Spy(BaseSpy):
+    """An object that records all calls made to itself and its children."""
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Handle a call to the spy."""
+        return self._call(*args, **kwargs)
+
+
+AnySpy = Union[AsyncSpy, Spy]
+
+
 class SpyCreator:
     """Spy factory."""
 
     def __init__(self, call_handler: CallHandler) -> None:
         self._call_handler = call_handler
 
+    @overload
+    def create(self, *, core: SpyCore) -> AnySpy:
+        ...
+
+    @overload
+    def create(
+        self, *, spec: Optional[object], name: Optional[str], is_async: bool
+    ) -> AnySpy:
+        ...
+
     def create(
         self,
+        *,
+        core: Optional[SpyCore] = None,
         spec: Optional[object] = None,
         name: Optional[str] = None,
         is_async: bool = False,
-    ) -> Union[AsyncSpy, Spy]:
+    ) -> AnySpy:
         """Create a Spy from a spec.
 
         Functions and classes passed to `spec` will be inspected (and have any type
         annotations inspected) to ensure `AsyncSpy`'s are returned where necessary.
         """
-        if not isinstance(spec, Spec):
-            spec = Spec(source=spec, name=name)
+        if not isinstance(core, SpyCore):
+            core = SpyCore(source=spec, name=name, is_async=is_async)
 
-        is_async = is_async or spec.get_is_async()
-        spy_cls: Union[Type[AsyncSpy], Type[Spy]] = AsyncSpy if is_async else Spy
+        spy_cls: Type[AnySpy] = AsyncSpy if core.is_async else Spy
 
         return spy_cls(
-            spec=spec,
+            core=core,
             spy_creator=self,
             call_handler=self._call_handler,
         )

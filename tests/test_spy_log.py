@@ -5,6 +5,7 @@ from decoy.errors import MissingRehearsalError
 from decoy.spy_events import (
     SpyCall,
     SpyEvent,
+    SpyInfo,
     SpyPropAccess,
     PropAccessType,
     WhenRehearsal,
@@ -18,8 +19,7 @@ def test_push_and_consume_when_rehearsal() -> None:
     """It should be able to push and pop from the stack."""
     subject = SpyLog()
     call = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyCall(args=(), kwargs={}),
     )
 
@@ -34,8 +34,7 @@ def test_push_and_consume_when_rehearsal_ignore_extra_args() -> None:
     """It should be able to push and pop from the stack while ignoring extra args."""
     subject = SpyLog()
     call = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyCall(args=(), kwargs={}),
     )
 
@@ -51,8 +50,7 @@ def test_push_and_consume_prop_rehearsal_for_when() -> None:
     """It should be able to push and consume a prop rehearsal for stubbing."""
     subject = SpyLog()
     event = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
     )
 
@@ -70,8 +68,7 @@ def test_consume_when_rehearsal_raises_empty_error() -> None:
         subject.consume_when_rehearsal(ignore_extra_args=False)
 
     call = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyCall(args=(), kwargs={}),
     )
     subject.push(call)
@@ -85,8 +82,7 @@ def test_push_and_consume_prop_rehearsal_for_prop() -> None:
     """It should be able to push and consume a prop rehearsal for more rehearsals."""
     subject = SpyLog()
     event = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
     )
 
@@ -104,8 +100,7 @@ def test_consume_prop_rehearsal_raises_empty_error() -> None:
         subject.consume_prop_rehearsal()
 
     event = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.GET),
     )
     subject.push(event)
@@ -115,8 +110,7 @@ def test_consume_prop_rehearsal_raises_empty_error() -> None:
         subject.consume_prop_rehearsal()
 
     call = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyCall(args=(), kwargs={}),
     )
     subject.push(call)
@@ -125,8 +119,7 @@ def test_consume_prop_rehearsal_raises_empty_error() -> None:
         subject.consume_prop_rehearsal()
 
     event = SpyEvent(
-        spy_id=42,
-        spy_name="my_spy",
+        spy=SpyInfo(id=42, name="my_spy"),
         payload=SpyPropAccess(prop_name="my_prop", access_type=PropAccessType.DELETE),
     )
     subject.push(event)
@@ -138,8 +131,12 @@ def test_consume_prop_rehearsal_raises_empty_error() -> None:
 def test_consume_verify_rehearsals() -> None:
     """It should be able to pop a slice off the stack, retaining order."""
     subject = SpyLog()
-    call_1 = SpyEvent(spy_id=1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
-    call_2 = SpyEvent(spy_id=2, spy_name="spy_2", payload=SpyCall(args=(), kwargs={}))
+    call_1 = SpyEvent(
+        spy=SpyInfo(id=1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
+    call_2 = SpyEvent(
+        spy=SpyInfo(id=2, name="spy_2"), payload=SpyCall(args=(), kwargs={})
+    )
 
     subject.push(call_1)
     subject.push(call_2)
@@ -147,13 +144,11 @@ def test_consume_verify_rehearsals() -> None:
     result = subject.consume_verify_rehearsals(count=2, ignore_extra_args=False)
     assert result == [
         VerifyRehearsal(
-            spy_id=1,
-            spy_name="spy_1",
+            spy=SpyInfo(id=1, name="spy_1"),
             payload=SpyCall(args=(), kwargs={}),
         ),
         VerifyRehearsal(
-            spy_id=2,
-            spy_name="spy_2",
+            spy=SpyInfo(id=2, name="spy_2"),
             payload=SpyCall(args=(), kwargs={}),
         ),
     ]
@@ -168,8 +163,12 @@ def test_consume_verify_rehearsals() -> None:
 def test_consume_verify_rehearsals_ignore_extra_args() -> None:
     """It should be able to pop a slice off the stack, retaining order."""
     subject = SpyLog()
-    call_1 = SpyEvent(spy_id=1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
-    call_2 = SpyEvent(spy_id=2, spy_name="spy_2", payload=SpyCall(args=(), kwargs={}))
+    call_1 = SpyEvent(
+        spy=SpyInfo(id=1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
+    call_2 = SpyEvent(
+        spy=SpyInfo(id=2, name="spy_2"), payload=SpyCall(args=(), kwargs={})
+    )
 
     subject.push(call_1)
     subject.push(call_2)
@@ -177,13 +176,11 @@ def test_consume_verify_rehearsals_ignore_extra_args() -> None:
     result = subject.consume_verify_rehearsals(count=2, ignore_extra_args=True)
     assert result == [
         VerifyRehearsal(
-            spy_id=1,
-            spy_name="spy_1",
+            spy=SpyInfo(id=1, name="spy_1"),
             payload=SpyCall(args=(), kwargs={}, ignore_extra_args=True),
         ),
         VerifyRehearsal(
-            spy_id=2,
-            spy_name="spy_2",
+            spy=SpyInfo(id=2, name="spy_2"),
             payload=SpyCall(args=(), kwargs={}, ignore_extra_args=True),
         ),
     ]
@@ -193,21 +190,18 @@ def test_consume_verify_rehearsals_ignores_prop_gets() -> None:
     """It should be able to pop a slice off the stack, retaining order."""
     subject = SpyLog()
     call_1 = SpyEvent(
-        spy_id=101, spy_name="spy_1", payload=SpyCall(args=(1,), kwargs={})
+        spy=SpyInfo(id=101, name="spy_1"), payload=SpyCall(args=(1,), kwargs={})
     )
     call_2 = SpyEvent(
-        spy_id=101,
-        spy_name="spy_1",
+        spy=SpyInfo(id=101, name="spy_1"),
         payload=SpyPropAccess(prop_name="child", access_type=PropAccessType.GET),
     )
     call_3 = SpyEvent(
-        spy_id=102,
-        spy_name="spy_1.child",
+        spy=SpyInfo(id=102, name="spy_1.child"),
         payload=SpyCall(args=(2,), kwargs={}),
     )
     call_4 = SpyEvent(
-        spy_id=102,
-        spy_name="spy_1.child",
+        spy=SpyInfo(id=102, name="spy_1.child"),
         payload=SpyPropAccess(prop_name="fizz", access_type=PropAccessType.DELETE),
     )
     subject.push(call_1)
@@ -218,18 +212,15 @@ def test_consume_verify_rehearsals_ignores_prop_gets() -> None:
     result = subject.consume_verify_rehearsals(count=3, ignore_extra_args=False)
     assert result == [
         VerifyRehearsal(
-            spy_id=101,
-            spy_name="spy_1",
+            spy=SpyInfo(id=101, name="spy_1"),
             payload=SpyCall(args=(1,), kwargs={}),
         ),
         VerifyRehearsal(
-            spy_id=102,
-            spy_name="spy_1.child",
+            spy=SpyInfo(id=102, name="spy_1.child"),
             payload=SpyCall(args=(2,), kwargs={}),
         ),
         VerifyRehearsal(
-            spy_id=102,
-            spy_name="spy_1.child",
+            spy=SpyInfo(id=102, name="spy_1.child"),
             payload=SpyPropAccess(prop_name="fizz", access_type=PropAccessType.DELETE),
         ),
     ]
@@ -238,7 +229,9 @@ def test_consume_verify_rehearsals_ignores_prop_gets() -> None:
 def test_consume_verify_rehearsals_raises_error() -> None:
     """It should raise an error if the stack has too few members to pop a slice."""
     subject = SpyLog()
-    call_1 = SpyEvent(spy_id=1, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
+    call_1 = SpyEvent(
+        spy=SpyInfo(id=1, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
 
     subject.push(call_1)
 
@@ -250,23 +243,19 @@ def test_get_calls_to_verify() -> None:
     """It can get a list of calls made matching spy IDs of given rehearsals."""
     subject = SpyLog()
     call_1 = SpyEvent(
-        spy_id=101,
-        spy_name="spy_1",
+        spy=SpyInfo(id=101, name="spy_1"),
         payload=SpyCall(args=(1,), kwargs={}),
     )
     call_2 = SpyEvent(
-        spy_id=101,
-        spy_name="spy_1",
+        spy=SpyInfo(id=101, name="spy_1"),
         payload=SpyCall(args=(2,), kwargs={}),
     )
     call_3 = SpyEvent(
-        spy_id=202,
-        spy_name="spy_2",
+        spy=SpyInfo(id=202, name="spy_2"),
         payload=SpyCall(args=(1,), kwargs={}),
     )
     call_4 = SpyEvent(
-        spy_id=101,
-        spy_name="spy_1",
+        spy=SpyInfo(id=101, name="spy_1"),
         payload=SpyCall(args=(1,), kwargs={}),
     )
 
@@ -291,23 +280,19 @@ def test_get_calls_to_verify_skips_prop_gets() -> None:
     subject = SpyLog()
 
     call_1 = SpyEvent(
-        spy_id=101,
-        spy_name="spy_1",
+        spy=SpyInfo(id=101, name="spy_1"),
         payload=SpyPropAccess(prop_name="child", access_type=PropAccessType.GET),
     )
     call_2 = PropRehearsal(
-        spy_id=101,
-        spy_name="spy_1",
+        spy=SpyInfo(id=101, name="spy_1"),
         payload=SpyPropAccess(prop_name="child", access_type=PropAccessType.GET),
     )
     call_3 = SpyEvent(
-        spy_id=102,
-        spy_name="spy_1.child",
+        spy=SpyInfo(id=102, name="spy_1.child"),
         payload=SpyCall(args=(2,), kwargs={}),
     )
     call_4 = SpyEvent(
-        spy_id=102,
-        spy_name="spy_1.child",
+        spy=SpyInfo(id=102, name="spy_1.child"),
         payload=SpyPropAccess(prop_name="fizz", access_type=PropAccessType.DELETE),
     )
 
@@ -322,9 +307,15 @@ def test_get_calls_to_verify_skips_prop_gets() -> None:
 def test_get_all() -> None:
     """It can get a list of all calls and rehearsals."""
     subject = SpyLog()
-    call_1 = SpyEvent(spy_id=101, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
-    call_2 = SpyEvent(spy_id=101, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
-    call_3 = SpyEvent(spy_id=202, spy_name="spy_2", payload=SpyCall(args=(), kwargs={}))
+    call_1 = SpyEvent(
+        spy=SpyInfo(id=101, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
+    call_2 = SpyEvent(
+        spy=SpyInfo(id=101, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
+    call_3 = SpyEvent(
+        spy=SpyInfo(id=202, name="spy_2"), payload=SpyCall(args=(), kwargs={})
+    )
 
     subject.push(call_1)
     subject.consume_when_rehearsal(ignore_extra_args=False)
@@ -334,25 +325,31 @@ def test_get_all() -> None:
 
     assert subject.get_all() == [
         WhenRehearsal(
-            spy_id=101,
-            spy_name="spy_1",
+            spy=SpyInfo(id=101, name="spy_1"),
             payload=SpyCall(args=(), kwargs={}),
         ),
         SpyEvent(
-            spy_id=101,
-            spy_name="spy_1",
+            spy=SpyInfo(id=101, name="spy_1"),
             payload=SpyCall(args=(), kwargs={}),
         ),
-        SpyEvent(spy_id=202, spy_name="spy_2", payload=SpyCall(args=(), kwargs={})),
+        SpyEvent(
+            spy=SpyInfo(id=202, name="spy_2"), payload=SpyCall(args=(), kwargs={})
+        ),
     ]
 
 
 def test_clear() -> None:
     """It can clear all calls and rehearsals."""
     subject = SpyLog()
-    call_1 = SpyEvent(spy_id=101, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
-    call_2 = SpyEvent(spy_id=101, spy_name="spy_1", payload=SpyCall(args=(), kwargs={}))
-    call_3 = SpyEvent(spy_id=202, spy_name="spy_2", payload=SpyCall(args=(), kwargs={}))
+    call_1 = SpyEvent(
+        spy=SpyInfo(id=101, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
+    call_2 = SpyEvent(
+        spy=SpyInfo(id=101, name="spy_1"), payload=SpyCall(args=(), kwargs={})
+    )
+    call_3 = SpyEvent(
+        spy=SpyInfo(id=202, name="spy_2"), payload=SpyCall(args=(), kwargs={})
+    )
 
     subject.push(call_1)
     subject.consume_when_rehearsal(ignore_extra_args=False)
