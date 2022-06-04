@@ -46,7 +46,7 @@ class CallHandler:
         elif behavior.context_value is not MISSING:
             return_value = ContextWrapper(behavior.context_value)
 
-        elif behavior.return_value is not MISSING:
+        else:
             return_value = behavior.return_value
 
         return CallHandlerResult(return_value)

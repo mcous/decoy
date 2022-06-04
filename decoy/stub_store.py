@@ -19,7 +19,7 @@ so `Optional` would be inappropriate.
 class StubBehavior(NamedTuple):
     """A recorded stub behavior."""
 
-    return_value: Union[_MISSING, Any] = MISSING
+    return_value: Optional[Any] = None
     context_value: Union[_MISSING, Any] = MISSING
     error: Optional[Exception] = None
     action: Optional[Callable[..., Any]] = None
