@@ -1,14 +1,26 @@
 """Stub creation and storage."""
-from typing import Any, Callable, List, NamedTuple, Optional
+from typing import Any, Callable, List, NamedTuple, Optional, Union
 
 from .spy_events import SpyEvent, WhenRehearsal, match_event
+
+
+class _MISSING:
+    pass
+
+
+MISSING = _MISSING()
+"""Value not specified sentinel.
+
+Used when `None` could be a valid value,
+so `Optional` would be inappropriate.
+"""
 
 
 class StubBehavior(NamedTuple):
     """A recorded stub behavior."""
 
-    return_value: Optional[Any] = None
-    context_value: Optional[Any] = None
+    return_value: Union[_MISSING, Any] = MISSING
+    context_value: Union[_MISSING, Any] = MISSING
     error: Optional[Exception] = None
     action: Optional[Callable[..., Any]] = None
     once: bool = False
