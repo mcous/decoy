@@ -32,7 +32,7 @@ class CallHandler:
         if behavior.error:
             raise behavior.error
 
-        return_value: Any = None
+        return_value: Any
 
         if behavior.action:
             if isinstance(call.payload, SpyCall):
