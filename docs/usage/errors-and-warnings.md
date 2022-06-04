@@ -27,8 +27,24 @@ decoy.when().then_return(42)  # raises a MissingRehearsalError
 If you're working with async/await code, this can also happen if you forget to include `await` in your rehearsal, because the `await` is necessary for the spy's call handler to add the call to the stack.
 
 ```python
-decoy.when(some_async_func("hello")).then_return("world")  # will raise
 decoy.when(await some_async_func("hello")).then_return("world")  # all good
+decoy.when(some_async_func("hello")).then_return("world")  # will raise
+```
+
+### MockNotAsyncError
+
+A [decoy.errors.MockNotAsyncError][] will be raised if you pass an `async def` function to [decoy.Stub.then_do][] of a non-synchronous mock.
+
+```python
+async_mock = decoy.mock(name="async_mock", is_async=True)
+async_mock = decoy.mock(name="sync_mock")
+
+async def _handle_call(input: str) -> str:
+    print(input)
+    return "world"
+
+decoy.when(await async_mock("hello")).then_do(_handle_call)  # all good
+decoy.when(sync_mock("hello")).then_do(_handle_call)  # will raise
 ```
 
 ## Warnings

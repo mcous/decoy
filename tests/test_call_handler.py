@@ -41,7 +41,8 @@ def test_handle_call_with_no_stubbing(
 ) -> None:
     """It should noop and add the call to the stack if no stubbing is configured."""
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     behavior = None
 
@@ -61,7 +62,8 @@ def test_handle_call_with_return(
 ) -> None:
     """It return a Stub's configured return value."""
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     behavior = StubBehavior(return_value="hello world")
 
@@ -81,7 +83,8 @@ def test_handle_call_with_raise(
 ) -> None:
     """It raise a Stub's configured error."""
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"), payload=SpyCall(args=(), kwargs={})
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
+        payload=SpyCall(args=(), kwargs={}),
     )
     behavior = StubBehavior(error=RuntimeError("oh no"))
 
@@ -102,7 +105,7 @@ def test_handle_call_with_action(
     """It should trigger a stub's configured action."""
     action = decoy.mock()
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"),
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
         payload=SpyCall(args=(1,), kwargs={"foo": "bar"}),
     )
     behavior = StubBehavior(action=action)
@@ -124,7 +127,7 @@ def test_handle_prop_get_with_action(
     """It should trigger a prop get stub's configured action."""
     action = decoy.mock()
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"),
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
         payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
     )
     behavior = StubBehavior(action=action)
@@ -145,7 +148,7 @@ def test_handle_call_with_context_enter(
 ) -> None:
     """It should return a Stub's configured context value."""
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"),
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
         payload=SpyCall(args=(), kwargs={}),
     )
     behavior = StubBehavior(context_value="hello world")
@@ -166,7 +169,7 @@ def test_handle_call_with_context_enter_none(
 ) -> None:
     """It should allow a configured context value to be None."""
     spy_call = SpyEvent(
-        spy=SpyInfo(id=42, name="spy_name"),
+        spy=SpyInfo(id=42, name="spy_name", is_async=False),
         payload=SpyCall(args=(), kwargs={}),
     )
     behavior = StubBehavior(context_value=None)

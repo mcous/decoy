@@ -16,6 +16,7 @@ class SpyInfo(NamedTuple):
 
     id: int
     name: str
+    is_async: bool
 
 
 class SpyCall(NamedTuple):

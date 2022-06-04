@@ -8,7 +8,13 @@ import pytest
 from decoy import Decoy, errors
 from decoy.spy import AsyncSpy, Spy
 
-from .common import SomeAsyncClass, SomeClass, SomeNestedClass, some_func
+from .fixtures import (
+    SomeAsyncClass,
+    SomeClass,
+    SomeNestedClass,
+    some_func,
+    some_async_func,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -107,6 +113,23 @@ def test_when_then_do(decoy: Decoy) -> None:
     decoy.when(subject("what's up")).then_do(_then_do_action)
 
     result = subject("what's up")
+    assert action_result == "what's up"
+    assert result == "hello from the other side"
+
+
+async def test_when_then_do_async(decoy: Decoy) -> None:
+    """It should be able to configure a stub action with a rehearsal."""
+    subject = decoy.mock(func=some_async_func)
+    action_result = None
+
+    async def _then_do_action(arg: str) -> str:
+        nonlocal action_result
+        action_result = arg
+        return "hello from the other side"
+
+    decoy.when(await subject("what's up")).then_do(_then_do_action)
+
+    result = await subject("what's up")
     assert action_result == "what's up"
     assert result == "hello from the other side"
 

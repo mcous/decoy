@@ -26,99 +26,99 @@ class MatchEventSpec(NamedTuple):
 match_event_specs: List[MatchEventSpec] = [
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         expected_result=True,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         rehearsal=VerifyRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         expected_result=True,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1,), kwargs={"baz": "qux"}, ignore_extra_args=True),
         ),
         expected_result=True,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         rehearsal=VerifyRehearsal(
-            spy=SpyInfo(id=21, name="my_spy"),
+            spy=SpyInfo(id=21, name="my_spy", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         expected_result=False,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1,), kwargs={}),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         expected_result=False,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         rehearsal=VerifyRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1,), kwargs={}),
         ),
         expected_result=False,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(2,), kwargs={"baz": "qux"}, ignore_extra_args=True),
         ),
         expected_result=False,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         rehearsal=VerifyRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "qux"}, ignore_extra_args=True),
         ),
         expected_result=False,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(
                 args=(1, 2, 3),
                 kwargs={"foo": "bar", "baz": "qux"},
@@ -129,11 +129,11 @@ match_event_specs: List[MatchEventSpec] = [
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(args=(1, 2), kwargs={"foo": "bar", "baz": "qux"}),
         ),
         rehearsal=VerifyRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyCall(
                 args=(1, 2),
                 kwargs={"foo": "bar", "baz": "qux", "fizz": "buzz"},
@@ -144,22 +144,22 @@ match_event_specs: List[MatchEventSpec] = [
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
         ),
         expected_result=True,
     ),
     MatchEventSpec(
         event=SpyEvent(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.DELETE),
         ),
         rehearsal=WhenRehearsal(
-            spy=SpyInfo(id=42, name="my_spy"),
+            spy=SpyInfo(id=42, name="my_spy", is_async=False),
             payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),
         ),
         expected_result=False,

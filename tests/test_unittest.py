@@ -2,7 +2,7 @@
 import unittest
 from decoy import Decoy
 
-from .common import SomeClass
+from .fixtures import SomeClass
 
 
 class DecoyTestCase(unittest.TestCase):

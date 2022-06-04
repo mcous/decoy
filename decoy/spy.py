@@ -3,6 +3,7 @@
 Classes in this module are heavily inspired by the
 [unittest.mock library](https://docs.python.org/3/library/unittest.mock.html).
 """
+import inspect
 from types import TracebackType
 from typing import Any, ContextManager, Dict, Optional, Type, Union, cast, overload
 
@@ -155,7 +156,8 @@ class AsyncSpy(BaseSpy):
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy asynchronously."""
-        return self._call(*args, **kwargs)
+        result = self._call(*args, **kwargs)
+        return (await result) if inspect.iscoroutine(result) else result
 
 
 class Spy(BaseSpy):

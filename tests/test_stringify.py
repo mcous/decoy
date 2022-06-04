@@ -16,35 +16,35 @@ class StringifyCallSpec(NamedTuple):
 stringify_call_specs = [
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some.name"),
+            spy=SpyInfo(id=42, name="some.name", is_async=False),
             payload=SpyCall(args=(), kwargs={}),
         ),
         expected="some.name()",
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some.name"),
+            spy=SpyInfo(id=42, name="some.name", is_async=False),
             payload=SpyCall(args=(1,), kwargs={}),
         ),
         expected="some.name(1)",
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some.name"),
+            spy=SpyInfo(id=42, name="some.name", is_async=False),
             payload=SpyCall(args=(1, "2"), kwargs={}),
         ),
         expected="some.name(1, '2')",
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some.name"),
+            spy=SpyInfo(id=42, name="some.name", is_async=False),
             payload=SpyCall(args=(), kwargs={"foo": "bar"}),
         ),
         expected="some.name(foo='bar')",
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some.name"),
+            spy=SpyInfo(id=42, name="some.name", is_async=False),
             payload=SpyCall(
                 args=(1, 2),
                 kwargs={"foo": "bar", "baz": False},
@@ -54,7 +54,7 @@ stringify_call_specs = [
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some.name"),
+            spy=SpyInfo(id=42, name="some.name", is_async=False),
             payload=SpyCall(
                 args=(),
                 kwargs={},
@@ -65,14 +65,14 @@ stringify_call_specs = [
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some"),
+            spy=SpyInfo(id=42, name="some", is_async=False),
             payload=SpyPropAccess(prop_name="name", access_type=PropAccessType.GET),
         ),
         expected="some.name",
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some"),
+            spy=SpyInfo(id=42, name="some", is_async=False),
             payload=SpyPropAccess(
                 prop_name="name",
                 access_type=PropAccessType.SET,
@@ -83,7 +83,7 @@ stringify_call_specs = [
     ),
     StringifyCallSpec(
         call=SpyEvent(
-            spy=SpyInfo(id=42, name="some"),
+            spy=SpyInfo(id=42, name="some", is_async=False),
             payload=SpyPropAccess(prop_name="name", access_type=PropAccessType.DELETE),
         ),
         expected="del some.name",
