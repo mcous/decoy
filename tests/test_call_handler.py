@@ -145,9 +145,11 @@ def test_handle_call_with_context_enter(
     stub_store: StubStore,
     subject: CallHandler,
 ) -> None:
-    """It return a Stub's configured context value."""
+    """It should return a Stub's configured context value."""
     spy_call = SpyEvent(
-        spy_id=42, spy_name="spy_name", payload=SpyCall(args=(), kwargs={})
+        spy_id=42,
+        spy_name="spy_name",
+        payload=SpyCall(args=(), kwargs={}),
     )
     behavior = StubBehavior(context_value="hello world")
 
@@ -155,5 +157,27 @@ def test_handle_call_with_context_enter(
 
     with subject.handle(spy_call).value as result:  # type: ignore[union-attr]
         assert result == "hello world"
+
+    decoy.verify(spy_log.push(spy_call))
+
+
+def test_handle_call_with_context_enter_none(
+    decoy: Decoy,
+    spy_log: SpyLog,
+    stub_store: StubStore,
+    subject: CallHandler,
+) -> None:
+    """It should allow a configured context value to be None."""
+    spy_call = SpyEvent(
+        spy_id=42,
+        spy_name="spy_name",
+        payload=SpyCall(args=(), kwargs={}),
+    )
+    behavior = StubBehavior(context_value=None)
+
+    decoy.when(stub_store.get_by_call(spy_call)).then_return(behavior)
+
+    with subject.handle(spy_call).value as result:  # type: ignore[union-attr]
+        assert result is None
 
     decoy.verify(spy_log.push(spy_call))

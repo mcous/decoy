@@ -4,7 +4,7 @@ from typing import Any, NamedTuple, Optional
 from .spy_log import SpyLog
 from .context_managers import ContextWrapper
 from .spy_events import SpyCall, SpyEvent
-from .stub_store import StubStore
+from .stub_store import MISSING, StubStore
 
 
 class CallHandlerResult(NamedTuple):
@@ -43,7 +43,7 @@ class CallHandler:
             else:
                 return_value = behavior.action()
 
-        elif behavior.context_value:
+        elif behavior.context_value is not MISSING:
             return_value = ContextWrapper(behavior.context_value)
 
         else:
