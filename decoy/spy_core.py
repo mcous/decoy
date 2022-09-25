@@ -27,10 +27,10 @@ _DEFAULT_SPY_NAME = "unnamed"
 
 
 class SpyCore:
-    """Core spy logic for mimicing a given `source` object.
+    """Core spy logic for mimicking a given `source` object.
 
     Arguments:
-        source: The source object the Spy is mimicing.
+        source: The source object the Spy is mimicking.
         name: The spec's name. If `None`, will be derived from `source`.
             Will fallback to a default value.
         module_name: The spec's module name. If left unspecified,
@@ -47,6 +47,8 @@ class SpyCore:
         module_name: Union[str, _FROM_SOURCE, None] = FROM_SOURCE,
         is_async: bool = False,
     ) -> None:
+        source = _resolve_source(source)
+
         self._source = source
         self._name = _get_name(source) if name is None else name
         self._module_name = (
@@ -137,6 +139,14 @@ class SpyCore:
             module_name=self._module_name,
             is_async=is_async,
         )
+
+
+def _resolve_source(source: Any) -> Any:
+    """Resolve the source object, unwrapping any generic aliases."""
+    if hasattr(source, "__origin__"):
+        return source.__origin__
+
+    return source
 
 
 def _get_name(source: Any) -> str:
