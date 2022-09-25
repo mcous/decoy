@@ -145,11 +145,7 @@ def _resolve_source(source: Any) -> Any:
     """Resolve the source object, unwrapping any generic aliases."""
     origin = inspect.getattr_static(source, "__origin__", None)
 
-    if origin is not None:
-        print("HEY", source, origin)
-        return origin
-
-    return source
+    return origin if origin is not None else source
 
 
 def _get_name(source: Any) -> str:
