@@ -11,6 +11,9 @@ from .fixtures import (
     SomeAsyncCallableClass,
     SomeCallableClass,
     SomeNestedClass,
+    GenericClass,
+    GenericT,
+    ConcreteAlias,
     some_func,
     some_async_func,
     some_wrapped_func,
@@ -77,6 +80,16 @@ class GetNameSpec(NamedTuple):
             ),
             expected_name="SomeNestedClass.child.foo",
             expected_full_name="tests.fixtures.SomeNestedClass.child.foo",
+        ),
+        GetNameSpec(
+            subject=SpyCore(source=GenericClass[int], name=None),
+            expected_name="GenericClass",
+            expected_full_name="tests.fixtures.GenericClass",
+        ),
+        GetNameSpec(
+            subject=SpyCore(source=ConcreteAlias, name=None),
+            expected_name="GenericClass",
+            expected_full_name="tests.fixtures.GenericClass",
         ),
     ],
 )
@@ -224,6 +237,21 @@ class GetSignatureSpec(NamedTuple):
                     )
                 ],
                 return_annotation=str,
+            ),
+        ),
+        GetSignatureSpec(
+            subject=SpyCore(source=ConcreteAlias, name=None).create_child_core(
+                "hello", is_async=False
+            ),
+            expected_signature=inspect.Signature(
+                parameters=[
+                    inspect.Parameter(
+                        name="val",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        annotation=GenericT,
+                    )
+                ],
+                return_annotation=None,
             ),
         ),
     ],
