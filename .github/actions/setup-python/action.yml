@@ -20,6 +20,7 @@ runs:
           run: |
               echo "PIP_CACHE_DIR=${{ github.workspace }}/.cache/pip" >> $GITHUB_ENV
               echo "POETRY_CACHE_DIR=${{ github.workspace }}/.cache/pypoetry" >> $GITHUB_ENV
+          shell: bash
 
         - name: 'Download cache'
           if: ${{ inputs.cache }}
@@ -37,6 +38,8 @@ runs:
 
         - name: 'Install poetry'
           run: pip install "poetry==${{ inputs.poetry-version }}"
+          shell: bash
 
         - name: 'Install development dependencies'
           run: poetry install
+          shell: bash
