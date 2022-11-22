@@ -12,9 +12,10 @@ jobs:
         name: 'Test Python ${{ matrix.python-version }} on ${{ matrix.os }}'
         runs-on: ${{ matrix.os }}-latest
         strategy:
+            fail-fast: false
             matrix:
                 os: [Ubuntu, Windows, macOS]
-                python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+                python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
         steps:
             - name: 'Check out repository'
               uses: actions/checkout@v3
