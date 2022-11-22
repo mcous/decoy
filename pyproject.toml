@@ -24,20 +24,19 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.6"
 
-[tool.poetry.dev-dependencies]
-black = { version = "^22.8", python = "^3.6.2" }
-flake8 = "^4.0.1"
-flake8-annotations = { version = "^2.7.0", python = "^3.6.2" }
-flake8-docstrings = "^1.5.0"
-mkdocs = "^1.2.4"
-mkdocs-material = "^8.2.7"
-mkdocstrings = "^0.16.2"
-mypy = "^0.941"
+[tool.poetry.group.test.dependencies]
 pytest = "^7.0.1"
 pytest-asyncio = "^0.16.0"
 pytest-mypy-plugins = "^1.9.3"
 pytest-xdist = "^2.5.0"
 coverage = { extras = ["toml"], version = "^6.2" }
+
+[tool.poetry.group.dev.dependencies]
+black = { version = "^22.8", python = "^3.6.2" }
+mkdocs = "^1.2.4"
+mkdocs-material = "^8.2.7"
+mkdocstrings = "^0.16.2"
+mypy = "^0.941"
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"

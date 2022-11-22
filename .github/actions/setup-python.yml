@@ -1,0 +1,42 @@
+name: 'Setup Python'
+description: 'Install Python, Poetry, and development dependencies'
+
+inputs:
+    python-version:
+        description: 'Version of Python to use'
+        required: true
+    poetry-version:
+        description: 'Version of Poetry to use'
+        default: 1.2.2
+    cache:
+        description: 'Whether to cache dependencies'
+        default: true
+
+runs:
+    using: 'composite'
+    steps:
+        - name: 'Configure caches'
+          if: ${{ inputs.cache }}
+          run: |
+              echo "PIP_CACHE_DIR=${{ github.workspace }}/.cache/pip" >> $GITHUB_ENV
+              echo "POETRY_CACHE_DIR=${{ github.workspace }}/.cache/pypoetry" >> $GITHUB_ENV
+
+        - name: 'Download cache'
+          if: ${{ inputs.cache }}
+          uses: actions/cache@v3
+          with:
+              key: deps-${{ runner.os }}-python${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}
+              path: |
+                  ${{ env.PIP_CACHE_DIR }}
+                  ${{ env.POETRY_CACHE_DIR }}
+
+        - name: 'Install Python'
+          uses: actions/setup-python@v4
+          with:
+              python-version: ${{ inputs.python-version }}
+
+        - name: 'Install poetry'
+          run: pip install "poetry==${{ inputs.poetry-version }}"
+
+        - name: 'Install development dependencies'
+          run: poetry install
