@@ -126,6 +126,9 @@ class SpyCore:
                 child_source = child_source.__func__
 
             else:
+                if isinstance(child_source, classmethod):
+                    child_source = child_source.__func__
+
                 child_source = inspect.unwrap(child_source)
 
                 if inspect.isfunction(child_source):

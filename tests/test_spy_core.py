@@ -365,6 +365,18 @@ class GetIsAsyncSpec(NamedTuple):
             ),
             expected_is_async=True,
         ),
+        GetIsAsyncSpec(
+            subject=SpyCore(source=SomeAsyncClass, name=None).create_child_core(
+                "async_class_method", is_async=False
+            ),
+            expected_is_async=True,
+        ),
+        GetIsAsyncSpec(
+            subject=SpyCore(source=SomeAsyncClass, name=None).create_child_core(
+                "async_static_method", is_async=False
+            ),
+            expected_is_async=True,
+        ),
     ],
 )
 def test_get_is_async(subject: SpyCore, expected_is_async: bool) -> None:
