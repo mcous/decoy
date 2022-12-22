@@ -53,6 +53,13 @@ class SomeAsyncClass:
     async def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
 
+    @classmethod
+    async def async_class_method(cls) -> int:
+        """An async class method."""
+
+    @staticmethod
+    async def async_static_method() -> int:
+        """An async static method."""
 
 class SomeAsyncCallableClass:
     """Async callable class."""

@@ -126,6 +126,9 @@ class SpyCore:
                 child_source = child_source.__func__
 
             else:
+                if isinstance(child_source, classmethod):
+                    child_source = child_source.__func__
+
                 child_source = inspect.unwrap(child_source)
 
                 if inspect.isfunction(child_source):
@@ -177,7 +180,7 @@ def _get_is_async(source: Any) -> bool:
     # `iscoroutinefunction` does not work for `partial` on Python < 3.8
     if isinstance(source, functools.partial):
         source = source.func
-
+    
     return inspect.iscoroutinefunction(source)
 
 
