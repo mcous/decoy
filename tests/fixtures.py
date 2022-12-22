@@ -61,6 +61,7 @@ class SomeAsyncClass:
     async def async_static_method() -> int:
         """An async static method."""
 
+
 class SomeAsyncCallableClass:
     """Async callable class."""
 

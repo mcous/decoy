@@ -180,7 +180,7 @@ def _get_is_async(source: Any) -> bool:
     # `iscoroutinefunction` does not work for `partial` on Python < 3.8
     if isinstance(source, functools.partial):
         source = source.func
-    
+
     return inspect.iscoroutinefunction(source)
 
 
