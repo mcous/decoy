@@ -46,7 +46,7 @@ class BaseSpy(ContextManager[Any]):
 
     def __enter__(self) -> Any:
         """Allow a spy to be used as a context manager."""
-        enter_spy = self._get_or_create_child_spy("__enter__")
+        enter_spy = self._decoy_spy_get_or_create_child_spy("__enter__")
         return enter_spy()
 
     def __exit__(
@@ -56,12 +56,14 @@ class BaseSpy(ContextManager[Any]):
         traceback: Optional[TracebackType],
     ) -> Optional[bool]:
         """Allow a spy to be used as a context manager."""
-        exit_spy = self._get_or_create_child_spy("__exit__")
+        exit_spy = self._decoy_spy_get_or_create_child_spy("__exit__")
         return cast(Optional[bool], exit_spy(exc_type, exc_value, traceback))
 
     async def __aenter__(self) -> Any:
         """Allow a spy to be used as an async context manager."""
-        enter_spy = self._get_or_create_child_spy("__aenter__", child_is_async=True)
+        enter_spy = self._decoy_spy_get_or_create_child_spy(
+            "__aenter__", child_is_async=True
+        )
         return await enter_spy()
 
     async def __aexit__(
@@ -71,7 +73,9 @@ class BaseSpy(ContextManager[Any]):
         traceback: Optional[TracebackType],
     ) -> Optional[bool]:
         """Allow a spy to be used as a context manager."""
-        exit_spy = self._get_or_create_child_spy("__aexit__", child_is_async=True)
+        exit_spy = self._decoy_spy_get_or_create_child_spy(
+            "__aexit__", child_is_async=True
+        )
         return cast(Optional[bool], await exit_spy(exc_type, exc_value, traceback))
 
     def __repr__(self) -> str:
@@ -84,7 +88,7 @@ class BaseSpy(ContextManager[Any]):
         if name.startswith("__") and name.endswith("__"):
             return super().__getattribute__(name)
 
-        return self._get_or_create_child_spy(name)
+        return self._decoy_spy_get_or_create_child_spy(name)
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set a property on the spy, recording the call."""
@@ -108,7 +112,9 @@ class BaseSpy(ContextManager[Any]):
         self._decoy_spy_call_handler.handle(event)
         self._decoy_spy_property_values.pop(name, None)
 
-    def _get_or_create_child_spy(self, name: str, child_is_async: bool = False) -> Any:
+    def _decoy_spy_get_or_create_child_spy(
+        self, name: str, child_is_async: bool = False
+    ) -> Any:
         """Lazily construct a child spy, basing it on type hints if available."""
         # check for any stubbed behaviors for property getter
         get_result = self._decoy_spy_call_handler.handle(
@@ -139,7 +145,7 @@ class BaseSpy(ContextManager[Any]):
 
         return child_spy
 
-    def _call(self, *args: Any, **kwargs: Any) -> Any:
+    def _decoy_spy_call(self, *args: Any, **kwargs: Any) -> Any:
         bound_args, bound_kwargs = self._decoy_spy_core.bind_args(*args, **kwargs)
         call = SpyEvent(
             spy=self._decoy_spy_core.info,
@@ -158,7 +164,7 @@ class AsyncSpy(BaseSpy):
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy asynchronously."""
-        result = self._call(*args, **kwargs)
+        result = self._decoy_spy_call(*args, **kwargs)
         return (await result) if inspect.iscoroutine(result) else result
 
 
@@ -167,7 +173,7 @@ class Spy(BaseSpy):
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Handle a call to the spy."""
-        return self._call(*args, **kwargs)
+        return self._decoy_spy_call(*args, **kwargs)
 
 
 AnySpy = Union[AsyncSpy, Spy]
