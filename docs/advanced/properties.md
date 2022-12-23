@@ -63,11 +63,11 @@ dep = decoy.mock()
 
 decoy.when(
     decoy.prop(dep.some_property).set(42)
-).then_return(RuntimeError("oh no"))
+).then_raise(RuntimeError("oh no"))
 
 decoy.when(
     decoy.prop(dep.some_property).delete()
-).then_return(RuntimeError("what a disaster"))
+).then_raise(RuntimeError("what a disaster"))
 
 with pytest.raises(RuntimeError, match="oh no"):
     dep.some_property = 42
