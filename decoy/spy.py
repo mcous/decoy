@@ -131,7 +131,9 @@ class BaseSpy(ContextManager[Any]):
         if name in self._decoy_spy_children:
             return self._decoy_spy_children[name]
 
-        child_core = self._decoy_spy_core.create_child_core(name=name, is_async=child_is_async)
+        child_core = self._decoy_spy_core.create_child_core(
+            name=name, is_async=child_is_async
+        )
         child_spy = self._decoy_spy_creator.create(core=child_core)
         self._decoy_spy_children[name] = child_spy
 
