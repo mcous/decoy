@@ -32,17 +32,17 @@ class BaseSpy(ContextManager[Any]):
         spy_creator: "SpyCreator",
     ) -> None:
         """Initialize a BaseSpy from a call handler and an optional spec object."""
-        super().__setattr__("_core", core)
-        super().__setattr__("_call_handler", call_handler)
-        super().__setattr__("_spy_creator", spy_creator)
-        super().__setattr__("_spy_children", {})
-        super().__setattr__("_spy_property_values", {})
-        super().__setattr__("__signature__", self._core.signature)
+        super().__setattr__("_decoy_spy_core", core)
+        super().__setattr__("_decoy_spy_call_handler", call_handler)
+        super().__setattr__("_decoy_spy_creator", spy_creator)
+        super().__setattr__("_decoy_spy_children", {})
+        super().__setattr__("_decoy_spy_property_values", {})
+        super().__setattr__("__signature__", self._decoy_spy_core.signature)
 
     @property  # type: ignore[misc]
     def __class__(self) -> Any:
         """Ensure Spy can pass `instanceof` checks."""
-        return self._core.class_type or type(self)
+        return self._decoy_spy_core.class_type or type(self)
 
     def __enter__(self) -> Any:
         """Allow a spy to be used as a context manager."""
@@ -76,7 +76,7 @@ class BaseSpy(ContextManager[Any]):
 
     def __repr__(self) -> str:
         """Get a helpful string representation of the spy."""
-        return f"<Decoy mock `{self._core.full_name}`>"
+        return f"<Decoy mock `{self._decoy_spy_core.full_name}`>"
 
     def __getattr__(self, name: str) -> Any:
         """Get a property of the spy, always returning a child spy."""
@@ -89,31 +89,31 @@ class BaseSpy(ContextManager[Any]):
     def __setattr__(self, name: str, value: Any) -> None:
         """Set a property on the spy, recording the call."""
         event = SpyEvent(
-            spy=self._core.info,
+            spy=self._decoy_spy_core.info,
             payload=SpyPropAccess(
                 prop_name=name,
                 access_type=PropAccessType.SET,
                 value=value,
             ),
         )
-        self._call_handler.handle(event)
-        self._spy_property_values[name] = value
+        self._decoy_spy_call_handler.handle(event)
+        self._decoy_spy_property_values[name] = value
 
     def __delattr__(self, name: str) -> None:
         """Delete a property on the spy, recording the call."""
         event = SpyEvent(
-            spy=self._core.info,
+            spy=self._decoy_spy_core.info,
             payload=SpyPropAccess(prop_name=name, access_type=PropAccessType.DELETE),
         )
-        self._call_handler.handle(event)
-        self._spy_property_values.pop(name, None)
+        self._decoy_spy_call_handler.handle(event)
+        self._decoy_spy_property_values.pop(name, None)
 
     def _get_or_create_child_spy(self, name: str, child_is_async: bool = False) -> Any:
         """Lazily construct a child spy, basing it on type hints if available."""
         # check for any stubbed behaviors for property getter
-        get_result = self._call_handler.handle(
+        get_result = self._decoy_spy_call_handler.handle(
             SpyEvent(
-                spy=self._core.info,
+                spy=self._decoy_spy_core.info,
                 payload=SpyPropAccess(
                     prop_name=name,
                     access_type=PropAccessType.GET,
@@ -124,30 +124,30 @@ class BaseSpy(ContextManager[Any]):
         if get_result:
             return get_result.value
 
-        if name in self._spy_property_values:
-            return self._spy_property_values[name]
+        if name in self._decoy_spy_property_values:
+            return self._decoy_spy_property_values[name]
 
         # return previously constructed (and cached) child spies
-        if name in self._spy_children:
-            return self._spy_children[name]
+        if name in self._decoy_spy_children:
+            return self._decoy_spy_children[name]
 
-        child_core = self._core.create_child_core(name=name, is_async=child_is_async)
-        child_spy = self._spy_creator.create(core=child_core)
-        self._spy_children[name] = child_spy
+        child_core = self._decoy_spy_core.create_child_core(name=name, is_async=child_is_async)
+        child_spy = self._decoy_spy_creator.create(core=child_core)
+        self._decoy_spy_children[name] = child_spy
 
         return child_spy
 
     def _call(self, *args: Any, **kwargs: Any) -> Any:
-        bound_args, bound_kwargs = self._core.bind_args(*args, **kwargs)
+        bound_args, bound_kwargs = self._decoy_spy_core.bind_args(*args, **kwargs)
         call = SpyEvent(
-            spy=self._core.info,
+            spy=self._decoy_spy_core.info,
             payload=SpyCall(
                 args=bound_args,
                 kwargs=bound_kwargs,
             ),
         )
 
-        result = self._call_handler.handle(call)
+        result = self._decoy_spy_call_handler.handle(call)
         return result.value if result else None
 
 
@@ -175,7 +175,7 @@ class SpyCreator:
     """Spy factory."""
 
     def __init__(self, call_handler: CallHandler) -> None:
-        self._call_handler = call_handler
+        self._decoy_spy_call_handler = call_handler
 
     @overload
     def create(self, *, core: SpyCore) -> AnySpy:
@@ -208,5 +208,5 @@ class SpyCreator:
         return spy_cls(
             core=core,
             spy_creator=self,
-            call_handler=self._call_handler,
+            call_handler=self._decoy_spy_call_handler,
         )
