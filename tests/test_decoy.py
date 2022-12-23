@@ -1,7 +1,7 @@
 """Smoke and acceptance tests for main Decoy interface."""
 import contextlib
 import sys
-from typing import Any, AsyncIterator, ContextManager, Iterator, Optional
+from typing import Any, AsyncIterator, ContextManager, Generator, Optional
 
 import pytest
 
@@ -267,7 +267,7 @@ def test_generator_context_manager_mock(decoy: Decoy) -> None:
 
     class _ValueReaderLoader:
         @contextlib.contextmanager
-        def get_value_reader(self) -> Iterator[_ValueReader]:
+        def get_value_reader(self) -> Generator[_ValueReader, None, None]:
             ...
 
     value_reader_loader = decoy.mock(cls=_ValueReaderLoader)

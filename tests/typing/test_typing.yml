@@ -119,11 +119,11 @@
   skip: sys.version_info < (3, 7)
   main: |
       import contextlib
-      from typing import Iterator
+      from typing import Generator
       from decoy import Decoy
 
       @contextlib.contextmanager
-      def do_thing(input: str) -> Iterator[int]:
+      def do_thing(input: str) -> Generator[int, None, None]:
           yield 42
 
       decoy = Decoy()

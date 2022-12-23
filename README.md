@@ -128,7 +128,7 @@ def test_remove_todo(decoy: Decoy) -> None:
 
     subject.remove("abc123")
 
-    decoy.verify(todo_store.remove(id="abc123"))
+    decoy.verify(todo_store.remove(id="abc123"), times=1)
 ```
 
 See [spying with verify][] for more details.

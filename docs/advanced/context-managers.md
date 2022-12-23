@@ -46,7 +46,7 @@ From this test, we could sketch out the following dependency APIs...
 ```python
 # config.py
 import contextlib
-from typing import Iterator
+from typing import Generator
 
 class Config:
     def read(self, name: str) -> bool:
@@ -54,7 +54,7 @@ class Config:
 
 class ConfigLoader:
     @contextlib.contextmanager
-    def load(self) -> Iterator[Config]:
+    def load(self) -> Generator[Config, None, None]:
         ...
 ```
 
@@ -65,7 +65,7 @@ class ConfigLoader:
 from .config import Config, ConfigLoader
 
 class Core:
-    def __init__(self, config_laoder: ConfigLoader) -> None:
+    def __init__(self, config_loader: ConfigLoader) -> None:
         self._config_loader = config_loader
 
     def get_config(self, name: str) -> bool:
@@ -78,7 +78,7 @@ class Core:
 
 ## General context managers
 
-A context manager is simply an object with both `__enter__` and `__exit__` methods defined. Decoy mocks have both these methods defined, so they are compatible with the `with` statement. In the author's opinion, tests that mock `__enter__` and `__exit__` (or any double-underscore method) are harder to read and understand than tests that do not, so generator-based context managers should be prefered where applicable.
+A context manager is simply an object with both `__enter__` and `__exit__` methods defined. Decoy mocks have both these methods defined, so they are compatible with the `with` statement. In the author's opinion, tests that mock `__enter__` and `__exit__` (or any double-underscore method) are harder to read and understand than tests that do not, so generator-based context managers should be preferred where applicable.
 
 Using our earlier example, maybe you'd prefer to use a single `Config` dependency to both load the configuration resource and read values.
 
@@ -101,7 +101,7 @@ def test_loads_config(decoy: Decoy) -> None:
         """Ensure test fails if subject calls `read` after exit."""
         decoy.when(
             config.read("some_flag")
-        ).then_raise(AssertionError("Context manager was exitted"))
+        ).then_raise(AssertionError("Context manager was exited"))
 
     decoy.when(config.__enter__()).then_do(_handle_enter)
     decoy.when(config.__exit__(None, None, None)).then_do(_handle_exit)
@@ -175,7 +175,7 @@ async def test_loads_config(decoy: Decoy) -> None:
         """Ensure test fails if subject calls `read` after exit."""
         decoy.when(
             config.read("some_flag")
-        ).then_raise(AssertionError("Context manager was exitted"))
+        ).then_raise(AssertionError("Context manager was exited"))
 
     decoy.when(await config.__aenter__()).then_do(_handle_enter)
     decoy.when(await config.__aexit__()).then_do(_handle_exit)
