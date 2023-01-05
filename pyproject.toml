@@ -36,7 +36,7 @@ mypy = "^0.941"
 pytest = "^7.0.1"
 pytest-asyncio = "^0.16.0"
 pytest-mypy-plugins = "^1.9.3"
-pytest-xdist = "^2.5.0"
+pytest-xdist = "^3.0.2"
 coverage = { extras = ["toml"], version = "^6.2" }
 
 [tool.poetry.plugins."pytest11"]
