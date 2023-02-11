@@ -23,10 +23,10 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-ruff = "^0.0.245"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
+coverage = { extras = ["toml"], version = "^7.1.0" }
 mkdocs = "^1.4.2"
 mkdocs-material = "^9.0.12"
 mkdocstrings = { extras = ["python"], version = "^0.20.0" }
@@ -35,7 +35,7 @@ pytest = "^7.0.1"
 pytest-asyncio = "^0.20.3"
 pytest-mypy-plugins = "^1.10.1"
 pytest-xdist = "^3.0.2"
-coverage = { extras = ["toml"], version = "^7.1.0" }
+ruff = "^0.0.245"
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"
@@ -49,12 +49,6 @@ files = ["decoy", "tests"]
 plugins = ["decoy/mypy/plugin.py"]
 strict = true
 show_error_codes = true
-
-# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
-# Python 3.6 does not have async generator context managers
-[[tool.mypy.overrides]]
-module = "decoy.context_managers"
-warn_unused_ignores = false
 
 [tool.coverage.report]
 exclude_lines = ["@overload", "if TYPE_CHECKING:"]

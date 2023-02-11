@@ -1,6 +1,5 @@
 """Smoke and acceptance tests for main Decoy interface."""
 import contextlib
-import sys
 from typing import Any, AsyncIterator, ContextManager, Generator, Optional
 
 import pytest
@@ -17,7 +16,6 @@ from .fixtures import (
 )
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_spy(decoy: Decoy) -> None:
     """It should be able to create a Spy from a class."""
     subject = decoy.mock(cls=SomeClass)
@@ -25,49 +23,26 @@ def test_decoy_creates_spy(decoy: Decoy) -> None:
     assert isinstance(subject, SomeClass)
     assert isinstance(subject, Spy)
 
-    # test deprecated create_decoy method
-    subject = decoy.create_decoy(spec=SomeClass)
 
-    assert isinstance(subject, SomeClass)
-    assert isinstance(subject, Spy)
-
-
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_func_spy(decoy: Decoy) -> None:
     """It should be able to create a Spy from a function."""
     subject = decoy.mock(func=some_func)
 
     assert isinstance(subject, Spy)
 
-    # test deprecated create_decoy_func method
-    subject = decoy.create_decoy_func(spec=some_func)
 
-    assert isinstance(subject, Spy)
-
-
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_specless_spy(decoy: Decoy) -> None:
     """It should be able to create a spec-less spy."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
+
     assert isinstance(subject, Spy)
-
-    # test deprecated create_decoy_func method
-    subject = decoy.create_decoy_func()
-    assert isinstance(subject, Spy)
-
-    # test naming the spy
-    subject = decoy.mock(name="spy_name")
-    assert repr(subject) == "<Decoy mock `spy_name`>"
+    assert repr(subject) == "<Decoy mock `subject`>"
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_specless_async_spy(decoy: Decoy) -> None:
     """It should be able to create an async specless spy."""
-    subject = decoy.mock(is_async=True)
-    assert isinstance(subject, AsyncSpy)
+    subject = decoy.mock(name="subject", is_async=True)
 
-    # test deprecated create_decoy_func method
-    subject = decoy.create_decoy_func(is_async=True)
     assert isinstance(subject, AsyncSpy)
 
 
@@ -280,11 +255,6 @@ def test_generator_context_manager_mock(decoy: Decoy) -> None:
     assert result == 42
 
 
-# TODO(mc, 2021-12-14): remove skip when Python 3.6 support dropped in v2
-@pytest.mark.skipif(
-    sys.version_info < (3, 7),
-    reason="contextlib.asynccontextmanager added in Python 3.7",
-)
 async def test_async_generator_context_manager_mock(decoy: Decoy) -> None:
     """It should be able to mock a generator-based context manager."""
 
@@ -384,7 +354,7 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
 
 async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
     """It should be able to mock an async context manager, even without a spec."""
-    value_reader = decoy.mock()
+    value_reader = decoy.mock(name="value_reader")
 
     def _handle_enter() -> Any:
         decoy.when(value_reader.get_value()).then_return(42)
@@ -409,7 +379,7 @@ async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
 
 def test_property_getter_stub_then_return(decoy: Decoy) -> None:
     """It should be able to stub a property getter."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
     decoy.when(subject.prop_name).then_return(42)
 
     assert subject.prop_name == 42
@@ -417,7 +387,7 @@ def test_property_getter_stub_then_return(decoy: Decoy) -> None:
 
 def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
     """It should be able to stub a property getter with multiple return values."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
     decoy.when(subject.prop_name).then_return(43, 44)
 
     assert subject.prop_name == 43
@@ -431,7 +401,7 @@ def test_property_getter_stub_then_do(decoy: Decoy) -> None:
     def _handle_get(*args: Any, **kwargs: Any) -> int:
         return 84
 
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
     decoy.when(subject.prop_name).then_do(_handle_get)
 
     assert subject.prop_name == 84
@@ -439,7 +409,7 @@ def test_property_getter_stub_then_do(decoy: Decoy) -> None:
 
 def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
     """It should be able to stub a property getter to raise."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
 
     decoy.when(subject.prop_name).then_raise(ValueError("oh no"))
 
@@ -449,7 +419,7 @@ def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
 
 def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
     """It should be able to reconfigure a property getter."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
 
     decoy.when(subject.prop_name).then_return(42)
     assert subject.prop_name == 42
@@ -460,7 +430,7 @@ def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
 
 def test_property_setter_stub_then_raise(decoy: Decoy) -> None:
     """It should be able to stub a property setter to raise."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
     prop_rehearser = decoy.prop(subject.prop_name)
 
     decoy.when(prop_rehearser.set(42)).then_raise(ValueError("oh no"))
@@ -474,7 +444,7 @@ def test_property_setter_stub_then_raise(decoy: Decoy) -> None:
 
 def test_property_deleter_stub_then_rase(decoy: Decoy) -> None:
     """It should be able to stub a property deleter to raise."""
-    subject = decoy.mock()
+    subject = decoy.mock(name="subject")
     prop_rehearser = decoy.prop(subject.prop_name)
 
     decoy.when(prop_rehearser.delete()).then_raise(ValueError("oh no"))
@@ -485,8 +455,8 @@ def test_property_deleter_stub_then_rase(decoy: Decoy) -> None:
 
 def test_verify_property_access(decoy: Decoy) -> None:
     """It should be able to verify property setters and deleters."""
-    subject_1 = decoy.mock()
-    subject_2 = decoy.mock()
+    subject_1 = decoy.mock(name="subject_1")
+    subject_2 = decoy.mock(name="subject_2")
 
     subject_1.hello("world")
     subject_1.some_property = "fizzbuzz"

@@ -42,48 +42,6 @@
   out: |
       main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
 
-- case: deprecated_create_decoy_mimics_type
-  main: |
-      from decoy import Decoy
-
-      class Dependency():
-          def do_thing(self, input: str) -> int:
-              return 42
-
-      decoy = Decoy()
-      fake = decoy.create_decoy(spec=Dependency)
-      reveal_type(fake)
-  out: |
-      main:9: note: Revealed type is "main.Dependency"
-
-- case: deprecated_create_decoy_mimics_abstract_class_type
-  main: |
-      from abc import ABC
-      from decoy import Decoy
-
-      class Dependency(ABC):
-          def do_thing(self, input: str) -> int:
-              return 42
-
-      decoy = Decoy()
-      fake = decoy.create_decoy(spec=Dependency)
-      reveal_type(fake)
-  out: |
-      main:10: note: Revealed type is "main.Dependency"
-
-- case: deprecated_create_decoy_func_mimics_type
-  main: |
-      from decoy import Decoy
-
-      def do_thing(input: str) -> int:
-          return 42
-
-      decoy = Decoy()
-      fake = decoy.create_decoy_func(spec=do_thing)
-      reveal_type(fake)
-  out: |
-      main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
-
 - case: class_stub_mimics_return_type
   main: |
       from decoy import Decoy
@@ -145,7 +103,7 @@
 
       decoy = Decoy()
       fake_not_cm = decoy.mock(func=do_thing)
-      fake_any = decoy.mock()
+      fake_any = decoy.mock(name="fake_any")
 
       decoy.when(fake_not_cm("hello")).then_enter_with(42)
       decoy.when(fake_any("hello")).then_enter_with(42)

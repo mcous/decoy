@@ -1,9 +1,6 @@
 # API Reference
 
 ::: decoy.Decoy
-    options:
-        filters:
-            - "!^create_decoy"
 
 ::: decoy.Stub
 

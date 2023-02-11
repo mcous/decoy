@@ -103,7 +103,7 @@ def test_handle_call_with_action(
     subject: CallHandler,
 ) -> None:
     """It should trigger a stub's configured action."""
-    action = decoy.mock()
+    action = decoy.mock(name="action")
     spy_call = SpyEvent(
         spy=SpyInfo(id=42, name="spy_name", is_async=False),
         payload=SpyCall(args=(1,), kwargs={"foo": "bar"}),
@@ -125,7 +125,7 @@ def test_handle_prop_get_with_action(
     subject: CallHandler,
 ) -> None:
     """It should trigger a prop get stub's configured action."""
-    action = decoy.mock()
+    action = decoy.mock(name="action")
     spy_call = SpyEvent(
         spy=SpyInfo(id=42, name="spy_name", is_async=False),
         payload=SpyPropAccess(prop_name="prop", access_type=PropAccessType.GET),

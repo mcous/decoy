@@ -1,30 +1,15 @@
 """Decoy stubbing and spying library."""
-from warnings import warn
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Coroutine,
-    Generic,
-    Optional,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, Callable, Coroutine, Generic, Optional, Union, overload
 
 from . import errors, matchers, warnings
 from .core import DecoyCore, StubCore, PropCore
 from .types import ClassT, ContextValueT, FuncT, ReturnT
-
-# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
-# Python 3.6 does not have async generator context managers
-if TYPE_CHECKING:
-    from .context_managers import (
-        ContextManager,
-        AsyncContextManager,
-        GeneratorContextManager,
-        AsyncGeneratorContextManager,
-    )
+from .context_managers import (
+    ContextManager,
+    AsyncContextManager,
+    GeneratorContextManager,
+    AsyncGeneratorContextManager,
+)
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
@@ -60,9 +45,8 @@ class Decoy:
     def mock(self, *, func: FuncT) -> FuncT:
         ...
 
-    # TODO(mc, 2021-11-14): make `name` required for specless mocks in v2.0
     @overload
-    def mock(self, *, name: Optional[str] = None, is_async: bool = False) -> Any:
+    def mock(self, *, name: str, is_async: bool = False) -> Any:
         ...
 
     def mock(
@@ -97,44 +81,6 @@ class Decoy:
         """
         spec = cls or func
         return self._core.mock(spec=spec, name=name, is_async=is_async)
-
-    def create_decoy(
-        self,
-        spec: Callable[..., ClassT],
-        *,
-        is_async: bool = False,
-    ) -> ClassT:
-        """Create a class mock for `spec`.
-
-        !!! warning "Deprecated since v1.6.0"
-            Use [`mock`][decoy.Decoy.mock] with the `cls` parameter, instead.
-        """
-        warn(
-            "decoy.create_decoy is deprecated; use decoy.mock(cls=...) instead.",
-            DeprecationWarning,
-        )
-
-        spy = self._core.mock(spec=spec, is_async=is_async)
-        return cast(ClassT, spy)
-
-    def create_decoy_func(
-        self,
-        spec: Optional[FuncT] = None,
-        *,
-        is_async: bool = False,
-    ) -> FuncT:
-        """Create a function mock for `spec`.
-
-        !!! warning "Deprecated since v1.6.0"
-            Use [`mock`][decoy.Decoy.mock] with the `func` parameter, instead.
-        """
-        warn(
-            "decoy.create_decoy_func is deprecated; use decoy.mock(func=...) instead.",
-            DeprecationWarning,
-        )
-
-        spy = self._core.mock(spec=spec, is_async=is_async)
-        return cast(FuncT, spy)
 
     def when(
         self,
