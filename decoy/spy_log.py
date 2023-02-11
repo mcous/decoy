@@ -31,8 +31,9 @@ class SpyLog:
         """
         try:
             event = self._log[-1]
-        except IndexError:
-            raise MissingRehearsalError()
+        except IndexError as e:
+            raise MissingRehearsalError() from e
+
         if not isinstance(event, SpyEvent):
             raise MissingRehearsalError()
 
@@ -79,8 +80,8 @@ class SpyLog:
         """Consume the last property get as a rehearsal."""
         try:
             event = self._log[-1]
-        except IndexError:
-            raise MissingRehearsalError()
+        except IndexError as e:
+            raise MissingRehearsalError() from e
 
         spy, payload = event
 

@@ -63,9 +63,11 @@ ignore = [
 ]
 select = [
     "ANN",
+    "B",
     "D",
     "E",
     "F",
+    "RUF",
     "W",
 ]
 

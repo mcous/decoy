@@ -28,7 +28,7 @@ class SomeClass:
         """Get a primitive computed property."""
         raise NotImplementedError()
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)  # noqa: B019
     def some_wrapped_method(self, val: str) -> str:
         """Get a thing through a wrapped method."""
         raise NotImplementedError()
