@@ -16,8 +16,6 @@ from .fixtures import (
     some_async_func,
 )
 
-pytestmark = pytest.mark.asyncio
-
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_decoy_creates_spy(decoy: Decoy) -> None:
@@ -263,12 +261,12 @@ def test_generator_context_manager_mock(decoy: Decoy) -> None:
 
     class _ValueReader:
         def get_value(self) -> int:
-            ...
+            raise NotImplementedError()
 
     class _ValueReaderLoader:
         @contextlib.contextmanager
         def get_value_reader(self) -> Generator[_ValueReader, None, None]:
-            ...
+            raise NotImplementedError()
 
     value_reader_loader = decoy.mock(cls=_ValueReaderLoader)
     value_reader = decoy.mock(cls=_ValueReader)
@@ -292,7 +290,7 @@ async def test_async_generator_context_manager_mock(decoy: Decoy) -> None:
 
     class _ValueReader:
         def get_value(self) -> int:
-            ...
+            raise NotImplementedError()
 
     class _ValueReaderLoader:
         @contextlib.asynccontextmanager
@@ -317,13 +315,13 @@ def test_context_manager_mock(decoy: Decoy) -> None:
 
     class _ValueReader(ContextManager[Any]):
         def __enter__(self) -> "_ValueReader":
-            ...
+            raise NotImplementedError()
 
         def __exit__(self, *args: Any) -> None:
-            ...
+            raise NotImplementedError()
 
         def get_value(self) -> int:
-            ...
+            raise NotImplementedError()
 
     value_reader = decoy.mock(cls=_ValueReader)
 
@@ -353,13 +351,13 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
 
     class _ValueReader(ContextManager[Any]):
         async def __aenter__(self) -> "_ValueReader":
-            ...
+            raise NotImplementedError()
 
         async def __aexit__(self, *args: Any) -> None:
-            ...
+            raise NotImplementedError()
 
         def get_value(self) -> int:
-            ...
+            raise NotImplementedError()
 
     value_reader = decoy.mock(cls=_ValueReader)
 

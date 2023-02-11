@@ -38,7 +38,7 @@ class Decoy:
     [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
     automatically. See the [setup guide](../#setup) for more details.
 
-    Example:
+    !!! example
         ```python
         decoy = Decoy()
 
@@ -88,7 +88,7 @@ class Decoy:
         Returns:
             A spy typecast as the object it's imitating, if any.
 
-        Example:
+        !!! example
             ```python
             def test_get_something(decoy: Decoy):
                 db = decoy.mock(cls=Database)
@@ -157,13 +157,13 @@ class Decoy:
             [`then_raise`][decoy.Stub.then_raise], [`then_do`][decoy.Stub.then_do],
             or [`then_enter_with`][decoy.Stub.then_enter_with].
 
-        Example:
+        !!! example
             ```python
             db = decoy.mock(cls=Database)
             decoy.when(db.exists("some-id")).then_return(True)
             ```
 
-        Note:
+        !!! note
             The "rehearsal" is an actual call to the test fake. Because the
             call is written inside `when`, Decoy is able to infer that the call
             is a rehearsal for stub configuration purposes rather than a call
@@ -199,7 +199,7 @@ class Decoy:
         Raises:
             VerifyError: The verification was not satisfied.
 
-        Example:
+        !!! example
             ```python
             def test_create_something(decoy: Decoy):
                 gen_id = decoy.mock(func=generate_unique_id)
@@ -209,7 +209,7 @@ class Decoy:
                 decoy.verify(gen_id("model-prefix_"))
             ```
 
-        Note:
+        !!! note
             A "rehearsal" is an actual call to the test fake. The fact that
             the call is written inside `verify` is purely for typechecking and
             API sugar. Decoy will pop the last call(s) to _any_ fake off its
@@ -274,7 +274,7 @@ class Stub(Generic[ReturnT]):
         Arguments:
             error: The error to raise.
 
-        Note:
+        !!! note
             Setting a stub to raise will prevent you from writing new
             rehearsals, because they will raise. If you need to make more calls
             to [`when`][decoy.Decoy.when], you'll need to wrap your rehearsal
@@ -369,7 +369,7 @@ class Prop(Generic[ReturnT]):
         Arguments:
             value: The value
 
-        Example:
+        !!! example
             ```python
             some_obj = decoy.mock()
             some_obj.prop = 42
@@ -385,8 +385,7 @@ class Prop(Generic[ReturnT]):
         [`verify`][decoy.Decoy.verify], you can stub or verify a call
         to a property deleter.
 
-
-        Example:
+        !!! example
             ```python
             some_obj = decoy.mock()
             del some_obj.prop

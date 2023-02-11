@@ -66,7 +66,9 @@ def test_my_thing_when_database_raises(decoy: Decoy) -> None:
         subject.get_model_by_id("foo")
 ```
 
-**Note:** configuring a stub to raise will **make future rehearsals with the same arguments raise.** If you must configure a new behavior after a raise, use a `try/except` block:
+!!! note
+
+    Configuring a stub to raise will **make future rehearsals with the same arguments raise.** If you must configure a new behavior after a raise, use a `try/except` block:
 
 ```python
 decoy.when(database.get("foo")).then_raise(KeyError("oh no"))
@@ -116,7 +118,6 @@ The action function passed to `then_do` will be passed any arguments given to th
 If your dependency uses async/await, simply add `await` to the rehearsal:
 
 ```python
-@pytest.mark.asyncio
 async def test_my_async_thing(decoy: Decoy) -> None:
     database = decoy.mock(cls=Database)
     subject = MyThing(database=database)

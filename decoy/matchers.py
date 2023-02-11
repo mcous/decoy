@@ -6,7 +6,7 @@ in your test where you would use an actual value for equality (`==`) comparision
 Matchers help you loosen assertions where strict adherence to an exact value
 is not relevent to what you're trying to test.
 
-Example:
+!!! example
     ```python
     from decoy import Decoy, matchers
 
@@ -19,7 +19,7 @@ Example:
         )
     ```
 
-Note:
+!!! note
     Identity comparisons (`is`) will not work with matchers. Decoy only uses
     equality comparisons (`==`) for stubbing and verification.
 """
@@ -50,7 +50,7 @@ class _Anything:
 def Anything() -> Any:
     """Match anything except None.
 
-    Example:
+    !!! example
         ```python
         assert "foobar" == Anything()
         assert None != Anything()
@@ -96,7 +96,7 @@ def IsA(match_type: type, attributes: Optional[Mapping[str, Any]] = None) -> Any
         match_type: Type to match.
         attributes: Optional set of attributes to match
 
-    Example:
+    !!! example
         ```python
         assert "foobar" == IsA(str)
         assert datetime.now() == IsA(datetime)
@@ -135,7 +135,7 @@ def IsNot(value: object) -> Any:
     Arguments:
         value: Value to check against.
 
-    Example:
+    !!! example
         ```python
         assert "foobar" == IsNot("bazquux")
         assert 42 == IsNot("the question")
@@ -173,7 +173,7 @@ def HasAttributes(attributes: Mapping[str, Any]) -> Any:
     Arguments:
         attributes: Attribute values to check.
 
-    Example:
+    !!! example
         ```python
         @dataclass
         class HelloWorld:
@@ -216,7 +216,7 @@ def DictMatching(values: Mapping[str, Any]) -> Any:
     Arguments:
         values: Keys and values to check.
 
-    Example:
+    !!! example
         ```python
         value = {"hello": "world", "goodbye": "so long"}
         assert value == matchers.DictMatching({"hello": "world"})
@@ -247,7 +247,7 @@ def StringMatching(match: str) -> str:
     Arguments:
         match: Pattern to check against; will be compiled into an re.Pattern.
 
-    Example:
+    !!! example
         ```python
         assert "foobar" == StringMatching("bar")
         assert "foobar" != StringMatching("^bar")
@@ -293,7 +293,7 @@ def ErrorMatching(error: Type[ErrorT], match: Optional[str] = None) -> ErrorT:
         error: Exception type to match against.
         match: Pattern to check against; will be compiled into an re.Pattern.
 
-    Example:
+    !!! example
         ```python
         assert ValueError("oh no!") == ErrorMatching(ValueError)
         assert ValueError("oh no!") == ErrorMatching(ValueError, match="no")
@@ -340,7 +340,7 @@ def Captor() -> Any:
     values will be placed in the `captor.values` list, which can be
     helpful if a captor needs to be triggered multiple times.
 
-    Example:
+    !!! example
         ```python
         captor = Captor()
         assert "foobar" == captor

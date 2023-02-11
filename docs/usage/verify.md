@@ -39,7 +39,6 @@ If Decoy is unable to find any calls matching the rehearsal inside `verify`, a [
 If your dependency uses async/await, simply add `await` to the rehearsal:
 
 ```python
-@pytest.mark.asyncio
 async def test_my_async_thing(decoy: Decoy) -> None:
     database = decoy.mock(cls=Database)
 

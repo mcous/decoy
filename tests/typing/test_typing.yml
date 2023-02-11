@@ -12,7 +12,7 @@
       fake = decoy.mock(cls=Dependency)
       reveal_type(fake)
   out: |
-      main:9: note: Revealed type is "main.Dependency*"
+      main:9: note: Revealed type is "main.Dependency"
 
 - case: mock_cls_mimics_abstract_class_type
   main: |
@@ -21,13 +21,13 @@
 
       class Dependency(ABC):
           def do_thing(self, input: str) -> int:
-              ...
+              return 42
 
       decoy = Decoy()
       fake = decoy.mock(cls=Dependency)
       reveal_type(fake)
   out: |
-      main:10: note: Revealed type is "main.Dependency*"
+      main:10: note: Revealed type is "main.Dependency"
 
 - case: mock_func_mimics_type
   main: |
@@ -54,7 +54,7 @@
       fake = decoy.create_decoy(spec=Dependency)
       reveal_type(fake)
   out: |
-      main:9: note: Revealed type is "main.Dependency*"
+      main:9: note: Revealed type is "main.Dependency"
 
 - case: deprecated_create_decoy_mimics_abstract_class_type
   main: |
@@ -63,13 +63,13 @@
 
       class Dependency(ABC):
           def do_thing(self, input: str) -> int:
-              ...
+              return 42
 
       decoy = Decoy()
       fake = decoy.create_decoy(spec=Dependency)
       reveal_type(fake)
   out: |
-      main:10: note: Revealed type is "main.Dependency*"
+      main:10: note: Revealed type is "main.Dependency"
 
 - case: deprecated_create_decoy_func_mimics_type
   main: |
@@ -151,7 +151,7 @@
       decoy.when(fake_any("hello")).then_enter_with(42)
 
   out: |
-      main:10: error: Invalid self argument "Stub[int]" to attribute function "then_enter_with" with type "Callable[[Stub[ContextManager[ContextValueT]], ContextValueT], None]"  [misc]
+      main:10: error: Invalid self argument "Stub[int]" to attribute function "then_enter_with" with type "Callable[[Stub[AbstractContextManager[ContextValueT]], ContextValueT], None]"  [misc]
       main:10: error: No overload variant of "then_enter_with" of "Stub" matches argument type "int"  [call-overload]
       main:10: note: Possible overload variants:
       main:10: note:     def then_enter_with(self, value: <nothing>) -> None
@@ -171,5 +171,5 @@
       main:4: note: Revealed type is "Any"
       main:5: note: Revealed type is "Any"
       main:6: note: Revealed type is "builtins.str"
-      main:7: note: Revealed type is "builtins.RuntimeError*"
+      main:7: note: Revealed type is "builtins.RuntimeError"
       main:8: note: Revealed type is "Any"

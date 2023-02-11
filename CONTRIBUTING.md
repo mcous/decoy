@@ -39,11 +39,11 @@ If you find yourself in a situation where Decoy's test suite has blown up, **con
 
 ### Checks
 
-Decoy's source code is typechecked with [mypy][] and linted with [flake8][].
+Decoy's source code is typechecked with [mypy][] and linted with [ruff][].
 
 ```bash
 poetry run mypy
-poetry run flake8
+poetry run ruff check .
 ```
 
 ### Formatting
@@ -92,7 +92,7 @@ git push --follow-tags
 [pytest]: https://docs.pytest.org/
 [pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
 [mypy]: https://mypy.readthedocs.io
-[flake8]: https://flake8.pycqa.org
+[ruff]: https://github.com/charliermarsh/ruff
 [black]: https://black.readthedocs.io
 [mkdocs]: https://www.mkdocs.org/
 [semantic versioning]: https://semver.org/

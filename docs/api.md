@@ -1,7 +1,7 @@
 # API Reference
 
 ::: decoy.Decoy
-    selection:
+    options:
         filters:
             - "!^create_decoy"
 

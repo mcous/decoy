@@ -13,9 +13,6 @@ from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, SpyPropAccess, PropAcce
 from .fixtures import SomeClass, some_func
 
 
-pytestmark = pytest.mark.asyncio
-
-
 @pytest.fixture
 def call_handler(decoy: Decoy) -> CallHandler:
     """Get a mock CallHandler."""
