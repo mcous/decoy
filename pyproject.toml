@@ -31,11 +31,26 @@ mkdocs = "^1.4.2"
 mkdocs-material = "^9.0.12"
 mkdocstrings = { extras = ["python"], version = "^0.20.0" }
 mypy = "^1.0.0"
+poethepoet = "^0.18.1"
 pytest = "^7.0.1"
 pytest-asyncio = "^0.20.3"
 pytest-mypy-plugins = "^1.10.1"
 pytest-xdist = "^3.0.2"
-ruff = "^0.0.245"
+ruff = "^0.0.247"
+
+[tool.poe.tasks]
+all = [ "check", "lint", "format-check", "test-once", "coverage", "docs-build", "build" ]
+check = "mypy"
+lint = "ruff check ."
+format = "black ."
+format-check = { ref = "format --check" }
+test = "pytest -f"
+test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
+coverage = "coverage report"
+coverage-xml = "coverage xml"
+docs = "mkdocs serve"
+docs-build = "mkdocs build"
+build = "poetry build"
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"

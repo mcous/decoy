@@ -68,22 +68,24 @@ def test_my_thing_when_database_raises(decoy: Decoy) -> None:
 
 !!! note
 
-    Configuring a stub to raise will **make future rehearsals with the same arguments raise.** If you must configure a new behavior after a raise, use a `try/except` block:
+    Configuring a stub to raise will **make future rehearsals with the same arguments raise.** If you _must_ configure a new behavior after a raise, use a `try/except` block. **You probably should never do this**, and instead use separate tests for different stub behaviors.
 
-```python
-decoy.when(database.get("foo")).then_raise(KeyError("oh no"))
+    ```python
+    decoy.when(database.get("foo")).then_raise(KeyError("oh no"))
 
-# ...later
+    # ...later
 
-try:
-    database.get("foo")
-except Exception:
-    pass
-finally:
-    # even though `database.get` is not inside the `when`, Decoy
-    # will pop the last call off its stack to use as the rehearsal
-    decoy.when().then_return("hurray!")
-```
+    try:
+        database.get("foo")
+    except Exception:
+        pass
+    finally:
+        # even though `database.get` is not inside the `when`, Decoy
+        # will pop the last call off its stack to use as the rehearsal
+        decoy.when().then_return("hurray!")
+    ```
+
+    
 
 ## Performing an action
 

@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
     PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
     POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
-    DEFAULT_PYTHON: '3.10'
+    DEFAULT_PYTHON: '3.11'
 
 jobs:
     test:
