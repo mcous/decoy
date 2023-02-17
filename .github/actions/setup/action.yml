@@ -33,13 +33,13 @@ runs:
                   ${{ inputs.poetry-cache }}
 
         - name: "Install poetry"
-          shell: bash
+          shell: ${{ runner.os != 'windows' && 'bash' || 'pwsh'}}
           run: |
               pip config set global.cache-dir ${{ inputs.pip-cache }}
               pip install "poetry==${{ inputs.poetry-version }}"
 
         - name: "Install development dependencies"
-          shell: bash
+          shell: ${{ runner.os != 'windows' && 'bash' || 'pwsh'}}
           run: |
               poetry config cache-dir ${{ inputs.poetry-cache }}
               poetry install --sync
