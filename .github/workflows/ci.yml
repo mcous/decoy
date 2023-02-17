@@ -50,7 +50,7 @@ jobs:
               uses: ./.github/actions/setup
 
             - name: "Build artifacts"
-              run: poetry run build-ci
+              run: poetry run poe build-ci
 
             - name: "Deploy to PyPI and GitHub Pages"
               if: startsWith(github.ref, 'refs/tags/v')

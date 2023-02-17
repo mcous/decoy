@@ -10,10 +10,10 @@ inputs:
         default: "1.3.2"
     pip-cache:
         description: "Pip cache directory"
-        default: "${{ github.workspace }}/.cache/pip"
+        default: ".cache/pip"
     poetry-cache:
         description: "Poetry cache directory"
-        default: "${{ github.workspace }}/.cache/pypoetry"
+        default: ".cache/pypoetry"
 
 runs:
     using: "composite"
