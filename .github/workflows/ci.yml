@@ -1,123 +1,58 @@
-name: 'Continuous integration'
+name: "Continuous integration"
 
 on: [push, pull_request]
 
-env:
-    PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
-    POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
-    DEFAULT_PYTHON: '3.11'
-
 jobs:
     test:
-        name: 'Test Python ${{ matrix.python-version }} on ${{ matrix.os }}'
+        name: "Test Python ${{ matrix.python-version }} on ${{ matrix.os }}"
         runs-on: ${{ matrix.os }}-latest
         strategy:
             matrix:
                 os: [Ubuntu, Windows, macOS]
-                python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+                python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         steps:
-            - name: 'Check out repository'
+            - name: "Check out repository"
               uses: actions/checkout@v3
 
-            - name: 'Set up Python'
-              uses: actions/setup-python@v4
+            - name: "Set up Python and development dependencies"
+              uses: ./.github/actions/setup
               with:
                   python-version: ${{ matrix.python-version }}
 
-            - name: 'Set up dependency cache'
-              uses: actions/cache@v3
-              # poetry venv restore is buggy on windows
-              # https://github.com/python-poetry/poetry/issues/2629
-              if: ${{ matrix.os != 'Windows' }}
-              with:
-                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ matrix.python-version }}-${{ hashFiles('**/*.lock') }}
-                  path: |
-                      ${{ env.PIP_CACHE_DIR }}
-                      ${{ env.POETRY_CACHE_DIR }}
+            - name: "Run tests"
+              run: poetry run poe test-ci
 
-            - name: 'Install poetry'
-              run: pip install "poetry==1.3.2"
-
-            - name: 'Install dependencies'
-              run: poetry install
-
-            - name: 'Run tests'
-              run: poetry run coverage run --branch --source=decoy -m pytest --mypy-same-process
-
-            - name: 'Generate coverage report'
-              run: poetry run coverage xml
-
-            - name: 'Upload coverage report'
+            - name: "Upload coverage report"
               uses: codecov/codecov-action@v3
 
     check:
-        name: 'Lint and type checks'
+        name: "Lint and type checks"
         runs-on: ubuntu-latest
         steps:
-            - name: 'Check out repository'
+            - name: "Check out repository"
               uses: actions/checkout@v3
 
-            - name: 'Set up Python'
-              uses: actions/setup-python@v4
-              with:
-                  python-version: ${{ env.DEFAULT_PYTHON }}
+            - name: "Set up Python and development dependencies"
+              uses: ./.github/actions/setup
 
-            - name: 'Set up dependency cache'
-              uses: actions/cache@v3
-              with:
-                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
-                  path: |
-                      ${{ env.PIP_CACHE_DIR }}
-                      ${{ env.POETRY_CACHE_DIR }}
-
-            - name: 'Install poetry'
-              run: pip install "poetry==1.3.2"
-
-            - name: 'Install dependencies'
-              run: poetry install
-
-            - name: 'Check formatting'
-              run: poetry run black --check .
-
-            - name: 'Check linter'
-              run: poetry run ruff check .
-
-            - name: 'Checks types'
-              run: poetry run mypy
+            - name: "Check types, lints, and formatting"
+              run: poetry run poe check-ci
 
     build:
         name: Build assets and deploy on tags
         runs-on: ubuntu-latest
         needs: [test, check]
         steps:
-            - name: 'Check out repository'
+            - name: "Check out repository"
               uses: actions/checkout@v3
 
-            - name: 'Set up Python'
-              uses: actions/setup-python@v4
-              with:
-                  python-version: ${{ env.DEFAULT_PYTHON }}
+            - name: "Set up Python and development dependencies"
+              uses: ./.github/actions/setup
 
-            - name: 'Set up dependency cache'
-              uses: actions/cache@v3
-              with:
-                  key: deps-${{ secrets.GH_CACHE }}-${{ runner.os }}-python${{ env.DEFAULT_PYTHON }}-${{ hashFiles('**/*.lock') }}
-                  path: |
-                      ${{ env.PIP_CACHE_DIR }}
-                      ${{ env.POETRY_CACHE_DIR }}
+            - name: "Build artifacts"
+              run: poetry run build-ci
 
-            - name: 'Install poetry'
-              run: pip install "poetry==1.3.2"
-
-            - name: 'Install dependencies'
-              run: poetry install
-
-            - name: 'Build artifacts'
-              run: |
-                  poetry build
-                  poetry run mkdocs build
-
-            - name: 'Deploy to PyPI and GitHub Pages'
+            - name: "Deploy to PyPI and GitHub Pages"
               if: startsWith(github.ref, 'refs/tags/v')
               env:
                   USER_NAME: ${{ github.actor }}
