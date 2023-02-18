@@ -33,10 +33,10 @@ runs:
         - name: "Install poetry"
           shell: ${{ inputs.shell }}
           run: |
-              python -m venv "${{ inputs.cache }}/tools/bin"
+              ${{ steps.setup-python.outputs.python-path }} -m venv "${{ inputs.cache }}/tools"
+              ${{ inputs.cache }}/tools/bin/pip install poetry==${{ inputs.poetry-version }}
+              ${{ inputs.cache }}/tools/bin/poetry --version
               echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
-              pip install poetry==${{ inputs.poetry-version }}
-              poetry --version
 
         - name: "Install development dependencies"
           shell: ${{ inputs.shell }}
