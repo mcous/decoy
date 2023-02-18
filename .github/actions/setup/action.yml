@@ -11,9 +11,6 @@ inputs:
     cache:
         description: "Cache directory"
         default: ".cache"
-    shell:
-        description: "Shell"
-        default: ${{ runner.os != 'windows' && 'bash' || 'pwsh'}}
 
 runs:
     using: "composite"
@@ -30,16 +27,25 @@ runs:
               key: ${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
               path: ${{ inputs.cache }}
 
+        - name: "Set up PATH"
+          shell: bash
+          run: echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
+
+        - name: "Check poetry installation"
+          id: check-poetry
+          shell: bash
+          continue-on-error: true
+          run: poetry --version
+
         - name: "Install poetry"
-          shell: ${{ inputs.shell }}
+          shell: bash
+          if: ${{ failure() && steps.check-poetry.conclusion == 'failure'}}
           run: |
               ${{ steps.setup-python.outputs.python-path }} -m venv "${{ inputs.cache }}/tools"
-              ${{ inputs.cache }}/tools/bin/pip install poetry==${{ inputs.poetry-version }}
-              ${{ inputs.cache }}/tools/bin/poetry --version
-              echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
+              pip install poetry==${{ inputs.poetry-version }}
 
         - name: "Install development dependencies"
-          shell: ${{ inputs.shell }}
+          shell: bash
           run: |
               poetry config cache-dir "${{ inputs.cache }}/poetry"
               poetry install --sync
