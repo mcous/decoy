@@ -27,9 +27,15 @@ runs:
               key: ${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
               path: ${{ inputs.cache }}
 
-        - name: "Set up PATH"
+        - name: "Set up PATH on POSIX"
+          if: ${{ runner.os != 'windows'}}
           shell: bash
           run: echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
+
+        - name: "Set up PATH on Windows"
+          if: ${{ runner.os == 'windows'}}
+          shell: bash
+          run: echo "${{ inputs.cache }}/tools/Scripts" >> $GITHUB_PATH
 
         - name: "Check poetry installation"
           id: check-poetry
