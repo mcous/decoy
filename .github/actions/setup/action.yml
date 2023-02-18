@@ -30,13 +30,13 @@ runs:
               key: ${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
               path: ${{ inputs.cache }}
 
-        - name: "Set up PATH"
-          shell: ${{ inputs.shell }}
-          run: echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
-
         - name: "Install poetry"
           shell: ${{ inputs.shell }}
-          run: poetry --version || pip install "poetry==${{ inputs.poetry-version }}"
+          run: |
+              python -m venv "${{ inputs.cache }}/tools/bin"
+              echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
+              pip install poetry==${{ inputs.poetry-version }}
+              poetry --version
 
         - name: "Install development dependencies"
           shell: ${{ inputs.shell }}
