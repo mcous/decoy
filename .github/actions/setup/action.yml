@@ -8,12 +8,12 @@ inputs:
     poetry-version:
         description: "Poetry version to install"
         default: "1.3.2"
-    pip-cache:
-        description: "Pip cache directory"
-        default: ".cache/pip"
-    poetry-cache:
-        description: "Poetry cache directory"
-        default: ".cache/pypoetry"
+    cache:
+        description: "Cache directory"
+        default: ".cache"
+    shell:
+        description: "Shell"
+        default: ${{ runner.os != 'windows' && 'bash' || 'pwsh'}}
 
 runs:
     using: "composite"
@@ -28,18 +28,18 @@ runs:
           uses: actions/cache@v3
           with:
               key: ${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
-              path: |
-                  ${{ inputs.pip-cache }}
-                  ${{ inputs.poetry-cache }}
+              path: ${{ inputs.cache }}
+
+        - name: "Set up PATH"
+          shell: ${{ inputs.shell }}
+          run: echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
 
         - name: "Install poetry"
-          shell: ${{ runner.os != 'windows' && 'bash' || 'pwsh'}}
-          run: |
-              pip config set global.cache-dir ${{ inputs.pip-cache }}
-              pip install "poetry==${{ inputs.poetry-version }}"
+          shell: ${{ inputs.shell }}
+          run: poetry --version || pip install "poetry==${{ inputs.poetry-version }}"
 
         - name: "Install development dependencies"
-          shell: ${{ runner.os != 'windows' && 'bash' || 'pwsh'}}
+          shell: ${{ inputs.shell }}
           run: |
-              poetry config cache-dir ${{ inputs.poetry-cache }}
+              poetry config cache-dir "${{ inputs.cache }}/poetry"
               poetry install --sync
