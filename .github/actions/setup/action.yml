@@ -47,7 +47,7 @@ runs:
           shell: bash
           if: ${{ steps.check-poetry.outcome == 'failure'}}
           run: |
-              ${{ steps.setup-python.outputs.python-path }} -m venv "${{ inputs.cache }}/tools"
+              "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
               pip install poetry==${{ inputs.poetry-version }}
               which pip
               which poetry
