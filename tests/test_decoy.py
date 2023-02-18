@@ -46,6 +46,12 @@ def test_decoy_creates_specless_async_spy(decoy: Decoy) -> None:
     assert isinstance(subject, AsyncSpy)
 
 
+def test_decoy_mock_name_required(decoy: Decoy) -> None:
+    """A name should be required for the mock."""
+    with pytest.raises(errors.MockNameRequired):
+        decoy.mock()  # type: ignore[call-overload]
+
+
 @pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
 def test_when_then_return(decoy: Decoy) -> None:
     """It should be able to configure a stub return with a rehearsal."""
