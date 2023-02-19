@@ -49,8 +49,6 @@ runs:
           run: |
               "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
               pip install poetry==${{ inputs.poetry-version }}
-              which pip
-              which poetry
 
         - name: "Install development dependencies"
           shell: bash
