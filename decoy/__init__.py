@@ -82,7 +82,7 @@ class Decoy:
         spec = cls or func
 
         if spec is None and name is None:
-            raise errors.MockNameRequired()
+            raise errors.MockNameRequiredError()
 
         return self._core.mock(spec=spec, name=name, is_async=is_async)
 

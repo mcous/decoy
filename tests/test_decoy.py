@@ -48,7 +48,7 @@ def test_decoy_creates_specless_async_spy(decoy: Decoy) -> None:
 
 def test_decoy_mock_name_required(decoy: Decoy) -> None:
     """A name should be required for the mock."""
-    with pytest.raises(errors.MockNameRequired):
+    with pytest.raises(errors.MockNameRequiredError):
         decoy.mock()  # type: ignore[call-overload]
 
 
