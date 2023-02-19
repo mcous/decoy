@@ -15,7 +15,7 @@ class MockNameRequiredError(ValueError):
 
     See the [MockNameRequiredError guide][] for more details.
 
-    [MockNameRequiredError guide]: ../usage/errors-and-warnings/#mocknamerequired
+    [MockNameRequiredError guide]: ../usage/errors-and-warnings/#mocknamerequirederror
     """
 
     def __init__(self) -> None:
