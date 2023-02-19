@@ -10,12 +10,12 @@ from .spy_events import SpyEvent, VerifyRehearsal
 from .stringify import count, stringify_error_message
 
 
-class MockNameRequired(ValueError):
+class MockNameRequiredError(ValueError):
     """An error reaised if a name is not provided for a mock.
 
-    See the [mock creation guide][] for more details.
+    See the [MockNameRequiredError guide][] for more details.
 
-    [mock creation guide]: ../usage/create/
+    [MockNameRequiredError guide]: ../usage/errors-and-warnings/#mocknamerequired
     """
 
     def __init__(self) -> None:

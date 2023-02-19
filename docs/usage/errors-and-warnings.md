@@ -47,6 +47,17 @@ decoy.when(await async_mock("hello")).then_do(_handle_call)  # all good
 decoy.when(sync_mock("hello")).then_do(_handle_call)  # will raise
 ```
 
+### MockNameRequiredError
+
+A [decoy.errors.MockNameRequiredError][] will be raised if you call [decoy.Decoy.mock][] without `cls`, `func`, nor `name`.
+
+If you pass `cls` or `func`, Decoy will infer the mock's name - to be used in assertion messages - from its source specification. If you don't pass a specification, you must give the mock an explicit name using the `name` argument.
+
+```python
+my_mock = decoy.mock(name="my_mock")
+```
+
+
 ## Warnings
 
 Decoy uses Python's [warnings system][] to provide feedback about dubious mock usage that isn't _technically_ incorrect. These warnings won't fail your tests, but you probably want to fix them.
