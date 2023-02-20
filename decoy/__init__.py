@@ -1,30 +1,15 @@
 """Decoy stubbing and spying library."""
-from warnings import warn
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Coroutine,
-    Generic,
-    Optional,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, Callable, Coroutine, Generic, Optional, Union, overload
 
 from . import errors, matchers, warnings
 from .core import DecoyCore, StubCore, PropCore
 from .types import ClassT, ContextValueT, FuncT, ReturnT
-
-# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
-# Python 3.6 does not have async generator context managers
-if TYPE_CHECKING:
-    from .context_managers import (
-        ContextManager,
-        AsyncContextManager,
-        GeneratorContextManager,
-        AsyncGeneratorContextManager,
-    )
+from .context_managers import (
+    ContextManager,
+    AsyncContextManager,
+    GeneratorContextManager,
+    AsyncGeneratorContextManager,
+)
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
@@ -38,7 +23,7 @@ class Decoy:
     [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
     automatically. See the [setup guide](../#setup) for more details.
 
-    Example:
+    !!! example
         ```python
         decoy = Decoy()
 
@@ -60,9 +45,8 @@ class Decoy:
     def mock(self, *, func: FuncT) -> FuncT:
         ...
 
-    # TODO(mc, 2021-11-14): make `name` required for specless mocks in v2.0
     @overload
-    def mock(self, *, name: Optional[str] = None, is_async: bool = False) -> Any:
+    def mock(self, *, name: str, is_async: bool = False) -> Any:
         ...
 
     def mock(
@@ -88,7 +72,7 @@ class Decoy:
         Returns:
             A spy typecast as the object it's imitating, if any.
 
-        Example:
+        !!! example
             ```python
             def test_get_something(decoy: Decoy):
                 db = decoy.mock(cls=Database)
@@ -96,45 +80,11 @@ class Decoy:
             ```
         """
         spec = cls or func
+
+        if spec is None and name is None:
+            raise errors.MockNameRequiredError()
+
         return self._core.mock(spec=spec, name=name, is_async=is_async)
-
-    def create_decoy(
-        self,
-        spec: Callable[..., ClassT],
-        *,
-        is_async: bool = False,
-    ) -> ClassT:
-        """Create a class mock for `spec`.
-
-        !!! warning "Deprecated since v1.6.0"
-            Use [`mock`][decoy.Decoy.mock] with the `cls` parameter, instead.
-        """
-        warn(
-            "decoy.create_decoy is deprecated; use decoy.mock(cls=...) instead.",
-            DeprecationWarning,
-        )
-
-        spy = self._core.mock(spec=spec, is_async=is_async)
-        return cast(ClassT, spy)
-
-    def create_decoy_func(
-        self,
-        spec: Optional[FuncT] = None,
-        *,
-        is_async: bool = False,
-    ) -> FuncT:
-        """Create a function mock for `spec`.
-
-        !!! warning "Deprecated since v1.6.0"
-            Use [`mock`][decoy.Decoy.mock] with the `func` parameter, instead.
-        """
-        warn(
-            "decoy.create_decoy_func is deprecated; use decoy.mock(func=...) instead.",
-            DeprecationWarning,
-        )
-
-        spy = self._core.mock(spec=spec, is_async=is_async)
-        return cast(FuncT, spy)
 
     def when(
         self,
@@ -157,13 +107,13 @@ class Decoy:
             [`then_raise`][decoy.Stub.then_raise], [`then_do`][decoy.Stub.then_do],
             or [`then_enter_with`][decoy.Stub.then_enter_with].
 
-        Example:
+        !!! example
             ```python
             db = decoy.mock(cls=Database)
             decoy.when(db.exists("some-id")).then_return(True)
             ```
 
-        Note:
+        !!! note
             The "rehearsal" is an actual call to the test fake. Because the
             call is written inside `when`, Decoy is able to infer that the call
             is a rehearsal for stub configuration purposes rather than a call
@@ -199,7 +149,7 @@ class Decoy:
         Raises:
             VerifyError: The verification was not satisfied.
 
-        Example:
+        !!! example
             ```python
             def test_create_something(decoy: Decoy):
                 gen_id = decoy.mock(func=generate_unique_id)
@@ -209,7 +159,7 @@ class Decoy:
                 decoy.verify(gen_id("model-prefix_"))
             ```
 
-        Note:
+        !!! note
             A "rehearsal" is an actual call to the test fake. The fact that
             the call is written inside `verify` is purely for typechecking and
             API sugar. Decoy will pop the last call(s) to _any_ fake off its
@@ -274,7 +224,7 @@ class Stub(Generic[ReturnT]):
         Arguments:
             error: The error to raise.
 
-        Note:
+        !!! note
             Setting a stub to raise will prevent you from writing new
             rehearsals, because they will raise. If you need to make more calls
             to [`when`][decoy.Decoy.when], you'll need to wrap your rehearsal
@@ -369,7 +319,7 @@ class Prop(Generic[ReturnT]):
         Arguments:
             value: The value
 
-        Example:
+        !!! example
             ```python
             some_obj = decoy.mock()
             some_obj.prop = 42
@@ -385,8 +335,7 @@ class Prop(Generic[ReturnT]):
         [`verify`][decoy.Decoy.verify], you can stub or verify a call
         to a property deleter.
 
-
-        Example:
+        !!! example
             ```python
             some_obj = decoy.mock()
             del some_obj.prop

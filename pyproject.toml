@@ -22,28 +22,45 @@ classifiers = [
 "Changelog" = "https://github.com/mcous/decoy/releases"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 
-[tool.poetry.dev-dependencies]
-black = { version = "^22.8", python = "^3.6.2" }
-flake8 = "^4.0.1"
-flake8-annotations = { version = "^2.7.0", python = "^3.6.2" }
-flake8-docstrings = "^1.5.0"
-mkdocs = "^1.2.4"
-mkdocs-material = "^8.2.7"
-mkdocstrings = "^0.16.2"
-mypy = "^0.941"
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+coverage = { extras = ["toml"], version = "^7.1.0" }
+mkdocs = "^1.4.2"
+mkdocs-material = "^9.0.13"
+mkdocstrings = { extras = ["python"], version = "^0.20.0" }
+mypy = "^1.0.1"
+poethepoet = "^0.18.1"
 pytest = "^7.0.1"
-pytest-asyncio = "^0.16.0"
-pytest-mypy-plugins = "^1.9.3"
+pytest-asyncio = "^0.20.3"
+pytest-mypy-plugins = "^1.10.1"
 pytest-xdist = "^3.0.2"
-coverage = { extras = ["toml"], version = "^6.2" }
+ruff = "^0.0.247"
+
+[tool.poe.tasks]
+all = [ "check", "lint", "format-check", "test-once", "coverage", "docs-build", "build" ]
+check = "mypy"
+lint = "ruff check ."
+format = "black ."
+format-check = { ref = "format --check" }
+test = "pytest -f"
+test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
+coverage = "coverage report"
+coverage-xml = "coverage xml"
+docs = "mkdocs serve"
+docs-build = "mkdocs build"
+build = "poetry build"
+check-ci = [ "check", "lint", "format-check" ]
+test-ci = [ "test-once", "coverage-xml" ]
+build-ci = ["docs-build", "build"]
 
 [tool.poetry.plugins."pytest11"]
 "decoy" = "decoy.pytest_plugin"
 
 [tool.pytest.ini_options]
 addopts = "--color=yes --mypy-ini-file=tests/typing/mypy.ini"
+asyncio_mode = "auto"
 
 [tool.mypy]
 files = ["decoy", "tests"]
@@ -51,14 +68,29 @@ plugins = ["decoy/mypy/plugin.py"]
 strict = true
 show_error_codes = true
 
-# TODO(mc, 2022-03-14): drop support for Python 3.6 in Decoy v2
-# Python 3.6 does not have async generator context managers
-[[tool.mypy.overrides]]
-module = "decoy.context_managers"
-warn_unused_ignores = false
-
 [tool.coverage.report]
 exclude_lines = ["@overload", "if TYPE_CHECKING:"]
+
+[tool.ruff]
+extend-exclude = [".cache"]
+ignore = [
+    "ANN101",
+    "ANN102",
+    "ANN401",
+    "D107",
+]
+select = [
+    "ANN",
+    "B",
+    "D",
+    "E",
+    "F",
+    "RUF",
+    "W",
+]
+
+[tool.ruff.pydocstyle]
+convention = "google"
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]

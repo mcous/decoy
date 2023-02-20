@@ -10,6 +10,18 @@ from .spy_events import SpyEvent, VerifyRehearsal
 from .stringify import count, stringify_error_message
 
 
+class MockNameRequiredError(ValueError):
+    """An error reaised if a name is not provided for a mock.
+
+    See the [MockNameRequiredError guide][] for more details.
+
+    [MockNameRequiredError guide]: ../usage/errors-and-warnings/#mocknamerequirederror
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Mocks without `cls` or `func` require a `name`.")
+
+
 class MissingRehearsalError(ValueError):
     """An error raised when a Decoy method is called without rehearsal(s).
 

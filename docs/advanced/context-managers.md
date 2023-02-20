@@ -160,7 +160,6 @@ import contextlib
 from my_module.core import Core
 from my_module.config import Config, ConfigLoader
 
-@pytest.mark.asyncio
 async def test_loads_config(decoy: Decoy) -> None:
     """It should load config from a Config dependency."""
     config = decoy.mock(Config)

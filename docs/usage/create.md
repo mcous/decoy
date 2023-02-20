@@ -4,7 +4,7 @@ Decoy mocks are flexible objects that can be used in place of a class instance o
 
 ## Mocking a class
 
-To mock a class instance, pass the `cls` argument to `decoy.mock`. Decoy will inspect type annotations and method signatures to automatically configure methods as synchronous or asynchronous. Decoy mocks are automatically deep.
+To mock a class instance, pass the `cls` argument to `decoy.mock`. Decoy will inspect type annotations and method signatures to automatically configure a name for use in assertion messages and methods as synchronous or asynchronous. Decoy mocks are automatically deep.
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
@@ -15,7 +15,7 @@ To type checkers, the mock will appear to have the exact same type as the `cls` 
 
 ## Mocking a function
 
-To mock a function, pass the `func` argument to `decoy.mock`. Decoy will inspect `func` to automatically configure the function as synchronous or asynchronous.
+To mock a function, pass the `func` argument to `decoy.mock`. Decoy will inspect `func` to automatically configure a name for use in assertion messages and set the function as synchronous or asynchronous.
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:
@@ -28,7 +28,7 @@ To type checkers, the mock will appear to have the exact same type as the `func`
 
 You can call `decoy.mock` without using `cls` or `func`. A spec-less mock is useful for dependency interfaces like callback functions.
 
-When creating a mock without a spec, you should use the `name` argument to get more useful assertion messages. You must use the `is_async` argument if the created mock will be used as an asynchronous callable.
+When creating a mock without a spec, you must use the `name` argument to give the mock a name to use in assertion messages. You must use the `is_async` argument if the created mock will be used as an asynchronous callable.
 
 ```python
 def test_my_thing(decoy: Decoy) -> None:

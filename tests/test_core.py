@@ -24,8 +24,6 @@ from decoy.warning_checker import WarningChecker
 
 from .fixtures import SomeClass
 
-pytestmark = pytest.mark.asyncio
-
 
 @pytest.fixture()
 def spy_creator(decoy: Decoy) -> SpyCreator:
@@ -267,7 +265,7 @@ def test_when_then_do_async(
     )
 
     async def action() -> str:
-        ...
+        raise NotImplementedError()
 
     result = subject.when("__rehearsal__", ignore_extra_args=False)
     result.then_do(action)
@@ -296,7 +294,7 @@ async def test_when_then_do_async_not_allowed(
     )
 
     async def action() -> str:
-        ...
+        raise NotImplementedError()
 
     result = subject.when("__rehearsal__", ignore_extra_args=False)
 

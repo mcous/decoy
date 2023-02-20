@@ -33,7 +33,10 @@ class Verifier:
 
         for i in range(len(calls)):
             calls_subset = calls[i : i + len(rehearsals)]
-            matches = [match_event(c, r) for c, r in zip(calls_subset, rehearsals)]
+            matches = [
+                match_event(c, r)
+                for c, r in zip(calls_subset, rehearsals)  # noqa: B905
+            ]
 
             if all(matches) and len(calls_subset) == len(rehearsals):
                 match_count = match_count + 1

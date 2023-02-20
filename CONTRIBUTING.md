@@ -6,7 +6,7 @@ All contributions are greatly appreciated! Before contributing, please read the 
 
 This project uses [Poetry][] to manage dependencies and builds, and you will need to install it before working on Decoy.
 
-Once Poetry is installed, you should be good to set up a virtual environment and install development dependencies. Python >= 3.8 is required for development.
+Once Poetry is installed, you should be good to set up a virtual environment and install development dependencies. Python 3.11 is recommended for development.
 
 ```bash
 git clone https://github.com/mcous/decoy.git
@@ -16,18 +16,27 @@ poetry install
 
 ## Development Tasks
 
-### Tests
+Decoy uses [poethepoet][] to manage development tasks. If you want to quickly check everything, run the following:
 
-Decoy's tests are run using [pytest][].
-
-```bash
-poetry run pytest
+```shell
+poetry run poe all
 ```
 
-You can also run tests in watch mode using [pytest-xdist][].
+[poethepoet]: https://github.com/nat-n/poethepoet
+
+### Tests
+
+Decoy's tests are run using [pytest][]. To run tests in watch mode:
 
 ```bash
-poetry run pytest --looponfail
+poetry run poe test
+```
+
+To run tests once and report coverage
+
+```bash
+poetry run poe test-once
+poetry run poe coverage
 ```
 
 In an exciting twist, since version 1.6.0, Decoy's tests rely on Decoy itself to test (and more importantly, design) the relationships between Decoy's internal APIs. This means:
@@ -39,11 +48,11 @@ If you find yourself in a situation where Decoy's test suite has blown up, **con
 
 ### Checks
 
-Decoy's source code is typechecked with [mypy][] and linted with [flake8][].
+Decoy's source code is typechecked with [mypy][] and linted with [ruff][].
 
 ```bash
-poetry run mypy
-poetry run flake8
+poetry run poe check
+poetry run poe lint
 ```
 
 ### Formatting
@@ -51,7 +60,7 @@ poetry run flake8
 Decoy's source code is formatted using [black][].
 
 ```bash
-poetry run black .
+poetry run poe format
 ```
 
 ### Documentation
@@ -59,7 +68,7 @@ poetry run black .
 Decoy's documentation is built with [mkdocs][], which you can use to preview the documentation site locally.
 
 ```bash
-poetry run mkdocs serve
+poetry run docs
 ```
 
 ## Deploying
@@ -92,7 +101,7 @@ git push --follow-tags
 [pytest]: https://docs.pytest.org/
 [pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
 [mypy]: https://mypy.readthedocs.io
-[flake8]: https://flake8.pycqa.org
+[ruff]: https://github.com/charliermarsh/ruff
 [black]: https://black.readthedocs.io
 [mkdocs]: https://www.mkdocs.org/
 [semantic versioning]: https://semver.org/

@@ -8,24 +8,30 @@ class SomeClass:
 
     def foo(self, val: str) -> str:
         """Get the foo string."""
+        raise NotImplementedError()
 
     def bar(self, a: int, b: float, c: str) -> bool:
         """Get the bar bool based on a few inputs."""
+        raise NotImplementedError()
 
     @staticmethod
     def fizzbuzz(hello: str) -> int:
         """Fizz some buzzes."""
+        raise NotImplementedError()
 
     def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
+        raise NotImplementedError()
 
     @property
     def primitive_property(self) -> str:
         """Get a primitive computed property."""
+        raise NotImplementedError()
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)  # noqa: B019
     def some_wrapped_method(self, val: str) -> str:
         """Get a thing through a wrapped method."""
+        raise NotImplementedError()
 
 
 class SomeNestedClass:
@@ -35,10 +41,12 @@ class SomeNestedClass:
 
     def foo(self, val: str) -> str:
         """Get the foo string."""
+        raise NotImplementedError()
 
     @property
     def child(self) -> SomeClass:
         """Get the child instance."""
+        raise NotImplementedError()
 
 
 class SomeAsyncClass:
@@ -46,20 +54,25 @@ class SomeAsyncClass:
 
     async def foo(self, val: str) -> str:
         """Get the foo string."""
+        raise NotImplementedError()
 
     async def bar(self, a: int, b: float, c: str) -> bool:
         """Get the bar bool based on a few inputs."""
+        raise NotImplementedError()
 
     async def do_the_thing(self, *, flag: bool) -> None:
         """Perform a side-effect without a return value."""
+        raise NotImplementedError()
 
     @classmethod
     async def async_class_method(cls) -> int:
-        """An async class method."""
+        """Async class method."""
+        raise NotImplementedError()
 
     @staticmethod
     async def async_static_method() -> int:
-        """An async static method."""
+        """Async static method."""
+        raise NotImplementedError()
 
 
 class SomeAsyncCallableClass:
@@ -67,6 +80,7 @@ class SomeAsyncCallableClass:
 
     async def __call__(self, val: int) -> int:
         """Get an integer."""
+        raise NotImplementedError()
 
 
 class SomeCallableClass:
@@ -74,23 +88,28 @@ class SomeCallableClass:
 
     async def __call__(self, val: int) -> int:
         """Get an integer."""
+        raise NotImplementedError()
 
 
 def noop(*args: Any, **kwargs: Any) -> Any:
     """No-op."""
+    raise NotImplementedError()
 
 
 def some_func(val: str) -> str:
     """Test function."""
+    raise NotImplementedError()
 
 
 async def some_async_func(val: str) -> str:
     """Async test function."""
+    raise NotImplementedError()
 
 
 @lru_cache(maxsize=None)
 def some_wrapped_func(val: str) -> str:
-    """Wrapped test function."""
+    """Test function wrapped in decorator."""
+    raise NotImplementedError()
 
 
 GenericT = TypeVar("GenericT")
@@ -101,6 +120,7 @@ class GenericClass(Generic[GenericT]):
 
     def hello(self, val: GenericT) -> None:
         """Say hello."""
+        raise NotImplementedError()
 
 
 ConcreteAlias = GenericClass[str]

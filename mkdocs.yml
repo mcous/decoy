@@ -1,10 +1,10 @@
 site_name: Decoy
-site_description: "Opinionated mocking library for Python."
-site_author: "Mike Cousins"
-site_url: "https://mike.cousins.io/decoy/"
-repo_url: "https://github.com/mcous/decoy"
-repo_name: "mcous/decoy"
-edit_uri: ""
+site_description: 'Opinionated mocking library for Python.'
+site_author: 'Mike Cousins'
+site_url: 'https://mike.cousins.io/decoy/'
+repo_url: 'https://github.com/mcous/decoy'
+repo_name: 'mcous/decoy'
+edit_uri: ''
 
 nav:
     - Getting Started: index.md
@@ -22,24 +22,24 @@ nav:
     - license.md
 
 theme:
-    name: "material"
+    name: 'material'
     favicon: img/favicon.ico
     icon:
         logo: material/duck
     features:
         - navigation.instant
         - navigation.sections
-    font: "Open Sans"
-    code: "Fira Mono"
+    font: 'Open Sans'
+    code: 'Fira Mono'
     palette:
-        - media: "(prefers-color-scheme: light)"
+        - media: '(prefers-color-scheme: light)'
           scheme: default
           primary: black
           accent: indigo
           toggle:
               icon: material/weather-sunny
               name: Switch to dark mode
-        - media: "(prefers-color-scheme: dark)"
+        - media: '(prefers-color-scheme: dark)'
           scheme: slate
           primary: amber
           accent: yellow
@@ -50,19 +50,20 @@ theme:
 plugins:
     - search
     - mkdocstrings:
-          watch:
-              - decoy
           handlers:
               python:
-                  rendering:
+                  options:
                       show_root_heading: True
                       show_object_full_path: True
                       show_source: False
                       heading_level: 2
 
+watch:
+    - decoy
+
 markdown_extensions:
     - toc:
-          permalink: "#"
+          permalink: '#'
     - admonition
     - pymdownx.highlight
     - pymdownx.superfences

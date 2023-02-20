@@ -20,7 +20,7 @@ def decoy() -> Iterable[Decoy]:
 
     [pytest fixture]: https://docs.pytest.org/en/latest/how-to/fixtures.html
 
-    Example:
+    !!! example
         ```python
         def test_my_thing(decoy: Decoy) -> None:
             my_fake_func = decoy.mock()

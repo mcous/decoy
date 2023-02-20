@@ -31,7 +31,7 @@ def _check_no_miscalled_stubs(all_events: Sequence[AnySpyEvent]) -> None:
         if isinstance(event.payload, SpyCall):
             spy_id = event.spy.id
             spy_calls = all_calls_by_id.get(spy_id, [])
-            all_calls_by_id[spy_id] = spy_calls + [event]
+            all_calls_by_id[spy_id] = [*spy_calls, event]
 
     for spy_calls in all_calls_by_id.values():
         unmatched: List[SpyEvent] = []
@@ -55,7 +55,7 @@ def _check_no_miscalled_stubs(all_events: Sequence[AnySpyEvent]) -> None:
                 and len(matched_past_stubs) == 0
                 and len(matched_future_verifies) == 0
             ):
-                unmatched = unmatched + [call]
+                unmatched = [*unmatched, call]
                 if index == len(spy_calls) - 1:
                     warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
             elif isinstance(call, WhenRehearsal) and len(unmatched) > 0:

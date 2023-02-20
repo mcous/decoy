@@ -3,7 +3,7 @@ site
 *.egg-info
 .python-version
 __pycache__
-.cache
 .coverage
 coverage.xml
 htmlcov
+.ruff_cache
