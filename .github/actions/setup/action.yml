@@ -37,18 +37,13 @@ runs:
           shell: bash
           run: echo "${{ inputs.cache }}/tools/Scripts" >> $GITHUB_PATH
 
-        - name: "Check poetry installation"
-          id: check-poetry
+        - name: "Install Poetry"
           shell: bash
-          continue-on-error: true
-          run: poetry --version
-
-        - name: "Install poetry"
-          shell: bash
-          if: ${{ steps.check-poetry.outcome == 'failure'}}
           run: |
+            if ! poetry --version; then
               "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
               pip install poetry==${{ inputs.poetry-version }}
+            fi
 
         - name: "Install development dependencies"
           shell: bash
