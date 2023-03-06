@@ -11,7 +11,7 @@ from .stringify import count, stringify_error_message
 
 
 class MockNameRequiredError(ValueError):
-    """An error reaised if a name is not provided for a mock.
+    """An error raised if a name is not provided for a mock.
 
     See the [MockNameRequiredError guide][] for more details.
 

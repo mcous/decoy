@@ -33,11 +33,11 @@ class DecoyCore:
         self._warning_checker = warning_checker or WarningChecker()
         self._stub_store = stub_store or StubStore()
         self._spy_log = spy_log or SpyLog()
-        self._call_hander = call_handler or CallHandler(
+        self._call_handler = call_handler or CallHandler(
             spy_log=self._spy_log,
             stub_store=self._stub_store,
         )
-        self._spy_creator = spy_creator or SpyCreator(call_handler=self._call_hander)
+        self._spy_creator = spy_creator or SpyCreator(call_handler=self._call_handler)
 
     def mock(
         self,

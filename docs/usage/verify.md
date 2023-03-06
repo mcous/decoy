@@ -1,69 +1,54 @@
 # Spying with verify
 
-A spy is a mock that simply records all calls made to it. In Decoy, you use [decoy.Decoy.verify][] to make assertions about the calls to a spy.
+A spy is an object that simply records all calls made to it. Use [decoy.Decoy.verify][] to make assertions about calls to a spy, after those calls have been made. Asserting that calls happened after the fact is useful for dependencies called solely for their side-effects.
 
-If you're coming from `unittest.mock`, you're probably used to calling your code under test and _then_ verifying that your dependency was called correctly. Decoy can provide similar call verification.
+In general, functions that produce side-effects instead of returning data are harder to test, typecheck, and maintain. To use Decoy to minimize side effects and increase the maintainability of your code, prefer writing tests - and therefore, your dependencies' APIs - to use stubbing with [when][] rather than call verification with `verify`.
 
-## Caveats about using call verification
+!!! tip
 
-Asserting that calls happened after the fact can be useful, but **should only be used if the dependency is being called solely for its side-effect(s)**. Verification of interactions in this manner should be considered a last resort, because:
+    If a mocked dependency returns data that is used by your test subject, you should use [when][], not `verify`. Prefer using `when` over `verify` to guide the structure of your code to minimize side-effects.
 
--   If you're calling a dependency to get data, then you can more precisely describe that relationship using [stubbing](./when.md)
--   Side-effects are harder to understand and maintain than pure functions, so in general you should try to side-effect sparingly
+Usage of `when` and `verify` with the same mock are **mutually exclusive** within a test, and will trigger a warning. See the [RedundantVerifyWarning][] guide for more information.
 
-Stubbing and verification of a decoy are **mutually exclusive** within a test. If you find yourself wanting to both stub and verify the same dependency, then one or more of these is probably true:
+[when]: ./when.md
+[redundantverifywarning]: ./errors-and-warnings.md#redundantverifywarning
 
--   The `verify` assertion is redundant
--   The dependency is doing too much and should be refactored
+## Verifying a call
 
-## Using rehearsals to verify a call
+The `verify` API uses the same "rehearsal" syntax as [when][].
 
-The `verify` API uses the same "rehearsal" syntax as the [`when` API](./when.md).
-
-```python
-def test_my_thing(decoy: Decoy) -> None:
-    database = decoy.mock(cls=Database)
-
-    subject = MyThing(database=database)
-    subject.delete_model_by_id("some-id")
-
-    decoy.verify(
-        database.remove("some-id")  # <-- rehearsal
-    )
-```
-
-If Decoy is unable to find any calls matching the rehearsal inside `verify`, a [decoy.errors.VerifyError][] will be raised.
-
-## Verifying with async/await
-
-If your dependency uses async/await, simply add `await` to the rehearsal:
+1. Form the expected call to the mock
+2. Wrap it in `decoy.verify`
 
 ```python
-async def test_my_async_thing(decoy: Decoy) -> None:
-    database = decoy.mock(cls=Database)
+database = decoy.mock(name="database")
 
-    subject = MyThing(database=database)
-    await subject.delete_model_by_id("some-id")
+database.remove("some-id")  # <-- call to the spy
 
-    decoy.verify(await database.remove("some-id"))
-```
-
-## Verifying order of multiple calls
-
-If your code under test must call several dependencies in order, you may pass multiple rehearsals to `verify`. Decoy will search through the list of all calls made to the given spies and look for the exact rehearsal sequence given, in order.
-
-```python
 decoy.verify(
-    handler.call_first_procedure("hello"),
-    handler.call_second_procedure("world"),
+    database.remove("some-id"),  # <-- verify the spy was called in this manner
+    times=1,
 )
 ```
 
+By default, if Decoy finds _any_ call matching the `verify` invocation, the call will pass. However, if a matching call is not found, a [VerifyError][] will be raised.
+
+[verifyerror]: ./errors-and-warnings.md#verifyerror
+
 ## Verifying a call count
 
-You may want to verify that a call has been made a certain number of times, or verify that a call was never made. You can use the optional `times` argument to specify call count.
+You can use the optional `times` argument to specify call count. With `times`, the call to `verify` will fail if there is the incorrect number of matching calls.
+
+!!! tip
+
+    Prefer using the `times` argument, and only omit it if it _really_ doesn't matter how many times a dependency is called by the test subject.
 
 ```python
+decoy.verify(
+    handler.should_be_called_once(),
+    times=1,
+)
+
 decoy.verify(
     handler.should_be_called_twice(),
     times=2,
@@ -75,7 +60,46 @@ decoy.verify(
 )
 ```
 
-You may only use the `times` argument with single rehearsal.
+## Loosening constraints with matchers
+
+You may loosen rehearsal constraints using [decoy.matchers][]. See the [matchers usage guide](./matchers.md) for more information.
+
+```python
+say_hello = decoy.mock(name="say_hello")
+
+say_hello("foobar")
+
+decoy.verify(matchers.StringMatching("^foo"), times=1)  # passes
+decoy.verify(matchers.StringMatching("^bar"), times=1)  # raises
+```
+
+## Verifying with async/await
+
+If your dependency uses async/await, simply add `await` to the rehearsal:
+
+```python
+cow_say = decoy.mock(name="cow_say", is_async=True)
+
+await cow_say("moo")
+
+decoy.verify(
+    await cow_say("moo"),
+    times=1,
+)
+```
+
+If you create a mock based on a class or function using `mock(cls=...)` or `mock(func=...)`, Decoy will configure functions as `async` according to the source object.
+
+## Verifying order of multiple calls
+
+If your code under test must call several dependencies in order, you may pass multiple rehearsals to `verify`. Decoy will search through the list of all calls made to the given spies and look for the exact rehearsal sequence given, in order.
+
+```python
+decoy.verify(
+    handler.call_first_procedure("hello"),
+    handler.call_second_procedure("world"),
+)
+```
 
 ## Only specify some arguments
 
@@ -89,7 +113,10 @@ def log(message: str, meta: Optional[dict] = None) -> None:
 log("hello world", meta={"foo": "bar"})
 # ...
 
-decoy.verify(log("hello world"), ignore_extra_args=True)
+decoy.verify(
+    log("hello world"),
+    ignore_extra_args=True,
+)
 ```
 
 This can be combined with `times=0` to say "this dependency was never called," but your typechecker may complain about this:

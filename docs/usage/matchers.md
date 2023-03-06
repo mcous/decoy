@@ -4,6 +4,19 @@ Sometimes, when you're stubbing or verifying calls (or really when you're doing 
 
 Decoy includes the [decoy.matchers][] module, which is a set of Python classes with `__eq__` methods defined that you can use in rehearsals and/or assertions in place of actual values
 
+## Available matchers
+
+| Matcher                           | Description                                          |
+| --------------------------------- | ---------------------------------------------------- |
+| [decoy.matchers.Anything][]       | Matches any value that isn't `None`                  |
+| [decoy.matchers.DictMatching][]   | Matches a `dict` based on some of its values         |
+| [decoy.matchers.ErrorMatching][]  | Matches an `Exception` based on its type and message |
+| [decoy.matchers.HasAttributes][]  | Matches an object based on its attributes            |
+| [decoy.matchers.IsA][]            | Matches using `isinstance`                           |
+| [decoy.matchers.IsNot][]          | Matches anything that isn't a given value            |
+| [decoy.matchers.StringMatching][] | Matches a string against a regular expression        |
+| [decoy.matchers.Captor][]         | Captures the comparison value (see below)            |
+
 ## Basic usage
 
 To use, import `decoy.matchers` and use a matcher wherever you would normally use a value.

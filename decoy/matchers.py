@@ -1,10 +1,10 @@
 """Matcher helpers.
 
 A "matcher" is a class with an `__eq__` method defined. Use them anywhere
-in your test where you would use an actual value for equality (`==`) comparision.
+in your test where you would use an actual value for equality (`==`) comparison.
 
 Matchers help you loosen assertions where strict adherence to an exact value
-is not relevent to what you're trying to test.
+is not relevant to what you're trying to test.
 
 !!! example
     ```python
