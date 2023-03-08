@@ -30,16 +30,16 @@ def test(decoy: Decoy) -> None:
 If you would like to stub a return value for a property that is different than the default behavior, simply use the property itself as your rehearsal.
 
 ```python
-dep = decoy.mock(name="dep")
+dependency = decoy.mock(name="dependency")
 
 decoy.when(
-    dep.some_property  # <- "rehearsal" of a property getter
+    dependency.some_property  # <- "rehearsal" of a property getter
 ).then_return(42)
 
 assert dep.some_property == 42
 ```
 
-You can also configure any other stubbing, like raising an error.
+You can also configure any other behavior, like raising an error.
 
 ```python
 dependency = decoy.mock(name="dependency")
@@ -90,7 +90,7 @@ Mocking and verifying property setters and deleters is most useful for testing c
 
 !!! tip
 
-    You cannot verify getters with `verify`. The `verify` method is for verifying side-effects, and it is the opinion of the author that property getters should not trigger side-effects. Getter-triggered side effects are confusing and do not communicate the design intent of a system.
+    You cannot `verify` getters. The `verify` method is for verifying side-effects, and it is the opinion of the author that property getters should not trigger side-effects. Getter-triggered side effects are confusing and do not communicate the design intent of a system.
 
 ### Verifying a setter
 

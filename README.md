@@ -68,7 +68,7 @@ For example, using the built-in [unittest][] framework, you would use the `setUp
 
 This basic example assumes you are using [pytest][]. For more detailed documentation, see Decoy's [usage guide][] and [API reference][].
 
-Decoy will add a `decoy` fixture to to pytest that provides its mock creation API.
+Decoy will add a `decoy` fixture to pytest that provides its mock creation API.
 
 ```python
 from decoy import Decoy
