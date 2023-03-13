@@ -30,26 +30,26 @@ def test(decoy: Decoy) -> None:
 If you would like to stub a return value for a property that is different than the default behavior, simply use the property itself as your rehearsal.
 
 ```python
-dep = decoy.mock()
+dependency = decoy.mock(name="dependency")
 
 decoy.when(
-    dep.some_property  # <- "rehearsal" of a property getter
+    dependency.some_property  # <- "rehearsal" of a property getter
 ).then_return(42)
 
 assert dep.some_property == 42
 ```
 
-You can also configure any other stubbing, like raising an error.
+You can also configure any other behavior, like raising an error.
 
 ```python
-dep = decoy.mock()
+dependency = decoy.mock(name="dependency")
 
 decoy.when(
-    dep.some_property
+    dependency.some_property
 ).then_raise(RuntimeError("oh no"))
 
 with pytest.raises(RuntimeError, match="oh no"):
-    dep.some_property
+    dependency.some_property
 ```
 
 ### Stubbing a setter or deleter
@@ -59,21 +59,21 @@ While you cannot stub a return value for a getter or setter, you can stub a `rai
 The `prop` method allows you to create rehearsals of setters and deleters. Use [decoy.Prop.set][] to create a setter rehearsal, and [decoy.Prop.delete][] to create a deleter rehearsal.
 
 ```python
-dep = decoy.mock()
+dependency = decoy.mock(name="dependency")
 
 decoy.when(
-    decoy.prop(dep.some_property).set(42)
+    decoy.prop(dependency.some_property).set(42)
 ).then_raise(RuntimeError("oh no"))
 
 decoy.when(
-    decoy.prop(dep.some_property).delete()
+    decoy.prop(dependency.some_property).delete()
 ).then_raise(RuntimeError("what a disaster"))
 
 with pytest.raises(RuntimeError, match="oh no"):
-    dep.some_property = 42
+    dependency.some_property = 42
 
 with pytest.raises(RuntimeError, match="what a disaster"):
-    del dep.some_property
+    del dependency.some_property
 ```
 
 !!! tip
@@ -90,19 +90,19 @@ Mocking and verifying property setters and deleters is most useful for testing c
 
 !!! tip
 
-    You cannot verify getters with `Decoy.verify`. The `verify` method is for verifying side-effects, and it is the opinion of the author that property getters should not trigger side-effects. Getter-triggered side effects are confusing and do not communicate the design intent of a system.
+    You cannot `verify` getters. The `verify` method is for verifying side-effects, and it is the opinion of the author that property getters should not trigger side-effects. Getter-triggered side effects are confusing and do not communicate the design intent of a system.
 
 ### Verifying a setter
 
 Use [decoy.Prop.set][] to create a setter rehearsal to use in [decoy.Decoy.verify][].
 
 ```python
-dep = decoy.mock()
+dependency = decoy.mock(name="dependency")
 
-dep.some_property = 42
+dependency.some_property = 42
 
 decoy.verify(
-    decoy.prop(dep.some_property).set(42)  # <- "rehearsal" of a property setter
+    decoy.prop(dependency.some_property).set(42)  # <- "rehearsal" of a property setter
 )
 ```
 
@@ -111,12 +111,12 @@ decoy.verify(
 Use [decoy.Prop.delete][] to create a deleter rehearsal to use in [decoy.Decoy.verify][].
 
 ```python
-dep = decoy.mock()
+dependency = decoy.mock(name="dependency")
 
-del dep.some_property
+del dependency.some_property
 
 decoy.verify(
-    decoy.prop(dep.some_property).delete()  # <- "rehearsal" of a property deleter
+    decoy.prop(dependency.some_property).delete()  # <- "rehearsal" of a property deleter
 )
 ```
 

@@ -6,7 +6,7 @@ Decoy's job as a mocking library is to provide you, the user, with useful design
 
 ### VerifyError
 
-A [decoy.errors.VerifyError][] will be raised if a call to [decoy.Decoy.verify][] does not match the given rehearsal. This is a normal assertion, and means your code under test isn't behaving according to your tests specifications.
+A [decoy.errors.VerifyError][] will be raised if a call to [decoy.Decoy.verify][] does not match the given rehearsal. This is a normal assertion, and means your code under test isn't behaving according to your test's specification.
 
 ```python
 func = decoy.mock()
@@ -56,7 +56,6 @@ If you pass `cls` or `func`, Decoy will infer the mock's name - to be used in as
 ```python
 my_mock = decoy.mock(name="my_mock")
 ```
-
 
 ## Warnings
 

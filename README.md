@@ -68,18 +68,23 @@ For example, using the built-in [unittest][] framework, you would use the `setUp
 
 This basic example assumes you are using [pytest][]. For more detailed documentation, see Decoy's [usage guide][] and [API reference][].
 
-### Define your test
-
-Decoy will add a `decoy` fixture that provides its mock creation API.
+Decoy will add a `decoy` fixture to pytest that provides its mock creation API.
 
 ```python
 from decoy import Decoy
-from todo import TodoAPI, TodoItem
-from todo.store TodoStore
 
-def test_add_todo(decoy: Decoy) -> None:
+def test_something(decoy: Decoy) -> None:
     ...
 ```
+
+!!! note
+
+    Importing the `Decoy` interface for type annotations is recommended, but optional. If your project does not use type annotations, you can simply write:
+
+    ```python
+    def test_something(decoy):
+        ...
+    ```
 
 ### Create a mock
 
