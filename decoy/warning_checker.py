@@ -10,7 +10,7 @@ from .spy_events import (
     WhenRehearsal,
     match_event,
 )
-from .warnings import MiscalledStubWarning, RedundantVerifyWarning
+from .warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
 
 
 class WarningChecker:
@@ -57,9 +57,9 @@ def _check_no_miscalled_stubs(all_events: Sequence[AnySpyEvent]) -> None:
             ):
                 unmatched = [*unmatched, call]
                 if index == len(spy_calls) - 1:
-                    warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
+                    _warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
             elif isinstance(call, WhenRehearsal) and len(unmatched) > 0:
-                warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
+                _warn(MiscalledStubWarning(calls=unmatched, rehearsals=past_stubs))
                 unmatched = []
 
 
@@ -69,4 +69,8 @@ def _check_no_redundant_verify(all_calls: Sequence[AnySpyEvent]) -> None:
 
     for vr in verify_rehearsals:
         if any(wr for wr in when_rehearsals if wr == vr):
-            warn(RedundantVerifyWarning(rehearsal=vr))
+            _warn(RedundantVerifyWarning(rehearsal=vr))
+
+def _warn(warning: DecoyWarning) -> None:
+    """Trigger a warning, at the stack level of whatever called `Decoy.reset`."""
+    warn(warning, stacklevel=6)
