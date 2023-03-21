@@ -36,7 +36,7 @@ pytest = "^7.0.1"
 pytest-asyncio = "^0.20.3"
 pytest-mypy-plugins = "^1.10.1"
 pytest-xdist = "^3.0.2"
-ruff = ">=0.0.247,<0.0.255"
+ruff = ">=0.0.247,<0.0.258"
 
 [tool.poe.tasks]
 all = [ "check", "lint", "format-check", "test-once", "coverage", "docs-build", "build" ]
