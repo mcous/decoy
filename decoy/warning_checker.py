@@ -71,6 +71,7 @@ def _check_no_redundant_verify(all_calls: Sequence[AnySpyEvent]) -> None:
         if any(wr for wr in when_rehearsals if wr == vr):
             _warn(RedundantVerifyWarning(rehearsal=vr))
 
+
 def _warn(warning: DecoyWarning) -> None:
     """Trigger a warning, at the stack level of whatever called `Decoy.reset`."""
     warn(warning, stacklevel=6)

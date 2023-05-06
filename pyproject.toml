@@ -43,7 +43,7 @@ all = [ "check", "lint", "format-check", "test-once", "coverage", "docs-build", 
 check = "mypy"
 lint = "ruff check ."
 format = "black ."
-format-check = { ref = "format --check" }
+format-check = "black . --check"
 test = "pytest -f"
 test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
 coverage = "coverage report"
