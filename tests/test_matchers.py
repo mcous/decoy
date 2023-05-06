@@ -121,4 +121,4 @@ def test_captor_matcher_raises_if_no_value() -> None:
     captor = matchers.Captor()
 
     with pytest.raises(AssertionError, match="No value captured"):
-        captor.value
+        captor.value  # noqa: B018
