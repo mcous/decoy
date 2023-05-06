@@ -420,7 +420,7 @@ def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
     decoy.when(subject.prop_name).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
-        subject.prop_name
+        subject.prop_name  # noqa: B018
 
 
 def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
