@@ -885,21 +885,22 @@ testing = ["coverage (>=6.2)", "flaky (>=3.5.0)", "hypothesis (>=5.7.1)", "mypy 
 
 [[package]]
 name = "pytest-mypy-plugins"
-version = "1.10.1"
+version = "1.11.1"
 description = "pytest plugin for writing tests for mypy plugins"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-mypy-plugins-1.10.1.tar.gz", hash = "sha256:1f258ccd784341dee93d4baaedafe715ead2a1f730c59282c45abd025612cf16"},
-    {file = "pytest_mypy_plugins-1.10.1-py3-none-any.whl", hash = "sha256:d32e26927bea6646cd1c79f7115cd6e9dcf583fa07d2ab6d4cbeb70bccb42942"},
+    {file = "pytest-mypy-plugins-1.11.1.tar.gz", hash = "sha256:10b51b8b6d6573589d5c1482ced943efa2571df842749cbb2a2446d82c710a49"},
+    {file = "pytest_mypy_plugins-1.11.1-py3-none-any.whl", hash = "sha256:d218e1aa20f20c751fe69f149deec6ec978b024c78ce3645e08d083acabf43d6"},
 ]
 
 [package.dependencies]
 chevron = "*"
 decorator = "*"
 mypy = ">=0.970"
-pytest = ">=6.0.0"
+packaging = "*"
+pytest = ">=6.2.0"
 pyyaml = "*"
 regex = "*"
 
