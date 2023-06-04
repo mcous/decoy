@@ -86,7 +86,7 @@ class _IsA:
         if self._attributes is None:
             return f"<IsA {self._match_type.__name__}>"
         else:
-            return f"<IsA {self._match_type.__name__} {repr(self._attributes)}>"
+            return f"<IsA {self._match_type.__name__} {self._attributes!r}>"
 
 
 def IsA(match_type: type, attributes: Optional[Mapping[str, Any]] = None) -> Any:
@@ -126,7 +126,7 @@ class _IsNot:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<IsNot {repr(self._reject_value)}>"
+        return f"<IsNot {self._reject_value!r}>"
 
 
 def IsNot(value: object) -> Any:
@@ -164,7 +164,7 @@ class _HasAttributes:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<HasAttributes {repr(self._attributes)}>"
+        return f"<HasAttributes {self._attributes!r}>"
 
 
 def HasAttributes(attributes: Mapping[str, Any]) -> Any:
@@ -207,7 +207,7 @@ class _DictMatching:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<DictMatching {repr(self._values)}>"
+        return f"<DictMatching {self._values!r}>"
 
 
 def DictMatching(values: Mapping[str, Any]) -> Any:
@@ -238,7 +238,7 @@ class _StringMatching:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<StringMatching {repr(self._pattern.pattern)}>"
+        return f"<StringMatching {self._pattern.pattern!r}>"
 
 
 def StringMatching(match: str) -> str:
