@@ -83,10 +83,10 @@ def match_event(event: AnySpyEvent, rehearsal: SpyRehearsal) -> bool:
 
         try:
             args_match = all(
-                call.args[i] == value for i, value in enumerate(rehearsed_call.args)
+                value == call.args[i] for i, value in enumerate(rehearsed_call.args)
             )
             kwargs_match = all(
-                call.kwargs[key] == value
+                value == call.kwargs[key]
                 for key, value in rehearsed_call.kwargs.items()
             )
 
@@ -95,4 +95,4 @@ def match_event(event: AnySpyEvent, rehearsal: SpyRehearsal) -> bool:
         except (IndexError, KeyError):
             return False
 
-    return event.payload == rehearsal.payload
+    return rehearsal.payload == event.payload
