@@ -11,5 +11,4 @@ updates:
     - package-ecosystem: "pip"
       directory: "/"
       schedule:
-          interval: "weekly"
-          day: "sunday"
+          interval: "monthly"
