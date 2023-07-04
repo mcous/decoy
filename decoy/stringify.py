@@ -30,7 +30,7 @@ def stringify_call(event: AnySpyEvent) -> str:
 
     else:
         args_list = [repr(arg) for arg in payload.args]
-        kwargs_list = [f"{key}={repr(val)}" for key, val in payload.kwargs.items()]
+        kwargs_list = [f"{key}={val!r}" for key, val in payload.kwargs.items()]
         extra_args_msg = (
             " - ignoring unspecified arguments" if payload.ignore_extra_args else ""
         )
