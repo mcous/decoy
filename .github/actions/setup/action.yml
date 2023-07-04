@@ -7,7 +7,7 @@ inputs:
         default: "3.11"
     poetry-version:
         description: "Poetry version to install"
-        default: "1.3.2"
+        default: "1.5.1"
     cache:
         description: "Cache directory"
         default: "${{ runner.temp }}/cache"
@@ -40,10 +40,10 @@ runs:
         - name: "Install Poetry"
           shell: bash
           run: |
-            if ! poetry --version; then
-              "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
-              pip install poetry==${{ inputs.poetry-version }}
-            fi
+              if ! poetry --version; then
+                "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
+                pip install poetry==${{ inputs.poetry-version }}
+              fi
 
         - name: "Install development dependencies"
           shell: bash

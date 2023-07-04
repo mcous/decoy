@@ -12,3 +12,6 @@ updates:
       directory: "/"
       schedule:
           interval: "monthly"
+      versioning-strategy: "increase"
+      ignore:
+          - dependency-name: "python"
