@@ -33,7 +33,7 @@ mkdocstrings = { extras = ["python"], version = "0.22.0" }
 mypy = "1.4.1"
 poethepoet = "0.19.0"
 pytest = "7.4.0"
-pytest-asyncio = "0.21.0"
+pytest-asyncio = "0.21.1"
 pytest-mypy-plugins = "2.0.0"
 pytest-xdist = "3.3.1"
 ruff = "0.0.276"
