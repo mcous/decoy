@@ -200,7 +200,3 @@ spy(val="world")            # ok
 spy(wrong_name="ah!")       # triggers an IncorrectCallWarning
 spy("too", "many", "args")  # triggers an IncorrectCallWarning
 ```
-
-[warnings system]: https://docs.python.org/3/library/warnings.html
-[warning filters]: https://docs.pytest.org/en/latest/how-to/capture-warnings.html
-[unittest.mock]: https://docs.python.org/3/library/unittest.mock.html
