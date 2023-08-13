@@ -20,7 +20,7 @@ _HelloTuple = namedtuple("_HelloTuple", ["hello"])
 def test_any_matcher() -> None:
     """It should have an "anything except None" matcher."""
     assert 1 == matchers.Anything()
-    assert False == matchers.Anything()  # noqa[E712]
+    assert False == matchers.Anything()  # noqa: E712
     assert {} == matchers.Anything()
     assert [] == matchers.Anything()
     assert ("hello", "world") == matchers.Anything()
@@ -30,7 +30,7 @@ def test_any_matcher() -> None:
 def test_is_a_matcher() -> None:
     """It should have an "anything that is this type" matcher."""
     assert 1 == matchers.IsA(int)
-    assert False == matchers.IsA(bool)  # noqa[E712]
+    assert False == matchers.IsA(bool)  # noqa: E712
     assert {} == matchers.IsA(dict)
     assert [] == matchers.IsA(list)
     assert ("hello", "world") == matchers.IsA(tuple)
@@ -42,7 +42,7 @@ def test_is_a_matcher() -> None:
 
 
 def test_is_a_matcher_checks_instance(decoy: Decoy) -> None:
-    """The IsA matchers should respect ininstance logic."""
+    """The IsA matchers should respect isinstance logic."""
     target = decoy.mock(cls=SomeClass)
     assert target == matchers.IsA(SomeClass)
 
@@ -50,13 +50,13 @@ def test_is_a_matcher_checks_instance(decoy: Decoy) -> None:
 def test_is_not_matcher() -> None:
     """It should have an "anything that isn't this" matcher."""
     assert 1 == matchers.IsNot(2)
-    assert False == matchers.IsNot(True)  # noqa[E712]
+    assert False == matchers.IsNot(True)  # noqa: E712
     assert {} == matchers.IsNot({"hello": "world"})
     assert [] == matchers.IsNot(["hello", "world"])
     assert ("hello", "world") == matchers.IsNot(("hey", "there"))
 
     assert 1 != matchers.IsNot(1)
-    assert False != matchers.IsNot(False)  # noqa[E712]
+    assert False != matchers.IsNot(False)  # noqa: E712
     assert {} != matchers.IsNot({})
     assert [] != matchers.IsNot([])
     assert ("hello", "world") != matchers.IsNot(("hello", "world"))
@@ -71,7 +71,7 @@ def test_has_attribute_matcher() -> None:
     assert {"hello": "world"} != matchers.HasAttributes({"hello": "world"})
     assert _HelloTuple("world") != matchers.HasAttributes({"goodbye": "so long"})
     assert 1 != matchers.HasAttributes({"hello": "world"})
-    assert False != matchers.HasAttributes({"hello": "world"})  # noqa[E712]
+    assert False != matchers.HasAttributes({"hello": "world"})  # noqa: E712
     assert [] != matchers.HasAttributes({"hello": "world"})
 
 
@@ -87,7 +87,7 @@ def test_dict_matching_matcher() -> None:
 
     assert {"hello": "world"} != matchers.DictMatching({"goodbye": "so long"})
     assert 1 != matchers.DictMatching({"hello": "world"})
-    assert False != matchers.DictMatching({"hello": "world"})  # noqa[E712]
+    assert False != matchers.DictMatching({"hello": "world"})  # noqa: E712
     assert [] != matchers.DictMatching({"hello": "world"})
 
 
@@ -101,7 +101,7 @@ def test_error_matching_matcher() -> None:
     """It should have an "any error that matches" matcher."""
     assert RuntimeError("ah!") == matchers.ErrorMatching(RuntimeError)
     assert RuntimeError("ah!") == matchers.ErrorMatching(RuntimeError, "ah")
-    assert RuntimeError("ah!") != matchers.ErrorMatching(TypeError, "ah")  # type: ignore[comparison-overlap]  # noqa: E501
+    assert RuntimeError("ah!") != matchers.ErrorMatching(TypeError, "ah")  # type: ignore[comparison-overlap]
     assert RuntimeError("ah!") != matchers.ErrorMatching(RuntimeError, "ah$")
 
 
