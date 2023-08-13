@@ -199,7 +199,7 @@ class _DictMatching:
         for key, value in self._values.items():
             if is_match:
                 try:
-                    is_match = key in target and target[key] == value  # type: ignore[index,operator]  # noqa: E501
+                    is_match = key in target and target[key] == value  # type: ignore[index,operator]
                 except TypeError:
                     is_match = False
 

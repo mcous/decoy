@@ -39,7 +39,15 @@ pytest-xdist = "3.3.1"
 ruff = "0.0.284"
 
 [tool.poe.tasks]
-all = [ "check", "lint", "format-check", "test-once", "coverage", "docs-build", "build" ]
+all = [
+    "check",
+    "lint",
+    "format-check",
+    "test-once",
+    "coverage",
+    "docs-build",
+    "build",
+]
 check = "mypy"
 lint = "ruff check ."
 format = "black ."
@@ -51,8 +59,8 @@ coverage-xml = "coverage xml"
 docs = "mkdocs serve"
 docs-build = "mkdocs build"
 build = "poetry build"
-check-ci = [ "check", "lint", "format-check" ]
-test-ci = [ "test-once", "coverage-xml" ]
+check-ci = ["check", "lint", "format-check"]
+test-ci = ["test-once", "coverage-xml"]
 build-ci = ["docs-build", "build"]
 
 [tool.poetry.plugins."pytest11"]
@@ -72,22 +80,10 @@ show_error_codes = true
 exclude_lines = ["@overload", "if TYPE_CHECKING:"]
 
 [tool.ruff]
+target-version = "py37"
 extend-exclude = [".cache"]
-ignore = [
-    "ANN101",
-    "ANN102",
-    "ANN401",
-    "D107",
-]
-select = [
-    "ANN",
-    "B",
-    "D",
-    "E",
-    "F",
-    "RUF",
-    "W",
-]
+select = ["ANN", "B", "D", "E", "F", "RUF", "W"]
+ignore = ["ANN101", "ANN102", "ANN401", "D107", "E501"]
 
 [tool.ruff.pydocstyle]
 convention = "google"
