@@ -27,7 +27,7 @@ python = "^3.7"
 [tool.poetry.group.dev.dependencies]
 black = "23.3.0"
 coverage = { extras = ["toml"], version = "7.2.7" }
-mkdocs = "1.4.3"
+mkdocs = "1.5.2"
 mkdocs-material = "9.1.20"
 mkdocstrings = { extras = ["python"], version = "0.22.0" }
 mypy = "1.4.1"
