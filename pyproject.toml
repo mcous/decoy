@@ -25,18 +25,22 @@ classifiers = [
 python = "^3.7"
 
 [tool.poetry.group.dev.dependencies]
-black = "23.3.0"
-coverage = { extras = ["toml"], version = "7.2.7" }
-mkdocs = "1.5.2"
-mkdocs-material = "9.1.20"
-mkdocstrings = { extras = ["python"], version = "0.22.0" }
-mypy = "1.4.1"
 poethepoet = "0.19.0"
+
+[tool.poetry.group.test.dependencies]
+black = { version = "23.7.0", python = ">=3.8" }
+coverage = { extras = ["toml"], version = "7.2.7" }
+mypy = "1.4.1"
 pytest = "7.4.0"
 pytest-asyncio = "0.21.1"
 pytest-mypy-plugins = "2.0.0"
 pytest-xdist = "3.3.1"
 ruff = "0.0.284"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = { version = "1.5.2", python = ">=3.8" }
+mkdocs-material = { version = "9.1.21", python = ">=3.8" }
+mkdocstrings = { version = "0.22.0", extras = ["python"], python = ">=3.8" }
 
 [tool.poe.tasks]
 all = [

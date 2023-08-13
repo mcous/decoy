@@ -2,7 +2,7 @@
 
 See the [errors guide][] for more details.
 
-[errors guide]: ../usage/errors-and-warnings/#errors
+[errors guide]: usage/errors-and-warnings.md#errors
 """
 from typing import Optional, Sequence
 
@@ -15,7 +15,7 @@ class MockNameRequiredError(ValueError):
 
     See the [MockNameRequiredError guide][] for more details.
 
-    [MockNameRequiredError guide]: ../usage/errors-and-warnings/#mocknamerequirederror
+    [MockNameRequiredError guide]: usage/errors-and-warnings.md#mocknamerequirederror
     """
 
     def __init__(self) -> None:
@@ -32,7 +32,7 @@ class MissingRehearsalError(ValueError):
 
     See the [MissingRehearsalError guide][] for more details.
 
-    [MissingRehearsalError guide]: ../usage/errors-and-warnings/#missingrehearsalerror
+    [MissingRehearsalError guide]: usage/errors-and-warnings.md#missingrehearsalerror
     """
 
     def __init__(self) -> None:
@@ -46,7 +46,7 @@ class MockNotAsyncError(TypeError):
     to a synchronous stub's `then_do` method.
     See the [MockNotAsyncError guide][] for more details.
 
-    [MockNotAsyncError guide]: ../usage/errors-and-warnings/#mocknotasyncerror
+    [MockNotAsyncError guide]: usage/errors-and-warnings.md#mocknotasyncerror
     """
 
 
@@ -55,7 +55,7 @@ class VerifyError(AssertionError):
 
     See [spying with verify][] for more details.
 
-    [spying with verify]: ../usage/verify/
+    [spying with verify]: usage/verify.md
 
     Attributes:
         rehearsals: Rehearsals that were being verified.

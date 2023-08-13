@@ -61,6 +61,8 @@ my_mock = decoy.mock(name="my_mock")
 
 Decoy uses Python's [warnings system][] to provide feedback about dubious mock usage that isn't _technically_ incorrect. These warnings won't fail your tests, but you probably want to fix them.
 
+[warnings system]: https://docs.python.org/3/library/warnings.html
+
 ### DecoyWarning
 
 A [decoy.warnings.DecoyWarning][] is the base class of all warnings raised by Decoy. This warning will never be raised directly, but can be used in [warning filters][].
@@ -71,6 +73,8 @@ For example, you could set all Decoy warnings to errors or ignore them all entir
 # ignore all Decoy warnings in a module (not recommended!)
 pytestmark = pytest.mark.filterwarnings("ignore::decoy.warnings.DecoyWarning")
 ```
+
+[warning filters]: https://docs.pytest.org/en/latest/how-to/capture-warnings.html
 
 ### MiscalledStubWarning
 
@@ -138,6 +142,8 @@ tests/test_example.py::test_subject
 ```
 
 These warnings tell us that something probably went wrong with how the dependency was called, allowing us to fix the issue and move on.
+
+[unittest.mock]: https://docs.python.org/3/library/unittest.mock.html
 
 ### RedundantVerifyWarning
 

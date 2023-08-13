@@ -5,6 +5,9 @@ in your test where you would use an actual value for equality (`==`) comparison.
 
 Matchers help you loosen assertions where strict adherence to an exact value
 is not relevant to what you're trying to test.
+See the [matchers guide][] for more details.
+
+[matchers guide]: usage/matchers.md
 
 !!! example
     ```python
