@@ -7,7 +7,7 @@ See the [warnings guide][] for more details.
 import os
 from typing import Sequence
 
-from .spy_events import SpyEvent, WhenRehearsal, VerifyRehearsal
+from .spy_events import SpyEvent, SpyRehearsal, VerifyRehearsal
 from .stringify import stringify_call, stringify_error_message, count
 
 
@@ -34,12 +34,12 @@ class MiscalledStubWarning(DecoyWarning):
         calls: Actual calls to the mock.
     """
 
-    rehearsals: Sequence[WhenRehearsal]
+    rehearsals: Sequence[SpyRehearsal]
     calls: Sequence[SpyEvent]
 
     def __init__(
         self,
-        rehearsals: Sequence[WhenRehearsal],
+        rehearsals: Sequence[SpyRehearsal],
         calls: Sequence[SpyEvent],
     ) -> None:
         heading = os.linesep.join(

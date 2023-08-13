@@ -21,11 +21,7 @@ def stub_store(decoy: Decoy) -> StubStore:
 
 
 @pytest.fixture()
-def subject(
-    decoy: Decoy,
-    spy_log: SpyLog,
-    stub_store: StubStore,
-) -> CallHandler:
+def subject(spy_log: SpyLog, stub_store: StubStore) -> CallHandler:
     """Get a CallHandler instance with its dependencies mocked out."""
     return CallHandler(
         spy_log=spy_log,
@@ -98,7 +94,6 @@ def test_handle_call_with_raise(
 
 def test_handle_call_with_action(
     decoy: Decoy,
-    spy_log: SpyLog,
     stub_store: StubStore,
     subject: CallHandler,
 ) -> None:
@@ -120,7 +115,6 @@ def test_handle_call_with_action(
 
 def test_handle_prop_get_with_action(
     decoy: Decoy,
-    spy_log: SpyLog,
     stub_store: StubStore,
     subject: CallHandler,
 ) -> None:
