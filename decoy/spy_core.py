@@ -5,7 +5,7 @@ import warnings
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Type, Union, get_type_hints
 
 from .spy_events import SpyInfo
-from .warnings import IncorrectCallWarning
+from .warnings import IncorrectCallWarning, MissingSpecAttributeWarning
 
 
 class _FROM_SOURCE:
@@ -135,6 +135,13 @@ class SpyCore:
                     # consume the `self` argument of the method to ensure proper
                     # signature reporting by wrapping it in a partial
                     child_source = functools.partial(child_source, None)
+
+        if child_source is None and source is not None:
+            # stacklevel: 4 ensures warning is linked to call location
+            warnings.warn(
+                MissingSpecAttributeWarning(f"{self._name} has no attribute '{name}'"),
+                stacklevel=4,
+            )
 
         return SpyCore(
             source=child_source,

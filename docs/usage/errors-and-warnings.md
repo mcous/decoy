@@ -187,7 +187,7 @@ If Decoy detects a `verify` with the same configuration of a `when`, it will rai
 
 If you provide a Decoy mock with a specification `cls` or `func`, any calls to that mock will be checked according to `inspect.signature`. If the call does not match the signature, Decoy will raise a [decoy.warnings.IncorrectCallWarning][].
 
-While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored.
+While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored. In the next major version of Decoy, this warning will become an error.
 
 ```python
 def some_func(val: string) -> int:
@@ -199,4 +199,28 @@ spy("hello")                # ok
 spy(val="world")            # ok
 spy(wrong_name="ah!")       # triggers an IncorrectCallWarning
 spy("too", "many", "args")  # triggers an IncorrectCallWarning
+```
+
+### MissingSpecAttributeWarning
+
+If you provide a Decoy mock with a specification `cls` or `func` and you attempt to access an attribute of the mock that does not exist on the specification, Decoy will raise a [decoy.warnings.MissingSpecAttributeWarning][].
+
+While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored. In the next major version of Decoy, this warning will become an error.
+
+```python
+class SomeClass:
+    def foo(self, val: str) -> str:
+        ...
+
+def some_func(val: string) -> int:
+    ...
+
+class_spy = decoy.mock(cls=SomeClass)
+func_spy = decoy.mock(func=some_func)
+
+class_spy.foo("hello")  # ok
+class_spy.bar("world")  # triggers a MissingSpecAttributeWarning
+
+func_spy("hello")       # ok
+func_spy.foo("world")   # triggers a MissingSpecAttributeWarning
 ```
