@@ -21,7 +21,7 @@ class Decoy:
     You should create a new Decoy instance before each test and call
     [`reset`][decoy.Decoy.reset] after each test. If you use the
     [`decoy` pytest fixture][decoy.pytest_plugin.decoy], this is done
-    automatically. See the [setup guide](../#setup) for more details.
+    automatically. See the [setup guide][] for more details.
 
     !!! example
         ```python
@@ -32,6 +32,8 @@ class Decoy:
 
         decoy.reset()
         ```
+
+    [setup guide]: index.md#setup
     """
 
     def __init__(self) -> None:
@@ -59,7 +61,7 @@ class Decoy:
     ) -> Any:
         """Create a mock. See the [mock creation guide] for more details.
 
-        [mock creation guide]: ../usage/create/
+        [mock creation guide]: usage/create.md
 
         Arguments:
             cls: A class definition that the mock should imitate.
@@ -94,7 +96,7 @@ class Decoy:
     ) -> "Stub[ReturnT]":
         """Create a [`Stub`][decoy.Stub] configuration using a rehearsal call.
 
-        See [stubbing usage guide](../usage/when/) for more details.
+        See [stubbing usage guide](usage/when.md) for more details.
 
         Arguments:
             _rehearsal_result: The return value of a rehearsal, used for typechecking.
@@ -133,7 +135,7 @@ class Decoy:
     ) -> None:
         """Verify a mock was called using one or more rehearsals.
 
-        See [verification usage guide](../usage/verify/) for more details.
+        See [verification usage guide](usage/verify.md) for more details.
 
         Arguments:
             _rehearsal_results: The return value of rehearsals, unused except
@@ -174,7 +176,7 @@ class Decoy:
     def prop(self, _rehearsal_result: ReturnT) -> "Prop[ReturnT]":
         """Create property setter and deleter rehearsals.
 
-        See [property mocking guide](../advanced/properties/) for more details.
+        See [property mocking guide](advanced/properties.md) for more details.
 
         Arguments:
             _rehearsal_result: The property to mock, for typechecking.
@@ -202,7 +204,7 @@ class Decoy:
 class Stub(Generic[ReturnT]):
     """A rehearsed Stub that can be used to configure mock behaviors.
 
-    See [stubbing usage guide](../usage/when/) for more details.
+    See [stubbing usage guide](usage/when.md) for more details.
     """
 
     def __init__(self, core: StubCore) -> None:
@@ -291,7 +293,7 @@ class Stub(Generic[ReturnT]):
         The wrapping context manager is compatible with both the synchronous and
         asynchronous context manager interfaces.
 
-        See the [context manager usage guide](../advanced/context-managers/)
+        See the [context manager usage guide](advanced/context-managers.md)
         for more details.
 
         Arguments:
@@ -303,7 +305,7 @@ class Stub(Generic[ReturnT]):
 class Prop(Generic[ReturnT]):
     """Rehearsal creator for mocking property setters and deleters.
 
-    See [property mocking guide](../advanced/properties/) for more details.
+    See [property mocking guide](advanced/properties.md) for more details.
     """
 
     def __init__(self, core: PropCore) -> None:

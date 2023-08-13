@@ -2,7 +2,7 @@
 
 See the [warnings guide][] for more details.
 
-[warnings guide]: ../usage/errors-and-warnings/#warnings
+[warnings guide]: usage/errors-and-warnings.md#warnings
 """
 import os
 from typing import Sequence
@@ -25,9 +25,9 @@ class MiscalledStubWarning(DecoyWarning):
     - Configured as a stub with [`when`][decoy.Decoy.when]
     - Called with arguments that do not match any configured behaviors
 
-    See the [MiscalledStubWarning guide] for more details.
+    See the [MiscalledStubWarning guide][] for more details.
 
-    [MiscalledStubWarning guide]: ../usage/errors-and-warnings/#miscalledstubwarning
+    [MiscalledStubWarning guide]: usage/errors-and-warnings.md#miscalledstubwarning
 
     Attributes:
         rehearsals: The mocks's configured rehearsals.
@@ -70,7 +70,7 @@ class RedundantVerifyWarning(DecoyWarning):
 
     See the [RedundantVerifyWarning guide][] for more details.
 
-    [RedundantVerifyWarning guide]: ../usage/errors-and-warnings/#redundantverifywarning
+    [RedundantVerifyWarning guide]: usage/errors-and-warnings.md#redundantverifywarning
     """
 
     def __init__(self, rehearsal: VerifyRehearsal) -> None:
@@ -91,8 +91,7 @@ class IncorrectCallWarning(DecoyWarning):
 
     If a call to a Decoy mock is incorrect according to `inspect.signature`,
     this warning will be raised.
-
     See the [IncorrectCallWarning guide][] for more details.
 
-    [IncorrectCallWarning guide]: ../usage/errors-and-warnings/#incorrectcallwarning
+    [IncorrectCallWarning guide]: usage/errors-and-warnings.md#incorrectcallwarning
     """

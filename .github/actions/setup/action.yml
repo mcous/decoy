@@ -20,6 +20,7 @@ runs:
           uses: actions/setup-python@v4
           with:
               python-version: ${{ inputs.python-version }}
+              allow-prereleases: true
 
         - name: "Set up dependency cache"
           uses: actions/cache@v3
