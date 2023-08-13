@@ -29,8 +29,11 @@ poethepoet = "0.19.0"
 
 [tool.poetry.group.test.dependencies]
 black = { version = "23.7.0", python = ">=3.8" }
-coverage = { extras = ["toml"], version = "7.2.7" }
-mypy = "1.4.1"
+coverage = { version = "7.2.7", extras = ["toml"] }
+mypy = [
+    { version = "1.4.1", python = "<3.8" },
+    { version = "1.5.0", python = ">=3.8" },
+]
 pytest = "7.4.0"
 pytest-asyncio = "0.21.1"
 pytest-mypy-plugins = "2.0.0"
