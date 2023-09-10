@@ -17,7 +17,7 @@ jobs:
                 python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
         steps:
             - name: "Check out repository"
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: "Set up Python and development dependencies"
               uses: ./.github/actions/setup
@@ -35,7 +35,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: "Check out repository"
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: "Set up Python and development dependencies"
               uses: ./.github/actions/setup
@@ -49,7 +49,7 @@ jobs:
         needs: [test, check]
         steps:
             - name: "Check out repository"
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: "Set up Python and development dependencies"
               uses: ./.github/actions/setup
