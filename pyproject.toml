@@ -38,7 +38,7 @@ pytest = "7.4.0"
 pytest-asyncio = "0.21.1"
 pytest-mypy-plugins = "2.0.0"
 pytest-xdist = "3.3.1"
-ruff = "0.0.286"
+ruff = "0.0.291"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = { version = "1.5.2", python = ">=3.8" }
