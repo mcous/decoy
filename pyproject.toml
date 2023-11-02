@@ -28,7 +28,6 @@ python = "^3.7"
 poethepoet = "0.19.0"
 
 [tool.poetry.group.test.dependencies]
-black = { version = "23.7.0", python = ">=3.8" }
 coverage = { version = "7.2.7", extras = ["toml"] }
 mypy = [
     { version = "1.4.1", python = "<3.8" },
@@ -57,8 +56,8 @@ all = [
 ]
 check = "mypy"
 lint = "ruff check ."
-format = "black ."
-format-check = "black . --check"
+format = "ruff format ."
+format-check = "ruff format --check ."
 test = "pytest -f"
 test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
 coverage = "coverage report"

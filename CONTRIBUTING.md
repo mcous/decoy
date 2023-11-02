@@ -48,18 +48,11 @@ If you find yourself in a situation where Decoy's test suite has blown up, **con
 
 ### Checks
 
-Decoy's source code is typechecked with [mypy][] and linted with [ruff][].
+Decoy's source code is typechecked with [mypy][] and linted/formatted with [ruff][].
 
 ```bash
 poetry run poe check
 poetry run poe lint
-```
-
-### Formatting
-
-Decoy's source code is formatted using [black][].
-
-```bash
 poetry run poe format
 ```
 
@@ -101,7 +94,6 @@ git push --follow-tags
 [pytest]: https://docs.pytest.org/
 [pytest-xdist]: https://github.com/pytest-dev/pytest-xdist
 [mypy]: https://mypy.readthedocs.io
-[ruff]: https://github.com/charliermarsh/ruff
-[black]: https://black.readthedocs.io
+[ruff]: https://github.com/astral-sh/ruff
 [mkdocs]: https://www.mkdocs.org/
 [semantic versioning]: https://semver.org/
