@@ -23,6 +23,7 @@ runs:
               update-environment: false
 
         - name: 'Set up Python 3.12 for Poetry'
+          id: setup-poetry-python
           uses: actions/setup-python@v4
           with:
               python-version: 3.12
@@ -47,7 +48,7 @@ runs:
           shell: bash
           run: |
               if ! poetry --version; then
-                "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
+                "${{ steps.setup-poetry-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
                 pip install poetry==${{ inputs.poetry-version }}
               fi
 
