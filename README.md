@@ -1,5 +1,5 @@
 <div align="center">
-    <img alt="Decoy logo" src="https://mike.cousins.io/decoy/img/decoy.png" width="256px">
+    <img alt="Decoy logo" src="https://michael.cousins.io/decoy/img/decoy.png" width="256px">
     <h1 class="decoy-title">Decoy</h1>
     <p>Opinionated mocking library for Python</p>
     <p>
@@ -11,7 +11,7 @@
         <a title="Supported Python Versions" href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/pyversions/decoy?style=flat-square"></a>
     </p>
     <p>
-        <a href="https://mike.cousins.io/decoy/" class="decoy-hidden">Usage guide and documentation</a>
+        <a href="https://michael.cousins.io/decoy/" class="decoy-hidden">Usage guide and documentation</a>
     </p>
 </div>
 
@@ -59,8 +59,8 @@ plugins = decoy.mypy
 
 Decoy works well with [pytest][], but if you use another testing library or framework, you can still use Decoy! You just need to do two things:
 
-1. Create a new instance of [`Decoy()`](https://mike.cousins.io/decoy/api/#decoy.Decoy) before each test
-2. Call [`decoy.reset()`](https://mike.cousins.io/decoy/api/#decoy.Decoy.reset) after each test
+1. Create a new instance of [`Decoy()`](https://michael.cousins.io/decoy/api/#decoy.Decoy) before each test
+2. Call [`decoy.reset()`](https://michael.cousins.io/decoy/api/#decoy.Decoy.reset) after each test
 
 For example, using the built-in [unittest][] framework, you would use the `setUp` fixture method to do `self.decoy = Decoy()` and the `tearDown` method to call `self.decoy.reset()`. For a working example, see [`tests/test_unittest.py`](https://github.com/mcous/decoy/blob/main/tests/test_unittest.py).
 
@@ -144,8 +144,8 @@ See [spying with verify][] for more details.
 [unittest]: https://docs.python.org/3/library/unittest.html
 [typing]: https://docs.python.org/3/library/typing.html
 [mypy]: https://mypy.readthedocs.io/
-[api reference]: https://mike.cousins.io/decoy/api/
-[usage guide]: https://mike.cousins.io/decoy/usage/create/
-[creating mocks]: https://mike.cousins.io/decoy/usage/create/
-[stubbing with when]: https://mike.cousins.io/decoy/usage/when/
-[spying with verify]: https://mike.cousins.io/decoy/usage/verify/
+[api reference]: https://michael.cousins.io/decoy/api/
+[usage guide]: https://michael.cousins.io/decoy/usage/create/
+[creating mocks]: https://michael.cousins.io/decoy/usage/create/
+[stubbing with when]: https://michael.cousins.io/decoy/usage/when/
+[spying with verify]: https://michael.cousins.io/decoy/usage/verify/

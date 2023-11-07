@@ -4,10 +4,10 @@ description: "Install development dependencies"
 inputs:
     python-version:
         description: "Python version to install"
-        default: "3.11"
+        default: "3.12"
     poetry-version:
         description: "Poetry version to install"
-        default: "1.5.1"
+        default: "1.7.0"
     cache:
         description: "Cache directory"
         default: "${{ runner.temp }}/cache"
@@ -20,12 +20,18 @@ runs:
           uses: actions/setup-python@v4
           with:
               python-version: ${{ inputs.python-version }}
-              allow-prereleases: true
+              update-environment: false
+
+        - name: "Set up Python 3.12 for Poetry"
+          id: setup-poetry-python
+          uses: actions/setup-python@v4
+          with:
+              python-version: 3.12
 
         - name: "Set up dependency cache"
           uses: actions/cache@v3
           with:
-              key: ${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
+              key: ${{ runner.os }}-${{ steps.setup-poetry-python.outputs.python-version }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
               path: ${{ inputs.cache }}
 
         - name: "Set up PATH on POSIX"
@@ -42,7 +48,7 @@ runs:
           shell: bash
           run: |
               if ! poetry --version; then
-                "${{ steps.setup-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
+                "${{ steps.setup-poetry-python.outputs.python-path }}" -m venv "${{ inputs.cache }}/tools"
                 pip install poetry==${{ inputs.poetry-version }}
               fi
 
@@ -50,4 +56,5 @@ runs:
           shell: bash
           run: |
               poetry config cache-dir "${{ inputs.cache }}/poetry"
+              poetry env use "${{ steps.setup-python.outputs.python-path }}"
               poetry install --sync

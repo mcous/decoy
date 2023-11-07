@@ -2,12 +2,12 @@
 name = "decoy"
 version = "2.1.0"
 description = "Opinionated mocking library for Python"
-authors = ["Mike Cousins <mike@cousins.io>"]
+authors = ["Michael Cousins <michael@cousins.io>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/mcous/decoy"
-homepage = "https://mike.cousins.io/decoy/"
-documentation = "https://mike.cousins.io/decoy/"
+homepage = "https://michael.cousins.io/decoy/"
+documentation = "https://michael.cousins.io/decoy/"
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
