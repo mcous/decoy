@@ -1,50 +1,50 @@
-name: 'Set up repository for CI'
-description: 'Install development dependencies'
+name: "Set up repository for CI"
+description: "Install development dependencies"
 
 inputs:
     python-version:
-        description: 'Python version to install'
-        default: '3.12'
+        description: "Python version to install"
+        default: "3.12"
     poetry-version:
-        description: 'Poetry version to install'
-        default: '1.6.1'
+        description: "Poetry version to install"
+        default: "1.7.0"
     cache:
-        description: 'Cache directory'
-        default: '${{ runner.temp }}/cache'
+        description: "Cache directory"
+        default: "${{ runner.temp }}/cache"
 
 runs:
-    using: 'composite'
+    using: "composite"
     steps:
-        - name: 'Set up Python'
+        - name: "Set up Python"
           id: setup-python
           uses: actions/setup-python@v4
           with:
               python-version: ${{ inputs.python-version }}
               update-environment: false
 
-        - name: 'Set up Python 3.12 for Poetry'
+        - name: "Set up Python 3.12 for Poetry"
           id: setup-poetry-python
           uses: actions/setup-python@v4
           with:
               python-version: 3.12
 
-        - name: 'Set up dependency cache'
+        - name: "Set up dependency cache"
           uses: actions/cache@v3
           with:
-              key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
+              key: ${{ runner.os }}-${{ steps.setup-poetry-python.outputs.python-version }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
               path: ${{ inputs.cache }}
 
-        - name: 'Set up PATH on POSIX'
+        - name: "Set up PATH on POSIX"
           if: ${{ runner.os != 'windows'}}
           shell: bash
           run: echo "${{ inputs.cache }}/tools/bin" >> $GITHUB_PATH
 
-        - name: 'Set up PATH on Windows'
+        - name: "Set up PATH on Windows"
           if: ${{ runner.os == 'windows'}}
           shell: bash
           run: echo "${{ inputs.cache }}/tools/Scripts" >> $GITHUB_PATH
 
-        - name: 'Install Poetry'
+        - name: "Install Poetry"
           shell: bash
           run: |
               if ! poetry --version; then
@@ -52,7 +52,7 @@ runs:
                 pip install poetry==${{ inputs.poetry-version }}
               fi
 
-        - name: 'Install development dependencies'
+        - name: "Install development dependencies"
           shell: bash
           run: |
               poetry config cache-dir "${{ inputs.cache }}/poetry"
