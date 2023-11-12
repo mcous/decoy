@@ -29,8 +29,9 @@ theme:
     features:
         - navigation.instant
         - navigation.sections
-    font: "Open Sans"
-    code: "Fira Mono"
+    font:
+        text: "Open Sans"
+        code: "Fira Mono"
     palette:
         - media: "(prefers-color-scheme: light)"
           scheme: default
