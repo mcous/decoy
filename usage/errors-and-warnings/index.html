@@ -1,0 +1,1034 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Opinionated mocking library for Python.">
+      
+      
+        <meta name="author" content="Michael Cousins">
+      
+      
+        <link rel="canonical" href="https://michael.cousins.io/decoy/usage/errors-and-warnings/">
+      
+      
+        <link rel="prev" href="../matchers/">
+      
+      
+        <link rel="next" href="../../advanced/properties/">
+      
+      
+      <link rel="icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.8">
+    
+    
+      
+        <title>Errors and warnings - Decoy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4b4a2bd9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i%7CFira+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Open Sans";--md-code-font:"Fira Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#errors-and-warnings" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Decoy" class="md-header__button md-logo" aria-label="Decoy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.5 5A1.5 1.5 0 0 0 7 6.5 1.5 1.5 0 0 0 8.5 8 1.5 1.5 0 0 0 10 6.5 1.5 1.5 0 0 0 8.5 5M10 2a5 5 0 0 1 5 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0 1 10 2Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Decoy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Errors and warnings
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="yellow"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mcous/decoy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Decoy" class="md-nav__button md-logo" aria-label="Decoy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.5 5A1.5 1.5 0 0 0 7 6.5 1.5 1.5 0 0 0 8.5 8 1.5 1.5 0 0 0 10 6.5 1.5 1.5 0 0 0 8.5 5M10 2a5 5 0 0 1 5 5c0 1.7-.85 3.2-2.14 4.1 1.58.15 3.36.51 5.14 1.4 3 1.5 4-.5 4-.5s-1 9-7 9H9s-5 0-5-5c0-3 3-4 2-6-4 0-4-3.5-4-3.5 1 .5 2.24.5 3 .15A5.02 5.02 0 0 1 10 2Z"/></svg>
+
+    </a>
+    Decoy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mcous/decoy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mcous/decoy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Usage Guide
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Usage Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../create/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating mocks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../when/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Stubbing with when
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verify/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Spying with verify
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matchers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Comparing with matchers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Errors and warnings
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Errors and warnings
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    Errors
+  </a>
+  
+    <nav class="md-nav" aria-label="Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verifyerror" class="md-nav__link">
+    VerifyError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missingrehearsalerror" class="md-nav__link">
+    MissingRehearsalError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mocknotasyncerror" class="md-nav__link">
+    MockNotAsyncError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mocknamerequirederror" class="md-nav__link">
+    MockNameRequiredError
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#warnings" class="md-nav__link">
+    Warnings
+  </a>
+  
+    <nav class="md-nav" aria-label="Warnings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decoywarning" class="md-nav__link">
+    DecoyWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscalledstubwarning" class="md-nav__link">
+    MiscalledStubWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redundantverifywarning" class="md-nav__link">
+    RedundantVerifyWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incorrectcallwarning" class="md-nav__link">
+    IncorrectCallWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missingspecattributewarning" class="md-nav__link">
+    MissingSpecAttributeWarning
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Advanced Usage
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/properties/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mocking property attributes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/context-managers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mocking context managers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing Guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    Errors
+  </a>
+  
+    <nav class="md-nav" aria-label="Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verifyerror" class="md-nav__link">
+    VerifyError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missingrehearsalerror" class="md-nav__link">
+    MissingRehearsalError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mocknotasyncerror" class="md-nav__link">
+    MockNotAsyncError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mocknamerequirederror" class="md-nav__link">
+    MockNameRequiredError
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#warnings" class="md-nav__link">
+    Warnings
+  </a>
+  
+    <nav class="md-nav" aria-label="Warnings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decoywarning" class="md-nav__link">
+    DecoyWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscalledstubwarning" class="md-nav__link">
+    MiscalledStubWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redundantverifywarning" class="md-nav__link">
+    RedundantVerifyWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incorrectcallwarning" class="md-nav__link">
+    IncorrectCallWarning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missingspecattributewarning" class="md-nav__link">
+    MissingSpecAttributeWarning
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="errors-and-warnings">Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Permanent link">#</a></h1>
+<p>Decoy's job as a mocking library is to provide you, the user, with useful design feedback about your code under test. Sometimes, this design feedback comes in the form of exceptions and warnings raised.</p>
+<h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">#</a></h2>
+<h3 id="verifyerror">VerifyError<a class="headerlink" href="#verifyerror" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.errors.VerifyError">decoy.errors.VerifyError</a> will be raised if a call to <a class="autorefs autorefs-internal" href="../../api/#decoy.Decoy.verify">decoy.Decoy.verify</a> does not match the given rehearsal. This is a normal assertion, and means your code under test isn't behaving according to your test's specification.</p>
+<div class="highlight"><pre><span></span><code><span class="n">func</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">()</span>
+
+<span class="n">func</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+
+<span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;goodbye&quot;</span><span class="p">))</span>  <span class="c1"># raises a VerifyError</span>
+</code></pre></div>
+<h3 id="missingrehearsalerror">MissingRehearsalError<a class="headerlink" href="#missingrehearsalerror" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.errors.MissingRehearsalError">decoy.errors.MissingRehearsalError</a> will be raised if Decoy cannot pop a rehearsal call off its call stack during a call to <a class="autorefs autorefs-internal" href="../../api/#decoy.Decoy.when">decoy.Decoy.when</a> or <a class="autorefs autorefs-internal" href="../../api/#decoy.Decoy.verify">decoy.Decoy.verify</a>. This is a runtime error and means <strong>your test is using Decoy incorrectly</strong>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">()</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>  <span class="c1"># raises a MissingRehearsalError</span>
+</code></pre></div>
+<p>If you're working with async/await code, this can also happen if you forget to include <code>await</code> in your rehearsal, because the <code>await</code> is necessary for the spy's call handler to add the call to the stack.</p>
+<div class="highlight"><pre><span></span><code><span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="k">await</span> <span class="n">some_async_func</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>  <span class="c1"># all good</span>
+<span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">some_async_func</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>  <span class="c1"># will raise</span>
+</code></pre></div>
+<h3 id="mocknotasyncerror">MockNotAsyncError<a class="headerlink" href="#mocknotasyncerror" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.errors.MockNotAsyncError">decoy.errors.MockNotAsyncError</a> will be raised if you pass an <code>async def</code> function to <a class="autorefs autorefs-internal" href="../../api/#decoy.Stub.then_do">decoy.Stub.then_do</a> of a non-synchronous mock.</p>
+<div class="highlight"><pre><span></span><code><span class="n">async_mock</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;async_mock&quot;</span><span class="p">,</span> <span class="n">is_async</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">async_mock</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sync_mock&quot;</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_handle_call</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;world&quot;</span>
+
+<span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="k">await</span> <span class="n">async_mock</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_do</span><span class="p">(</span><span class="n">_handle_call</span><span class="p">)</span>  <span class="c1"># all good</span>
+<span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">sync_mock</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_do</span><span class="p">(</span><span class="n">_handle_call</span><span class="p">)</span>  <span class="c1"># will raise</span>
+</code></pre></div>
+<h3 id="mocknamerequirederror">MockNameRequiredError<a class="headerlink" href="#mocknamerequirederror" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.errors.MockNameRequiredError">decoy.errors.MockNameRequiredError</a> will be raised if you call <a class="autorefs autorefs-internal" href="../../api/#decoy.Decoy.mock">decoy.Decoy.mock</a> without <code>cls</code>, <code>func</code>, nor <code>name</code>.</p>
+<p>If you pass <code>cls</code> or <code>func</code>, Decoy will infer the mock's name - to be used in assertion messages - from its source specification. If you don't pass a specification, you must give the mock an explicit name using the <code>name</code> argument.</p>
+<div class="highlight"><pre><span></span><code><span class="n">my_mock</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_mock&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="warnings">Warnings<a class="headerlink" href="#warnings" title="Permanent link">#</a></h2>
+<p>Decoy uses Python's <a href="https://docs.python.org/3/library/warnings.html">warnings system</a> to provide feedback about dubious mock usage that isn't <em>technically</em> incorrect. These warnings won't fail your tests, but you probably want to fix them.</p>
+<h3 id="decoywarning">DecoyWarning<a class="headerlink" href="#decoywarning" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.warnings.DecoyWarning">decoy.warnings.DecoyWarning</a> is the base class of all warnings raised by Decoy. This warning will never be raised directly, but can be used in <a href="https://docs.pytest.org/en/latest/how-to/capture-warnings.html">warning filters</a>.</p>
+<p>For example, you could set all Decoy warnings to errors or ignore them all entirely. Neither of these configurations are recommended; Decoy considers the default "warning" level to be correct.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ignore all Decoy warnings in a module (not recommended!)</span>
+<span class="n">pytestmark</span> <span class="o">=</span> <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore::decoy.warnings.DecoyWarning&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="miscalledstubwarning">MiscalledStubWarning<a class="headerlink" href="#miscalledstubwarning" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.warnings.MiscalledStubWarning">decoy.warnings.MiscalledStubWarning</a> is a warning provided mostly for productivity convenience. If you configure a stub but your code under test calls the stub incorrectly, it can sometimes be difficult to immediately figure out what went wrong. This warning exists to alert you if:</p>
+<ul>
+<li>A mock has at least 1 stubbing configured with <a class="autorefs autorefs-internal" href="../../api/#decoy.Decoy.when">decoy.Decoy.when</a></li>
+<li>A call was made to the mock that didn't match any configured stubbing</li>
+</ul>
+<p>In the example below, our test subject is supposed to call a <code>DataGetter</code> dependency and pass the output data into a <code>DataHandler</code> dependency to get the result. However, in writing <code>Subject.get_and_handle_data</code>, we forgot to pass <code>data_id</code> into <code>DataGetter.get</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># test_subject.py</span>
+
+<span class="k">class</span> <span class="nc">Subject</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_getter</span><span class="p">,</span> <span class="n">data_handler</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_getter</span> <span class="o">=</span> <span class="n">data_getter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_handler</span> <span class="o">=</span> <span class="n">data_handler</span>
+
+    <span class="k">def</span> <span class="nf">get_and_handle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_id</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_getter</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>  <span class="c1"># &lt;-- oops!</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span> <span class="nf">test_subject</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">data_getter</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">DataGetter</span><span class="p">)</span>
+    <span class="n">data_handler</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">DataHandler</span><span class="p">)</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">Subject</span><span class="p">(</span><span class="n">data_getter</span><span class="o">=</span><span class="n">data_getter</span><span class="p">,</span> <span class="n">data_handler</span><span class="o">=</span><span class="n">data_handler</span><span class="p">)</span>
+
+    <span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">data_getter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data-id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">data_handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="s2">&quot;good job&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">get_and_handle_data</span><span class="p">(</span><span class="s2">&quot;data-id&quot;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;good job&quot;</span>
+</code></pre></div>
+<p>When run, <code>self._data_getter.get()</code> will no-op and return <code>None</code>, because no matching stub configuration was found. That <code>None</code> will be fed into <code>self._data_handler.handle</code>, which will also no-op and return <code>None</code>, for the same reason. The test output will then tell us:</p>
+<div class="highlight"><pre><span></span><code>E<span class="w">       </span>AssertionError:<span class="w"> </span>assert<span class="w"> </span><span class="nv">None</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;good job&#39;</span>
+</code></pre></div>
+<p>The test failed, which is good! But, the developer's next steps to fix the error aren't immediately obvious.</p>
+<p>Your first reaction, especially if you're coming from a mocking library like <a href="https://docs.python.org/3/library/unittest.mock.html">unittest.mock</a>, might be "We need to add an assertion that <code>data_getter.get</code> was called correctly." This would be bad, though! See <a href="#RedundantVerifyWarning">RedundantVerifyWarning</a> below for why adding an assertion like this would be redundant and potentially harmful.</p>
+<p>Even if we shouldn't add an assertion, we still want something to help us find the underlying issue. This is where <code>MiscalledStubWarning</code> comes in. When this test is run, Decoy will print the following warnings:</p>
+<div class="highlight"><pre><span></span><code>tests/test_example.py::test_subject
+<span class="w">  </span>/path/to/decoy/verifier.py:72:<span class="w"> </span>MiscalledStubWarning:<span class="w"> </span>Stub<span class="w"> </span>was<span class="w"> </span>called<span class="w"> </span>but<span class="w"> </span>no<span class="w"> </span>matching<span class="w"> </span>rehearsal<span class="w"> </span>found.
+<span class="w">  </span>Found<span class="w"> </span><span class="m">1</span><span class="w"> </span>rehearsal:
+<span class="w">  </span><span class="m">1</span>.<span class="w">    </span>DataGetter.get<span class="o">(</span><span class="s1">&#39;data-id&#39;</span><span class="o">)</span>
+<span class="w">  </span>Found<span class="w"> </span><span class="m">1</span><span class="w"> </span>call:
+<span class="w">  </span><span class="m">1</span>.<span class="w">    </span>DataGetter.get<span class="o">()</span>
+<span class="w">    </span>warn<span class="o">(</span>MiscalledStubWarning<span class="o">(</span><span class="nv">calls</span><span class="o">=</span>unmatched,<span class="w"> </span><span class="nv">rehearsals</span><span class="o">=</span>rehearsals<span class="o">))</span>
+
+tests/test_example.py::test_subject
+<span class="w">  </span>/path/to/decoy/verifier.py:72:<span class="w"> </span>MiscalledStubWarning:<span class="w"> </span>Stub<span class="w"> </span>was<span class="w"> </span>called<span class="w"> </span>but<span class="w"> </span>no<span class="w"> </span>matching<span class="w"> </span>rehearsal<span class="w"> </span>found.
+<span class="w">  </span>Found<span class="w"> </span><span class="m">1</span><span class="w"> </span>rehearsal:
+<span class="w">  </span><span class="m">1</span>.<span class="w">    </span>DataHandler.handle<span class="o">(</span><span class="m">42</span><span class="o">)</span>
+<span class="w">  </span>Found<span class="w"> </span><span class="m">1</span><span class="w"> </span>call:
+<span class="w">  </span><span class="m">1</span>.<span class="w">    </span>DataHandler.handle<span class="o">(</span>None<span class="o">)</span>
+<span class="w">    </span>warn<span class="o">(</span>MiscalledStubWarning<span class="o">(</span><span class="nv">calls</span><span class="o">=</span>unmatched,<span class="w"> </span><span class="nv">rehearsals</span><span class="o">=</span>rehearsals<span class="o">))</span>
+</code></pre></div>
+<p>These warnings tell us that something probably went wrong with how the dependency was called, allowing us to fix the issue and move on.</p>
+<h3 id="redundantverifywarning">RedundantVerifyWarning<a class="headerlink" href="#redundantverifywarning" title="Permanent link">#</a></h3>
+<p>A <a class="autorefs autorefs-internal" href="../../api/#decoy.warnings.RedundantVerifyWarning">decoy.warnings.RedundantVerifyWarning</a> is a warning provided to prevent you from writing redundant and over-constraining <code>verify</code> calls to mocks that have been configured with <code>when</code>.</p>
+<p>Coming from <a href="https://docs.python.org/3/library/unittest.mock.html">unittest.mock</a>, you're probably used to this workflow for mocks that return data:</p>
+<ol>
+<li>Configure an unconditional return value or side effect</li>
+<li>Call your test subject</li>
+<li>Assert that mock was called correctly</li>
+</ol>
+<p>Decoy, however, believes that, for data provider dependencies, asserting that a mock was called correctly is an over-constraint of the system. Instead, you set up Decoy stubs with:</p>
+<ol>
+<li>Configure a return value or side effect <strong>if and only if it is given the correct input</strong></li>
+<li>Call your test subject<ul>
+<li>Your test subject will only trigger the configured behavior if it calls the mock correctly</li>
+</ul>
+</li>
+</ol>
+<p>This, however, may require a shift in how you think about mocks in your tests. Until that shift happens, you may be tempted to write:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">test_subject</span><span class="p">(</span><span class="n">decoy</span><span class="p">:</span> <span class="n">Decoy</span><span class="p">):</span>
+    <span class="n">data_getter</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">DataGetter</span><span class="p">)</span>
+    <span class="n">data_handler</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">DataHandler</span><span class="p">)</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">Subject</span><span class="p">(</span><span class="n">data_getter</span><span class="o">=</span><span class="n">data_getter</span><span class="p">,</span> <span class="n">data_handler</span><span class="o">=</span><span class="n">data_handler</span><span class="p">)</span>
+
+    <span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">data_getter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data-id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">data_handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span><span class="o">.</span><span class="n">then_return</span><span class="p">(</span><span class="s2">&quot;good job&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">get_and_handle_data</span><span class="p">(</span><span class="s2">&quot;data-id&quot;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;good job&quot;</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">data_getter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data-id&quot;</span><span class="p">))</span>  <span class="c1"># redundant, but feels good</span>
+    <span class="n">decoy</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">data_getter</span><span class="o">.</span><span class="n">handler</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>     <span class="c1"># redundant, but feels good</span>
+</code></pre></div>
+<p>Adding those <code>verify</code>s at the end may give you a feeling of "ok, good, now I'm completely testing the interaction," but that feeling is a fallacy. Thanks to the input specification in <code>when</code>, the test will already pass or fail correctly. At best, the <code>verify</code> calls do nothing, and at worst, they punish the test subject if it's able to accomplish its work in some other way, coupling our test to the subject's implementation unnecessarily.</p>
+<p>If Decoy detects a <code>verify</code> with the same configuration of a <code>when</code>, it will raise a <code>RedundantVerifyWarning</code> to encourage you to remove the redundant, over-constraining <code>verify</code> call.</p>
+<h3 id="incorrectcallwarning">IncorrectCallWarning<a class="headerlink" href="#incorrectcallwarning" title="Permanent link">#</a></h3>
+<p>If you provide a Decoy mock with a specification <code>cls</code> or <code>func</code>, any calls to that mock will be checked according to <code>inspect.signature</code>. If the call does not match the signature, Decoy will raise a <a class="autorefs autorefs-internal" href="../../api/#decoy.warnings.IncorrectCallWarning">decoy.warnings.IncorrectCallWarning</a>.</p>
+<p>While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored. In the next major version of Decoy, this warning will become an error.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="n">spy</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">some_func</span><span class="p">)</span>
+
+<span class="n">spy</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>                <span class="c1"># ok</span>
+<span class="n">spy</span><span class="p">(</span><span class="n">val</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>            <span class="c1"># ok</span>
+<span class="n">spy</span><span class="p">(</span><span class="n">wrong_name</span><span class="o">=</span><span class="s2">&quot;ah!&quot;</span><span class="p">)</span>       <span class="c1"># triggers an IncorrectCallWarning</span>
+<span class="n">spy</span><span class="p">(</span><span class="s2">&quot;too&quot;</span><span class="p">,</span> <span class="s2">&quot;many&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">)</span>  <span class="c1"># triggers an IncorrectCallWarning</span>
+</code></pre></div>
+<h3 id="missingspecattributewarning">MissingSpecAttributeWarning<a class="headerlink" href="#missingspecattributewarning" title="Permanent link">#</a></h3>
+<p>If you provide a Decoy mock with a specification <code>cls</code> or <code>func</code> and you attempt to access an attribute of the mock that does not exist on the specification, Decoy will raise a <a class="autorefs autorefs-internal" href="../../api/#decoy.warnings.MissingSpecAttributeWarning">decoy.warnings.MissingSpecAttributeWarning</a>.</p>
+<p>While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored. In the next major version of Decoy, this warning will become an error.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SomeClass</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="n">class_spy</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">SomeClass</span><span class="p">)</span>
+<span class="n">func_spy</span> <span class="o">=</span> <span class="n">decoy</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">some_func</span><span class="p">)</span>
+
+<span class="n">class_spy</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>  <span class="c1"># ok</span>
+<span class="n">class_spy</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>  <span class="c1"># triggers a MissingSpecAttributeWarning</span>
+
+<span class="n">func_spy</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>       <span class="c1"># ok</span>
+<span class="n">func_spy</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>   <span class="c1"># triggers a MissingSpecAttributeWarning</span>
+</code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>
+      
+    
+  </body>
+</html>
