@@ -28,7 +28,7 @@ jobs:
               run: poetry run poe test-ci
 
             - name: "Upload coverage report"
-              uses: codecov/codecov-action@v3
+              uses: codecov/codecov-action@v4
 
     check:
         name: "Lint and type checks"
