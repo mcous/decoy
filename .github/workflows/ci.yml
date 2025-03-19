@@ -21,7 +21,7 @@ jobs:
                       python-version: "3.7"
                     - os: windows-latest
                       python-version: "3.7"
-                    - os: ubuntu-22.04
+                    - os: macos-13
                       python-version: "3.7"
         steps:
             - name: "Check out repository"
