@@ -10,10 +10,11 @@ on:
 jobs:
     test:
         name: "Test Python ${{ matrix.python-version }} on ${{ matrix.os }}"
-        runs-on: ${{ matrix.os }}-latest
+        runs-on: ${{ matrix.os }}
         strategy:
+            fail-fast: false
             matrix:
-                os: [Ubuntu, Windows, macOS]
+                os: [ubuntu-22.04, windows-latest, macos-latest]
                 python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
         steps:
             - name: "Check out repository"
