@@ -2,7 +2,17 @@
 import inspect
 import functools
 import warnings
-from typing import Any, Dict, NamedTuple, Optional, Tuple, Type, Union, Sequence, get_type_hints
+from typing import (
+    Any,
+    Dict,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    Sequence,
+    get_type_hints,
+)
 
 from .spy_events import SpyInfo
 from .warnings import IncorrectCallWarning, MissingSpecAttributeWarning
@@ -221,14 +231,15 @@ def _get_type_hints(obj: Any) -> Dict[str, Any]:
     except Exception:
         return {}
 
+
 def _unwrap_optional(source: Any) -> Any:
     """Return the source's base type if it's a optional.
 
     If the type is a union of more than just T | None,
     bail out and return None to avoid potentially false warnings.
     """
-    origin = getattr(source, '__origin__', None)
-    args: Sequence[Any] = getattr(source, '__args__', ())
+    origin = getattr(source, "__origin__", None)
+    args: Sequence[Any] = getattr(source, "__args__", ())
 
     # TODO(mc, 2025-03-19): support larger unions? might be a lot of work for little payoff
     if origin is Union:
