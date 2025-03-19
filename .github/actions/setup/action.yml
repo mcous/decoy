@@ -7,7 +7,7 @@ inputs:
         default: "3.12"
     poetry-version:
         description: "Poetry version to install"
-        default: "1.8.5"
+        default: "2.1.1"
     cache:
         description: "Cache directory"
         default: "${{ runner.temp }}/cache"
