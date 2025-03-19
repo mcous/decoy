@@ -1,4 +1,5 @@
 """Common type definitions."""
+
 from typing import Any, Callable, TypeVar
 
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])

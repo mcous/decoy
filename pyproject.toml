@@ -88,10 +88,12 @@ exclude_lines = ["@overload", "if TYPE_CHECKING:"]
 [tool.ruff]
 target-version = "py37"
 extend-exclude = [".cache"]
-select = ["ANN", "B", "D", "E", "F", "RUF", "W"]
-ignore = ["ANN101", "ANN102", "ANN401", "D107", "E501"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint]
+select = ["ANN", "B", "D", "E", "F", "RUF", "W"]
+ignore = ["ANN401", "D107", "E501"]
+
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [build-system]

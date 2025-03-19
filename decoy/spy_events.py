@@ -1,4 +1,5 @@
 """Spy interaction event value objects."""
+
 import enum
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Union
 

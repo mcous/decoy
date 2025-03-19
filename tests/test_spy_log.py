@@ -1,4 +1,5 @@
 """Tests for the spy call stack."""
+
 import pytest
 
 from decoy.errors import MissingRehearsalError

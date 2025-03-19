@@ -4,6 +4,7 @@ The plugin will be registered with pytest when you install Decoy. It adds a
 fixture without modifying any other pytest behavior. Its usage is optional
 but highly recommended.
 """
+
 from typing import Iterable
 
 import pytest

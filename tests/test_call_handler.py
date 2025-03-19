@@ -1,4 +1,5 @@
 """Tests for the SpyEvent handling."""
+
 import pytest
 
 from decoy import Decoy

@@ -1,4 +1,5 @@
 """Matcher tests."""
+
 import pytest
 from collections import namedtuple
 from decoy import Decoy, matchers

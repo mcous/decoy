@@ -4,6 +4,7 @@ See the [errors guide][] for more details.
 
 [errors guide]: usage/errors-and-warnings.md#errors
 """
+
 from typing import Optional, Sequence
 
 from .spy_events import SpyEvent, VerifyRehearsal

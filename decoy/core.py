@@ -1,4 +1,5 @@
 """Decoy implementation logic."""
+
 import inspect
 from typing import Any, Callable, Optional
 

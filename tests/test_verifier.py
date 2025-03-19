@@ -1,4 +1,5 @@
 """Tests for spy call verification."""
+
 import pytest
 from typing import List, NamedTuple, Optional
 

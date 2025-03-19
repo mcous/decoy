@@ -1,4 +1,5 @@
 """Test for Decoy's primary logic."""
+
 import pytest
 
 from decoy import Decoy

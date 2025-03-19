@@ -1,4 +1,5 @@
 """Common test fixtures."""
+
 from functools import lru_cache
 from typing import Any, Generic, TypeVar, Optional, Union
 

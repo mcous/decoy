@@ -1,4 +1,5 @@
 """Simple test suite to ensure Decoy works with unittest."""
+
 import unittest
 from decoy import Decoy
 

@@ -1,4 +1,5 @@
 """Tests for error and warning message generation."""
+
 import pytest
 import os
 from typing import List, NamedTuple, Optional

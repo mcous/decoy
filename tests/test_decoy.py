@@ -1,4 +1,5 @@
 """Smoke and acceptance tests for main Decoy interface."""
+
 import contextlib
 from typing import Any, AsyncIterator, ContextManager, Generator, Optional
 

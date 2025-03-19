@@ -1,4 +1,5 @@
 """Spy activity log."""
+
 from typing import List, Sequence
 
 from .errors import MissingRehearsalError

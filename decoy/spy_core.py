@@ -1,4 +1,5 @@
 """Core spy logic."""
+
 import inspect
 import functools
 import warnings

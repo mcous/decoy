@@ -1,4 +1,5 @@
 """Warning checker."""
+
 from collections import defaultdict
 from itertools import groupby
 from typing import Dict, List, NamedTuple, Sequence
