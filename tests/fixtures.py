@@ -59,6 +59,11 @@ class SomeNestedClass:
         raise NotImplementedError()
 
     @property
+    def union_none_child(self) -> Union[None, SomeClass]:
+        """Get the child instance."""
+        raise NotImplementedError()
+
+    @property
     def union_child(self) -> Union[SomeClass, "SomeAsyncClass"]:
         """Get the child instance."""
         raise NotImplementedError()

@@ -470,6 +470,12 @@ def test_warn_if_spec_does_not_have_method() -> None:
         parent = nested_class_subject.create_child_core("optional_child", False)
         parent.create_child_core("primitive_property", False)
 
+    # property access should be allowed through None unions
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        parent = nested_class_subject.create_child_core("union_none_child", False)
+        parent.create_child_core("primitive_property", False)
+
     # property access should not be checked through unions
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -493,4 +499,11 @@ def test_warn_if_spec_does_not_have_method() -> None:
         MissingSpecAttributeWarning, match="has no attribute 'this_is_wrong'"
     ):
         parent = nested_class_subject.create_child_core("optional_child", False)
+        parent.create_child_core("this_is_wrong", False)
+
+    # incorrect nested property usage should warn
+    with pytest.warns(
+        MissingSpecAttributeWarning, match="has no attribute 'this_is_wrong'"
+    ):
+        parent = nested_class_subject.create_child_core("union_none_child", False)
         parent.create_child_core("this_is_wrong", False)
