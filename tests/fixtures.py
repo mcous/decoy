@@ -1,6 +1,6 @@
 """Common test fixtures."""
 from functools import lru_cache
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, Optional, Union
 
 
 class SomeClass:
@@ -28,6 +28,11 @@ class SomeClass:
         """Get a primitive computed property."""
         raise NotImplementedError()
 
+    @property
+    def mystery_property(self):  # noqa: ANN201
+        """Get a property without type annotations."""
+        raise NotImplementedError()
+
     @lru_cache(maxsize=None)  # noqa: B019
     def some_wrapped_method(self, val: str) -> str:
         """Get a thing through a wrapped method."""
@@ -45,6 +50,16 @@ class SomeNestedClass:
 
     @property
     def child(self) -> SomeClass:
+        """Get the child instance."""
+        raise NotImplementedError()
+
+    @property
+    def optional_child(self) -> Optional[SomeClass]:
+        """Get the child instance."""
+        raise NotImplementedError()
+
+    @property
+    def union_child(self) -> Union[SomeClass, 'SomeAsyncClass']:
         """Get the child instance."""
         raise NotImplementedError()
 
