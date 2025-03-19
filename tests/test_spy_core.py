@@ -1,4 +1,5 @@
 """Tests for SpyCore instances."""
+
 import pytest
 import inspect
 import warnings
@@ -272,8 +273,7 @@ def test_get_signature_no_type_hints() -> None:
     class _BadTypeHints:
         _not_ok: "None[Any]"
 
-        def _ok(self, hello: str) -> None:
-            ...
+        def _ok(self, hello: str) -> None: ...
 
     subject = SpyCore(source=_BadTypeHints, name=None).create_child_core(
         "_ok", is_async=False

@@ -1,4 +1,5 @@
 """Message string generation."""
+
 import os
 from typing import Sequence
 

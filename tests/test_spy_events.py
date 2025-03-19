@@ -1,4 +1,5 @@
 """Tests for the spy interaction event values."""
+
 import pytest
 from typing import List, NamedTuple
 

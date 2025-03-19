@@ -26,17 +26,18 @@ See the [matchers guide][] for more details.
     Identity comparisons (`is`) will not work with matchers. Decoy only uses
     equality comparisons (`==`) for stubbing and verification.
 """
+
 from re import compile as compile_re
 from typing import cast, Any, List, Mapping, Optional, Pattern, Type, TypeVar
 
 
 __all__ = [
     "Anything",
+    "Captor",
+    "ErrorMatching",
     "IsA",
     "IsNot",
     "StringMatching",
-    "ErrorMatching",
-    "Captor",
 ]
 
 
@@ -270,7 +271,7 @@ class _ErrorMatching:
 
     def __eq__(self, target: object) -> bool:
         """Return true if target is not self._reject_value."""
-        error_match = type(target) == self._error_type
+        error_match = type(target) is self._error_type
         message_match = (
             str(target) == self._string_matcher
             if self._string_matcher is not None

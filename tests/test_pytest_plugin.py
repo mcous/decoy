@@ -1,4 +1,5 @@
 """Tests for Decoy's pytest plugin."""
+
 import pytest
 
 

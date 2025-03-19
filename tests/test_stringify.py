@@ -1,4 +1,5 @@
 """Tests for stringification utilities."""
+
 import pytest
 from typing import NamedTuple
 

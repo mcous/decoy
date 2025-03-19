@@ -1,4 +1,5 @@
 """Tests for stub behavior storage."""
+
 import pytest
 
 from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, WhenRehearsal

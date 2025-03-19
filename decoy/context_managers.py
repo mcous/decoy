@@ -1,4 +1,5 @@
 """Wrappers around contextlib types and fallbacks."""
+
 from typing import Any, AsyncContextManager, ContextManager, Generic, TypeVar
 
 from contextlib import (
@@ -44,6 +45,6 @@ __all__ = [
     "AsyncContextManager",
     "AsyncGeneratorContextManager",
     "ContextManager",
-    "GeneratorContextManager",
     "ContextWrapper",
+    "GeneratorContextManager",
 ]

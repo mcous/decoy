@@ -1,4 +1,5 @@
 """Stub creation and storage."""
+
 from typing import Any, Callable, List, NamedTuple, Optional, Union
 
 from .spy_events import SpyEvent, WhenRehearsal, match_event

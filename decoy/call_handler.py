@@ -1,4 +1,5 @@
 """Spy call handling."""
+
 from typing import Any, NamedTuple, Optional
 
 from .spy_log import SpyLog

@@ -1,4 +1,5 @@
 """Decoy stubbing and spying library."""
+
 from typing import Any, Callable, Coroutine, Generic, Optional, Union, overload
 
 from . import errors, matchers, warnings
@@ -40,16 +41,13 @@ class Decoy:
         self._core = DecoyCore()
 
     @overload
-    def mock(self, *, cls: Callable[..., ClassT]) -> ClassT:
-        ...
+    def mock(self, *, cls: Callable[..., ClassT]) -> ClassT: ...
 
     @overload
-    def mock(self, *, func: FuncT) -> FuncT:
-        ...
+    def mock(self, *, func: FuncT) -> FuncT: ...
 
     @overload
-    def mock(self, *, name: str, is_async: bool = False) -> Any:
-        ...
+    def mock(self, *, name: str, is_async: bool = False) -> Any: ...
 
     def mock(
         self,
@@ -255,29 +253,25 @@ class Stub(Generic[ReturnT]):
     def then_enter_with(
         self: "Stub[ContextManager[ContextValueT]]",
         value: ContextValueT,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def then_enter_with(
         self: "Stub[AsyncContextManager[ContextValueT]]",
         value: ContextValueT,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def then_enter_with(
         self: "Stub[GeneratorContextManager[ContextValueT]]",
         value: ContextValueT,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def then_enter_with(
         self: "Stub[AsyncGeneratorContextManager[ContextValueT]]",
         value: ContextValueT,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def then_enter_with(
         self: Union[
@@ -347,4 +341,4 @@ class Prop(Generic[ReturnT]):
         self._core.delete()
 
 
-__all__ = ["Decoy", "Stub", "Prop", "matchers", "warnings", "errors"]
+__all__ = ["Decoy", "Prop", "Stub", "errors", "matchers", "warnings"]

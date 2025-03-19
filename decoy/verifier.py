@@ -1,4 +1,5 @@
 """Spy call verification."""
+
 from typing import Optional, Sequence
 
 from .spy_events import SpyEvent, VerifyRehearsal, match_event

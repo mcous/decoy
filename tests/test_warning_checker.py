@@ -1,4 +1,5 @@
 """Tests for the WarningChecker API."""
+
 import pytest
 from typing import List, NamedTuple, Sequence
 

@@ -4,6 +4,7 @@ See the [warnings guide][] for more details.
 
 [warnings guide]: usage/errors-and-warnings.md#warnings
 """
+
 import os
 from typing import Sequence
 

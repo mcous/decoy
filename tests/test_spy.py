@@ -1,4 +1,5 @@
 """Tests for spies and spy creation."""
+
 import pytest
 import inspect
 import sys

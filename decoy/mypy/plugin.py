@@ -1,4 +1,5 @@
 """Decoy mypy plugin."""
+
 from typing import Callable, Optional, Type as ClassType
 
 from mypy.errorcodes import FUNC_RETURNS_VALUE

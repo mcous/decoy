@@ -3,6 +3,7 @@
 Classes in this module are heavily inspired by the
 [unittest.mock library](https://docs.python.org/3/library/unittest.mock.html).
 """
+
 import inspect
 from types import TracebackType
 from typing import Any, ContextManager, Dict, Optional, Type, Union, cast, overload
@@ -186,14 +187,12 @@ class SpyCreator:
         self._decoy_spy_call_handler = call_handler
 
     @overload
-    def create(self, *, core: SpyCore) -> AnySpy:
-        ...
+    def create(self, *, core: SpyCore) -> AnySpy: ...
 
     @overload
     def create(
         self, *, spec: Optional[object], name: Optional[str], is_async: bool
-    ) -> AnySpy:
-        ...
+    ) -> AnySpy: ...
 
     def create(
         self,
