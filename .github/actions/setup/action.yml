@@ -7,7 +7,7 @@ inputs:
         default: "3.12"
     poetry-version:
         description: "Poetry version to install"
-        default: "1.7.0"
+        default: "2.1.1"
     cache:
         description: "Cache directory"
         default: "${{ runner.temp }}/cache"
@@ -17,19 +17,19 @@ runs:
     steps:
         - name: "Set up Python"
           id: setup-python
-          uses: actions/setup-python@v4
+          uses: actions/setup-python@v5
           with:
               python-version: ${{ inputs.python-version }}
               update-environment: false
 
         - name: "Set up Python 3.12 for Poetry"
           id: setup-poetry-python
-          uses: actions/setup-python@v4
+          uses: actions/setup-python@v5
           with:
               python-version: 3.12
 
         - name: "Set up dependency cache"
-          uses: actions/cache@v3
+          uses: actions/cache@v4
           with:
               key: ${{ runner.os }}-${{ steps.setup-poetry-python.outputs.python-version }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
               path: ${{ inputs.cache }}

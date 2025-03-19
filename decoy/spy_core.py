@@ -2,7 +2,17 @@
 import inspect
 import functools
 import warnings
-from typing import Any, Dict, NamedTuple, Optional, Tuple, Type, Union, get_type_hints
+from typing import (
+    Any,
+    Dict,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    Sequence,
+    get_type_hints,
+)
 
 from .spy_events import SpyInfo
 from .warnings import IncorrectCallWarning, MissingSpecAttributeWarning
@@ -112,12 +122,15 @@ class SpyCore:
         source = self._source
         child_name = f"{self._name}.{name}"
         child_source = None
+        child_found = False
 
         if inspect.isclass(source):
             # use type hints to get child spec for class attributes
             child_hint = _get_type_hints(source).get(name)
             # use inspect to get child spec for methods and properties
             child_source = inspect.getattr_static(source, name, child_hint)
+            # record whether a child was found before we make modifications
+            child_found = child_source is not None
 
             if isinstance(child_source, property):
                 child_source = _get_type_hints(child_source.fget).get("return")
@@ -136,7 +149,9 @@ class SpyCore:
                     # signature reporting by wrapping it in a partial
                     child_source = functools.partial(child_source, None)
 
-        if child_source is None and source is not None:
+        child_source = _unwrap_optional(child_source)
+
+        if source is not None and child_found is False:
             # stacklevel: 4 ensures warning is linked to call location
             warnings.warn(
                 MissingSpecAttributeWarning(f"{self._name} has no attribute '{name}'"),
@@ -215,3 +230,24 @@ def _get_type_hints(obj: Any) -> Dict[str, Any]:
         return get_type_hints(obj)
     except Exception:
         return {}
+
+
+def _unwrap_optional(source: Any) -> Any:
+    """Return the source's base type if it's a optional.
+
+    If the type is a union of more than just T | None,
+    bail out and return None to avoid potentially false warnings.
+    """
+    origin = getattr(source, "__origin__", None)
+    args: Sequence[Any] = getattr(source, "__args__", ())
+
+    # TODO(mc, 2025-03-19): support larger unions? might be a lot of work for little payoff
+    if origin is Union:
+        if len(args) == 2 and args[0] is type(None):
+            return args[1]
+        if len(args) == 2 and args[1] is type(None):
+            return args[0]
+
+        return None
+
+    return source
