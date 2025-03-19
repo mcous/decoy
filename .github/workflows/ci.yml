@@ -23,6 +23,9 @@ jobs:
                       python-version: "3.7"
                     - os: macos-13
                       python-version: "3.7"
+        permissions:
+            id-token: write
+
         steps:
             - name: "Check out repository"
               uses: actions/checkout@v4
@@ -36,7 +39,9 @@ jobs:
               run: poetry run poe test-ci
 
             - name: "Upload coverage report"
-              uses: codecov/codecov-action@v3
+              uses: codecov/codecov-action@v5
+              with:
+                  use_oidc: true
 
     check:
         name: "Lint and type checks"
