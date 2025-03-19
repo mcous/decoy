@@ -29,7 +29,7 @@ class SomeClass:
         raise NotImplementedError()
 
     @property
-    def mystery_property(self):  # noqa: ANN201
+    def mystery_property(self):  # type: ignore[no-untyped-def] # noqa: ANN201
         """Get a property without type annotations."""
         raise NotImplementedError()
 

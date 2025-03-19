@@ -2,7 +2,7 @@
 import inspect
 import functools
 import warnings
-from typing import Any, Dict, NamedTuple, Optional, Tuple, Type, Union, get_type_hints
+from typing import Any, Dict, NamedTuple, Optional, Tuple, Type, Union, Sequence, get_type_hints
 
 from .spy_events import SpyInfo
 from .warnings import IncorrectCallWarning, MissingSpecAttributeWarning
@@ -228,7 +228,7 @@ def _unwrap_optional(source: Any) -> Any:
     bail out and return None to avoid potentially false warnings.
     """
     origin = getattr(source, '__origin__', None)
-    args = getattr(source, '__args__', ())
+    args: Sequence[Any] = getattr(source, '__args__', ())
 
     # TODO(mc, 2025-03-19): support larger unions? might be a lot of work for little payoff
     if origin is Union:
