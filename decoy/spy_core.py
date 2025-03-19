@@ -3,7 +3,6 @@ import inspect
 import functools
 import warnings
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Type, Union, get_type_hints
-from types import NoneType
 
 from .spy_events import SpyInfo
 from .warnings import IncorrectCallWarning, MissingSpecAttributeWarning
@@ -233,9 +232,9 @@ def _unwrap_optional(source: Any) -> Any:
 
     # TODO(mc, 2025-03-19): support larger unions? might be a lot of work for little payoff
     if origin is Union:
-        if len(args) == 2 and args[0] is NoneType:
+        if len(args) == 2 and args[0] is type(None):
             return args[1]
-        if len(args) == 2 and args[1] is NoneType:
+        if len(args) == 2 and args[1] is type(None):
             return args[0]
 
         return None
