@@ -110,6 +110,10 @@ def test_array_matching_matcher() -> None:
         [{"yoo": "mann"}]
     )
 
+    assert 1 != matchers.ArrayMatching([1])
+
+    assert str(matchers.ArrayMatching([1])) == "<ArrayMatching [1]>"
+
 
 def test_string_matching_matcher() -> None:
     """It should have an "any string that matches" matcher."""

@@ -245,6 +245,7 @@ class _ArrayMatching:
         )
 
     def __repr__(self) -> str:
+        """Return a string representation of the matcher."""
         return f"<ArrayMatching {self._values!r}>"
 
 
