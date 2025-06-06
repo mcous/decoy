@@ -92,27 +92,26 @@ def test_dict_matching_matcher() -> None:
     assert [] != matchers.DictMatching({"hello": "world"})
 
 
-def test_array_matching_matcher() -> None:
-    """It should have an "anything with these attributes" matcher."""
-    assert [1, 2, 3] == matchers.ArrayMatching([1])
-    assert [1, 2, 3] == matchers.ArrayMatching([1, 2])
-    assert [1, 2, 3] == matchers.ArrayMatching([1, 2, 3])
-    assert [1, 2, 3] != matchers.ArrayMatching([1, 2, 3, 4])
-    assert [1] != matchers.ArrayMatching([1, 2])
+def test_list_matching_matcher() -> None:
+    assert [1, 2, 3] == matchers.ListMatching([1])
+    assert [1, 2, 3] == matchers.ListMatching([1, 2])
+    assert [1, 2, 3] == matchers.ListMatching([1, 2, 3])
+    assert [1, 2, 3] != matchers.ListMatching([1, 2, 3, 4])
+    assert [1] != matchers.ListMatching([1, 2])
 
-    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ArrayMatching(
+    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ListMatching(
         [{"hello": "world"}]
     )
-    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ArrayMatching(
+    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ListMatching(
         [{"yoo": "man"}]
     )
-    assert [{"hello": "world"}, {"yoo": "man"}] != matchers.ArrayMatching(
+    assert [{"hello": "world"}, {"yoo": "man"}] != matchers.ListMatching(
         [{"yoo": "mann"}]
     )
 
-    assert 1 != matchers.ArrayMatching([1])
+    assert 1 != matchers.ListMatching([1])
 
-    assert str(matchers.ArrayMatching([1])) == "<ArrayMatching [1]>"
+    assert str(matchers.ListMatching([1])) == "<ListMatching [1]>"
 
 
 def test_string_matching_matcher() -> None:

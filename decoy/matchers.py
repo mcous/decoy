@@ -229,7 +229,7 @@ def DictMatching(values: Mapping[str, Any]) -> Any:
     return _DictMatching(values)
 
 
-class _ArrayMatching:
+class _ListMatching:
     _values: List[Any]
 
     def __init__(self, values: List[Any]) -> None:
@@ -246,11 +246,11 @@ class _ArrayMatching:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return f"<ArrayMatching {self._values!r}>"
+        return f"<ListMatching {self._values!r}>"
 
 
-def ArrayMatching(values: List[Any]) -> Any:
-    """Match any array with the passed in values.
+def ListMatching(values: List[Any]) -> Any:
+    """Match any list with the passed in values.
 
     Arguments:
         values: Values to check.
@@ -258,10 +258,10 @@ def ArrayMatching(values: List[Any]) -> Any:
     !!! example
         ```python
         value = [1, 2, 3]
-        assert value == matchers.ArrayMatching([1, 2])
+        assert value == matchers.ListMatching([1, 2])
         ```
     """
-    return _ArrayMatching(values)
+    return _ListMatching(values)
 
 
 class _StringMatching:
