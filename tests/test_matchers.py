@@ -26,7 +26,7 @@ def test_anything_or_none_matcher() -> None:
     assert [] == matchers.AnythingOrNone()
     assert ("hello", "world") == matchers.AnythingOrNone()
     assert SomeClass() == matchers.AnythingOrNone()
-    assert None == matchers.AnythingOrNone()
+    assert None is matchers.AnythingOrNone()
 
     assert str(matchers.AnythingOrNone()) == "<AnythingOrNone>"
 
@@ -39,7 +39,7 @@ def test_any_matcher() -> None:
     assert [] == matchers.Anything()
     assert ("hello", "world") == matchers.Anything()
     assert SomeClass() == matchers.Anything()
-    assert None != matchers.Anything()
+    assert None is not matchers.Anything()
 
 
 def test_is_a_matcher() -> None:
