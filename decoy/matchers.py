@@ -228,10 +228,11 @@ def DictMatching(values: Mapping[str, Any]) -> Any:
     """
     return _DictMatching(values)
 
-class _ArrayMatching:
-    _values: list[Any]
 
-    def __init__(self, values: list[Any]) -> None:
+class _ArrayMatching:
+    _values: List[Any]
+
+    def __init__(self, values: List[Any]) -> None:
         self._values = values
 
     def __eq__(self, target: object) -> bool:
@@ -247,7 +248,7 @@ class _ArrayMatching:
         return f"<ArrayMatching {self._values!r}>"
 
 
-def ArrayMatching(values: list[Any]) -> Any:
+def ArrayMatching(values: List[Any]) -> Any:
     """Match any array with the passed in values.
 
     Arguments:
