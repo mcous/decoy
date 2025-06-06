@@ -92,6 +92,25 @@ def test_dict_matching_matcher() -> None:
     assert [] != matchers.DictMatching({"hello": "world"})
 
 
+def test_array_matching_matcher() -> None:
+    """It should have an "anything with these attributes" matcher."""
+    assert [1, 2, 3] == matchers.ArrayMatching([1])
+    assert [1, 2, 3] == matchers.ArrayMatching([1, 2])
+    assert [1, 2, 3] == matchers.ArrayMatching([1, 2, 3])
+    assert [1, 2, 3] != matchers.ArrayMatching([1, 2, 3, 4])
+    assert [1] != matchers.ArrayMatching([1, 2])
+
+    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ArrayMatching(
+        [{"hello": "world"}]
+    )
+    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ArrayMatching(
+        [{"yoo": "man"}]
+    )
+    assert [{"hello": "world"}, {"yoo": "man"}] != matchers.ArrayMatching(
+        [{"yoo": "mann"}]
+    )
+
+
 def test_string_matching_matcher() -> None:
     """It should have an "any string that matches" matcher."""
     assert "hello" == matchers.StringMatching("ello")
