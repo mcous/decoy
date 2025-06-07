@@ -153,6 +153,14 @@ class GetSignatureSpec(NamedTuple):
         GetSignatureSpec(
             subject=(
                 SpyCore(source=SomeNestedClass, name=None)
+                .create_child_core("union_child", is_async=False)
+                .create_child_core("foo", is_async=False)
+            ),
+            expected_signature=None,
+        ),
+        GetSignatureSpec(
+            subject=(
+                SpyCore(source=SomeNestedClass, name=None)
                 .create_child_core("child", is_async=False)
                 .create_child_core("foo", is_async=False)
             ),
@@ -253,6 +261,40 @@ class GetSignatureSpec(NamedTuple):
                     )
                 ],
                 return_annotation=None,
+            ),
+        ),
+        GetSignatureSpec(
+            subject=(
+                SpyCore(source=SomeNestedClass, name=None)
+                .create_child_core("optional_child", is_async=False)
+                .create_child_core("foo", is_async=False)
+            ),
+            expected_signature=inspect.Signature(
+                parameters=[
+                    inspect.Parameter(
+                        name="val",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        annotation=str,
+                    )
+                ],
+                return_annotation=str,
+            ),
+        ),
+        GetSignatureSpec(
+            subject=(
+                SpyCore(source=SomeNestedClass, name=None)
+                .create_child_core("union_none_child", is_async=False)
+                .create_child_core("foo", is_async=False)
+            ),
+            expected_signature=inspect.Signature(
+                parameters=[
+                    inspect.Parameter(
+                        name="val",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        annotation=str,
+                    )
+                ],
+                return_annotation=str,
             ),
         ),
     ],
