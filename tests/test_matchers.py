@@ -106,6 +106,29 @@ def test_dict_matching_matcher() -> None:
     assert [] != matchers.DictMatching({"hello": "world"})
 
 
+def test_list_matching_matcher() -> None:
+    """It should have a "contains this sub-list" matcher."""
+    assert [1, 2, 3] == matchers.ListMatching([1])
+    assert [1, 2, 3] == matchers.ListMatching([1, 2])
+    assert [1, 2, 3] == matchers.ListMatching([1, 2, 3])
+    assert [1, 2, 3] != matchers.ListMatching([1, 2, 3, 4])
+    assert [1] != matchers.ListMatching([1, 2])
+
+    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ListMatching(
+        [{"hello": "world"}]
+    )
+    assert [{"hello": "world"}, {"yoo": "man"}] == matchers.ListMatching(
+        [{"yoo": "man"}]
+    )
+    assert [{"hello": "world"}, {"yoo": "man"}] != matchers.ListMatching(
+        [{"yoo": "mann"}]
+    )
+
+    assert 1 != matchers.ListMatching([1])
+
+    assert str(matchers.ListMatching([1])) == "<ListMatching [1]>"
+
+
 def test_string_matching_matcher() -> None:
     """It should have an "any string that matches" matcher."""
     assert "hello" == matchers.StringMatching("ello")

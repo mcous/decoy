@@ -250,6 +250,41 @@ def DictMatching(values: Mapping[str, Any]) -> Any:
     return _DictMatching(values)
 
 
+class _ListMatching:
+    _values: List[Any]
+
+    def __init__(self, values: List[Any]) -> None:
+        self._values = values
+
+    def __eq__(self, target: object) -> bool:
+        """Return true if target matches all given values."""
+        if not hasattr(target, "__iter__"):
+            return False
+
+        return all(
+            any(item == target_item for target_item in target) for item in self._values
+        )
+
+    def __repr__(self) -> str:
+        """Return a string representation of the matcher."""
+        return f"<ListMatching {self._values!r}>"
+
+
+def ListMatching(values: List[Any]) -> Any:
+    """Match any list with the passed in values.
+
+    Arguments:
+        values: Values to check.
+
+    !!! example
+        ```python
+        value = [1, 2, 3]
+        assert value == matchers.ListMatching([1, 2])
+        ```
+    """
+    return _ListMatching(values)
+
+
 class _StringMatching:
     _pattern: Pattern[str]
 
