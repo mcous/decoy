@@ -93,6 +93,7 @@ def test_dict_matching_matcher() -> None:
 
 
 def test_list_matching_matcher() -> None:
+    """It should have a "contains this sub-list" matcher."""
     assert [1, 2, 3] == matchers.ListMatching([1])
     assert [1, 2, 3] == matchers.ListMatching([1, 2])
     assert [1, 2, 3] == matchers.ListMatching([1, 2, 3])
