@@ -1,10 +1,37 @@
 name: Release
 
 on:
+    push:
+        branches:
+            - main
     workflow_dispatch:
 
 jobs:
     release:
         runs-on: ubuntu-latest
         steps:
-            - run: echo "hello world"
+            - name: Setup node
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version: "22"
+
+            - name: Install release-please
+              run: npm install -g release-please@17.1.0
+
+            - name: Create release
+              run: |
+                  release-please github-release \
+                    --repo-url=mcous/decoy \
+                    --config-file=.github/release-please-config.json \
+                    --manifest-file=.github/.release-please-manifest.json \
+                    --token=${{ secrets.RELEASE_PLEASE_GITHUB_TOKEN }} \
+                    --target-branch=release-please/bootstrap/default
+
+            - name: Sync release PR
+              run: |
+                  release-please release-pr \
+                    --repo-url=mcous/decoy \
+                    --config-file=.github/release-please-config.json \
+                    --manifest-file=.github/.release-please-manifest.json \
+                    --token=${{ secrets.RELEASE_PLEASE_GITHUB_TOKEN }} \
+                    --target-branch=release-please/bootstrap/default
