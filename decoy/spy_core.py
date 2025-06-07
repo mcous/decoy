@@ -16,7 +16,7 @@ from typing import (
 )
 
 from .spy_events import SpyInfo
-from .warnings import IncorrectCallWarning, MissingSpecAttributeWarning
+from .warnings import IncorrectCallWarning
 
 
 class _FROM_SOURCE:
@@ -123,15 +123,12 @@ class SpyCore:
         source = self._source
         child_name = f"{self._name}.{name}"
         child_source = None
-        child_found = False
 
         if inspect.isclass(source):
             # use type hints to get child spec for class attributes
             child_hint = _get_type_hints(source).get(name)
             # use inspect to get child spec for methods and properties
             child_source = inspect.getattr_static(source, name, child_hint)
-            # record whether a child was found before we make modifications
-            child_found = child_source is not None
 
             if isinstance(child_source, property):
                 child_source = _get_type_hints(child_source.fget).get("return")
@@ -151,13 +148,6 @@ class SpyCore:
                     child_source = functools.partial(child_source, None)
 
         child_source = _unwrap_optional(child_source)
-
-        if source is not None and child_found is False:
-            # stacklevel: 4 ensures warning is linked to call location
-            warnings.warn(
-                MissingSpecAttributeWarning(f"{self._name} has no attribute '{name}'"),
-                stacklevel=4,
-            )
 
         return SpyCore(
             source=child_source,

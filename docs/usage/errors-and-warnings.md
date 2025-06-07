@@ -80,8 +80,8 @@ pytestmark = pytest.mark.filterwarnings("ignore::decoy.warnings.DecoyWarning")
 
 A [decoy.warnings.MiscalledStubWarning][] is a warning provided mostly for productivity convenience. If you configure a stub but your code under test calls the stub incorrectly, it can sometimes be difficult to immediately figure out what went wrong. This warning exists to alert you if:
 
--   A mock has at least 1 stubbing configured with [decoy.Decoy.when][]
--   A call was made to the mock that didn't match any configured stubbing
+- A mock has at least 1 stubbing configured with [decoy.Decoy.when][]
+- A call was made to the mock that didn't match any configured stubbing
 
 In the example below, our test subject is supposed to call a `DataGetter` dependency and pass the output data into a `DataHandler` dependency to get the result. However, in writing `Subject.get_and_handle_data`, we forgot to pass `data_id` into `DataGetter.get`.
 
@@ -199,28 +199,4 @@ spy("hello")                # ok
 spy(val="world")            # ok
 spy(wrong_name="ah!")       # triggers an IncorrectCallWarning
 spy("too", "many", "args")  # triggers an IncorrectCallWarning
-```
-
-### MissingSpecAttributeWarning
-
-If you provide a Decoy mock with a specification `cls` or `func` and you attempt to access an attribute of the mock that does not exist on the specification, Decoy will raise a [decoy.warnings.MissingSpecAttributeWarning][].
-
-While Decoy will merely issue a warning, this call would likely cause the Python engine to error at runtime and should not be ignored. In the next major version of Decoy, this warning will become an error.
-
-```python
-class SomeClass:
-    def foo(self, val: str) -> str:
-        ...
-
-def some_func(val: string) -> int:
-    ...
-
-class_spy = decoy.mock(cls=SomeClass)
-func_spy = decoy.mock(func=some_func)
-
-class_spy.foo("hello")  # ok
-class_spy.bar("world")  # triggers a MissingSpecAttributeWarning
-
-func_spy("hello")       # ok
-func_spy.foo("world")   # triggers a MissingSpecAttributeWarning
 ```

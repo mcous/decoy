@@ -2,11 +2,10 @@
 
 import pytest
 import inspect
-import warnings
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Type
 
 from decoy.spy_core import SpyCore, BoundArgs
-from decoy.warnings import IncorrectCallWarning, MissingSpecAttributeWarning
+from decoy.warnings import IncorrectCallWarning
 from .fixtures import (
     SomeClass,
     SomeAsyncClass,
@@ -440,70 +439,3 @@ def test_warn_if_called_incorrectly() -> None:
 
     with pytest.warns(IncorrectCallWarning, match="missing a required argument"):
         subject.bind_args(wrong_arg_name="1")
-
-
-def test_warn_if_spec_does_not_have_method() -> None:
-    """It should trigger a warning if bound_args is called incorrectly."""
-    class_subject = SpyCore(source=SomeClass, name=None)
-    nested_class_subject = SpyCore(source=SomeNestedClass, name=None)
-    func_subject = SpyCore(source=some_func, name=None)
-    specless_subject = SpyCore(source=None, name="anonymous")
-
-    # specless mocks and correct usage should not warn
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        specless_subject.create_child_core("foo", False)
-
-    # proper class usage should not warn
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        class_subject.create_child_core("foo", False)
-
-    # property access without types should not warn
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        class_subject.create_child_core("mystery_property", False)
-
-    # property access should be allowed through optionals
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        parent = nested_class_subject.create_child_core("optional_child", False)
-        parent.create_child_core("primitive_property", False)
-
-    # property access should be allowed through None unions
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        parent = nested_class_subject.create_child_core("union_none_child", False)
-        parent.create_child_core("primitive_property", False)
-
-    # property access should not be checked through unions
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        parent = nested_class_subject.create_child_core("union_child", False)
-        parent.create_child_core("who_knows", False)
-
-    # incorrect class usage should warn
-    with pytest.warns(
-        MissingSpecAttributeWarning, match="has no attribute 'this_is_wrong'"
-    ):
-        class_subject.create_child_core("this_is_wrong", False)
-
-    # incorrect function usage should warn
-    with pytest.warns(
-        MissingSpecAttributeWarning, match="has no attribute 'this_is_wrong'"
-    ):
-        func_subject.create_child_core("this_is_wrong", False)
-
-    # incorrect nested property usage should warn
-    with pytest.warns(
-        MissingSpecAttributeWarning, match="has no attribute 'this_is_wrong'"
-    ):
-        parent = nested_class_subject.create_child_core("optional_child", False)
-        parent.create_child_core("this_is_wrong", False)
-
-    # incorrect nested property usage should warn
-    with pytest.warns(
-        MissingSpecAttributeWarning, match="has no attribute 'this_is_wrong'"
-    ):
-        parent = nested_class_subject.create_child_core("union_none_child", False)
-        parent.create_child_core("this_is_wrong", False)
