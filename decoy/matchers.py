@@ -41,6 +41,27 @@ __all__ = [
 ]
 
 
+class _AnythingOrNone:
+    def __eq__(self, target: object) -> bool:
+        return True
+
+    def __repr__(self) -> str:
+        """Return a string representation of the matcher."""
+        return "<AnythingOrNone>"
+
+
+def AnythingOrNone() -> Any:
+    """Match anything including None.
+
+    !!! example
+        ```python
+        assert "foobar" == AnythingOrNone()
+        assert None == AnythingOrNone()
+        ```
+    """
+    return _AnythingOrNone()
+
+
 class _Anything:
     def __eq__(self, target: object) -> bool:
         """Return true if target is not None."""

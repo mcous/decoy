@@ -18,6 +18,19 @@ class _HelloClass(NamedTuple):
 _HelloTuple = namedtuple("_HelloTuple", ["hello"])
 
 
+def test_anything_or_none_matcher() -> None:
+    """It should have an "anything including None" matcher."""
+    assert 1 == matchers.AnythingOrNone()
+    assert False == matchers.AnythingOrNone()  # noqa: E712
+    assert {} == matchers.AnythingOrNone()
+    assert [] == matchers.AnythingOrNone()
+    assert ("hello", "world") == matchers.AnythingOrNone()
+    assert SomeClass() == matchers.AnythingOrNone()
+    assert None == matchers.AnythingOrNone()  # noqa: E711
+
+    assert str(matchers.AnythingOrNone()) == "<AnythingOrNone>"
+
+
 def test_any_matcher() -> None:
     """It should have an "anything except None" matcher."""
     assert 1 == matchers.Anything()
@@ -26,6 +39,7 @@ def test_any_matcher() -> None:
     assert [] == matchers.Anything()
     assert ("hello", "world") == matchers.Anything()
     assert SomeClass() == matchers.Anything()
+    assert None != matchers.Anything()  # noqa: E711
 
 
 def test_is_a_matcher() -> None:
