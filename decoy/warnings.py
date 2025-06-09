@@ -96,13 +96,3 @@ class IncorrectCallWarning(DecoyWarning):
 
     [IncorrectCallWarning guide]: usage/errors-and-warnings.md#incorrectcallwarning
     """
-
-
-class MissingSpecAttributeWarning(DecoyWarning):
-    """A warning raised if a Decoy mock with a spec is used with a missing attribute.
-
-    This will become an error in the next major version of Decoy.
-    See the [MissingSpecAttributeWarning guide][] for more details.
-
-    [MissingSpecAttributeWarning guide]: usage/errors-and-warnings.md#missingspecattributewarning
-    """
