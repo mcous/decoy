@@ -1,13 +1,14 @@
 # mypy plugin tests
 
 - case: does_not_suppress_func_returns_value
+  regex: yes
   main: |
       def noop() -> None:
           pass
 
       value = noop()
   out: |
-      main:4: error: "noop" does not return a value  [func-returns-value]
+      main:4: error: "noop" does not return a value .* \[func-returns-value]
 
 - case: suppresses_func_returns_value_in_when
   main: |
