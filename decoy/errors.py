@@ -12,7 +12,7 @@ from .stringify import count, stringify_error_message
 
 
 class MockNameRequiredError(ValueError):
-    """An error raised if a name is not provided for a mock.
+    """A name was not provided for a mock.
 
     See the [MockNameRequiredError guide][] for more details.
 
@@ -24,7 +24,7 @@ class MockNameRequiredError(ValueError):
 
 
 class MissingRehearsalError(ValueError):
-    """An error raised when a Decoy method is called without rehearsal(s).
+    """A Decoy method was called without rehearsal(s).
 
     This error is raised if you use [`when`][decoy.Decoy.when],
     [`verify`][decoy.Decoy.verify], or [`prop`][decoy.Decoy.prop] incorrectly
@@ -41,7 +41,7 @@ class MissingRehearsalError(ValueError):
 
 
 class MockNotAsyncError(TypeError):
-    """An error raised when an asynchronous function is used with a synchronous mock.
+    """An asynchronous function was used with a synchronous mock.
 
     This error is raised if you pass an `async def` function
     to a synchronous stub's `then_do` method.
@@ -51,8 +51,16 @@ class MockNotAsyncError(TypeError):
     """
 
 
+class NotAMockError(TypeError):
+    """A Decoy method was called without a mock.
+
+    This usage error is raised if you pass something to
+    [`when`][decoy.when.when] or [`verify`][decoy.verify.verify]
+    that isn't a mock.
+    """
+
 class VerifyError(AssertionError):
-    """An error raised when actual calls do not match rehearsals given to `verify`.
+    """The actual calls to a mock did not pass the `verify` check.
 
     See [spying with verify][] for more details.
 

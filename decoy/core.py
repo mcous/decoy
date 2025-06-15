@@ -170,3 +170,11 @@ class PropCore:
             ),
         )
         self._spy_log.push(event)
+
+stub_store = StubStore()
+spy_log = SpyLog()
+core = DecoyCore(stub_store=stub_store, spy_log=spy_log)
+
+def reset() -> None:
+    """Reset mocks and stubs created from [`mock`][Decoy.mock.mock]."""
+    core.reset()

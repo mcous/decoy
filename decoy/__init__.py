@@ -3,14 +3,16 @@
 from typing import Any, Callable, Coroutine, Generic, Optional, Union, overload
 
 from . import errors, matchers, warnings
-from .core import DecoyCore, StubCore, PropCore
-from .types import ClassT, ContextValueT, FuncT, ReturnT
 from .context_managers import (
-    ContextManager,
     AsyncContextManager,
-    GeneratorContextManager,
     AsyncGeneratorContextManager,
+    ContextManager,
+    GeneratorContextManager,
 )
+from .core import DecoyCore, PropCore, StubCore, reset
+from .mock import mock
+from .types import ClassT, ContextValueT, FuncT, ReturnT
+from .when import when, When
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
@@ -340,5 +342,4 @@ class Prop(Generic[ReturnT]):
         """
         self._core.delete()
 
-
-__all__ = ["Decoy", "Prop", "Stub", "errors", "matchers", "warnings"]
+__all__ = ["Decoy", "Prop", "Stub", "errors", "matchers", "mock", "reset", "warnings", "when"]

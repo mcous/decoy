@@ -11,7 +11,7 @@ from typing import Any, ContextManager, Dict, Optional, Type, Union, cast, overl
 from .call_handler import CallHandler
 from .spy_core import SpyCore
 from .spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
-
+from .errors import NotAMockError
 
 class BaseSpy(ContextManager[Any]):
     """Spy object base class.
@@ -217,3 +217,10 @@ class SpyCreator:
             spy_creator=self,
             call_handler=self._decoy_spy_call_handler,
         )
+
+def get_spy_core(spy: Any) -> SpyCore:
+    """Given a Spy object, get its core."""
+    if not isinstance(spy, BaseSpy):
+        raise NotAMockError(f"{spy} is not a mock")
+
+    return spy._decoy_spy_core

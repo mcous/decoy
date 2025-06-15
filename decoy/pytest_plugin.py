@@ -9,7 +9,7 @@ from typing import Iterable
 
 import pytest
 
-from decoy import Decoy
+from decoy import Decoy, reset
 
 
 @pytest.fixture()
@@ -31,3 +31,4 @@ def decoy() -> Iterable[Decoy]:
     decoy = Decoy()
     yield decoy
     decoy.reset()
+    reset()
