@@ -6,7 +6,7 @@ All contributions are greatly appreciated! Before contributing, please read the 
 
 This project uses [Poetry][] to manage dependencies and builds, and you will need to install it before working on Decoy.
 
-Once Poetry is installed, you should be good to set up a virtual environment and install development dependencies. Python 3.11 is recommended for development.
+Once Poetry is installed, you should be good to set up a virtual environment and install development dependencies. Python >=3.10 is recommended for development.
 
 ```bash
 git clone https://github.com/mcous/decoy.git

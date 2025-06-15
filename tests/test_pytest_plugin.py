@@ -15,7 +15,7 @@ def test_pytest_decoy_fixture(testdir: pytest.Testdir) -> None:
         """
     )
 
-    result = testdir.runpytest()
+    result = testdir.runpytest_subprocess()
 
     # check that all 4 tests passed
     result.assert_outcomes(passed=1)

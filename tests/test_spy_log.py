@@ -28,7 +28,7 @@ def test_push_and_consume_when_rehearsal() -> None:
     result = subject.consume_when_rehearsal(ignore_extra_args=False)
 
     assert isinstance(result, WhenRehearsal)
-    assert call == result
+    assert call == result  # type: ignore[comparison-overlap]
 
 
 def test_push_and_consume_when_rehearsal_ignore_extra_args() -> None:
@@ -58,7 +58,7 @@ def test_push_and_consume_prop_rehearsal_for_when() -> None:
     subject.push(event)
     result = subject.consume_when_rehearsal(ignore_extra_args=False)
     assert isinstance(result, WhenRehearsal)
-    assert result == event
+    assert result == event  # type: ignore[comparison-overlap]
 
 
 def test_consume_when_rehearsal_raises_empty_error() -> None:
@@ -90,7 +90,7 @@ def test_push_and_consume_prop_rehearsal_for_prop() -> None:
     subject.push(event)
     result = subject.consume_prop_rehearsal()
     assert isinstance(result, PropRehearsal)
-    assert result == event
+    assert result == event  # type: ignore[comparison-overlap]
 
 
 def test_consume_prop_rehearsal_raises_empty_error() -> None:

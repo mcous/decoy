@@ -119,7 +119,7 @@ E       AssertionError: assert None == 'good job'
 
 The test failed, which is good! But, the developer's next steps to fix the error aren't immediately obvious.
 
-Your first reaction, especially if you're coming from a mocking library like [unittest.mock][], might be "We need to add an assertion that `data_getter.get` was called correctly." This would be bad, though! See [RedundantVerifyWarning](#RedundantVerifyWarning) below for why adding an assertion like this would be redundant and potentially harmful.
+Your first reaction, especially if you're coming from a mocking library like [unittest.mock][], might be "We need to add an assertion that `data_getter.get` was called correctly." This would be bad, though! See [RedundantVerifyWarning](#redundantverifywarning) below for why adding an assertion like this would be redundant and potentially harmful.
 
 Even if we shouldn't add an assertion, we still want something to help us find the underlying issue. This is where `MiscalledStubWarning` comes in. When this test is run, Decoy will print the following warnings:
 

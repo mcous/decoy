@@ -90,7 +90,7 @@ def _check_no_redundant_verify(all_calls: Sequence[AnySpyEvent]) -> None:
     verify_rehearsals = [c for c in all_calls if isinstance(c, VerifyRehearsal)]
 
     for vr in verify_rehearsals:
-        if any(wr for wr in when_rehearsals if wr == vr):
+        if any(wr for wr in when_rehearsals if wr == vr):  # type: ignore[comparison-overlap]
             _warn(RedundantVerifyWarning(rehearsal=vr))
 
 
