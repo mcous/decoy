@@ -1,7 +1,7 @@
 """Common test fixtures."""
 
 from functools import lru_cache
-from typing import Any, Generic, TypeVar, Optional, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 
 class SomeClass:
@@ -96,15 +96,15 @@ class SomeAsyncClass:
         raise NotImplementedError()
 
 
-class SomeAsyncCallableClass:
-    """Async callable class."""
+class SomeCallableClass:
+    """Callable class."""
 
-    async def __call__(self, val: int) -> int:
+    def __call__(self, val: int) -> int:
         """Get an integer."""
         raise NotImplementedError()
 
 
-class SomeCallableClass:
+class SomeAsyncCallableClass:
     """Async callable class."""
 
     async def __call__(self, val: int) -> int:
