@@ -18,6 +18,7 @@ nav:
           - advanced/properties.md
           - advanced/context-managers.md
     - api.md
+    - api-next.md
     - contributing.md
     - license.md
 
