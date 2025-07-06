@@ -9,13 +9,14 @@ Decoy includes the [decoy.matchers][] module, which is a set of Python classes w
 | Matcher                           | Description                                          |
 | --------------------------------- | ---------------------------------------------------- |
 | [decoy.matchers.Anything][]       | Matches any value that isn't `None`                  |
+| [decoy.matchers.AnythingOrNone][] | Matches any value including `None`                   |
 | [decoy.matchers.DictMatching][]   | Matches a `dict` based on some of its values         |
 | [decoy.matchers.ErrorMatching][]  | Matches an `Exception` based on its type and message |
 | [decoy.matchers.HasAttributes][]  | Matches an object based on its attributes            |
 | [decoy.matchers.IsA][]            | Matches using `isinstance`                           |
 | [decoy.matchers.IsNot][]          | Matches anything that isn't a given value            |
 | [decoy.matchers.StringMatching][] | Matches a string against a regular expression        |
-| [decoy.matchers.Captor][]         | Captures the comparison value (see below)            |
+| [decoy.matchers.ArgumentCaptor][] | Captures the comparison value (see below)            |
 
 ## Basic usage
 
@@ -45,7 +46,11 @@ def test_log_warning(decoy: Decoy):
 
 ## Capturing values
 
-When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides [decoy.matchers.Captor][].
+When testing certain APIs, especially callback APIs, it can be helpful to capture the values of arguments passed to a given dependency. For this, Decoy provides the [decoy.matchers.ArgumentCaptor][] matcher, which can be created with the [decoy.matchers.argument_captor][] function.
+
+!!! note
+
+    Prefer using [decoy.matchers.argument_captor][] to create a [decoy.matchers.ArgumentCaptor][] instance over the deprecated [decoy.matchers.Captor][]. The new function has better support for type checkers.
 
 For example, our test subject may register an event listener handler, and we want to test our subject's behavior when the event listener is triggered.
 
@@ -61,13 +66,13 @@ from .event_consumer import EventConsumer
 def test_event_listener(decoy: Decoy):
     event_source = decoy.mock(cls=EventSource)
     subject = EventConsumer(event_source=event_source)
-    captor = matchers.Captor()
+    captor = matchers.argument_captor()
 
     # subject registers its listener when started
     subject.start_consuming()
 
     # verify listener attached and capture the listener
-    decoy.verify(event_source.register(event_listener=captor))
+    decoy.verify(event_source.register(event_listener=captor.capture()))
 
     # trigger the listener
     event_handler = captor.value  # or, equivalently, captor.values[0]
@@ -77,7 +82,11 @@ def test_event_listener(decoy: Decoy):
     assert subject.has_heard_event is True
 ```
 
-This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.Captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve private functions.
+!!! tip
+
+    If you want to only capture values of a specific type, or you would like to have stricter type checking in your tests, consider passing a type to [decoy.matchers.argument_captor][] (e.g. `argument_captor(match_type=str)`).
+
+This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.argument_captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve private functions.
 
 For further reading on when (or rather, when not) to use argument captors, check out [testdouble's documentation on its argument captor matcher](https://github.com/testdouble/testdouble.js/blob/main/docs/6-verifying-invocations.md#tdmatcherscaptor).
 

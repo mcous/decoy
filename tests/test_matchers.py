@@ -3,8 +3,9 @@
 import pytest
 from collections import namedtuple
 from decoy import Decoy, matchers
-from typing import Any, List, NamedTuple
+from typing import NamedTuple
 from .fixtures import SomeClass
+import warnings
 
 
 class _HelloClass(NamedTuple):
@@ -101,9 +102,8 @@ def test_dict_matching_matcher() -> None:
     )
 
     assert {"hello": "world"} != matchers.DictMatching({"goodbye": "so long"})
-    assert 1 != matchers.DictMatching({"hello": "world"})
-    assert False != matchers.DictMatching({"hello": "world"})  # noqa: E712
-    assert [] != matchers.DictMatching({"hello": "world"})
+    assert 1 != matchers.DictMatching({"hello": "world"})  # type: ignore[comparison-overlap]
+    assert [] != matchers.DictMatching({"hello": "world"})  # type: ignore[comparison-overlap]
 
 
 def test_list_matching_matcher() -> None:
@@ -124,7 +124,7 @@ def test_list_matching_matcher() -> None:
         [{"yoo": "mann"}]
     )
 
-    assert 1 != matchers.ListMatching([1])
+    assert 1 != matchers.ListMatching([1])  # type: ignore[comparison-overlap]
 
     assert str(matchers.ListMatching([1])) == "<ListMatching [1]>"
 
@@ -145,8 +145,18 @@ def test_error_matching_matcher() -> None:
 
 def test_captor_matcher() -> None:
     """It should have a captor matcher that captures the compared value."""
-    captor = matchers.Captor()
-    comparisons: List[Any] = [1, False, None, {}, [], ("hello", "world"), SomeClass()]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        captor = matchers.Captor()
+    comparisons: list[object] = [
+        1,
+        False,
+        None,
+        {},
+        [],
+        ("hello", "world"),
+        SomeClass(),
+    ]
 
     for i, compare in enumerate(comparisons):
         assert compare == captor
@@ -154,9 +164,56 @@ def test_captor_matcher() -> None:
         assert captor.values == comparisons[0 : i + 1]
 
 
+def test_argument_captor_matcher() -> None:
+    """It should have a captor matcher that captures the compared value."""
+    captor = matchers.argument_captor()
+    comparisons: list[object] = [
+        1,
+        False,
+        None,
+        {},
+        [],
+        ("hello", "world"),
+        SomeClass(),
+    ]
+
+    for i, compare in enumerate(comparisons):
+        assert compare == captor.capture()
+        assert captor.value is compare
+        assert captor.values == comparisons[0 : i + 1]
+
+
+def test_argument_captor_matcher_with_match_type() -> None:
+    """It should have a captor matcher that captures the compared value."""
+    captor = matchers.argument_captor(int)
+    comparisons: list[object] = [
+        1,
+        False,
+        None,
+        {},
+        [],
+        ("hello", "world"),
+        SomeClass(),
+    ]
+
+    for compare in comparisons:
+        if isinstance(compare, int):
+            assert compare == captor.capture()
+            assert captor.value is compare
+        else:
+            assert compare != captor.capture()
+    assert captor.values == [1, False]
+
+
 def test_captor_matcher_raises_if_no_value() -> None:
     """The captor matcher should raise an assertion error if no value."""
-    captor = matchers.Captor()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        captor = matchers.Captor()
 
+    with pytest.raises(AssertionError, match="No value captured"):
+        captor.value  # noqa: B018
+
+    captor = matchers.argument_captor()
     with pytest.raises(AssertionError, match="No value captured"):
         captor.value  # noqa: B018
