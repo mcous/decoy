@@ -6,7 +6,7 @@ See the [warnings guide][] for more details.
 """
 
 import os
-from typing import Sequence
+from typing import Sequence, Union
 
 from .spy_events import SpyEvent, SpyRehearsal, VerifyRehearsal
 from .stringify import stringify_call, stringify_error_message, count
@@ -74,14 +74,18 @@ class RedundantVerifyWarning(DecoyWarning):
     [RedundantVerifyWarning guide]: usage/errors-and-warnings.md#redundantverifywarning
     """
 
-    def __init__(self, rehearsal: VerifyRehearsal) -> None:
-        message = os.linesep.join(
-            [
-                "The same rehearsal was used in both a `when` and a `verify`.",
-                "This is redundant and probably a misuse of the mock.",
-                f"\t{stringify_call(rehearsal)}",
-                "See https://michael.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",
-            ]
+    def __init__(self, rehearsal: Union[VerifyRehearsal, str]) -> None:
+        message = (
+            os.linesep.join(
+                [
+                    "The same rehearsal was used in both a `when` and a `verify`.",
+                    "This is redundant and probably a misuse of the mock.",
+                    f"\t{stringify_call(rehearsal)}",
+                    "See https://michael.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",
+                ]
+            )
+            if isinstance(rehearsal, VerifyRehearsal)
+            else rehearsal
         )
         super().__init__(message)
         self.rehearsal = rehearsal
