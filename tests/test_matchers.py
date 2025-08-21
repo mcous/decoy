@@ -154,44 +154,15 @@ def test_captor_matcher() -> None:
         assert captor.values == comparisons[0 : i + 1]
 
 
-def test_argument_captor_matcher() -> None:
-    """It should have a captor matcher that captures the compared value."""
-    captor = matchers.argument_captor()
-    comparisons: list[object] = [
-        1,
-        False,
-        None,
-        {},
-        [],
-        ("hello", "world"),
-        SomeClass(),
-    ]
-
-    for i, compare in enumerate(comparisons):
-        assert compare == captor.capture()
-        assert captor.value is compare
-        assert captor.values == comparisons[0 : i + 1]
-
-
-def test_argument_captor_matcher_with_match_type() -> None:
-    """It should have a captor matcher that captures the compared value."""
-    captor = matchers.argument_captor(int)
-    comparisons: list[object] = [
-        1,
-        False,
-        None,
-        {},
-        [],
-        ("hello", "world"),
-        SomeClass(),
-    ]
+def test_captor_matcher_with_match_type() -> None:
+    """It should have a captor matcher that captures the compared value if it matches the type."""
+    captor = matchers.Captor(int)
+    comparisons: List[Any] = [1, False, None, {}, [], ("hello", "world"), SomeClass()]
 
     for compare in comparisons:
-        if isinstance(compare, int):
-            assert compare == captor.capture()
-            assert captor.value is compare
-        else:
-            assert compare != captor.capture()
+        is_equal = compare == captor.capture()
+        assert is_equal == isinstance(compare, int)
+
     assert captor.values == [1, False]
 
 
@@ -199,9 +170,5 @@ def test_captor_matcher_raises_if_no_value() -> None:
     """The captor matcher should raise an assertion error if no value."""
     captor = matchers.Captor()
 
-    with pytest.raises(AssertionError, match="No value captured"):
-        captor.value  # noqa: B018
-
-    captor = matchers.argument_captor()
     with pytest.raises(AssertionError, match="No value captured"):
         captor.value  # noqa: B018

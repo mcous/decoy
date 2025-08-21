@@ -113,37 +113,17 @@
       main:10: note: Possible overload variants:
       main:10: note:     def then_enter_with\(self, value.+\) -> None
 
-- case: matchers_mimic_types_when_not_passed_to_a_function
+- case: matchers_mimic_types
   main: |
       from decoy import matchers
-
-      captor = matchers.argument_captor()
 
       reveal_type(matchers.Anything())
       reveal_type(matchers.AnythingOrNone())
       reveal_type(matchers.IsA(str))
-      reveal_type(matchers.IsNot(False))
+      reveal_type(matchers.IsNot(str))
       reveal_type(matchers.HasAttributes({"foo": "bar"}))
       reveal_type(matchers.DictMatching({"foo": 1}))
       reveal_type(matchers.ListMatching([1]))
-      reveal_type(matchers.StringMatching("foobar"))
-      reveal_type(matchers.ErrorMatching(RuntimeError))
-      reveal_type(matchers.Captor())
-      reveal_type(captor.capture())
-      reveal_type(captor.values)
-  out: |
-      main:5: note: Revealed type is "Any"
-      main:6: note: Revealed type is "builtins.str"
-      main:7: note: Revealed type is "builtins.RuntimeError"
-      main:8: note: Revealed type is "Any"
-
-- case: captor_mimics_types
-  main: |
-      from decoy import matchers
-
-      reveal_type(matchers.Anything())
-      reveal_type(matchers.IsA(str))
-      reveal_type(matchers.IsNot(str))
       reveal_type(matchers.StringMatching("foobar"))
       reveal_type(matchers.ErrorMatching(RuntimeError))
       reveal_type(matchers.Captor())
@@ -151,6 +131,24 @@
       main:3: note: Revealed type is "Any"
       main:4: note: Revealed type is "Any"
       main:5: note: Revealed type is "Any"
-      main:6: note: Revealed type is "builtins.str"
-      main:7: note: Revealed type is "builtins.RuntimeError"
+      main:6: note: Revealed type is "Any"
+      main:7: note: Revealed type is "Any"
       main:8: note: Revealed type is "Any"
+      main:9: note: Revealed type is "Any"
+      main:10: note: Revealed type is "builtins.str"
+      main:11: note: Revealed type is "builtins.RuntimeError"
+      main:12: note: Revealed type is "Any"
+
+- case: captor_mimics_types
+  main: |
+      from decoy import matchers
+
+      captor = matchers.Captor(str)
+
+      reveal_type(captor)
+      reveal_type(captor.capture())
+      reveal_type(captor.values)
+  out: |
+      main:5: note: Revealed type is "decoy.matchers.ArgumentCaptor[builtins.str]"
+      main:6: note: Revealed type is "builtins.str"
+      main:7: note: Revealed type is "builtins.list[builtins.str]"

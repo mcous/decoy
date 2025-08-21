@@ -27,9 +27,9 @@ See the [matchers guide][] for more details.
     equality comparisons (`==`) for stubbing and verification.
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from re import compile as compile_re
-from typing import cast, overload, Any, Generic, List, Mapping, Optional, Pattern, Type, TypeVar
+from typing import cast, overload, Any, List, Mapping, Optional, Pattern, Protocol, Type, TypeVar
 
 
 __all__ = [
@@ -41,7 +41,6 @@ __all__ = [
     "IsA",
     "IsNot",
     "StringMatching",
-    "argument_captor",
 ]
 
 
@@ -366,33 +365,32 @@ def ErrorMatching(error: Type[ErrorT], match: Optional[str] = None) -> ErrorT:
     return cast(ErrorT, _ErrorMatching(error, match))
 
 
-CapturedT = TypeVar("CapturedT", covariant=True)
+CapturedT = TypeVar("CapturedT")
 
 
-class ArgumentCaptor(ABC, Generic[CapturedT]):
+class ArgumentCaptor(Protocol[CapturedT]):
     """Captures method arguments for later assertions.
 
-    Use the `capture()` method to pass the captor as an argument when stubbing a method.
+    Use the `capture()` method to pass the captor as an argument when verifying a method.
     The last captured argument is available via `captor.value`, and all captured arguments
     are stored in `captor.values`.
 
     !!! example
         ```python
-        captor: ArgumentCaptor[str] = argument_captor(match_type=str)
+        captor: ArgumentCaptor[str] = Captor(match_type=str)
         assert "foobar" == captor.capture()
         assert 2 != captor.capture()
         print(captor.value)  # "foobar"
         print(captor.values)  # ["foobar"]
         ```
     """
-
-    @abstractmethod
     def capture(self) -> CapturedT:
         """Match anything, capturing its value.
 
         !!! note
             This method exists solely to match the target argument type and suppress type checker warnings.
         """
+        return cast(CapturedT, self)
 
     @property
     @abstractmethod
@@ -405,15 +403,15 @@ class ArgumentCaptor(ABC, Generic[CapturedT]):
 
     @property
     @abstractmethod
-    def values(self) -> list[CapturedT]:
+    def values(self) -> List[CapturedT]:
         """Get all captured values."""
 
 
 class _Captor(ArgumentCaptor[CapturedT]):
-    _values: list[CapturedT]
-    _match_type: type[CapturedT]
+    _values: List[CapturedT]
+    _match_type: Type[CapturedT]
 
-    def __init__(self, match_type: type[CapturedT]) -> None:
+    def __init__(self, match_type: Type[CapturedT]) -> None:
         self._values = []
         self._match_type = match_type
 
@@ -427,9 +425,6 @@ class _Captor(ArgumentCaptor[CapturedT]):
         """Return a string representation of the matcher."""
         return "<Captor>"
 
-    def capture(self) -> CapturedT:
-        return cast(CapturedT, self)
-
     @property
     def value(self) -> CapturedT:
         if len(self._values) == 0:
@@ -437,7 +432,7 @@ class _Captor(ArgumentCaptor[CapturedT]):
         return self._values[-1]
 
     @property
-    def values(self) -> list[CapturedT]:
+    def values(self) -> List[CapturedT]:
         return self._values
 
 
@@ -447,8 +442,8 @@ MatchT = TypeVar("MatchT")
 @overload
 def Captor() -> Any: ...
 @overload
-def Captor(match_type: type[MatchT]) -> MatchT: ...
-def Captor(match_type: type[object] = object) -> object:
+def Captor(match_type: Type[MatchT]) -> ArgumentCaptor[MatchT]: ...
+def Captor(match_type: Type[object] = object) -> Any:
     """Match anything, capturing its value for further assertions.
 
     The last captured value will be set to `captor.value`. All captured
@@ -461,32 +456,9 @@ def Captor(match_type: type[object] = object) -> object:
     !!! example
         ```python
         captor = Captor()
-        assert "foobar" == captor
+        assert "foobar" == captor.capture()
         print(captor.value)  # "foobar"
         print(captor.values)  # ["foobar"]
-        ```
-    """
-    return _Captor(match_type)
-
-
-@overload
-def argument_captor() -> ArgumentCaptor[Any]: ...
-@overload
-def argument_captor(match_type: type[MatchT]) -> ArgumentCaptor[MatchT]: ...
-def argument_captor(match_type: type[object] = object) -> ArgumentCaptor[object]:
-    """Create an [decoy.matchers.ArgumentCaptor][] to capture arguments of the given type.
-
-    Arguments:
-        match_type: Optional type to match.
-
-    !!! example
-        ```python
-        fake = decoy.mock(cls=Dependency)
-        captor = matchers.argument_captor()
-
-        decoy.when(fake.do_thing(captor.capture())).then_return(42)
-
-        assert captor.value == "Expected value"
         ```
     """
     return _Captor(match_type)
