@@ -9,6 +9,7 @@ Decoy includes the [decoy.matchers][] module, which is a set of Python classes w
 | Matcher                           | Description                                          |
 | --------------------------------- | ---------------------------------------------------- |
 | [decoy.matchers.Anything][]       | Matches any value that isn't `None`                  |
+| [decoy.matchers.AnythingOrNone][] | Matches any value including `None`                   |
 | [decoy.matchers.DictMatching][]   | Matches a `dict` based on some of its values         |
 | [decoy.matchers.ErrorMatching][]  | Matches an `Exception` based on its type and message |
 | [decoy.matchers.HasAttributes][]  | Matches an object based on its attributes            |
@@ -67,7 +68,7 @@ def test_event_listener(decoy: Decoy):
     subject.start_consuming()
 
     # verify listener attached and capture the listener
-    decoy.verify(event_source.register(event_listener=captor))
+    decoy.verify(event_source.register(event_listener=captor.capture()))
 
     # trigger the listener
     event_handler = captor.value  # or, equivalently, captor.values[0]
@@ -80,6 +81,8 @@ def test_event_listener(decoy: Decoy):
 This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.Captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve private functions.
 
 For further reading on when (or rather, when not) to use argument captors, check out [testdouble's documentation on its argument captor matcher](https://github.com/testdouble/testdouble.js/blob/main/docs/6-verifying-invocations.md#tdmatcherscaptor).
+
+If you want to only capture values of a specific type, or you would like to have stricter type checking in your tests, consider passing a type to [decoy.matchers.Captor][] (e.g. `Captor(match_type=str)`).
 
 ## Writing custom matchers
 
