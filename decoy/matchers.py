@@ -28,10 +28,8 @@ See the [matchers guide][] for more details.
 """
 
 from abc import ABC, abstractmethod
-from re import compile as compile_re, Pattern
-from typing import cast, TypeVar, Generic, Any, override, overload
-from collections.abc import Iterable, Mapping
-from warnings import deprecated
+from re import compile as compile_re
+from typing import cast, overload, Any, Generic, List, Mapping, Optional, Pattern, Type, TypeVar
 
 
 __all__ = [
@@ -47,9 +45,6 @@ __all__ = [
 ]
 
 
-MatchT = TypeVar("MatchT", default=Any)
-
-
 class _AnythingOrNone:
     def __eq__(self, target: object) -> bool:
         return True
@@ -59,7 +54,7 @@ class _AnythingOrNone:
         return "<AnythingOrNone>"
 
 
-def AnythingOrNone() -> MatchT:  # type: ignore[type-var]
+def AnythingOrNone() -> Any:
     """Match anything including None.
 
     !!! example
@@ -68,7 +63,7 @@ def AnythingOrNone() -> MatchT:  # type: ignore[type-var]
         assert None == AnythingOrNone()
         ```
     """
-    return cast(MatchT, _AnythingOrNone())
+    return _AnythingOrNone()
 
 
 class _Anything:
@@ -81,7 +76,7 @@ class _Anything:
         return "<Anything>"
 
 
-def Anything() -> MatchT:  # type: ignore[type-var]
+def Anything() -> Any:
     """Match anything except None.
 
     !!! example
@@ -90,17 +85,17 @@ def Anything() -> MatchT:  # type: ignore[type-var]
         assert None != Anything()
         ```
     """
-    return cast(MatchT, _Anything())
+    return _Anything()
 
 
 class _IsA:
-    _match_type: type[object]
-    _attributes: Mapping[str, object] | None
+    _match_type: type
+    _attributes: Optional[Mapping[str, Any]]
 
     def __init__(
         self,
-        match_type: type[object],
-        attributes: Mapping[str, object] | None = None,
+        match_type: type,
+        attributes: Optional[Mapping[str, Any]] = None,
     ) -> None:
         """Initialize the matcher with a type and optional attributes."""
         self._match_type = match_type
@@ -123,9 +118,7 @@ class _IsA:
             return f"<IsA {self._match_type.__name__} {self._attributes!r}>"
 
 
-def IsA(
-    match_type: type[MatchT], attributes: Mapping[str, object] | None = None
-) -> MatchT:
+def IsA(match_type: type, attributes: Optional[Mapping[str, Any]] = None) -> Any:
     """Match anything that satisfies the passed in type.
 
     Arguments:
@@ -146,7 +139,7 @@ def IsA(
         assert HelloWorld() == IsA(HelloWorld, {"hello": "world"})
         ```
     """
-    return cast(MatchT, _IsA(match_type, attributes))
+    return _IsA(match_type, attributes)
 
 
 class _IsNot:
@@ -165,7 +158,7 @@ class _IsNot:
         return f"<IsNot {self._reject_value!r}>"
 
 
-def IsNot(value: MatchT) -> MatchT:
+def IsNot(value: object) -> Any:
     """Match anything that isn't the passed in value.
 
     Arguments:
@@ -178,13 +171,13 @@ def IsNot(value: MatchT) -> MatchT:
         assert 1 != IsNot(1)
         ```
     """
-    return cast(MatchT, _IsNot(value))
+    return _IsNot(value)
 
 
 class _HasAttributes:
-    _attributes: Mapping[str, object]
+    _attributes: Mapping[str, Any]
 
-    def __init__(self, attributes: Mapping[str, object]) -> None:
+    def __init__(self, attributes: Mapping[str, Any]) -> None:
         self._attributes = attributes
 
     def __eq__(self, target: object) -> bool:
@@ -203,7 +196,7 @@ class _HasAttributes:
         return f"<HasAttributes {self._attributes!r}>"
 
 
-def HasAttributes(attributes: Mapping[str, object]) -> MatchT:  # type: ignore[type-var]
+def HasAttributes(attributes: Mapping[str, Any]) -> Any:
     """Match anything with the passed in attributes.
 
     Arguments:
@@ -219,25 +212,23 @@ def HasAttributes(attributes: Mapping[str, object]) -> MatchT:  # type: ignore[t
         assert HelloWorld() == matchers.HasAttributes({"hello": "world"})
         ```
     """
-    return cast(MatchT, _HasAttributes(attributes))
+    return _HasAttributes(attributes)
 
 
 class _DictMatching:
-    _values: Mapping[str, object]
+    _values: Mapping[str, Any]
 
-    def __init__(self, values: Mapping[str, object]) -> None:
+    def __init__(self, values: Mapping[str, Any]) -> None:
         self._values = values
 
     def __eq__(self, target: object) -> bool:
         """Return true if target matches all given keys/values."""
-        if not isinstance(target, Mapping):
-            return False
         is_match = True
 
         for key, value in self._values.items():
             if is_match:
                 try:
-                    is_match = key in target and target[key] == value
+                    is_match = key in target and target[key] == value  # type: ignore[index,operator]
                 except TypeError:
                     is_match = False
 
@@ -248,7 +239,7 @@ class _DictMatching:
         return f"<DictMatching {self._values!r}>"
 
 
-def DictMatching(values: Mapping[str, MatchT]) -> Mapping[str, MatchT]:
+def DictMatching(values: Mapping[str, Any]) -> Any:
     """Match any dictionary with the passed in keys / values.
 
     Arguments:
@@ -260,18 +251,18 @@ def DictMatching(values: Mapping[str, MatchT]) -> Mapping[str, MatchT]:
         assert value == matchers.DictMatching({"hello": "world"})
         ```
     """
-    return cast(Mapping[str, MatchT], _DictMatching(values))
+    return _DictMatching(values)
 
 
 class _ListMatching:
-    _values: Iterable[object]
+    _values: List[Any]
 
-    def __init__(self, values: Iterable[object]) -> None:
+    def __init__(self, values: List[Any]) -> None:
         self._values = values
 
     def __eq__(self, target: object) -> bool:
         """Return true if target matches all given values."""
-        if not isinstance(target, Iterable):
+        if not hasattr(target, "__iter__"):
             return False
 
         return all(
@@ -283,7 +274,7 @@ class _ListMatching:
         return f"<ListMatching {self._values!r}>"
 
 
-def ListMatching(values: list[MatchT]) -> list[MatchT]:
+def ListMatching(values: List[Any]) -> Any:
     """Match any list with the passed in values.
 
     Arguments:
@@ -295,7 +286,7 @@ def ListMatching(values: list[MatchT]) -> list[MatchT]:
         assert value == matchers.ListMatching([1, 2])
         ```
     """
-    return cast(list[MatchT], _ListMatching(values))
+    return _ListMatching(values)
 
 
 class _StringMatching:
@@ -330,10 +321,10 @@ def StringMatching(match: str) -> str:
 
 
 class _ErrorMatching:
-    _error_type: type[BaseException]
-    _string_matcher: _StringMatching | None
+    _error_type: Type[BaseException]
+    _string_matcher: Optional[_StringMatching]
 
-    def __init__(self, error: type[BaseException], match: str | None = None) -> None:
+    def __init__(self, error: Type[BaseException], match: Optional[str] = None) -> None:
         """Initialize with the Exception type and optional message matcher."""
         self._error_type = error
         self._string_matcher = _StringMatching(match) if match is not None else None
@@ -359,7 +350,7 @@ class _ErrorMatching:
 ErrorT = TypeVar("ErrorT", bound=BaseException)
 
 
-def ErrorMatching(error: type[ErrorT], match: str | None = None) -> ErrorT:
+def ErrorMatching(error: Type[ErrorT], match: Optional[str] = None) -> ErrorT:
     """Match any error matching an Exception type and optional message matcher.
 
     Arguments:
@@ -426,24 +417,20 @@ class _Captor(ArgumentCaptor[CapturedT]):
         self._values = []
         self._match_type = match_type
 
-    @override
     def __eq__(self, target: object) -> bool:
         if isinstance(target, self._match_type):
             self._values.append(target)
             return True
         return False
 
-    @override
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
         return "<Captor>"
 
-    @override
     def capture(self) -> CapturedT:
         return cast(CapturedT, self)
 
     @property
-    @override
     def value(self) -> CapturedT:
         if len(self._values) == 0:
             raise AssertionError("No value captured by captor.")
@@ -454,18 +441,15 @@ class _Captor(ArgumentCaptor[CapturedT]):
         return self._values
 
 
+MatchT = TypeVar("MatchT")
+
+
 @overload
 def Captor() -> Any: ...
 @overload
 def Captor(match_type: type[MatchT]) -> MatchT: ...
-@deprecated(
-    "Use ArgumentCaptor() instead, and then call capture() to pass the matcher as an argument."
-)
 def Captor(match_type: type[object] = object) -> object:
     """Match anything, capturing its value for further assertions.
-
-    !!! warning Deprecated
-        This matcher is deprecated. Use [decoy.matchers.ArgumentCaptor][] instead.
 
     The last captured value will be set to `captor.value`. All captured
     values will be placed in the `captor.values` list, which can be

@@ -3,9 +3,8 @@
 import pytest
 from collections import namedtuple
 from decoy import Decoy, matchers
-from typing import NamedTuple
+from typing import Any, List, NamedTuple
 from .fixtures import SomeClass
-import warnings
 
 
 class _HelloClass(NamedTuple):
@@ -102,8 +101,9 @@ def test_dict_matching_matcher() -> None:
     )
 
     assert {"hello": "world"} != matchers.DictMatching({"goodbye": "so long"})
-    assert 1 != matchers.DictMatching({"hello": "world"})  # type: ignore[comparison-overlap]
-    assert [] != matchers.DictMatching({"hello": "world"})  # type: ignore[comparison-overlap]
+    assert 1 != matchers.DictMatching({"hello": "world"})
+    assert False != matchers.DictMatching({"hello": "world"})  # noqa: E712
+    assert [] != matchers.DictMatching({"hello": "world"})
 
 
 def test_list_matching_matcher() -> None:
@@ -124,7 +124,7 @@ def test_list_matching_matcher() -> None:
         [{"yoo": "mann"}]
     )
 
-    assert 1 != matchers.ListMatching([1])  # type: ignore[comparison-overlap]
+    assert 1 != matchers.ListMatching([1])
 
     assert str(matchers.ListMatching([1])) == "<ListMatching [1]>"
 
@@ -145,18 +145,8 @@ def test_error_matching_matcher() -> None:
 
 def test_captor_matcher() -> None:
     """It should have a captor matcher that captures the compared value."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        captor = matchers.Captor()
-    comparisons: list[object] = [
-        1,
-        False,
-        None,
-        {},
-        [],
-        ("hello", "world"),
-        SomeClass(),
-    ]
+    captor = matchers.Captor()
+    comparisons: List[Any] = [1, False, None, {}, [], ("hello", "world"), SomeClass()]
 
     for i, compare in enumerate(comparisons):
         assert compare == captor
@@ -207,9 +197,7 @@ def test_argument_captor_matcher_with_match_type() -> None:
 
 def test_captor_matcher_raises_if_no_value() -> None:
     """The captor matcher should raise an assertion error if no value."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        captor = matchers.Captor()
+    captor = matchers.Captor()
 
     with pytest.raises(AssertionError, match="No value captured"):
         captor.value  # noqa: B018

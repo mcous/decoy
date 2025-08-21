@@ -108,7 +108,7 @@
       decoy.when(fake_any("hello")).then_enter_with(42)
 
   out: |
-      main:10: error: Invalid self argument "Stub\[int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[.*ContextManager\[ContextValueT, bool | None]], ContextValueT], None]"  \[misc]
+      main:10: error: Invalid self argument "Stub\[int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[.*ContextManager\[ContextValueT]], ContextValueT], None]"  \[misc]
       main:10: error: No overload variant of "then_enter_with" of "Stub" matches argument type "int"  \[call-overload]
       main:10: note: Possible overload variants:
       main:10: note:     def then_enter_with\(self, value.+\) -> None
@@ -133,38 +133,24 @@
       reveal_type(captor.values)
   out: |
       main:5: note: Revealed type is "Any"
-      main:6: note: Revealed type is "Any"
-      main:7: note: Revealed type is "builtins.str"
-      main:8: note: Revealed type is "builtins.bool"
-      main:9: note: Revealed type is "Any"
-      main:10: note: Revealed type is "typing.Mapping[builtins.str, builtins.int]"
-      main:11: note: Revealed type is "builtins.list[builtins.int]"
-      main:12: note: Revealed type is "builtins.str"
-      main:13: note: Revealed type is "builtins.RuntimeError"
-      main:14: note: Revealed type is "Any"
-      main:15: note: Revealed type is "Any"
-      main:16: note: Revealed type is "builtins.list[Any]"
+      main:6: note: Revealed type is "builtins.str"
+      main:7: note: Revealed type is "builtins.RuntimeError"
+      main:8: note: Revealed type is "Any"
 
-- case: matchers_mimic_types_when_passed_to_a_function
+- case: captor_mimics_types
   main: |
-      from decoy import Decoy, matchers
+      from decoy import matchers
 
-      class Dependency():
-          def do_thing(self, input: str) -> int:
-              return 42
-
-      decoy = Decoy()
-      fake = decoy.mock(cls=Dependency)
-      captor1 = matchers.argument_captor()
-      captor2 = matchers.argument_captor(str)
-      captor3 = matchers.argument_captor(int)
-
-      decoy.when(fake.do_thing(matchers.Anything())).then_return(42)
-      decoy.when(fake.do_thing(matchers.AnythingOrNone())).then_return(42)
-      decoy.when(fake.do_thing(matchers.HasAttributes({"foo": "bar"}))).then_return(42)
-      decoy.when(fake.do_thing(matchers.Captor())).then_return(42)
-      decoy.when(fake.do_thing(captor1.capture())).then_return(42)
-      decoy.when(fake.do_thing(captor2.capture())).then_return(42)
-      decoy.when(fake.do_thing(captor3.capture())).then_return(42)
+      reveal_type(matchers.Anything())
+      reveal_type(matchers.IsA(str))
+      reveal_type(matchers.IsNot(str))
+      reveal_type(matchers.StringMatching("foobar"))
+      reveal_type(matchers.ErrorMatching(RuntimeError))
+      reveal_type(matchers.Captor())
   out: |
-      main:19: error: Argument 1 to "do_thing" of "Dependency" has incompatible type "int"; expected "str"  [arg-type]
+      main:3: note: Revealed type is "Any"
+      main:4: note: Revealed type is "Any"
+      main:5: note: Revealed type is "Any"
+      main:6: note: Revealed type is "builtins.str"
+      main:7: note: Revealed type is "builtins.RuntimeError"
+      main:8: note: Revealed type is "Any"

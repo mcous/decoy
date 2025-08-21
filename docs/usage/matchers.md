@@ -82,13 +82,11 @@ def test_event_listener(decoy: Decoy):
     assert subject.has_heard_event is True
 ```
 
-!!! tip
-
-    If you want to only capture values of a specific type, or you would like to have stricter type checking in your tests, consider passing a type to [decoy.matchers.argument_captor][] (e.g. `argument_captor(match_type=str)`).
-
 This is a pretty verbose way of writing a test, so in general, you may want to approach using `matchers.argument_captor` as a form of potential code smell / test pain. There are often better ways to structure your code for these sorts of interactions that don't involve private functions.
 
 For further reading on when (or rather, when not) to use argument captors, check out [testdouble's documentation on its argument captor matcher](https://github.com/testdouble/testdouble.js/blob/main/docs/6-verifying-invocations.md#tdmatcherscaptor).
+
+If you would like to have stricter type checking in your tests, consider passing a type to [decoy.matchers.argument_captor][] (e.g. `argument_captor(match_type=str)`). By doing so, captured values will be cast to the specified type.
 
 ## Writing custom matchers
 

@@ -41,8 +41,8 @@ poetry run poe coverage
 
 In an exciting twist, since version 1.6.0, Decoy's tests rely on Decoy itself to test (and more importantly, design) the relationships between Decoy's internal APIs. This means:
 
-- Decoy's unit test suite serves as an end-to-end test of Decoy by virtue of existing (wow, very meta, actually kind of cool).
-- Changes that break a small part of Decoy may result in a large number of test failures, because if Decoy breaks it can't be used to test itself.
+-   Decoy's unit test suite serves as an end-to-end test of Decoy by virtue of existing (wow, very meta, actually kind of cool).
+-   Changes that break a small part of Decoy may result in a large number of test failures, because if Decoy breaks it can't be used to test itself.
 
 If you find yourself in a situation where Decoy's test suite has blown up, **concentrate on getting the test suites that don't use Decoy to pass**. From there, lean on the type-checker to guide you to any components that aren't properly hooked up. Decoy also has a end-to-end smoke test suite (`tests/test_decoy.py`) that can be helpful in getting things back to green.
 

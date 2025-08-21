@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "decoy"
-version = "2.3.0"
+version = "2.2.0"
 description = "Opinionated mocking library for Python"
 authors = ["Michael Cousins <michael@cousins.io>"]
 license = "MIT"
