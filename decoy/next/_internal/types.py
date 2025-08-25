@@ -1,10 +1,13 @@
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import Any, Awaitable, Callable, ParamSpec, TypeVar, Union
+
+SpecT = TypeVar("SpecT")
+"""The type of a mock spec."""
 
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
-"""A function to create a decoy of."""
+"""A function spec."""
 
-ClassT = TypeVar("ClassT", bound=object)
-"""A class to create a decoy of."""
+ClassT = TypeVar("ClassT")
+"""A class spec."""
 
 ParamsT = ParamSpec("ParamsT")
 """The parameters of a function."""
@@ -14,3 +17,6 @@ ReturnT = TypeVar("ReturnT")
 
 ContextValueT = TypeVar("ContextValueT")
 """A context manager value returned by a stub."""
+
+CallableT = Callable[ParamsT, Union[ReturnT, Awaitable[ReturnT]]]
+"""A sync or async callable with generic parameters and return value."""

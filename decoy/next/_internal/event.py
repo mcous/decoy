@@ -1,5 +1,5 @@
 import enum
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple, Union, final
+from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union, final
 
 
 @final
@@ -19,27 +19,26 @@ class AttributeEventType(str, enum.Enum):
 
 class AttributeEvent(NamedTuple):
     type: AttributeEventType
-    attribute: str
-    value: Any = None
+    value: object = MISSING
 
     @classmethod
-    def get(cls, attribute: str) -> "AttributeEvent":
-        return AttributeEvent(AttributeEventType.GET, attribute)
+    def get(cls) -> "AttributeEvent":
+        return AttributeEvent(AttributeEventType.GET)
 
     @classmethod
-    def set(cls, attribute: str, value: Any) -> "AttributeEvent":
-        return AttributeEvent(AttributeEventType.SET, attribute, value)
+    def set(cls, value: object) -> "AttributeEvent":
+        return AttributeEvent(AttributeEventType.SET, value)
 
     @classmethod
-    def delete(cls, attribute: str) -> "AttributeEvent":
-        return AttributeEvent(AttributeEventType.DELETE, attribute)
+    def delete(cls) -> "AttributeEvent":
+        return AttributeEvent(AttributeEventType.DELETE)
 
 
 class CallEvent(NamedTuple):
     """Event representing a call to a function or method."""
 
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
+    args: Tuple[object, ...]
+    kwargs: Dict[str, object]
 
 
 Event = Union[CallEvent, AttributeEvent]
@@ -57,14 +56,14 @@ class EventAndState(NamedTuple):
 class MatchOptions(NamedTuple):
     times: Optional[int]
     ignore_extra_args: bool
-    is_entered: bool
+    is_entered: Optional[bool]
 
 
 class Behavior(NamedTuple):
-    return_value: Optional[Any] = None
+    return_value: object = None
     error: Optional[Exception] = None
-    action: Optional[Callable[..., Any]] = None
-    context: Any = MISSING
+    action: Optional[Callable[..., object]] = None
+    context: object = MISSING
 
 
 def match_event(
@@ -121,4 +120,7 @@ def _match_event(event: Event, expected: Event, match_options: MatchOptions) -> 
 
 
 def _match_state(event_state: EventState, match_options: MatchOptions) -> bool:
-    return event_state.is_entered == match_options.is_entered
+    return (
+        match_options.is_entered is None
+        or event_state.is_entered == match_options.is_entered
+    )

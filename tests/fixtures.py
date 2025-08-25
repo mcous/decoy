@@ -19,12 +19,12 @@ class SomeClass:
 
     @staticmethod
     def static_method(hello: str) -> int:
-        """Fizz some buzzes."""
+        """A static method fixture."""
         raise NotImplementedError()
 
     @classmethod
     def class_method(cls, hello: str) -> int:
-        """Fizz some buzzes."""
+        """A class method fixture."""
         raise NotImplementedError()
 
     def do_the_thing(self, *, flag: bool) -> None:
@@ -130,6 +130,11 @@ def noop(*args: Any, **kwargs: Any) -> Any:
 
 def some_func(val: str) -> str:
     """Test function."""
+    raise NotImplementedError()
+
+
+def some_func_with_args_and_kwargs(a: str, *, b: bool = True) -> str:
+    """Test function with args and kwargs."""
     raise NotImplementedError()
 
 

@@ -2,9 +2,9 @@
 
 from typing import Any, NamedTuple, Optional
 
-from .spy_log import SpyLog
 from .context_managers import ContextWrapper
 from .spy_events import SpyCall, SpyEvent
+from .spy_log import SpyLog
 from .stub_store import MISSING, StubStore
 
 

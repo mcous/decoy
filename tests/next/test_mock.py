@@ -1,5 +1,7 @@
 """Tests for creating mocks."""
 
+import inspect
+
 import pytest
 
 from decoy.next import Decoy, errors
@@ -40,6 +42,16 @@ def test_create_func_mock(decoy: Decoy) -> None:
     assert repr(subject) == "<Decoy mock 'tests.fixtures.some_func'>"
 
 
+def test_func_signature(decoy: Decoy) -> None:
+    """It passes signature checks."""
+    spec = fixtures.some_func
+    expected = inspect.signature(spec)
+    subject = decoy.mock(func=spec)
+    result = inspect.signature(subject)
+
+    assert result == expected
+
+
 async def test_create_async_func_mock(decoy: Decoy) -> None:
     """It creates a mock based on an async function."""
     subject = decoy.mock(func=fixtures.some_async_func)
@@ -71,6 +83,36 @@ def test_create_class_mock(decoy: Decoy) -> None:
     assert isinstance(subject, fixtures.SomeClass)
 
 
+def test_class_mock_method_signature(decoy: Decoy) -> None:
+    """It creates a mock class instance."""
+    spec = fixtures.SomeClass
+    expected = inspect.signature(spec().foo)
+    subject = decoy.mock(cls=fixtures.SomeClass)
+    result = inspect.signature(subject.foo)
+
+    assert result == expected
+
+
+def test_class_mock_staticmethod_signature(decoy: Decoy) -> None:
+    """It creates a mock class instance."""
+    spec = fixtures.SomeClass
+    expected = inspect.signature(spec.static_method)
+    subject = decoy.mock(cls=fixtures.SomeClass)
+    result = inspect.signature(subject.static_method)
+
+    assert result == expected
+
+
+def test_class_mock_classmethod_signature(decoy: Decoy) -> None:
+    """It creates a mock class instance."""
+    spec = fixtures.SomeClass
+    expected = inspect.signature(spec.class_method)
+    subject = decoy.mock(cls=fixtures.SomeClass)
+    result = inspect.signature(subject.class_method)
+
+    assert result == expected
+
+
 def test_create_child_mock_from_attr(decoy: Decoy) -> None:
     """It creates a child with the correct spec for an attribute."""
     parent = decoy.mock(cls=fixtures.SomeNestedClass)
@@ -84,3 +126,21 @@ def test_create_child_mock_is_cached(decoy: Decoy) -> None:
     parent = decoy.mock(cls=fixtures.SomeNestedClass)
 
     assert parent.child_attr is parent.child_attr
+
+
+def test_create_child_mock_from_property(decoy: Decoy) -> None:
+    """It creates a child with the correct spec for an attribute."""
+    parent = decoy.mock(cls=fixtures.SomeNestedClass)
+    subject = parent.child
+
+    assert isinstance(subject, fixtures.SomeClass)
+
+
+def test_create_child_mock_from_optional(decoy: Decoy) -> None:
+    """It creates child mocks from optional properties."""
+    subject = decoy.mock(cls=fixtures.SomeNestedClass)
+
+    assert isinstance(subject.optional_child, fixtures.SomeClass)
+    assert isinstance(subject.union_none_child, fixtures.SomeClass)
+    assert not isinstance(subject.union_child, fixtures.SomeClass)
+    assert not isinstance(subject.union_child, fixtures.SomeAsyncClass)

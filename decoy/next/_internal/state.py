@@ -1,10 +1,10 @@
 import collections
 import contextlib
-from typing import Dict, Generator, List, NamedTuple, Optional, Union, final
+from typing import Dict, List, NamedTuple, Optional
 
 from .event import (
+    MISSING,
     AttributeEvent,
-    AttributeEventType,
     Behavior,
     CallEvent,
     Event,
@@ -13,11 +13,14 @@ from .event import (
     MatchOptions,
     match_event,
 )
+from .inspect import Signature
 
 
 class MockInfo(NamedTuple):
     id: int
     name: str
+    is_async: bool
+    signature: Optional[Signature]
 
 
 class EventEntry(NamedTuple):
@@ -33,25 +36,11 @@ class BehaviorEntry(NamedTuple):
     behavior: Behavior
 
 
-class AttributeRehearsal(NamedTuple):
-    mock: MockInfo
-    attribute: str
-
-
-@final
-class NOT_REHEARSING: ...
-
-
 class DecoyState:
     def __init__(self) -> None:
         self._events: List[EventEntry] = []
         self._behaviors: List[BehaviorEntry] = []
         self._behavior_usage_by_index: Dict[int, int] = collections.defaultdict(int)
-        self._attribute_rehearsal: Union[
-            None,
-            AttributeRehearsal,
-            NOT_REHEARSING,
-        ] = NOT_REHEARSING()
 
     def get_events(self, mock: MockInfo) -> List[EventAndState]:
         return [
@@ -63,8 +52,8 @@ class DecoyState:
     def push_behaviors(
         self,
         mock: MockInfo,
-        event: Event,
         match_options: MatchOptions,
+        event: Event,
         behaviors: List[Behavior],
     ) -> None:
         for reversed_index, behavior in enumerate(reversed(behaviors)):
@@ -78,7 +67,7 @@ class DecoyState:
                 BehaviorEntry(mock, event, entry_options, behavior),
             )
 
-    def _use_behavior(
+    def _get_behavior(
         self,
         mock: MockInfo,
         event: Event,
@@ -106,59 +95,44 @@ class DecoyState:
 
         return None
 
-    def use_call_behavior(
+    def use_behavior(
         self,
+        *,
         mock: MockInfo,
-        call_event: CallEvent,
+        event: Event,
         event_state: EventState,
-    ) -> Behavior:
-        behavior = self._use_behavior(mock, call_event, event_state)
-        self._events.append(EventEntry(mock, call_event, event_state))
+        default_return_value: object = None,
+    ) -> object:
+        behavior = self._get_behavior(mock, event, event_state)
 
-        return behavior or Behavior()
+        if isinstance(event, CallEvent):
+            args = event.args
+            kwargs = event.kwargs
+        elif isinstance(event, AttributeEvent) and event.value is not MISSING:
+            args = (event.value,)
+            kwargs = {}
+        else:
+            args = ()
+            kwargs = {}
 
-    def use_attribute_behavior(
-        self,
-        mock: MockInfo,
-        attribute_event: AttributeEvent,
-        event_state: EventState,
-    ) -> Optional[Behavior]:
-        if (
-            isinstance(self._attribute_rehearsal, NOT_REHEARSING)
-            or attribute_event.type != AttributeEventType.GET
-        ):
-            behavior = self._use_behavior(mock, attribute_event, event_state)
-            self._events.append(EventEntry(mock, attribute_event, event_state))
+        self._events.append(EventEntry(mock, event, event_state))
 
-            return behavior
+        if behavior is None:
+            return default_return_value
 
-        self._attribute_rehearsal = AttributeRehearsal(
-            mock,
-            attribute_event.attribute,
-        )
+        if behavior.error:
+            raise behavior.error
 
-        return Behavior()
+        if behavior.action:
+            return behavior.action(*args, **kwargs)
 
-    def use_attribute_rehearsal(self) -> Optional[AttributeRehearsal]:
-        rehearsal = self._attribute_rehearsal
+        if behavior.context is not MISSING:
+            return contextlib.nullcontext(behavior.context)
 
-        if isinstance(rehearsal, NOT_REHEARSING) or rehearsal is None:
-            return None
-
-        self._attribute_rehearsal = None
-        return rehearsal
-
-    @contextlib.contextmanager
-    def rehearse_attributes(self) -> Generator[None, None, None]:
-        self._attribute_rehearsal = None
-
-        try:
-            yield
-        finally:
-            self._attribute_rehearsal = NOT_REHEARSING()
+        return behavior.return_value
 
     def reset(self) -> None:
         self._events.clear()
         self._behaviors.clear()
         self._behavior_usage_by_index.clear()
-        self._attribute_rehearsal = NOT_REHEARSING()
+        self._is_rehearsing_attributes = False
