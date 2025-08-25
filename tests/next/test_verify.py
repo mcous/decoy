@@ -1,13 +1,13 @@
 """Test for Decoy.verify."""
 
-from typing import Any, Dict, Tuple
+from typing import Dict, Tuple
 
 import pytest
 
 from decoy.next import Decoy
 from decoy.next.errors import NotAMockError, VerifyError
 
-from ..fixtures import some_func
+from ..fixtures import some_func, some_func_with_args_and_kwargs
 
 
 def test_verify_not_mock(decoy: Decoy) -> None:
@@ -71,7 +71,7 @@ def test_verify_args_pass(decoy: Decoy) -> None:
         ("hello", 1),
     ],
 )
-def test_verify_args_fail(decoy: Decoy, verify_args: Tuple[Any, ...]) -> None:
+def test_verify_args_fail(decoy: Decoy, verify_args: Tuple[object, ...]) -> None:
     """It verifies args do not match."""
     subject = decoy.mock(name="subject")
 
@@ -99,7 +99,7 @@ def test_verify_kwargs_pass(decoy: Decoy) -> None:
         {"greeting": "hello", "count": 1},
     ],
 )
-def test_verify_kwargs_fail(decoy: Decoy, verify_kwargs: Dict[str, Any]) -> None:
+def test_verify_kwargs_fail(decoy: Decoy, verify_kwargs: Dict[str, object]) -> None:
     """It verifies kwargs for a call do not match."""
     subject = decoy.mock(name="subject")
 
@@ -170,3 +170,21 @@ async def test_verify_is_entered_ignore_extra_args(decoy: Decoy) -> None:
         subject("hello")
 
     decoy.verify(subject, is_entered=True).called_with("hello")
+
+
+def test_verify_match_signature_in_called_with(decoy: Decoy) -> None:
+    """It binds to signature in `called_with` when using args and kwargs."""
+    subject = decoy.mock(func=some_func_with_args_and_kwargs)
+
+    subject("hello", b=False)
+
+    decoy.verify(subject).called_with(a="hello", b=False)
+
+
+def test_verify_match_signature_in_call(decoy: Decoy) -> None:
+    """It binds to signature in call when using args and kwargs."""
+    subject = decoy.mock(func=some_func_with_args_and_kwargs)
+
+    subject(a="hello", b=False)
+
+    decoy.verify(subject).called_with("hello", b=False)

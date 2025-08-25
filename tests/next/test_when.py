@@ -1,10 +1,12 @@
 """Tests for Decoy.when."""
 
+from typing import Any, ContextManager
+
 import pytest
 
 from decoy.next import Decoy, errors
 
-from ..fixtures import some_func
+from ..fixtures import some_func, some_func_with_args_and_kwargs
 
 
 def test_when_not_mock(decoy: Decoy) -> None:
@@ -167,14 +169,86 @@ def test_when_then_enter_with(decoy: Decoy) -> None:
 
 
 def test_when_then_return_while_entered(decoy: Decoy) -> None:
-    """It enters a context manager a function."""
+    """It limits matches to while the contex manager is entered."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("hola")
-    decoy.when(subject, is_entered=True).called_with("hello").then_return("world")
+    decoy.when(subject).called_with("hello").then_return("world")
+    decoy.when(subject, is_entered=False).called_with("hola").then_return("mundo")
+    decoy.when(subject, is_entered=True).called_with("hei").then_return("verden")
 
-    result = [subject("hello")]
+    result_not_entered = [subject("hello"), subject("hola"), subject("hei")]
 
     with subject:
-        result.append(subject("hello"))
+        result_entered = [subject("hello"), subject("hola"), subject("hei")]
 
-    assert result == ["hola", "world"]
+    assert result_not_entered == ["world", "mundo", None]
+    assert result_entered == ["world", None, "verden"]
+
+
+async def test_when_then_return_while_async_entered(decoy: Decoy) -> None:
+    """It limits matches to while the contex manager is entered asynchronously."""
+    subject = decoy.mock(name="subject")
+    decoy.when(subject).called_with("hello").then_return("world")
+    decoy.when(subject, is_entered=False).called_with("hola").then_return("mundo")
+    decoy.when(subject, is_entered=True).called_with("hei").then_return("verden")
+
+    result_not_entered = [subject("hello"), subject("hola"), subject("hei")]
+
+    async with subject:
+        result_entered = [subject("hello"), subject("hola"), subject("hei")]
+
+    assert result_not_entered == ["world", "mundo", None]
+    assert result_entered == ["world", None, "verden"]
+
+
+def test_when_enter_method(decoy: Decoy) -> None:
+    """Can stub the `__enter__` and `__exit__` methods."""
+    is_exited = False
+
+    def _on_exit(*_: object) -> None:
+        nonlocal is_exited
+        is_exited = True
+
+    class _CM(ContextManager[int]):
+        def __enter__(self) -> int:
+            raise NotImplementedError()
+
+        def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> Any:
+            return None
+
+    subject = decoy.mock(cls=_CM)
+
+    decoy.when(subject).entered().then_return(42)
+    # decoy.when(subject).exited_with(None, None, None).then_do(_on_exit)
+
+    with subject as result:
+        assert result == 42
+
+    assert is_exited is True
+
+
+def test_when_match_signature_in_called_with(decoy: Decoy) -> None:
+    """It binds to signature in `called_with` when using args and kwargs."""
+    subject = decoy.mock(func=some_func_with_args_and_kwargs)
+    decoy.when(subject).called_with(a="hello", b=False).then_return("world")
+
+    result = subject("hello", b=False)
+
+    assert result == "world"
+
+
+def test_when_match_signature_in_call(decoy: Decoy) -> None:
+    """It binds to signature in call when using args and kwargs."""
+    subject = decoy.mock(func=some_func_with_args_and_kwargs)
+    decoy.when(subject).called_with("hello", b=False).then_return("world")
+
+    result = subject(a="hello", b=False)
+
+    assert result == "world"
+
+
+def test_when_signature_error_in_called_with(decoy: Decoy) -> None:
+    """It raises an error if called_with signature is incorrect."""
+    subject = decoy.mock(func=some_func)
+
+    with pytest.raises(errors.SignatureMismatchError):
+        decoy.when(subject).called_with(wrong=42)  # type: ignore[call-arg]

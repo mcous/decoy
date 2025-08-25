@@ -1,5 +1,5 @@
 import contextlib
-from typing import Any, Callable, Generator, Optional, overload
+from typing import Union, Callable, Generator, Literal, Optional, overload
 
 from .event import MatchOptions
 from .inspect import (
@@ -8,32 +8,11 @@ from .inspect import (
     get_spec_module_name,
     is_async_callable,
 )
-from .mock import create_mock, ensure_attribute_rehearsal, ensure_mock_info
+from .mock import AsyncMock, Mock, create_mock, ensure_mock
 from .state import DecoyState
-from .types import ClassT, FuncT, ParamsT, ReturnT
-from .verify import AttributeVerify, Verify
-from .when import AttributeWhen, When
-
-
-class AttributeDecoy:
-    def __init__(self, state: DecoyState) -> None:
-        self._state = state
-
-    def when(self, attribute_value: ReturnT) -> AttributeWhen[ReturnT]:
-        rehearsal = self._state.use_attribute_rehearsal()
-        mock_id, attribute = ensure_attribute_rehearsal(
-            "when", rehearsal, attribute_value
-        )
-
-        return AttributeWhen(mock_id, attribute, self._state)
-
-    def verify(self, attribute_value: ReturnT) -> AttributeVerify[ReturnT]:
-        rehearsal = self._state.use_attribute_rehearsal()
-        mock_id, attribute = ensure_attribute_rehearsal(
-            "verify", rehearsal, attribute_value
-        )
-
-        return AttributeVerify(mock_id, attribute, self._state)
+from .types import ClassT, FuncT, SpecT
+from .verify import Verify
+from .when import When
 
 
 class Decoy:
@@ -57,6 +36,14 @@ class Decoy:
     [setup guide]: index.md#setup
     """
 
+    @classmethod
+    @contextlib.contextmanager
+    def create(cls) -> Generator["Decoy", None, None]:
+        """Create a Decoy instance for testing that will reset after usage."""
+        decoy = cls()
+        yield decoy
+        decoy.reset()
+
     def __init__(self) -> None:
         self._state = DecoyState()
 
@@ -67,7 +54,10 @@ class Decoy:
     def mock(self, *, func: FuncT) -> FuncT: ...
 
     @overload
-    def mock(self, *, name: str, is_async: bool = False) -> Any: ...
+    def mock(self, *, name: str, is_async: Literal[True]) -> AsyncMock: ...
+
+    @overload
+    def mock(self, *, name: str, is_async: bool = False) -> Mock: ...
 
     def mock(
         self,
@@ -76,7 +66,7 @@ class Decoy:
         func: Optional[FuncT] = None,
         name: Optional[str] = None,
         is_async: bool = False,
-    ) -> Any:
+    ) -> Union[ClassT, FuncT, AsyncMock, Mock]:
         """Create a mock. See the [mock creation guide] for more details.
 
         [mock creation guide]: usage/create.md
@@ -114,12 +104,12 @@ class Decoy:
 
     def when(
         self,
-        mock: Callable[ParamsT, ReturnT],
+        mock: SpecT,
         *,
         times: Optional[int] = None,
         ignore_extra_args: bool = False,
-        is_entered: bool = False,
-    ) -> When[ParamsT, ReturnT]:
+        is_entered: Optional[bool] = None,
+    ) -> When[SpecT]:
         """Configure a mock as a stub.
 
         See [stubbing usage guide](usage/when.md) for more details.
@@ -139,19 +129,19 @@ class Decoy:
             decoy.when(db.exists).called_with("some-id").then_return(True)
             ```
         """
-        mock_info = ensure_mock_info("verify", mock)
+        mock_info = ensure_mock("when", mock)
         match_options = MatchOptions(times, ignore_extra_args, is_entered)
 
-        return When(mock_info, self._state, match_options)
+        return When(self._state, mock_info, match_options)
 
     def verify(
         self,
-        mock: Callable[ParamsT, Any],
+        mock: SpecT,
         *,
         times: Optional[int] = None,
         ignore_extra_args: bool = False,
-        is_entered: bool = False,
-    ) -> Verify[ParamsT]:
+        is_entered: Optional[bool] = None,
+    ) -> Verify[SpecT]:
         """Verify a mock was called using one or more rehearsals.
 
         See [verification usage guide](usage/verify.md) for more details.
@@ -175,15 +165,11 @@ class Decoy:
                 decoy.verify(gen_id).called_with("model-prefix_")
             ```
         """
-        mock_info = ensure_mock_info("verify", mock)
+        mock_info = ensure_mock("verify", mock)
         match_options = MatchOptions(times, ignore_extra_args, is_entered)
 
-        return Verify(mock_info, self._state, match_options)
-
-    @contextlib.contextmanager
-    def attribute(self) -> Generator[AttributeDecoy, None, None]:
-        with self._state.rehearse_attributes():
-            yield AttributeDecoy(self._state)
+        return Verify(self._state, mock_info, match_options)
 
     def reset(self) -> None:
+        """Reset the decoy instance."""
         self._state.reset()

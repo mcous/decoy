@@ -1,41 +1,60 @@
+from types import TracebackType
 from typing import (
+    Any,
     AsyncContextManager,
     Callable,
     ContextManager,
     Generic,
-    NamedTuple,
+    List,
+    Optional,
+    Type,
+    TypeVar,
     Union,
 )
 
 from .event import AttributeEvent, Behavior, CallEvent, Event, MatchOptions
+from .inspect import bind_args, ensure_callable
 from .state import DecoyState, MockInfo
-from .types import ContextValueT, ParamsT, ReturnT
+from .types import CallableT, ContextValueT, ParamsT, ReturnT
 
 
-class StubConfig(NamedTuple):
-    mock: MockInfo
-    event: Event
-    match_options: MatchOptions
-
-
-class SideEffectStub(Generic[ParamsT, ReturnT]):
-    def __init__(self, state: DecoyState, config: StubConfig) -> None:
+class EffectsStub(Generic[ParamsT, ReturnT]):
+    def __init__(
+        self,
+        state: DecoyState,
+        mock: MockInfo,
+        match_options: MatchOptions,
+        event: Event,
+    ) -> None:
         self._state = state
-        self._config = config
+        self._mock = mock
+        self._match_options = match_options
+        self._event = event
 
     def then_raise(self, *errors: Exception) -> None:
         behaviors = [Behavior(error=error) for error in errors]
-        self._state.push_behaviors(*self._config, behaviors)
+        self._push_behaviors(behaviors)
 
     def then_do(self, *actions: Callable[ParamsT, ReturnT]) -> None:
-        behaviors = [Behavior(action=action) for action in actions]
-        self._state.push_behaviors(*self._config, behaviors)
+        behaviors = [
+            Behavior(action=ensure_callable(action, is_async=self._mock.is_async))
+            for action in actions
+        ]
+        self._push_behaviors(behaviors)
+
+    def _push_behaviors(self, behaviors: List[Behavior]) -> None:
+        self._state.push_behaviors(
+            self._mock,
+            self._match_options,
+            self._event,
+            behaviors,
+        )
 
 
-class Stub(SideEffectStub[ParamsT, ReturnT], Generic[ParamsT, ReturnT]):
+class Stub(EffectsStub[ParamsT, ReturnT], Generic[ParamsT, ReturnT]):
     def then_return(self, *values: ReturnT) -> None:
         behaviors = [Behavior(return_value=value) for value in values]
-        self._state.push_behaviors(*self._config, behaviors)
+        self._push_behaviors(behaviors)
 
     def then_enter_with(
         self: Union[
@@ -45,65 +64,63 @@ class Stub(SideEffectStub[ParamsT, ReturnT], Generic[ParamsT, ReturnT]):
         *values: ContextValueT,
     ) -> None:
         behaviors = [Behavior(context=context) for context in values]
-        self._state.push_behaviors(*self._config, behaviors)
+        self._push_behaviors(behaviors)
 
 
-class When(Generic[ParamsT, ReturnT]):
+SpecT = TypeVar("SpecT")
+
+ContextManagerSpecT = TypeVar("ContextManagerSpecT", bound=ContextManager[Any])
+
+
+class When(Generic[SpecT]):
     def __init__(
         self,
-        mock: MockInfo,
         state: DecoyState,
+        mock: MockInfo,
         match_options: MatchOptions,
     ) -> None:
-        self._mock = mock
         self._state = state
+        self._mock = mock
         self._match_options = match_options
 
     def called_with(
-        self, *args: ParamsT.args, **kwargs: ParamsT.kwargs
+        self: "When[CallableT[ParamsT, ReturnT]]",
+        *args: ParamsT.args,
+        **kwargs: ParamsT.kwargs,
     ) -> Stub[ParamsT, ReturnT]:
-        event = CallEvent(args=args, kwargs=kwargs)
-        config = StubConfig(
-            mock=self._mock,
-            match_options=self._match_options,
-            event=event,
-        )
+        bound_args = bind_args(self._mock.signature, args, kwargs)
+        event = CallEvent(args=bound_args.args, kwargs=bound_args.kwargs)
 
-        return Stub(self._state, config)
+        return self._create_stub(event)
 
+    def entered(
+        self: "When[ContextManagerSpecT]",
+    ) -> Stub[[], Any]:
+        raise NotImplementedError()
 
-class AttributeWhen(Generic[ReturnT]):
-    def __init__(self, mock: MockInfo, attribute: str, state: DecoyState) -> None:
-        self._mock = mock
-        self._attribute = attribute
-        self._state = state
-        self._match_options = MatchOptions(
-            times=None,
-            ignore_extra_args=False,
-            is_entered=False,
-        )
+    def exited_with(
+        self: "When[ContextManager[Any]]",
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> Stub[
+        [
+            Optional[Type[BaseException]],
+            Optional[BaseException],
+            Optional[TracebackType],
+        ],
+        Optional[bool],
+    ]:
+        raise NotImplementedError()
 
-    def get(self) -> Stub[[], ReturnT]:
-        event = AttributeEvent.get(self._attribute)
-        config = self._create_stub_config(event)
+    def get(self) -> Stub[[], SpecT]:
+        return self._create_stub(AttributeEvent.get())
 
-        return Stub(self._state, config)
+    def set_with(self, value: SpecT) -> EffectsStub[[SpecT], None]:
+        return self._create_stub(AttributeEvent.set(value))
 
-    def set_with(self, value: ReturnT) -> SideEffectStub[[ReturnT], None]:
-        event = AttributeEvent.set(self._attribute, value)
-        config = self._create_stub_config(event)
+    def delete(self) -> EffectsStub[[], None]:
+        return self._create_stub(AttributeEvent.delete())
 
-        return SideEffectStub(self._state, config)
-
-    def delete(self) -> SideEffectStub[[], None]:
-        event = AttributeEvent.delete(self._attribute)
-        config = self._create_stub_config(event)
-
-        return SideEffectStub(self._state, config)
-
-    def _create_stub_config(self, event: AttributeEvent) -> StubConfig:
-        return StubConfig(
-            mock=self._mock,
-            match_options=self._match_options,
-            event=event,
-        )
+    def _create_stub(self, event: Event) -> Stub[Any, Any]:
+        return Stub(self._state, self._mock, self._match_options, event)
