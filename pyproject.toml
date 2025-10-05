@@ -72,7 +72,7 @@ ruff = "0.13.3"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = { version = "1.6.1", python = ">=3.10" }
-mkdocs-material = { version = "9.6.14", python = ">=3.10" }
+mkdocs-material = { version = "9.6.21", python = ">=3.10" }
 mkdocstrings = { version = "0.30.1", extras = ["python"], python = ">=3.10" }
 
 [tool.poe.tasks]
