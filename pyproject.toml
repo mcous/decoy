@@ -68,7 +68,7 @@ pytest-xdist = [
     { version = "3.6.1", python = ">=3.8, <3.9" },
     { version = "3.7.0", python = ">=3.9" },
 ]
-ruff = "0.13.3"
+ruff = "0.14.3"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = { version = "1.6.1", python = ">=3.10" }
