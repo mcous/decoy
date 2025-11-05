@@ -154,6 +154,18 @@ def test_captor_matcher() -> None:
         assert captor.values == comparisons[0 : i + 1]
 
 
+def test_captor_matcher_with_match_type() -> None:
+    """It should have a captor matcher that captures the compared value if it matches the type."""
+    captor = matchers.Captor(int)
+    comparisons: List[Any] = [1, False, None, {}, [], ("hello", "world"), SomeClass()]
+
+    for compare in comparisons:
+        is_equal = compare == captor.capture()
+        assert is_equal == isinstance(compare, int)
+
+    assert captor.values == [1, False]
+
+
 def test_captor_matcher_raises_if_no_value() -> None:
     """The captor matcher should raise an assertion error if no value."""
     captor = matchers.Captor()
