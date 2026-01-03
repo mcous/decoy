@@ -1,5 +1,12 @@
+import collections.abc
 import contextlib
-from typing import Union, Callable, Generator, Literal, Optional, overload
+from typing import (
+    Any,
+    Callable,
+    Literal,
+    Never,
+    overload,
+)
 
 from .event import MatchOptions
 from .inspect import (
@@ -10,7 +17,15 @@ from .inspect import (
 )
 from .mock import AsyncMock, Mock, create_mock, ensure_mock
 from .state import DecoyState
-from .types import ClassT, FuncT, SpecT
+from .types import (
+    ClassT,
+    ContextValueT,
+    FuncT,
+    MockT,
+    ParamsT,
+    ReturnT,
+    SpecT,
+)
 from .verify import Verify
 from .when import When
 
@@ -38,7 +53,7 @@ class Decoy:
 
     @classmethod
     @contextlib.contextmanager
-    def create(cls) -> Generator["Decoy", None, None]:
+    def create(cls) -> collections.abc.Iterator["Decoy"]:
         """Create a Decoy instance for testing that will reset after usage."""
         decoy = cls()
         yield decoy
@@ -62,12 +77,12 @@ class Decoy:
     def mock(
         self,
         *,
-        cls: Optional[Callable[..., ClassT]] = None,
-        func: Optional[FuncT] = None,
-        name: Optional[str] = None,
+        cls: Callable[..., ClassT] | None = None,
+        func: FuncT | None = None,
+        name: str | None = None,
         is_async: bool = False,
-    ) -> Union[ClassT, FuncT, AsyncMock, Mock]:
-        """Create a mock. See the [mock creation guide] for more details.
+    ) -> ClassT | FuncT | AsyncMock | Mock:
+        """Create a mock. See the [mock creation guide][] for more details.
 
         [mock creation guide]: usage/create.md
 
@@ -102,14 +117,34 @@ class Decoy:
             state=self._state,
         )
 
+    @overload
+    def when(  # type: ignore[overload-overlap]
+        self,
+        mock: MockT[ContextValueT, ParamsT, ReturnT],
+        *,
+        times: int | None = None,
+        ignore_extra_args: bool = False,
+        is_entered: bool | None = None,
+    ) -> When[Never, ParamsT, ReturnT, ContextValueT]: ...
+
+    @overload
     def when(
         self,
         mock: SpecT,
         *,
-        times: Optional[int] = None,
+        times: int | None = None,
         ignore_extra_args: bool = False,
-        is_entered: Optional[bool] = None,
-    ) -> When[SpecT]:
+        is_entered: bool | None = None,
+    ) -> When[SpecT, [], Never, Never]: ...
+
+    def when(
+        self,
+        mock: Any,
+        *,
+        times: int | None = None,
+        ignore_extra_args: bool = False,
+        is_entered: bool | None = None,
+    ) -> When[Any, Any, Any, Any]:
         """Configure a mock as a stub.
 
         See [stubbing usage guide](usage/when.md) for more details.
@@ -138,9 +173,9 @@ class Decoy:
         self,
         mock: SpecT,
         *,
-        times: Optional[int] = None,
+        times: int | None = None,
         ignore_extra_args: bool = False,
-        is_entered: Optional[bool] = None,
+        is_entered: bool | None = None,
     ) -> Verify[SpecT]:
         """Verify a mock was called using one or more rehearsals.
 

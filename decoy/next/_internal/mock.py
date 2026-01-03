@@ -1,8 +1,8 @@
 from types import TracebackType
-from typing import Any, ContextManager, Dict, Optional, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type, cast
 
 from ..errors import NotAMockError
-from .event import AttributeEvent, CallEvent, EventState
+from .event import AttributeEvent, CallEvent, ContextManagerEvent, EventState
 from .inspect import (
     Signature,
     bind_args,
@@ -69,7 +69,7 @@ class MockInternals:
         return child
 
 
-class Mock(ContextManager[Any]):
+class Mock:
     _decoy: MockInternals
 
     def __init__(self, internals: MockInternals) -> None:
@@ -92,7 +92,16 @@ class Mock(ContextManager[Any]):
         return f"<Decoy mock '{self._decoy.full_name}'>"
 
     def __enter__(self) -> Any:
-        self._decoy.event_state = EventState(is_entered=True)
+        event = ContextManagerEvent.enter()
+        event_state = EventState(is_entered=True)
+
+        self._decoy.event_state = event_state
+
+        return self._decoy.state.use_behavior(
+            mock=self._decoy.info,
+            event=event,
+            event_state=event_state,
+        )
 
     def __exit__(
         self,
@@ -100,8 +109,19 @@ class Mock(ContextManager[Any]):
         exc_value: Optional[BaseException],
         traceback: Optional[TracebackType],
     ) -> Optional[bool]:
-        self._decoy.event_state = EventState(is_entered=False)
-        return None
+        event = ContextManagerEvent.exit(exc_type, exc_value, traceback)
+        event_state = EventState(is_entered=False)
+
+        self._decoy.event_state = event_state
+
+        return cast(
+            Optional[bool],
+            self._decoy.state.use_behavior(
+                mock=self._decoy.info,
+                event=event,
+                event_state=event_state,
+            ),
+        )
 
     async def __aenter__(self) -> None:
         self._decoy.event_state = EventState(is_entered=True)

@@ -135,4 +135,3 @@ class DecoyState:
         self._events.clear()
         self._behaviors.clear()
         self._behavior_usage_by_index.clear()
-        self._is_rehearsing_attributes = False

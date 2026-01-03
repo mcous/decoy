@@ -1,0 +1,185 @@
+# typing tests
+
+- case: mock_class
+  main: |
+      from decoy.next import Decoy
+
+      class Dependency():
+          def do_thing(self, input: str) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+      reveal_type(fake)
+  out: |
+      main:9: note: Revealed type is "main.Dependency"
+
+- case: mock_class_abstract
+  main: |
+      from abc import ABC
+      from decoy.next import Decoy
+
+      class Dependency(ABC):
+          def do_thing(self, input: str) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+      reveal_type(fake)
+  out: |
+      main:10: note: Revealed type is "main.Dependency"
+
+- case: mock_function
+  main: |
+      from decoy.next import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(func=do_thing)
+      reveal_type(fake)
+  out: |
+      main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
+
+- case: mock_class_called_with_then_return
+  main: |
+      from decoy.next import Decoy
+
+      class Dependency():
+          def do_thing(self, input: str) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+
+      decoy.when(fake.do_thing).called_with("hello").then_return(42)
+      decoy.when(fake.do_thing).called_with("goodbye").then_return("wrong-type")
+  out: |
+      main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: mock_function_called_with_then_return
+  main: |
+      from decoy.next import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(func=do_thing)
+
+      decoy.when(fake).called_with("hello").then_return(42)
+      decoy.when(fake).called_with("goodbye").then_return("wrong-type")
+  out: |
+      main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: mock_class_attribute_get
+  main: |
+      from decoy.next import Decoy
+
+      class Dependency():
+          @property
+          def value(self) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+
+      decoy.when(fake.value).get().then_return(42)
+      decoy.when(fake.value).get().then_return("wrong-type")
+  out: |
+      main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: mock_class_attribute_set
+  main: |
+      from decoy.next import Decoy
+
+      class Dependency():
+          @property
+          def value(self) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+
+      decoy.when(fake.value).set_with(42).then_raise(Exception("oh no"))
+      decoy.when(fake.value).set_with("goodbye").then_raise(Exception("oh no"))
+  out: |
+      main:12: error: Argument 1 to "set_with" of "When" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: mock_class_entered_then_return
+  main: |
+      import contextlib
+      import typing
+      from decoy.next import Decoy
+
+      class Dependency():
+          def __enter__(self) -> int:
+              return 42
+
+          def __exit__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+              return None
+
+      decoy = Decoy()
+      fake_cm = decoy.mock(cls=Dependency)
+
+      decoy.when(fake_cm).entered().then_return(42)
+      decoy.when(fake_cm).entered().then_return("wrong-type")
+  out: |
+      main:16: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: context_manager_stub_mimics_enter_type
+  main: |
+      import contextlib
+      from typing import Generator
+      from decoy.next import Decoy
+
+      @contextlib.contextmanager
+      def do_thing(input: str) -> Generator[int, None, None]:
+          yield 42
+
+      decoy = Decoy()
+      fake_cm = decoy.mock(func=do_thing)
+
+      decoy.when(fake_cm).called_with("hello").then_enter_with(42)
+      decoy.when(fake_cm).called_with("goodbye").then_enter_with("wrong-type")
+
+  out: |
+      main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: context_manager_stub_rejects_wrong_spec
+  regex: yes
+  main: |
+      from decoy.next import Decoy
+
+      def do_thing(input: str) -> int:
+          return 42
+
+      decoy = Decoy()
+      fake_not_cm = decoy.mock(func=do_thing)
+      fake_any = decoy.mock(name="fake_any")
+
+      decoy.when(fake_not_cm).called_with("hello").then_enter_with(42)
+      decoy.when(fake_any).called_with("hello").then_enter_with(42)
+
+  out: |
+      main:10: error: Invalid self argument "Stub\[\[str], int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[ParamsT, AbstractContextManager\[ContextValueT, bool | None] | AbstractAsyncContextManager\[ContextValueT, bool | None]], VarArg(ContextValueT)], None]"  \[misc]
+      main:10: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "int"; expected "Never"  \[arg-type]
+
+- case: matchers_mimic_types
+  main: |
+      from decoy import matchers
+
+      reveal_type(matchers.Anything())
+      reveal_type(matchers.IsA(str))
+      reveal_type(matchers.IsNot(str))
+      reveal_type(matchers.StringMatching("foobar"))
+      reveal_type(matchers.ErrorMatching(RuntimeError))
+      reveal_type(matchers.Captor())
+  out: |
+      main:3: note: Revealed type is "Any"
+      main:4: note: Revealed type is "Any"
+      main:5: note: Revealed type is "Any"
+      main:6: note: Revealed type is "builtins.str"
+      main:7: note: Revealed type is "builtins.RuntimeError"
+      main:8: note: Revealed type is "Any"
