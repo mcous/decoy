@@ -1,5 +1,6 @@
 import enum
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union, final
+from types import TracebackType
+from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Type, Union, final
 
 
 @final
@@ -23,15 +24,15 @@ class AttributeEvent(NamedTuple):
 
     @classmethod
     def get(cls) -> "AttributeEvent":
-        return AttributeEvent(AttributeEventType.GET)
+        return cls(AttributeEventType.GET)
 
     @classmethod
     def set(cls, value: object) -> "AttributeEvent":
-        return AttributeEvent(AttributeEventType.SET, value)
+        return cls(AttributeEventType.SET, value)
 
     @classmethod
     def delete(cls) -> "AttributeEvent":
-        return AttributeEvent(AttributeEventType.DELETE)
+        return cls(AttributeEventType.DELETE)
 
 
 class CallEvent(NamedTuple):
@@ -41,7 +42,34 @@ class CallEvent(NamedTuple):
     kwargs: Dict[str, object]
 
 
-Event = Union[CallEvent, AttributeEvent]
+class ContextManagerEventType(str, enum.Enum):
+    ENTER = "enter"
+    EXIT = "exit"
+
+
+class ContextManagerEvent(NamedTuple):
+    """Event representing a context manager enter or exit."""
+
+    type: ContextManagerEventType
+    exc_type: Optional[Type[BaseException]]
+    exc_value: Optional[BaseException]
+    traceback: Optional[TracebackType]
+
+    @classmethod
+    def enter(cls) -> "ContextManagerEvent":
+        return cls(ContextManagerEventType.ENTER, None, None, None)
+
+    @classmethod
+    def exit(
+        cls,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> "ContextManagerEvent":
+        return cls(ContextManagerEventType.EXIT, exc_type, exc_value, traceback)
+
+
+Event = Union[CallEvent, AttributeEvent, ContextManagerEvent]
 
 
 class EventState(NamedTuple):
@@ -98,8 +126,8 @@ def match_event_list(
 def _match_event(event: Event, expected: Event, match_options: MatchOptions) -> bool:
     if (
         match_options.ignore_extra_args is False
-        or isinstance(event, AttributeEvent)
-        or isinstance(expected, AttributeEvent)
+        or isinstance(event, (AttributeEvent, ContextManagerEvent))
+        or isinstance(expected, (AttributeEvent, ContextManagerEvent))
     ):
         return event == expected
 

@@ -1,21 +1,22 @@
+import contextlib
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
     Callable,
-    ContextManager,
     Generic,
-    List,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
 )
 
-from .event import AttributeEvent, Behavior, CallEvent, Event, MatchOptions
+from .event import (
+    AttributeEvent,
+    Behavior,
+    CallEvent,
+    ContextManagerEvent,
+    Event,
+    MatchOptions,
+)
 from .inspect import bind_args, ensure_callable
 from .state import DecoyState, MockInfo
-from .types import CallableT, ContextValueT, ParamsT, ReturnT
+from .types import ContextValueT, ParamsT, ReturnT, SpecT
 
 
 class EffectsStub(Generic[ParamsT, ReturnT]):
@@ -42,7 +43,7 @@ class EffectsStub(Generic[ParamsT, ReturnT]):
         ]
         self._push_behaviors(behaviors)
 
-    def _push_behaviors(self, behaviors: List[Behavior]) -> None:
+    def _push_behaviors(self, behaviors: list[Behavior]) -> None:
         self._state.push_behaviors(
             self._mock,
             self._match_options,
@@ -57,22 +58,14 @@ class Stub(EffectsStub[ParamsT, ReturnT], Generic[ParamsT, ReturnT]):
         self._push_behaviors(behaviors)
 
     def then_enter_with(
-        self: Union[
-            "Stub[ParamsT, ContextManager[ContextValueT]]",
-            "Stub[ParamsT, AsyncContextManager[ContextValueT]]",
-        ],
+        self: "Stub[Any, contextlib.AbstractContextManager[ContextValueT] | contextlib.AbstractAsyncContextManager[ContextValueT]]",
         *values: ContextValueT,
     ) -> None:
-        behaviors = [Behavior(context=context) for context in values]
+        behaviors = [Behavior(context=value) for value in values]
         self._push_behaviors(behaviors)
 
 
-SpecT = TypeVar("SpecT")
-
-ContextManagerSpecT = TypeVar("ContextManagerSpecT", bound=ContextManager[Any])
-
-
-class When(Generic[SpecT]):
+class When(Generic[SpecT, ParamsT, ReturnT, ContextValueT]):
     def __init__(
         self,
         state: DecoyState,
@@ -84,7 +77,7 @@ class When(Generic[SpecT]):
         self._match_options = match_options
 
     def called_with(
-        self: "When[CallableT[ParamsT, ReturnT]]",
+        self,
         *args: ParamsT.args,
         **kwargs: ParamsT.kwargs,
     ) -> Stub[ParamsT, ReturnT]:
@@ -94,24 +87,26 @@ class When(Generic[SpecT]):
         return self._create_stub(event)
 
     def entered(
-        self: "When[ContextManagerSpecT]",
-    ) -> Stub[[], Any]:
-        raise NotImplementedError()
+        self,
+    ) -> Stub[[], ContextValueT]:
+        return self._create_stub(ContextManagerEvent.enter())
 
     def exited_with(
-        self: "When[ContextManager[Any]]",
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> Stub[
         [
-            Optional[Type[BaseException]],
-            Optional[BaseException],
-            Optional[TracebackType],
+            type[BaseException] | None,
+            BaseException | None,
+            TracebackType | None,
         ],
-        Optional[bool],
+        bool | None,
     ]:
-        raise NotImplementedError()
+        return self._create_stub(
+            ContextManagerEvent.exit(exc_type, exc_value, traceback)
+        )
 
     def get(self) -> Stub[[], SpecT]:
         return self._create_stub(AttributeEvent.get())

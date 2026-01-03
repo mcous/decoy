@@ -1,4 +1,13 @@
-from typing import Any, Awaitable, Callable, ParamSpec, TypeVar, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    ContextManager,
+    ParamSpec,
+    Protocol,
+    TypeVar,
+    Union,
+)
 
 SpecT = TypeVar("SpecT")
 """The type of a mock spec."""
@@ -20,3 +29,19 @@ ContextValueT = TypeVar("ContextValueT")
 
 CallableT = Callable[ParamsT, Union[ReturnT, Awaitable[ReturnT]]]
 """A sync or async callable with generic parameters and return value."""
+
+
+class CallableContextManager(Protocol[ContextValueT, ParamsT, ReturnT]):
+    def __call__(
+        self, *args: ParamsT.args, **kwargs: ParamsT.kwargs
+    ) -> Union[ReturnT, Awaitable[ReturnT]]: ...
+
+    def __enter__(self) -> ContextValueT: ...
+
+
+MockT = Union[
+    CallableContextManager[ContextValueT, ParamsT, ReturnT],
+    ContextManager[ContextValueT],
+    Callable[ParamsT, ReturnT],
+]
+"""Mock types, to extract paramters, return types, and context manager values"""

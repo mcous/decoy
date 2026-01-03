@@ -1,7 +1,5 @@
 """Tests for Decoy.when."""
 
-from typing import Any, ContextManager
-
 import pytest
 
 from decoy.next import Decoy, errors
@@ -159,15 +157,6 @@ def test_when_then_do_invalid_async_action(decoy: Decoy) -> None:
         decoy.when(subject).called_with("hello").then_do(_action)
 
 
-def test_when_then_enter_with(decoy: Decoy) -> None:
-    """It enters a context manager a function."""
-    subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_enter_with("world")
-
-    with subject("hello") as result:
-        assert result == "world"
-
-
 def test_when_then_return_while_entered(decoy: Decoy) -> None:
     """It limits matches to while the contex manager is entered."""
     subject = decoy.mock(name="subject")
@@ -208,22 +197,29 @@ def test_when_enter_method(decoy: Decoy) -> None:
         nonlocal is_exited
         is_exited = True
 
-    class _CM(ContextManager[int]):
-        def __enter__(self) -> int:
-            raise NotImplementedError()
+    class _Dependency:
+        def __enter__(self) -> int: ...
+        def __exit__(self, *args, **kwargs) -> None: ...
 
-        def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> Any:
-            return None
-
-    subject = decoy.mock(cls=_CM)
+    subject = decoy.mock(cls=_Dependency)
 
     decoy.when(subject).entered().then_return(42)
-    # decoy.when(subject).exited_with(None, None, None).then_do(_on_exit)
+    decoy.when(subject).exited_with(None, None, None).then_do(_on_exit)
 
     with subject as result:
         assert result == 42
 
     assert is_exited is True
+
+
+def test_when_called_with_then_enter_with(decoy: Decoy) -> None:
+    """Can stub a context manager return."""
+    subject = decoy.mock(name="generator_cm")
+
+    decoy.when(subject).called_with("hello").then_enter_with(42)
+
+    with subject("hello") as result:
+        assert result == 42
 
 
 def test_when_match_signature_in_called_with(decoy: Decoy) -> None:
