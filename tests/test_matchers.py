@@ -1,9 +1,12 @@
 """Matcher tests."""
 
-import pytest
 from collections import namedtuple
-from decoy import Decoy, matchers
 from typing import Any, List, NamedTuple
+
+import pytest
+
+from decoy import Decoy, matchers
+
 from .fixtures import SomeClass
 
 
@@ -91,7 +94,7 @@ def test_has_attribute_matcher() -> None:
 
 
 def test_dict_matching_matcher() -> None:
-    """It should have an "anything with these attributes" matcher."""
+    """It should have a "dictionary matching" matcher."""
     assert {"hello": "world"} == matchers.DictMatching({"hello": "world"})
     assert {"hello": "world", "goodbye": "so long"} == matchers.DictMatching(
         {"hello": "world"}
@@ -104,6 +107,11 @@ def test_dict_matching_matcher() -> None:
     assert 1 != matchers.DictMatching({"hello": "world"})
     assert False != matchers.DictMatching({"hello": "world"})  # noqa: E712
     assert [] != matchers.DictMatching({"hello": "world"})
+
+
+def test_dict_matching_matcher_with_int_key() -> None:
+    """Dict matcher should suport non-string keys."""
+    assert {1: "hello", 2: "world"} == matchers.DictMatching({2: "world"})
 
 
 def test_list_matching_matcher() -> None:

@@ -28,8 +28,7 @@ See the [matchers guide][] for more details.
 """
 
 from re import compile as compile_re
-from typing import cast, Any, List, Mapping, Optional, Pattern, Type, TypeVar
-
+from typing import Any, List, Mapping, Optional, Pattern, Type, TypeVar, cast
 
 __all__ = [
     "Anything",
@@ -212,9 +211,9 @@ def HasAttributes(attributes: Mapping[str, Any]) -> Any:
 
 
 class _DictMatching:
-    _values: Mapping[str, Any]
+    _values: Mapping[Any, Any]
 
-    def __init__(self, values: Mapping[str, Any]) -> None:
+    def __init__(self, values: Mapping[Any, Any]) -> None:
         self._values = values
 
     def __eq__(self, target: object) -> bool:
@@ -235,7 +234,7 @@ class _DictMatching:
         return f"<DictMatching {self._values!r}>"
 
 
-def DictMatching(values: Mapping[str, Any]) -> Any:
+def DictMatching(values: Mapping[Any, Any]) -> Any:
     """Match any dictionary with the passed in keys / values.
 
     Arguments:
