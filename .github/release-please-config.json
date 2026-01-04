@@ -5,7 +5,14 @@
       "release-type": "python",
       "skip-changelog": true,
       "include-v-in-tag": true,
-      "include-component-in-tag": false
+      "include-component-in-tag": false,
+      "extra-files": [
+        {
+          "path": "uv.lock",
+          "type": "toml",
+          "jsonpath": "$.package[?(@.name.value=='decoy')].version"
+        }
+      ]
     }
   }
 }

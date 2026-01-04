@@ -22,14 +22,7 @@ Decoy mocks are **async/await** and **type-checking** friendly. Decoy is heavily
 ## Install
 
 ```bash
-# pip
 pip install decoy
-
-# poetry
-poetry add --dev decoy
-
-# pipenv
-pipenv install --dev decoy
 ```
 
 ## Setup
