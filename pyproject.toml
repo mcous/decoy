@@ -1,6 +1,6 @@
 [project]
 name = "decoy"
-version = "2.2.1"
+version = "2.2.2"
 description = "Opinionated mocking library for Python"
 readme = "README.md"
 license = "MIT"
