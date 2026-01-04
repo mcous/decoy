@@ -1,21 +1,22 @@
 """Tests for the WarningChecker API."""
 
-import pytest
 from typing import List, NamedTuple, Sequence
+
+import pytest
 
 from decoy import matchers
 from decoy.spy_events import (
     AnySpyEvent,
+    PropAccessType,
     SpyCall,
     SpyEvent,
     SpyInfo,
     SpyPropAccess,
-    PropAccessType,
-    WhenRehearsal,
     VerifyRehearsal,
+    WhenRehearsal,
 )
-from decoy.warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
 from decoy.warning_checker import WarningChecker
+from decoy.warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
 
 
 class WarningCheckerSpec(NamedTuple):
@@ -68,7 +69,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -137,7 +138,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -174,7 +175,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -207,7 +208,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -244,7 +245,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -258,7 +259,7 @@ warning_checker_specs = [
                     ),
                 ],
             ),
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=2, name="yps", is_async=False),
@@ -300,7 +301,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -318,7 +319,7 @@ warning_checker_specs = [
                     ),
                 ],
             ),
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -377,7 +378,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            MiscalledStubWarning(
+            MiscalledStubWarning.create(
                 rehearsals=[
                     WhenRehearsal(
                         spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -406,7 +407,7 @@ warning_checker_specs = [
             ),
         ],
         expected_warnings=[
-            RedundantVerifyWarning(
+            RedundantVerifyWarning.create(
                 rehearsal=VerifyRehearsal(
                     spy=SpyInfo(id=1, name="spy", is_async=False),
                     payload=SpyCall(

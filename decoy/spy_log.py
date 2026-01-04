@@ -5,13 +5,13 @@ from typing import List, Sequence
 from .errors import MissingRehearsalError
 from .spy_events import (
     AnySpyEvent,
+    PropAccessType,
+    PropRehearsal,
     SpyCall,
     SpyEvent,
     SpyPropAccess,
-    WhenRehearsal,
     VerifyRehearsal,
-    PropAccessType,
-    PropRehearsal,
+    WhenRehearsal,
 )
 
 
@@ -33,10 +33,10 @@ class SpyLog:
         try:
             event = self._log[-1]
         except IndexError as e:
-            raise MissingRehearsalError() from e
+            raise MissingRehearsalError.create() from e
 
         if not isinstance(event, SpyEvent):
-            raise MissingRehearsalError()
+            raise MissingRehearsalError.create()
 
         spy, payload = _apply_ignore_extra_args(event, ignore_extra_args)
 
@@ -59,12 +59,12 @@ class SpyLog:
 
         while len(rehearsals) < count:
             if index < 0:
-                raise MissingRehearsalError()
+                raise MissingRehearsalError.create()
 
             event = self._log[index]
 
             if not isinstance(event, (SpyEvent, PropRehearsal)):
-                raise MissingRehearsalError()
+                raise MissingRehearsalError.create()
 
             if _is_verifiable(event):
                 rehearsal = VerifyRehearsal(
@@ -82,7 +82,7 @@ class SpyLog:
         try:
             event = self._log[-1]
         except IndexError as e:
-            raise MissingRehearsalError() from e
+            raise MissingRehearsalError.create() from e
 
         spy, payload = event
 
@@ -91,7 +91,7 @@ class SpyLog:
             or not isinstance(payload, SpyPropAccess)
             or payload.access_type != PropAccessType.GET
         ):
-            raise MissingRehearsalError()
+            raise MissingRehearsalError.create()
 
         rehearsal = PropRehearsal(spy, payload)
         self._log[-1] = rehearsal

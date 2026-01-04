@@ -1,11 +1,12 @@
 """Tests for error and warning message generation."""
 
-import pytest
 import os
 from typing import List, NamedTuple, Optional
 
-from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, VerifyRehearsal
+import pytest
+
 from decoy.errors import VerifyError
+from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, VerifyRehearsal
 
 
 class VerifyErrorSpec(NamedTuple):
@@ -166,5 +167,5 @@ def test_verify_error(
     expected_message: str,
 ) -> None:
     """It should stringify VerifyError properly."""
-    error = VerifyError(rehearsals=rehearsals, calls=calls, times=times)
+    error = VerifyError.create(rehearsals=rehearsals, calls=calls, times=times)
     assert str(error) == expected_message
