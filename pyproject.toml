@@ -1,14 +1,13 @@
-[tool.poetry]
+[project]
 name = "decoy"
 version = "2.2.0"
 description = "Opinionated mocking library for Python"
-authors = ["Michael Cousins <michael@cousins.io>"]
-license = "MIT"
 readme = "README.md"
-repository = "https://github.com/mcous/decoy"
-homepage = "https://michael.cousins.io/decoy/"
-documentation = "https://michael.cousins.io/decoy/"
-
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    {name = "Michael Cousins", email = "michael@cousins.io>"},
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -18,62 +17,50 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-[tool.poetry.urls]
-"Changelog" = "https://github.com/mcous/decoy/releases"
+[project.urls]
+Homepage = "https://michael.cousins.io/decoy/"
+Documentation = "https://michael.cousins.io/decoy/"
+Repository = "https://github.com/mcous/decoy"
+Issues = "https://github.com/mcous/decoy/issues"
+Changelog = "https://github.com/mcous/decoy/releases"
 
-[tool.poetry.dependencies]
-python = "^3.7"
+[project.entry-points."pytest11"]
+"decoy" = "decoy.pytest_plugin"
 
-[tool.poetry.group.dev.dependencies]
-poethepoet = [
-    { version = "0.19.0", python = "<3.8" },
-    { version = "0.30.0", python = ">=3.8, <3.9" },
-    { version = "0.35.0", python = ">=3.9" },
+[dependency-groups]
+dev = [
+    "poethepoet (==0.19.0) ; python_version < '3.8'",
+    "poethepoet (==0.30.0) ; python_version >= '3.8' and python_version < '3.9'",
+    "poethepoet (==0.35.0) ; python_version >= '3.9'",
 ]
 
-[tool.poetry.group.test.dependencies]
-coverage = [
-    { version = "7.2.7", extras = [
-        "toml",
-    ], python = "<3.8" },
-    { version = "7.6.1", extras = [
-        "toml",
-    ], python = ">=3.8, <3.9" },
-    { version = "7.9.1", extras = [
-        "toml",
-    ], python = ">=3.9" },
+test = [
+  "coverage[toml] (==7.2.7) ; python_version < '3.8'",
+  "coverage[toml] (==7.6.1) ; python_version >= '3.8' and python_version < '3.9'",
+  "coverage[toml] (==7.9.1) ; python_version >= '3.9'",
+  "mypy (==1.4.1) ; python_version < '3.8'",
+  "mypy (==1.14.1) ; python_version >= '3.8' and python_version < '3.9'",
+  "mypy (==1.16.0) ; python_version >= '3.9'",
+  "pytest (==7.4.4) ; python_version < '3.8'",
+  "pytest (==8.3.5) ; python_version >= '3.8' and python_version < '3.9'",
+  "pytest (==8.4.0) ; python_version >= '3.9'",
+  "pytest-asyncio (==0.21.2) ; python_version < '3.8'",
+  "pytest-asyncio (==0.24.0) ; python_version >= '3.8' and python_version < '3.9'",
+  "pytest-asyncio (==1.0.0) ; python_version >= '3.9'",
+  "pytest-mypy-plugins (==2.0.0) ; python_version < '3.8'",
+  "pytest-mypy-plugins (==3.1.2) ; python_version >= '3.8' and python_version < '3.9'",
+  "pytest-mypy-plugins (==3.2.0) ; python_version >= '3.9'",
+  "pytest-xdist (==3.5.0) ; python_version < '3.8'",
+  "pytest-xdist (==3.6.1) ; python_version >= '3.8' and python_version < '3.9'",
+  "pytest-xdist (==3.7.0) ; python_version >= '3.9'",
+  "ruff (==0.14.7)"
 ]
-mypy = [
-    { version = "1.4.1", python = "<3.8" },
-    { version = "1.14.1", python = ">=3.8, <3.9" },
-    { version = "1.16.0", python = ">=3.9" },
-]
-pytest = [
-    { version = "7.4.4", python = "<3.8" },
-    { version = "8.3.5", python = ">=3.8, <3.9" },
-    { version = "8.4.0", python = ">=3.9" },
-]
-pytest-asyncio = [
-    { version = "0.21.2", python = "<3.8" },
-    { version = "0.24.0", python = ">=3.8, <3.9" },
-    { version = "1.0.0", python = ">=3.9" },
-]
-pytest-mypy-plugins = [
-    { version = "2.0.0", python = "<3.8" },
-    { version = "3.1.2", python = ">=3.8, <3.9" },
-    { version = "3.2.0", python = ">=3.9" },
-]
-pytest-xdist = [
-    { version = "3.5.0", python = "<3.8" },
-    { version = "3.6.1", python = ">=3.8, <3.9" },
-    { version = "3.7.0", python = ">=3.9" },
-]
-ruff = "0.11.13"
 
-[tool.poetry.group.docs.dependencies]
-mkdocs = { version = "1.6.1", python = ">=3.10" }
-mkdocs-material = { version = "9.6.14", python = ">=3.10" }
-mkdocstrings = { version = "0.29.1", extras = ["python"], python = ">=3.10" }
+docs = [
+    "mkdocs (==1.6.1) ; python_version >= '3.10'",
+    "mkdocs-material (==9.6.21) ; python_version >= '3.10'",
+    "mkdocstrings[python] (==0.30.1) ; python_version >= '3.10'"
+]
 
 [tool.poe.tasks]
 all = [
@@ -82,8 +69,8 @@ all = [
     "format-check",
     "test-once",
     "coverage",
-    "docs-build",
-    "build",
+    "build-docs",
+    "build-package",
 ]
 check = "mypy"
 lint = "ruff check ."
@@ -94,14 +81,10 @@ test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
 coverage = "coverage report"
 coverage-xml = "coverage xml"
 docs = "mkdocs serve"
-docs-build = "mkdocs build"
-build = "poetry build"
+build-docs = "mkdocs build"
+build-package = "poetry build"
 check-ci = ["check", "lint", "format-check"]
 test-ci = ["test-once", "coverage-xml"]
-build-ci = ["docs-build", "build"]
-
-[tool.poetry.plugins."pytest11"]
-"decoy" = "decoy.pytest_plugin"
 
 [tool.pytest.ini_options]
 addopts = "--color=yes --mypy-ini-file=tests/typing/mypy.ini --mypy-only-local-stub"
