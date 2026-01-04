@@ -19,8 +19,10 @@ class MockNameRequiredError(ValueError):
     [MockNameRequiredError guide]: usage/errors-and-warnings.md#mocknamerequirederror
     """
 
-    def __init__(self) -> None:
-        super().__init__("Mocks without `cls` or `func` require a `name`.")
+    @classmethod
+    def create(cls) -> "MockNameRequiredError":
+        """Create a MockNameRequiredError."""
+        return cls("Mocks without `cls` or `func` require a `name`.")
 
 
 class MissingRehearsalError(ValueError):
@@ -36,8 +38,10 @@ class MissingRehearsalError(ValueError):
     [MissingRehearsalError guide]: usage/errors-and-warnings.md#missingrehearsalerror
     """
 
-    def __init__(self) -> None:
-        super().__init__("Rehearsal not found.")
+    @classmethod
+    def create(cls) -> "MissingRehearsalError":
+        """Create a MissingRehearsalError."""
+        return cls("Rehearsal not found.")
 
 
 class MockNotAsyncError(TypeError):
@@ -68,12 +72,14 @@ class VerifyError(AssertionError):
     calls: Sequence[SpyEvent]
     times: Optional[int]
 
-    def __init__(
-        self,
+    @classmethod
+    def create(
+        cls,
         rehearsals: Sequence[VerifyRehearsal],
         calls: Sequence[SpyEvent],
         times: Optional[int],
-    ) -> None:
+    ) -> "VerifyError":
+        """Create a VerifyError."""
         if times is not None:
             heading = f"Expected exactly {count(times, 'call')}:"
         elif len(rehearsals) == 1:
@@ -88,7 +94,9 @@ class VerifyError(AssertionError):
             include_calls=times is None or times == len(calls),
         )
 
-        super().__init__(message)
-        self.rehearsals = rehearsals
-        self.calls = calls
-        self.times = times
+        result = cls(message)
+        result.rehearsals = rehearsals
+        result.calls = calls
+        result.times = times
+
+        return result

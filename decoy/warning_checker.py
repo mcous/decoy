@@ -9,9 +9,9 @@ from .spy_events import (
     AnySpyEvent,
     SpyCall,
     SpyEvent,
+    SpyRehearsal,
     VerifyRehearsal,
     WhenRehearsal,
-    SpyRehearsal,
     match_event,
 )
 from .warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
@@ -78,7 +78,7 @@ def _check_no_miscalled_stubs(all_events: Sequence[AnySpyEvent]) -> None:
 
             if is_stubbed and all(len(c.matching_rehearsals) == 0 for c in calls):
                 _warn(
-                    MiscalledStubWarning(
+                    MiscalledStubWarning.create(
                         calls=[c.event for c in calls],
                         rehearsals=rehearsals,
                     )
@@ -91,7 +91,7 @@ def _check_no_redundant_verify(all_calls: Sequence[AnySpyEvent]) -> None:
 
     for vr in verify_rehearsals:
         if any(wr for wr in when_rehearsals if wr == vr):  # type: ignore[comparison-overlap]
-            _warn(RedundantVerifyWarning(rehearsal=vr))
+            _warn(RedundantVerifyWarning.create(rehearsal=vr))
 
 
 def _warn(warning: DecoyWarning) -> None:
