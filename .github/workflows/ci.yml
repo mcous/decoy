@@ -133,6 +133,9 @@ jobs:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
 
+        permissions:
+            id-token: write
+
         steps:
             - name: Deploy
               id: deployment
