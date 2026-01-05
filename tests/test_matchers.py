@@ -110,7 +110,7 @@ def test_dict_matching_matcher() -> None:
 
 
 def test_dict_matching_matcher_with_int_key() -> None:
-    """Dict matcher should suport non-string keys."""
+    """Dict matcher should support non-string keys."""
     assert {1: "hello", 2: "world"} == matchers.DictMatching({2: "world"})
 
 
