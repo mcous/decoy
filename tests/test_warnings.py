@@ -1,10 +1,11 @@
 """Tests for error and warning message generation."""
 
-import pytest
 import os
 from typing import NamedTuple
 
-from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, WhenRehearsal, VerifyRehearsal
+import pytest
+
+from decoy.spy_events import SpyCall, SpyEvent, SpyInfo, VerifyRehearsal, WhenRehearsal
 from decoy.warnings import DecoyWarning, MiscalledStubWarning, RedundantVerifyWarning
 
 
@@ -17,7 +18,7 @@ class WarningSpec(NamedTuple):
 
 warning_specs = [
     WarningSpec(
-        warning=MiscalledStubWarning(
+        warning=MiscalledStubWarning.create(
             rehearsals=[
                 WhenRehearsal(
                     spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -42,7 +43,7 @@ warning_specs = [
         ),
     ),
     WarningSpec(
-        warning=MiscalledStubWarning(
+        warning=MiscalledStubWarning.create(
             rehearsals=[
                 WhenRehearsal(
                     spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -72,7 +73,7 @@ warning_specs = [
         ),
     ),
     WarningSpec(
-        warning=MiscalledStubWarning(
+        warning=MiscalledStubWarning.create(
             rehearsals=[
                 WhenRehearsal(
                     spy=SpyInfo(id=1, name="spy", is_async=False),
@@ -102,7 +103,7 @@ warning_specs = [
         ),
     ),
     WarningSpec(
-        warning=RedundantVerifyWarning(
+        warning=RedundantVerifyWarning.create(
             rehearsal=VerifyRehearsal(
                 spy=SpyInfo(id=1, name="spy", is_async=False),
                 payload=SpyCall(args=(1,), kwargs={}),

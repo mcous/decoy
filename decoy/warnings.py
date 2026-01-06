@@ -9,7 +9,7 @@ import os
 from typing import Sequence
 
 from .spy_events import SpyEvent, SpyRehearsal, VerifyRehearsal
-from .stringify import stringify_call, stringify_error_message, count
+from .stringify import count, stringify_call, stringify_error_message
 
 
 class DecoyWarning(UserWarning):
@@ -31,18 +31,20 @@ class MiscalledStubWarning(DecoyWarning):
     [MiscalledStubWarning guide]: usage/errors-and-warnings.md#miscalledstubwarning
 
     Attributes:
-        rehearsals: The mocks's configured rehearsals.
+        rehearsals: The mock's configured rehearsals.
         calls: Actual calls to the mock.
     """
 
     rehearsals: Sequence[SpyRehearsal]
     calls: Sequence[SpyEvent]
 
-    def __init__(
-        self,
+    @classmethod
+    def create(
+        cls,
         rehearsals: Sequence[SpyRehearsal],
         calls: Sequence[SpyEvent],
-    ) -> None:
+    ) -> "MiscalledStubWarning":
+        """Create a MiscalledStubWarning."""
         heading = os.linesep.join(
             [
                 "Stub was called but no matching rehearsal found.",
@@ -56,9 +58,11 @@ class MiscalledStubWarning(DecoyWarning):
             calls=calls,
         )
 
-        super().__init__(message)
-        self.rehearsals = rehearsals
-        self.calls = calls
+        result = cls(message)
+        result.rehearsals = rehearsals
+        result.calls = calls
+
+        return result
 
 
 class RedundantVerifyWarning(DecoyWarning):
@@ -74,7 +78,11 @@ class RedundantVerifyWarning(DecoyWarning):
     [RedundantVerifyWarning guide]: usage/errors-and-warnings.md#redundantverifywarning
     """
 
-    def __init__(self, rehearsal: VerifyRehearsal) -> None:
+    rehearsal: VerifyRehearsal
+
+    @classmethod
+    def create(cls, rehearsal: VerifyRehearsal) -> "RedundantVerifyWarning":
+        """Create a RedundantVerifyWarning."""
         message = os.linesep.join(
             [
                 "The same rehearsal was used in both a `when` and a `verify`.",
@@ -83,8 +91,11 @@ class RedundantVerifyWarning(DecoyWarning):
                 "See https://michael.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",
             ]
         )
-        super().__init__(message)
-        self.rehearsal = rehearsal
+
+        result = cls(message)
+        result.rehearsal = rehearsal
+
+        return result
 
 
 class IncorrectCallWarning(DecoyWarning):

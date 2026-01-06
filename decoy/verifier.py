@@ -2,8 +2,8 @@
 
 from typing import Optional, Sequence
 
-from .spy_events import SpyEvent, VerifyRehearsal, match_event
 from .errors import VerifyError
+from .spy_events import SpyEvent, VerifyRehearsal, match_event
 
 # ensure decoy.verifier does not pollute Pytest tracebacks
 __tracebackhide__ = True
@@ -42,7 +42,7 @@ class Verifier:
         calls_verified = match_count != 0 if times is None else match_count == times
 
         if not calls_verified:
-            raise VerifyError(
+            raise VerifyError.create(
                 rehearsals=rehearsals,
                 calls=calls,
                 times=times,

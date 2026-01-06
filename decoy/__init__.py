@@ -3,14 +3,14 @@
 from typing import Any, Callable, Coroutine, Generic, Optional, Union, overload
 
 from . import errors, matchers, warnings
-from .core import DecoyCore, StubCore, PropCore
-from .types import ClassT, ContextValueT, FuncT, ReturnT
 from .context_managers import (
-    ContextManager,
     AsyncContextManager,
-    GeneratorContextManager,
     AsyncGeneratorContextManager,
+    ContextManager,
+    GeneratorContextManager,
 )
+from .core import DecoyCore, PropCore, StubCore
+from .types import ClassT, ContextValueT, FuncT, ReturnT
 
 # ensure decoy does not pollute pytest tracebacks
 __tracebackhide__ = True
@@ -82,7 +82,7 @@ class Decoy:
         spec = cls or func
 
         if spec is None and name is None:
-            raise errors.MockNameRequiredError()
+            raise errors.MockNameRequiredError.create()
 
         return self._core.mock(spec=spec, name=name, is_async=is_async)
 

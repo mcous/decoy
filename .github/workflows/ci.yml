@@ -11,6 +11,10 @@ jobs:
     test:
         name: "Test Python ${{ matrix.python-version }} on ${{ matrix.os }}"
         runs-on: ${{ matrix.os }}
+        permissions:
+            contents: read
+            id-token: write
+
         strategy:
             fail-fast: false
             matrix:
@@ -19,24 +23,25 @@ jobs:
                 include:
                     - os: ubuntu-22.04
                       python-version: "3.7"
-                    - os: windows-latest
+                    # TODO: `uv` is not compatible with Python 3.7 on Windows
+                    # https://github.com/astral-sh/uv/issues/11847
+                    # - os: windows-latest
+                    #   python-version: "3.7"
+                    - os: macos-15-intel
                       python-version: "3.7"
-                    - os: macos-13
-                      python-version: "3.7"
-        permissions:
-            id-token: write
 
         steps:
             - name: "Check out repository"
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
-            - name: "Set up Python and development dependencies"
+            - name: "Set up virtual environment"
               uses: ./.github/actions/setup
               with:
                   python-version: ${{ matrix.python-version }}
 
             - name: "Run tests"
-              run: poetry run poe test-ci
+              shell: bash
+              run: poe test-ci
 
             - name: "Upload coverage report"
               uses: codecov/codecov-action@v5
@@ -48,37 +53,93 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: "Check out repository"
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
-            - name: "Set up Python and development dependencies"
+            - name: "Set up virtual environment"
               uses: ./.github/actions/setup
 
             - name: "Check types, lints, and formatting"
-              run: poetry run poe check-ci
+              run: poe check-ci
 
-    build:
-        name: Build assets and deploy on tags
+    build-package:
+        name: Build package
         runs-on: ubuntu-latest
         needs: [test, check]
         steps:
             - name: "Check out repository"
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
-            - name: "Set up Python and development dependencies"
+            - name: "Set up virtual environment"
               uses: ./.github/actions/setup
 
-            - name: "Build artifacts"
-              run: poetry run poe build-ci
+            - name: "Build"
+              run: poe build-package
 
-            - name: "Deploy to PyPI and GitHub Pages"
-              if: startsWith(github.ref, 'refs/tags/v')
-              env:
-                  USER_NAME: ${{ github.actor }}
-                  USER_ID: ${{ github.event.sender.id }}
-                  PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-              run: |
-                  git config user.name "$USER_NAME (GitHub Actions)"
-                  git config user.email "$USER_ID+$USER_NAME@users.noreply.github.com"
-                  poetry config pypi-token.pypi $PYPI_TOKEN
-                  poetry publish
-                  poetry run mkdocs gh-deploy --force
+            - name: "Upload"
+              uses: actions/upload-artifact@v6
+              with:
+                  name: package
+                  path: ./dist
+
+    build-docs:
+        name: Build docs
+        runs-on: ubuntu-latest
+        needs: [test, check]
+        steps:
+            - name: "Check out repository"
+              uses: actions/checkout@v6
+
+            - name: "Set up virtual environment"
+              uses: ./.github/actions/setup
+
+            - name: "Build"
+              run: poe build-docs
+
+            - name: "Upload"
+              uses: actions/upload-pages-artifact@v4
+              with:
+                  path: ./site
+
+    deploy-package:
+        name: Deploy package to PyPI
+        runs-on: ubuntu-latest
+        needs: [build-package]
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        environment:
+            name: pypi
+            url: https://pypi.org/p/decoy
+
+        permissions:
+            id-token: write
+            contents: read
+
+        steps:
+            - name: "Check out repository"
+              uses: actions/checkout@v6
+
+            - name: "Download package artifact"
+              uses: actions/download-artifact@v7
+              with:
+                  name: package
+                  path: ./dist
+
+            - name: "Publish"
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+
+    deploy-docs:
+        name: Deploy docs to GitHub Pages
+        runs-on: ubuntu-latest
+        needs: [build-docs]
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        permissions:
+            id-token: write
+            pages: write
+
+        steps:
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v4

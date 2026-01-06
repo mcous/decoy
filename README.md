@@ -8,7 +8,7 @@
         <a title="Code Coverage" href="https://app.codecov.io/gh/mcous/decoy/"><img src="https://img.shields.io/codecov/c/github/mcous/decoy?style=flat-square"></a>
         <a title="License" href="https://github.com/mcous/decoy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mcous/decoy?style=flat-square"></a>
         <a title="PyPI Version"href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/v/decoy?style=flat-square"></a>
-        <a title="Supported Python Versions" href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/pypi/pyversions/decoy?style=flat-square"></a>
+        <a title="Supported Python Versions" href="https://pypi.org/project/decoy/"><img src="https://img.shields.io/python/required-version-toml?style=flat-square&tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fmcous%2Fdecoy%2Fmain%2Fpyproject.toml"></a>
     </p>
     <p>
         <a href="https://michael.cousins.io/decoy/" class="decoy-hidden">Usage guide and documentation</a>
@@ -22,14 +22,7 @@ Decoy mocks are **async/await** and **type-checking** friendly. Decoy is heavily
 ## Install
 
 ```bash
-# pip
 pip install decoy
-
-# poetry
-poetry add --dev decoy
-
-# pipenv
-pipenv install --dev decoy
 ```
 
 ## Setup
