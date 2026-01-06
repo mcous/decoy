@@ -63,13 +63,7 @@ poe format
 Decoy's documentation is built with [mkdocs][], which you can use to preview the documentation site locally.
 
 ```bash
-<<<<<<< HEAD
-poetry run poe docs
-||||||| 1cebd3f
-poetry run docs
-=======
 poe docs
->>>>>>> main
 ```
 
 ## Deploying

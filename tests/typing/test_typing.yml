@@ -143,12 +143,12 @@
   main: |
       from decoy import matchers
 
-      captor = matchers.Captor(str)
+      captor = matchers.ValueCaptor[str]()
 
-      reveal_type(captor)
-      reveal_type(captor.capture())
+      reveal_type(captor.matcher)
+      reveal_type(captor.value)
       reveal_type(captor.values)
   out: |
-      main:5: note: Revealed type is "decoy.matchers.ArgumentCaptor[builtins.str]"
-      main:6: note: Revealed type is "builtins.str"
-      main:7: note: Revealed type is "builtins.list[builtins.str]"
+      main:5: note: Revealed type is "builtins.str"
+      main:6: note: Revealed type is "builtins.object"
+      main:7: note: Revealed type is "builtins.list[builtins.object]"
