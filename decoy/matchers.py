@@ -28,16 +28,17 @@ See the [matchers guide][] for more details.
 """
 
 from re import compile as compile_re
-from typing import Any, List, Mapping, Optional, Pattern, Type, TypeVar, cast
-
-__all__ = [
-    "Anything",
-    "Captor",
-    "ErrorMatching",
-    "IsA",
-    "IsNot",
-    "StringMatching",
-]
+from typing import (
+    Any,
+    Generic,
+    List,
+    Mapping,
+    Optional,
+    Pattern,
+    Type,
+    TypeVar,
+    cast,
+)
 
 
 class _AnythingOrNone:
@@ -361,12 +362,32 @@ def ErrorMatching(error: Type[ErrorT], match: Optional[str] = None) -> ErrorT:
     return cast(ErrorT, _ErrorMatching(error, match))
 
 
-class _Captor:
+CapturedT = TypeVar("CapturedT")
+
+
+class ValueCaptor(Generic[CapturedT]):
+    """Match anything, capturing its value for further assertions.
+
+    Compare against the `matcher` property to capture a value.
+    The last captured value is available via `captor.value`,
+    while all captured values are stored in `captor.values`.
+
+    !!! example
+        ```python
+        captor = ValueCaptor[str]()
+        assert "foobar" == captor.matcher
+        print(captor.value)  # "foobar"
+        print(captor.values)  # ["foobar"]
+        ```
+    """
+
+    _values: List[object]
+
     def __init__(self) -> None:
-        self._values: List[Any] = []
+        self._values = []
 
     def __eq__(self, target: object) -> bool:
-        """Capture compared value, always returning True."""
+        """Captors are always "equal" to a given target."""
         self._values.append(target)
         return True
 
@@ -375,11 +396,19 @@ class _Captor:
         return "<Captor>"
 
     @property
-    def value(self) -> Any:
-        """Get the captured value.
+    def matcher(self) -> CapturedT:
+        """Match anything, capturing its value.
+
+        This method exists as a type-checking convenience.
+        """
+        return cast(CapturedT, self)
+
+    @property
+    def value(self) -> object:
+        """The latest captured value.
 
         Raises:
-            AssertionError: if no value was captured.
+            AssertionError: no value has been captured.
         """
         if len(self._values) == 0:
             raise AssertionError("No value captured by captor.")
@@ -387,24 +416,15 @@ class _Captor:
         return self._values[-1]
 
     @property
-    def values(self) -> List[Any]:
-        """Get all captured values."""
+    def values(self) -> List[object]:
+        """All captured values."""
         return self._values
 
 
 def Captor() -> Any:
-    """Match anything, capturing its value.
+    """Match anything, capturing its value for further assertions.
 
-    The last captured value will be set to `captor.value`. All captured
-    values will be placed in the `captor.values` list, which can be
-    helpful if a captor needs to be triggered multiple times.
-
-    !!! example
-        ```python
-        captor = Captor()
-        assert "foobar" == captor
-        print(captor.value)  # "foobar"
-        print(captor.values)  # ["foobar"]
-        ```
+    !!! tip
+        Prefer [decoy.matchers.ValueCaptor][], which has better type annotations.
     """
-    return _Captor()
+    return ValueCaptor()

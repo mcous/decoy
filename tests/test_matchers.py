@@ -1,7 +1,7 @@
 """Matcher tests."""
 
 from collections import namedtuple
-from typing import Any, List, NamedTuple
+from typing import List, NamedTuple
 
 import pytest
 
@@ -151,13 +151,40 @@ def test_error_matching_matcher() -> None:
     assert RuntimeError("ah!") != matchers.ErrorMatching(RuntimeError, "ah$")
 
 
-def test_captor_matcher() -> None:
+def test_captor_matcher_legacy() -> None:
     """It should have a captor matcher that captures the compared value."""
     captor = matchers.Captor()
-    comparisons: List[Any] = [1, False, None, {}, [], ("hello", "world"), SomeClass()]
+    comparisons: List[object] = [
+        1,
+        False,
+        None,
+        {},
+        [],
+        ("hello", "world"),
+        SomeClass(),
+    ]
 
     for i, compare in enumerate(comparisons):
         assert compare == captor
+        assert captor.value is compare
+        assert captor.values == comparisons[0 : i + 1]
+
+
+def test_argument_captor_matcher() -> None:
+    """It should have a strictly-typed value captor matcher."""
+    captor = matchers.ValueCaptor[object]()
+    comparisons: List[object] = [
+        1,
+        False,
+        None,
+        {},
+        [],
+        ("hello", "world"),
+        SomeClass(),
+    ]
+
+    for i, compare in enumerate(comparisons):
+        assert compare == captor.matcher
         assert captor.value is compare
         assert captor.values == comparisons[0 : i + 1]
 
