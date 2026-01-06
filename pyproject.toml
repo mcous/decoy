@@ -29,38 +29,32 @@ Changelog = "https://github.com/mcous/decoy/releases"
 
 [dependency-groups]
 dev = [
-    "poethepoet (==0.19.0) ; python_version < '3.8'",
-    "poethepoet (==0.30.0) ; python_version >= '3.8' and python_version < '3.9'",
-    "poethepoet (==0.35.0) ; python_version >= '3.9'",
-]
-
-test = [
-  "coverage[toml] (==7.2.7) ; python_version < '3.8'",
-  "coverage[toml] (==7.6.1) ; python_version >= '3.8' and python_version < '3.9'",
-  "coverage[toml] (==7.9.1) ; python_version >= '3.9'",
-  "mypy (==1.4.1) ; python_version < '3.8'",
-  "mypy (==1.14.1) ; python_version >= '3.8' and python_version < '3.9'",
-  "mypy (==1.16.0) ; python_version >= '3.9'",
-  "pytest (==7.4.4) ; python_version < '3.8'",
-  "pytest (==8.3.5) ; python_version >= '3.8' and python_version < '3.9'",
-  "pytest (==8.4.0) ; python_version >= '3.9'",
-  "pytest-asyncio (==0.21.2) ; python_version < '3.8'",
-  "pytest-asyncio (==0.24.0) ; python_version >= '3.8' and python_version < '3.9'",
-  "pytest-asyncio (==1.0.0) ; python_version >= '3.9'",
-  "pytest-mypy-plugins (==2.0.0) ; python_version < '3.8'",
-  "pytest-mypy-plugins (==3.1.2) ; python_version >= '3.8' and python_version < '3.9'",
-  "pytest-mypy-plugins (==3.2.0) ; python_version >= '3.9'",
-  "pytest-xdist (==3.5.0) ; python_version < '3.8'",
-  "pytest-xdist (==3.6.1) ; python_version >= '3.8' and python_version < '3.9'",
-  "pytest-xdist (==3.7.0) ; python_version >= '3.9'",
-  "ruff (==0.14.10)"
-]
-
-docs = [
+    "coverage[toml] (==7.2.7) ; python_version < '3.8'",
+    "coverage[toml] (==7.6.1) ; python_version >= '3.8' and python_version < '3.9'",
+    "coverage[toml] (==7.9.1) ; python_version >= '3.9'",
+    "mypy (==1.4.1) ; python_version < '3.8'",
+    "mypy (==1.14.1) ; python_version >= '3.8' and python_version < '3.9'",
+    "mypy (==1.16.0) ; python_version >= '3.9'",
+    "pytest (==7.4.4) ; python_version < '3.8'",
+    "pytest (==8.3.5) ; python_version >= '3.8' and python_version < '3.9'",
+    "pytest (==8.4.0) ; python_version >= '3.9'",
+    "pytest-asyncio (==0.21.2) ; python_version < '3.8'",
+    "pytest-asyncio (==0.24.0) ; python_version >= '3.8' and python_version < '3.9'",
+    "pytest-asyncio (==1.0.0) ; python_version >= '3.9'",
+    "pytest-mypy-plugins (==2.0.0) ; python_version < '3.8'",
+    "pytest-mypy-plugins (==3.1.2) ; python_version >= '3.8' and python_version < '3.9'",
+    "pytest-mypy-plugins (==3.2.0) ; python_version >= '3.9'",
+    "pytest-xdist (==3.5.0) ; python_version < '3.8'",
+    "pytest-xdist (==3.6.1) ; python_version >= '3.8' and python_version < '3.9'",
+    "pytest-xdist (==3.7.0) ; python_version >= '3.9'",
+    "ruff (==0.14.10)",
     "mkdocs (==1.6.1) ; python_version >= '3.10'",
     "mkdocs-material (==9.7.1) ; python_version >= '3.10'",
     "mkdocstrings[python] (==1.0.0) ; python_version >= '3.10'"
 ]
+
+[tool.poe]
+executor.type = "uv"
 
 [tool.poe.tasks]
 all = [
@@ -82,7 +76,7 @@ coverage = "coverage report"
 coverage-xml = "coverage xml"
 docs = "mkdocs serve"
 build-docs = "mkdocs build"
-build-package = "poetry build"
+build-package = "uv build"
 check-ci = ["check", "lint", "format-check"]
 test-ci = ["test-once", "coverage-xml"]
 
@@ -111,5 +105,12 @@ ignore = ["ANN401", "D107", "E501"]
 convention = "google"
 
 [build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.21,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "decoy"
+module-root = ""
+
+[tool.uv]
+required-version = ">=0.9.21,<0.10.0"

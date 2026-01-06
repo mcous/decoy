@@ -23,11 +23,12 @@ jobs:
                 include:
                     - os: ubuntu-22.04
                       python-version: "3.7"
-                    - os: windows-latest
-                      python-version: "3.7"
-                    # TODO: re-enable macOS + Python 3.7 once off Poetry
-                    # - os: macos-15-intel
+                    # TODO: `uv` is not compatible with Python 3.7 on Windows
+                    # https://github.com/astral-sh/uv/issues/11847
+                    # - os: windows-latest
                     #   python-version: "3.7"
+                    - os: macos-15-intel
+                      python-version: "3.7"
 
         steps:
             - name: "Check out repository"
@@ -39,7 +40,8 @@ jobs:
                   python-version: ${{ matrix.python-version }}
 
             - name: "Run tests"
-              run: poetry run poe test-ci
+              shell: bash
+              run: poe test-ci
 
             - name: "Upload coverage report"
               uses: codecov/codecov-action@v5
@@ -57,7 +59,7 @@ jobs:
               uses: ./.github/actions/setup
 
             - name: "Check types, lints, and formatting"
-              run: poetry run poe check-ci
+              run: poe check-ci
 
     build-package:
         name: Build package
@@ -71,7 +73,7 @@ jobs:
               uses: ./.github/actions/setup
 
             - name: "Build"
-              run: poetry run poe build-package
+              run: poe build-package
 
             - name: "Upload"
               uses: actions/upload-artifact@v6
@@ -91,7 +93,7 @@ jobs:
               uses: ./.github/actions/setup
 
             - name: "Build"
-              run: poetry run poe build-docs
+              run: poe build-docs
 
             - name: "Upload"
               uses: actions/upload-pages-artifact@v4
