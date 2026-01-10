@@ -1,25 +1,27 @@
-import contextlib
-from types import TracebackType
+from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from typing import (
     Any,
+    Awaitable,
     Callable,
     Generic,
+    Never,
+    ParamSpec,
+    TypeVar,
+    overload,
 )
 
-from .event import (
-    AttributeEvent,
-    Behavior,
-    CallEvent,
-    ContextManagerEvent,
-    Event,
-    MatchOptions,
-)
+from .event import AttributeEvent, Behavior, CallEvent, Event, MatchOptions
 from .inspect import bind_args, ensure_callable
 from .state import DecoyState, MockInfo
-from .types import ContextValueT, ParamsT, ReturnT, SpecT
+
+CallableSpecT = TypeVar("CallableSpecT", covariant=True)
+AttributeSpecT = TypeVar("AttributeSpecT")
+ParamsT = ParamSpec("ParamsT")
+ReturnT = TypeVar("ReturnT")
+ContextValueT = TypeVar("ContextValueT")
 
 
-class EffectsStub(Generic[ParamsT, ReturnT]):
+class Stub(Generic[ParamsT, ReturnT, ContextValueT]):
     def __init__(
         self,
         state: DecoyState,
@@ -31,6 +33,14 @@ class EffectsStub(Generic[ParamsT, ReturnT]):
         self._mock = mock
         self._match_options = match_options
         self._event = event
+
+    def then_return(self, *values: ReturnT) -> None:
+        behaviors = [Behavior(return_value=value) for value in values]
+        self._push_behaviors(behaviors)
+
+    def then_enter_with(self, *values: ContextValueT) -> None:
+        behaviors = [Behavior(context=value) for value in values]
+        self._push_behaviors(behaviors)
 
     def then_raise(self, *errors: Exception) -> None:
         behaviors = [Behavior(error=error) for error in errors]
@@ -52,20 +62,7 @@ class EffectsStub(Generic[ParamsT, ReturnT]):
         )
 
 
-class Stub(EffectsStub[ParamsT, ReturnT], Generic[ParamsT, ReturnT]):
-    def then_return(self, *values: ReturnT) -> None:
-        behaviors = [Behavior(return_value=value) for value in values]
-        self._push_behaviors(behaviors)
-
-    def then_enter_with(
-        self: "Stub[Any, contextlib.AbstractContextManager[ContextValueT] | contextlib.AbstractAsyncContextManager[ContextValueT]]",
-        *values: ContextValueT,
-    ) -> None:
-        behaviors = [Behavior(context=value) for value in values]
-        self._push_behaviors(behaviors)
-
-
-class When(Generic[SpecT, ParamsT, ReturnT, ContextValueT]):
+class When(Generic[CallableSpecT, AttributeSpecT]):
     def __init__(
         self,
         state: DecoyState,
@@ -76,46 +73,45 @@ class When(Generic[SpecT, ParamsT, ReturnT, ContextValueT]):
         self._mock = mock
         self._match_options = match_options
 
+    @overload
     def called_with(
-        self,
+        self: "When[Callable[ParamsT, ReturnT], Callable[..., AbstractAsyncContextManager[ContextValueT] | AbstractContextManager[ContextValueT]]]",
         *args: ParamsT.args,
         **kwargs: ParamsT.kwargs,
-    ) -> Stub[ParamsT, ReturnT]:
+    ) -> Stub[ParamsT, ReturnT, ContextValueT]: ...
+
+    @overload
+    def called_with(
+        self: "When[Callable[ParamsT, Awaitable[ReturnT]], Any]",
+        *args: ParamsT.args,
+        **kwargs: ParamsT.kwargs,
+    ) -> Stub[ParamsT, ReturnT | Awaitable[ReturnT], Never]: ...
+
+    @overload
+    def called_with(
+        self: "When[Callable[ParamsT, ReturnT], Any]",
+        *args: ParamsT.args,
+        **kwargs: ParamsT.kwargs,
+    ) -> Stub[ParamsT, ReturnT, Never]: ...
+
+    def called_with(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Stub[Any, Any, Any]:
         bound_args = bind_args(self._mock.signature, args, kwargs)
         event = CallEvent(args=bound_args.args, kwargs=bound_args.kwargs)
 
         return self._create_stub(event)
 
-    def entered(
-        self,
-    ) -> Stub[[], ContextValueT]:
-        return self._create_stub(ContextManagerEvent.enter())
-
-    def exited_with(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> Stub[
-        [
-            type[BaseException] | None,
-            BaseException | None,
-            TracebackType | None,
-        ],
-        bool | None,
-    ]:
-        return self._create_stub(
-            ContextManagerEvent.exit(exc_type, exc_value, traceback)
-        )
-
-    def get(self) -> Stub[[], SpecT]:
+    def get(self) -> Stub[[], AttributeSpecT, Never]:
         return self._create_stub(AttributeEvent.get())
 
-    def set_with(self, value: SpecT) -> EffectsStub[[SpecT], None]:
+    def set_with(self, value: AttributeSpecT) -> Stub[[AttributeSpecT], None, Never]:
         return self._create_stub(AttributeEvent.set(value))
 
-    def delete(self) -> EffectsStub[[], None]:
+    def delete(self) -> Stub[[], None, Never]:
         return self._create_stub(AttributeEvent.delete())
 
-    def _create_stub(self, event: Event) -> Stub[Any, Any]:
+    def _create_stub(self, event: Event) -> Stub[Any, Any, Never]:
         return Stub(self._state, self._mock, self._match_options, event)

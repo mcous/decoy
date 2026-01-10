@@ -1,6 +1,5 @@
 import enum
-from types import TracebackType
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Type, Union, final
+from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union, final
 
 
 @final
@@ -42,34 +41,7 @@ class CallEvent(NamedTuple):
     kwargs: Dict[str, object]
 
 
-class ContextManagerEventType(str, enum.Enum):
-    ENTER = "enter"
-    EXIT = "exit"
-
-
-class ContextManagerEvent(NamedTuple):
-    """Event representing a context manager enter or exit."""
-
-    type: ContextManagerEventType
-    exc_type: Optional[Type[BaseException]]
-    exc_value: Optional[BaseException]
-    traceback: Optional[TracebackType]
-
-    @classmethod
-    def enter(cls) -> "ContextManagerEvent":
-        return cls(ContextManagerEventType.ENTER, None, None, None)
-
-    @classmethod
-    def exit(
-        cls,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ) -> "ContextManagerEvent":
-        return cls(ContextManagerEventType.EXIT, exc_type, exc_value, traceback)
-
-
-Event = Union[CallEvent, AttributeEvent, ContextManagerEvent]
+Event = Union[CallEvent, AttributeEvent]
 
 
 class EventState(NamedTuple):
@@ -126,8 +98,8 @@ def match_event_list(
 def _match_event(event: Event, expected: Event, match_options: MatchOptions) -> bool:
     if (
         match_options.ignore_extra_args is False
-        or isinstance(event, (AttributeEvent, ContextManagerEvent))
-        or isinstance(expected, (AttributeEvent, ContextManagerEvent))
+        or isinstance(event, AttributeEvent)
+        or isinstance(expected, AttributeEvent)
     ):
         return event == expected
 

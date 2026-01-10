@@ -1,5 +1,8 @@
 """Tests for Decoy.when."""
 
+import contextlib
+from typing import Any, Generator
+
 import pytest
 
 from decoy.next import Decoy, errors
@@ -158,7 +161,7 @@ def test_when_then_do_invalid_async_action(decoy: Decoy) -> None:
 
 
 def test_when_then_return_while_entered(decoy: Decoy) -> None:
-    """It limits matches to while the contex manager is entered."""
+    """It limits matches to while the context manager is entered."""
     subject = decoy.mock(name="subject")
     decoy.when(subject).called_with("hello").then_return("world")
     decoy.when(subject, is_entered=False).called_with("hola").then_return("mundo")
@@ -189,22 +192,25 @@ async def test_when_then_return_while_async_entered(decoy: Decoy) -> None:
     assert result_entered == ["world", None, "verden"]
 
 
-def test_when_enter_method(decoy: Decoy) -> None:
+def test_when_enter(decoy: Decoy) -> None:
     """Can stub the `__enter__` and `__exit__` methods."""
     is_exited = False
 
-    def _on_exit(*_: object) -> None:
+    def _on_exit(*args: Any, **kwargs: Any) -> None:
         nonlocal is_exited
         is_exited = True
 
     class _Dependency:
-        def __enter__(self) -> int: ...
-        def __exit__(self, *args, **kwargs) -> None: ...
+        def __enter__(self) -> int:
+            raise NotImplementedError()
+
+        def __exit__(self, *args: Any, **kwargs: Any) -> None:
+            raise NotImplementedError()
 
     subject = decoy.mock(cls=_Dependency)
 
-    decoy.when(subject).entered().then_return(42)
-    decoy.when(subject).exited_with(None, None, None).then_do(_on_exit)
+    decoy.when(subject.__enter__).called_with().then_return(42)
+    decoy.when(subject.__exit__).called_with().then_do(_on_exit)
 
     with subject as result:
         assert result == 42
@@ -212,13 +218,45 @@ def test_when_enter_method(decoy: Decoy) -> None:
     assert is_exited is True
 
 
+async def test_when_enter_async(decoy: Decoy) -> None:
+    """Can stub the `__aenter__` and `__aexit__` methods."""
+    is_exited = False
+
+    async def _on_exit(*args: Any, **kwargs: Any) -> None:
+        nonlocal is_exited
+        is_exited = True
+
+    class _Dependency:
+        async def __aenter__(self) -> int:
+            raise NotImplementedError()
+
+        async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
+            raise NotImplementedError()
+
+    subject = decoy.mock(cls=_Dependency)
+
+    decoy.when(subject.__aenter__).called_with().then_return(42)
+    decoy.when(subject.__aexit__).called_with().then_do(_on_exit)
+
+    async with subject as result:
+        assert result == 42
+
+    assert is_exited is True
+
+
 def test_when_called_with_then_enter_with(decoy: Decoy) -> None:
     """Can stub a context manager return."""
-    subject = decoy.mock(name="generator_cm")
 
-    decoy.when(subject).called_with("hello").then_enter_with(42)
+    class _Dependency:
+        @contextlib.contextmanager
+        def enter(self, value: str) -> Generator[int, None, None]:
+            yield -1
 
-    with subject("hello") as result:
+    subject = decoy.mock(cls=_Dependency)
+
+    decoy.when(subject.enter).called_with("hello").then_enter_with(42)
+
+    with subject.enter("hello") as result:
         assert result == 42
 
 

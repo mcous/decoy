@@ -1,6 +1,6 @@
 """Inspect spec object."""
 
-import collections
+import collections.abc
 import functools
 import inspect
 from typing import (
@@ -90,12 +90,7 @@ def get_spec_class_type(spec: object, fallback_type: Type[object]) -> Type[objec
 
 
 def is_magic_attribute(name: str) -> bool:
-    return (
-        name.startswith("__")
-        and name.endswith("__")
-        and name != "__enter__"
-        and name != "__exit__"
-    )
+    return name.startswith("__") and name.endswith("__")
 
 
 def get_child_spec(spec: object, child_name: str) -> object:
@@ -122,6 +117,13 @@ def get_child_spec(spec: object, child_name: str) -> object:
             child_source = functools.partial(child_source, None)
 
         return _unwrap_optional(child_source)
+
+    return None
+
+
+def get_method_class(name: str, maybe_method: object) -> object:
+    if inspect.ismethod(maybe_method) and maybe_method.__name__ == name:
+        return maybe_method.__self__
 
     return None
 
