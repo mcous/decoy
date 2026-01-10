@@ -22,6 +22,8 @@ ContextValueT = TypeVar("ContextValueT")
 
 
 class Stub(Generic[ParamsT, ReturnT, ContextValueT]):
+    """Configure a stub's behavior."""
+
     def __init__(
         self,
         state: DecoyState,
@@ -63,6 +65,8 @@ class Stub(Generic[ParamsT, ReturnT, ContextValueT]):
 
 
 class When(Generic[CallableSpecT, AttributeSpecT]):
+    """Configure how a stub is triggered."""
+
     def __init__(
         self,
         state: DecoyState,
@@ -99,6 +103,7 @@ class When(Generic[CallableSpecT, AttributeSpecT]):
         *args: Any,
         **kwargs: Any,
     ) -> Stub[Any, Any, Any]:
+        """Configure a stub to react to certain passed-in arguments."""
         bound_args = bind_args(self._mock.signature, args, kwargs)
         event = CallEvent(args=bound_args.args, kwargs=bound_args.kwargs)
 
