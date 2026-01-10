@@ -4,7 +4,7 @@ from typing import (
     Awaitable,
     Callable,
     Generic,
-    Never,
+    NoReturn,
     ParamSpec,
     TypeVar,
     overload,
@@ -85,14 +85,14 @@ class When(Generic[CallableSpecT, AttributeSpecT]):
         self: "When[Callable[ParamsT, Awaitable[ReturnT]], Any]",
         *args: ParamsT.args,
         **kwargs: ParamsT.kwargs,
-    ) -> Stub[ParamsT, ReturnT | Awaitable[ReturnT], Never]: ...
+    ) -> Stub[ParamsT, ReturnT | Awaitable[ReturnT], NoReturn]: ...
 
     @overload
     def called_with(
         self: "When[Callable[ParamsT, ReturnT], Any]",
         *args: ParamsT.args,
         **kwargs: ParamsT.kwargs,
-    ) -> Stub[ParamsT, ReturnT, Never]: ...
+    ) -> Stub[ParamsT, ReturnT, NoReturn]: ...
 
     def called_with(
         self,
@@ -104,14 +104,14 @@ class When(Generic[CallableSpecT, AttributeSpecT]):
 
         return self._create_stub(event)
 
-    def get(self) -> Stub[[], AttributeSpecT, Never]:
+    def get(self) -> Stub[[], AttributeSpecT, NoReturn]:
         return self._create_stub(AttributeEvent.get())
 
-    def set_with(self, value: AttributeSpecT) -> Stub[[AttributeSpecT], None, Never]:
+    def set_with(self, value: AttributeSpecT) -> Stub[[AttributeSpecT], None, NoReturn]:
         return self._create_stub(AttributeEvent.set(value))
 
-    def delete(self) -> Stub[[], None, Never]:
+    def delete(self) -> Stub[[], None, NoReturn]:
         return self._create_stub(AttributeEvent.delete())
 
-    def _create_stub(self, event: Event) -> Stub[Any, Any, Never]:
+    def _create_stub(self, event: Event) -> Stub[Any, Any, NoReturn]:
         return Stub(self._state, self._mock, self._match_options, event)
