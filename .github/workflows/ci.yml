@@ -18,17 +18,16 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
-                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+                os: [ubuntu-latest]
+                python-version:
+                    ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
                 include:
                     - os: ubuntu-22.04
                       python-version: "3.7"
-                    # TODO: `uv` is not compatible with Python 3.7 on Windows
-                    # https://github.com/astral-sh/uv/issues/11847
-                    # - os: windows-latest
-                    #   python-version: "3.7"
-                    - os: macos-15-intel
-                      python-version: "3.7"
+                    - os: windows-latest
+                      python-version: "3.14"
+                    - os: macos-latest
+                      python-version: "3.14"
 
         steps:
             - name: "Check out repository"
