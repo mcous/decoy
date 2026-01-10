@@ -108,7 +108,7 @@
       decoy.when(fake_any("hello")).then_enter_with(42)
 
   out: |
-      main:10: error: Invalid self argument "Stub\[int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[.*ContextManager\[ContextValueT]], ContextValueT], None]"  \[misc]
+      main:10: error: Invalid self argument "Stub\[int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[.*ContextManager\[ContextValueT.*]], ContextValueT], None]"  \[misc]
       main:10: error: No overload variant of "then_enter_with" of "Stub" matches argument type "int"  \[call-overload]
       main:10: note: Possible overload variants:
       main:10: note:     def then_enter_with\(self, value.+\) -> None
