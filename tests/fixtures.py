@@ -1,7 +1,7 @@
 """Common test fixtures."""
 
 from functools import lru_cache
-from typing import Any, Generic, TypeVar, Optional, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 
 class SomeClass:
@@ -16,8 +16,13 @@ class SomeClass:
         raise NotImplementedError()
 
     @staticmethod
-    def fizzbuzz(hello: str) -> int:
-        """Fizz some buzzes."""
+    def static_method(hello: str) -> int:
+        """A static method fixture."""
+        raise NotImplementedError()
+
+    @classmethod
+    def class_method(cls, hello: str) -> int:
+        """A class method fixture."""
         raise NotImplementedError()
 
     def do_the_thing(self, *, flag: bool) -> None:
@@ -96,15 +101,15 @@ class SomeAsyncClass:
         raise NotImplementedError()
 
 
-class SomeAsyncCallableClass:
-    """Async callable class."""
+class SomeCallableClass:
+    """Callable class."""
 
-    async def __call__(self, val: int) -> int:
+    def __call__(self, val: int) -> int:
         """Get an integer."""
         raise NotImplementedError()
 
 
-class SomeCallableClass:
+class SomeAsyncCallableClass:
     """Async callable class."""
 
     async def __call__(self, val: int) -> int:
@@ -119,6 +124,11 @@ def noop(*args: Any, **kwargs: Any) -> Any:
 
 def some_func(val: str) -> str:
     """Test function."""
+    raise NotImplementedError()
+
+
+def some_func_with_args_and_kwargs(a: str, *, b: bool = True) -> str:
+    """Test function with args and kwargs."""
     raise NotImplementedError()
 
 
