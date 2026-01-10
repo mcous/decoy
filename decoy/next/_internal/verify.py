@@ -1,10 +1,12 @@
-from typing import Any, Callable, Generic
+from typing import Any, Callable, Generic, ParamSpec, TypeVar
 
 from ..errors import VerifyError
 from .event import AttributeEvent, CallEvent, Event, MatchOptions, match_event_list
-from .state import DecoyState, MockInfo
-from .types import ParamsT, SpecT
 from .inspect import bind_args
+from .state import DecoyState, MockInfo
+
+SpecT = TypeVar("SpecT")
+ParamsT = ParamSpec("ParamsT")
 
 
 class Verify(Generic[SpecT]):

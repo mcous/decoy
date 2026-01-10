@@ -123,8 +123,8 @@
       decoy = Decoy()
       fake_cm = decoy.mock(cls=Dependency)
 
-      decoy.when(fake_cm).entered().then_return(42)
-      decoy.when(fake_cm).entered().then_return("wrong-type")
+      decoy.when(fake_cm.__enter__).called_with().then_return(42)
+      decoy.when(fake_cm.__enter__).called_with().then_return("wrong-type")
   out: |
       main:16: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
@@ -163,7 +163,6 @@
       decoy.when(fake_any).called_with("hello").then_enter_with(42)
 
   out: |
-      main:10: error: Invalid self argument "Stub\[\[str], int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[ParamsT, AbstractContextManager\[ContextValueT, bool | None] | AbstractAsyncContextManager\[ContextValueT, bool | None]], VarArg(ContextValueT)], None]"  \[misc]
       main:10: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "int"; expected "Never"  \[arg-type]
 
 - case: matchers_mimic_types

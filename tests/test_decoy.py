@@ -12,8 +12,8 @@ from .fixtures import (
     SomeAsyncClass,
     SomeClass,
     SomeNestedClass,
-    some_func,
     some_async_func,
+    some_func,
 )
 
 

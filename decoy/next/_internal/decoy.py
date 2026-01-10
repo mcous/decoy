@@ -1,12 +1,6 @@
 import collections.abc
 import contextlib
-from typing import (
-    Any,
-    Callable,
-    Literal,
-    Never,
-    overload,
-)
+from typing import Any, Callable, Literal, TypeVar, overload
 
 from .event import MatchOptions
 from .inspect import (
@@ -17,17 +11,12 @@ from .inspect import (
 )
 from .mock import AsyncMock, Mock, create_mock, ensure_mock
 from .state import DecoyState
-from .types import (
-    ClassT,
-    ContextValueT,
-    FuncT,
-    MockT,
-    ParamsT,
-    ReturnT,
-    SpecT,
-)
 from .verify import Verify
 from .when import When
+
+ClassT = TypeVar("ClassT")
+FuncT = TypeVar("FuncT", bound=Callable[..., Any])
+SpecT = TypeVar("SpecT")
 
 
 class Decoy:
@@ -117,17 +106,6 @@ class Decoy:
             state=self._state,
         )
 
-    @overload
-    def when(  # type: ignore[overload-overlap]
-        self,
-        mock: MockT[ContextValueT, ParamsT, ReturnT],
-        *,
-        times: int | None = None,
-        ignore_extra_args: bool = False,
-        is_entered: bool | None = None,
-    ) -> When[Never, ParamsT, ReturnT, ContextValueT]: ...
-
-    @overload
     def when(
         self,
         mock: SpecT,
@@ -135,16 +113,7 @@ class Decoy:
         times: int | None = None,
         ignore_extra_args: bool = False,
         is_entered: bool | None = None,
-    ) -> When[SpecT, [], Never, Never]: ...
-
-    def when(
-        self,
-        mock: Any,
-        *,
-        times: int | None = None,
-        ignore_extra_args: bool = False,
-        is_entered: bool | None = None,
-    ) -> When[Any, Any, Any, Any]:
+    ) -> When[SpecT, SpecT]:
         """Configure a mock as a stub.
 
         See [stubbing usage guide](usage/when.md) for more details.

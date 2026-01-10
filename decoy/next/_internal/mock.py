@@ -2,12 +2,13 @@ from types import TracebackType
 from typing import Any, Dict, Optional, Tuple, Type, cast
 
 from ..errors import NotAMockError
-from .event import AttributeEvent, CallEvent, ContextManagerEvent, EventState
+from .event import AttributeEvent, CallEvent, EventState
 from .inspect import (
     Signature,
     bind_args,
     get_awaitable_value,
     get_child_spec,
+    get_method_class,
     get_signature,
     get_spec_class_type,
     is_async_callable,
@@ -51,7 +52,7 @@ class MockInternals:
             event_state=self.event_state,
         )
 
-    def get_child(self, name: str) -> "Mock":
+    def get_child(self, name: str, is_async: bool = False) -> "Mock":
         if name in self.children:
             return self.children[name]
 
@@ -59,7 +60,7 @@ class MockInternals:
         child = create_mock(
             spec=spec,
             name=name,
-            is_async=is_async_callable(spec),
+            is_async=is_async_callable(spec) if spec else is_async,
             parent_name=self.full_name,
             state=self.state,
         )
@@ -79,7 +80,7 @@ class Mock:
         return self._decoy.call(args, kwargs)
 
     @property  # type: ignore[misc]
-    def __class__(self) -> Type[Any]:
+    def __class__(self) -> Type[Any]:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Ensure mock can pass `isinstance` checks."""
         return self._decoy.spec_class_type
 
@@ -92,16 +93,10 @@ class Mock:
         return f"<Decoy mock '{self._decoy.full_name}'>"
 
     def __enter__(self) -> Any:
-        event = ContextManagerEvent.enter()
-        event_state = EventState(is_entered=True)
+        enter = self._decoy.get_child("__enter__")
+        self._decoy.event_state = EventState(is_entered=True)
 
-        self._decoy.event_state = event_state
-
-        return self._decoy.state.use_behavior(
-            mock=self._decoy.info,
-            event=event,
-            event_state=event_state,
-        )
+        return enter()
 
     def __exit__(
         self,
@@ -109,25 +104,22 @@ class Mock:
         exc_value: Optional[BaseException],
         traceback: Optional[TracebackType],
     ) -> Optional[bool]:
-        event = ContextManagerEvent.exit(exc_type, exc_value, traceback)
-        event_state = EventState(is_entered=False)
+        exit = self._decoy.get_child("__exit__")
+        self._decoy.event_state = EventState(is_entered=False)
 
-        self._decoy.event_state = event_state
+        return cast(Optional[bool], exit())
 
-        return cast(
-            Optional[bool],
-            self._decoy.state.use_behavior(
-                mock=self._decoy.info,
-                event=event,
-                event_state=event_state,
-            ),
-        )
-
-    async def __aenter__(self) -> None:
+    async def __aenter__(self) -> Any:
+        enter = self._decoy.get_child("__aenter__", is_async=True)
         self._decoy.event_state = EventState(is_entered=True)
 
-    async def __aexit__(self, *_: object) -> None:
+        return await enter()
+
+    async def __aexit__(self, *_: object) -> Optional[bool]:
+        exit = self._decoy.get_child("__aexit__", is_async=True)
         self._decoy.event_state = EventState(is_entered=False)
+
+        return cast(Optional[bool], await exit())
 
     def __getattr__(self, name: str) -> Any:
         if is_magic_attribute(name):
@@ -192,5 +184,15 @@ def create_mock(
 def ensure_mock(method_name: str, maybe_mock: object) -> MockInfo:
     if isinstance(maybe_mock, Mock):
         return maybe_mock._decoy.info
+
+    for cm_method, is_async in (
+        ("__enter__", False),
+        ("__exit__", False),
+        ("__aenter__", True),
+        ("__aexit__", True),
+    ):
+        maybe_cm_mock = get_method_class(cm_method, maybe_mock)
+        if isinstance(maybe_cm_mock, Mock):
+            return maybe_cm_mock._decoy.get_child(cm_method, is_async)._decoy.info
 
     raise NotAMockError.create(method_name, maybe_mock)

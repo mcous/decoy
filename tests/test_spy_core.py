@@ -1,22 +1,24 @@
 """Tests for SpyCore instances."""
 
-import pytest
 import inspect
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Type
 
-from decoy.spy_core import SpyCore, BoundArgs
+import pytest
+
+from decoy.spy_core import BoundArgs, SpyCore
 from decoy.warnings import IncorrectCallWarning
+
 from .fixtures import (
-    SomeClass,
-    SomeAsyncClass,
-    SomeAsyncCallableClass,
-    SomeCallableClass,
-    SomeNestedClass,
+    ConcreteAlias,
     GenericClass,
     GenericT,
-    ConcreteAlias,
-    some_func,
+    SomeAsyncCallableClass,
+    SomeAsyncClass,
+    SomeCallableClass,
+    SomeClass,
+    SomeNestedClass,
     some_async_func,
+    some_func,
     some_wrapped_func,
 )
 
@@ -194,7 +196,7 @@ class GetSignatureSpec(NamedTuple):
         ),
         GetSignatureSpec(
             subject=SpyCore(source=SomeClass, name=None).create_child_core(
-                "fizzbuzz", is_async=False
+                "static_method", is_async=False
             ),
             expected_signature=inspect.Signature(
                 parameters=[
@@ -312,7 +314,7 @@ def test_get_signature_no_type_hints() -> None:
     """It should gracefully degrade if a class's type hints cannot be resolved."""
 
     class _BadTypeHints:
-        _not_ok: "None[Any]"
+        _not_ok: "None[Any]"  # pyright: ignore[reportInvalidTypeArguments]
 
         def _ok(self, hello: str) -> None: ...
 
