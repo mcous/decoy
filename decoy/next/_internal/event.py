@@ -1,5 +1,5 @@
 import enum
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union, final
+from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, final
 
 
 @final
@@ -41,7 +41,7 @@ class CallEvent(NamedTuple):
     kwargs: Dict[str, object]
 
 
-Event = Union[CallEvent, AttributeEvent]
+Event = CallEvent | AttributeEvent
 
 
 class EventState(NamedTuple):
