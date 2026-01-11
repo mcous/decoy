@@ -31,6 +31,9 @@ def test_anything_or_none_matcher() -> None:
     assert SomeClass() == matchers.AnythingOrNone()
     assert None == matchers.AnythingOrNone()  # noqa: E711
 
+
+def test_anything_or_none_repr() -> None:
+    """`AnythingOrNone()` has a string representation."""
     assert str(matchers.AnythingOrNone()) == "<AnythingOrNone>"
 
 
@@ -43,6 +46,11 @@ def test_any_matcher() -> None:
     assert ("hello", "world") == matchers.Anything()
     assert SomeClass() == matchers.Anything()
     assert None != matchers.Anything()  # noqa: E711
+
+
+def test_anything_repr() -> None:
+    """`Anything()` has a string representation."""
+    assert str(matchers.Anything()) == "<Anything>"
 
 
 def test_is_a_matcher() -> None:
@@ -65,6 +73,19 @@ def test_is_a_matcher_checks_instance(decoy: Decoy) -> None:
     assert target == matchers.IsA(SomeClass)
 
 
+def test_is_a_repr() -> None:
+    """`IsA()` has a string representation."""
+    assert str(matchers.IsA(SomeClass)) == "<IsA SomeClass>"
+
+
+def test_is_a_with_attrs_repr() -> None:
+    """`IsA()` has a string representation when passed attributes."""
+    assert (
+        str(matchers.IsA(SomeClass, {"hello": "world"}))
+        == "<IsA SomeClass {'hello': 'world'}>"
+    )
+
+
 def test_is_not_matcher() -> None:
     """It should have an "anything that isn't this" matcher."""
     assert 1 == matchers.IsNot(2)
@@ -80,17 +101,33 @@ def test_is_not_matcher() -> None:
     assert ("hello", "world") != matchers.IsNot(("hello", "world"))
 
 
-def test_has_attribute_matcher() -> None:
+def test_is_not_repr() -> None:
+    """`IsNot()` has a string representation."""
+    assert str(matchers.IsNot("hello")) == "<IsNot 'hello'>"
+
+
+def test_has_attributes_matcher() -> None:
     """It should have an "anything with these attributes" matcher."""
     assert _HelloTuple("world") == matchers.HasAttributes({"hello": "world"})
     assert _HelloClass() == matchers.HasAttributes({"hello": "world"})
     assert _HelloClass() == matchers.HasAttributes({"goodbye": "so long"})
 
     assert {"hello": "world"} != matchers.HasAttributes({"hello": "world"})
-    assert _HelloTuple("world") != matchers.HasAttributes({"goodbye": "so long"})
+    assert _HelloTuple("world") != matchers.HasAttributes({"hello": "goodbye"})
+    assert _HelloTuple("world") != matchers.HasAttributes(
+        {"hello": "world", "goodbye": "so long"}
+    )
     assert 1 != matchers.HasAttributes({"hello": "world"})
     assert False != matchers.HasAttributes({"hello": "world"})  # noqa: E712
     assert [] != matchers.HasAttributes({"hello": "world"})
+
+
+def test_has_attributes_repr() -> None:
+    """`HasAttributes()` has a string representation."""
+    assert (
+        str(matchers.HasAttributes({"hello": "world"}))
+        == "<HasAttributes {'hello': 'world'}>"
+    )
 
 
 def test_dict_matching_matcher() -> None:
@@ -114,6 +151,11 @@ def test_dict_matching_matcher_with_int_key() -> None:
     assert {1: "hello", 2: "world"} == matchers.DictMatching({2: "world"})
 
 
+def test_dict_matching_repr() -> None:
+    """`DictMatching()` has a string representation."""
+    assert str(matchers.DictMatching({1: "hello"})) == "<DictMatching {1: 'hello'}>"
+
+
 def test_list_matching_matcher() -> None:
     """It should have a "contains this sub-list" matcher."""
     assert [1, 2, 3] == matchers.ListMatching([1])
@@ -134,6 +176,9 @@ def test_list_matching_matcher() -> None:
 
     assert 1 != matchers.ListMatching([1])
 
+
+def test_list_matching_repr() -> None:
+    """`ListMatching()` has a string representation."""
     assert str(matchers.ListMatching([1])) == "<ListMatching [1]>"
 
 
@@ -143,12 +188,25 @@ def test_string_matching_matcher() -> None:
     assert "hello" != matchers.StringMatching("^ello$")
 
 
+def test_string_matching_repr() -> None:
+    """`StringMatching()` has a string representation."""
+    assert str(matchers.StringMatching("ello")) == "<StringMatching 'ello'>"
+
+
 def test_error_matching_matcher() -> None:
     """It should have an "any error that matches" matcher."""
     assert RuntimeError("ah!") == matchers.ErrorMatching(RuntimeError)
     assert RuntimeError("ah!") == matchers.ErrorMatching(RuntimeError, "ah")
     assert RuntimeError("ah!") != matchers.ErrorMatching(TypeError, "ah")  # type: ignore[comparison-overlap]
     assert RuntimeError("ah!") != matchers.ErrorMatching(RuntimeError, "ah$")
+
+
+def test_error_matching_repr() -> None:
+    """`ErrorMatching()` has a string representation."""
+    assert (
+        str(matchers.ErrorMatching(RuntimeError, "ah"))
+        == "<ErrorMatching RuntimeError match='ah'>"
+    )
 
 
 def test_captor_matcher_legacy() -> None:
@@ -195,3 +253,8 @@ def test_captor_matcher_raises_if_no_value() -> None:
 
     with pytest.raises(AssertionError, match="No value captured"):
         captor.value  # noqa: B018
+
+
+def test_captor_repr() -> None:
+    """`StringMatching()` has a string representation."""
+    assert str(matchers.ValueCaptor()) == "<Captor>"
