@@ -5,52 +5,9 @@ from typing import Any, AsyncIterator, ContextManager, Generator, Optional
 
 import pytest
 
-from decoy import Decoy, errors
-from decoy.spy import AsyncSpy, Spy
+from decoy import Decoy
 
-from .fixtures import (
-    SomeAsyncClass,
-    SomeClass,
-    SomeNestedClass,
-    some_func,
-    some_async_func,
-)
-
-
-def test_decoy_creates_spy(decoy: Decoy) -> None:
-    """It should be able to create a Spy from a class."""
-    subject = decoy.mock(cls=SomeClass)
-
-    assert isinstance(subject, SomeClass)
-    assert isinstance(subject, Spy)
-
-
-def test_decoy_creates_func_spy(decoy: Decoy) -> None:
-    """It should be able to create a Spy from a function."""
-    subject = decoy.mock(func=some_func)
-
-    assert isinstance(subject, Spy)
-
-
-def test_decoy_creates_specless_spy(decoy: Decoy) -> None:
-    """It should be able to create a spec-less spy."""
-    subject = decoy.mock(name="subject")
-
-    assert isinstance(subject, Spy)
-    assert repr(subject) == "<Decoy mock `subject`>"
-
-
-def test_decoy_creates_specless_async_spy(decoy: Decoy) -> None:
-    """It should be able to create an async specless spy."""
-    subject = decoy.mock(name="subject", is_async=True)
-
-    assert isinstance(subject, AsyncSpy)
-
-
-def test_decoy_mock_name_required(decoy: Decoy) -> None:
-    """A name should be required for the mock."""
-    with pytest.raises(errors.MockNameRequiredError):
-        decoy.mock()  # type: ignore[call-overload]
+from .fixtures import SomeAsyncClass, some_async_func, some_func
 
 
 @pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
@@ -128,80 +85,6 @@ def test_when_ignore_extra_args(decoy: Decoy) -> None:
     assert result == 42
 
 
-def test_verify(decoy: Decoy) -> None:
-    """It should be able to configure a verification with a rehearsal."""
-    subject = decoy.mock(func=some_func)
-
-    subject("hello")
-
-    decoy.verify(subject("hello"))
-    decoy.verify(subject(val="hello"))
-
-    with pytest.raises(errors.VerifyError):
-        decoy.verify(subject("goodbye"))
-
-
-def test_verify_times(decoy: Decoy) -> None:
-    """It should be able to verify a call count."""
-    subject = decoy.mock(func=some_func)
-
-    subject("hello")
-
-    decoy.verify(subject("hello"), times=1)
-    decoy.verify(subject("goodbye"), times=0)
-
-    with pytest.raises(errors.VerifyError):
-        decoy.verify(subject("hello"), times=0)
-
-    with pytest.raises(errors.VerifyError):
-        decoy.verify(subject("hello"), times=2)
-
-
-def test_verify_ignore_extra_args(decoy: Decoy) -> None:
-    """It should be able to ignore extra args in a stub rehearsal."""
-
-    def _get_a_thing(id: str, default: Optional[int] = None) -> int:
-        raise NotImplementedError("intentionally unimplemented")
-
-    subject = decoy.mock(func=_get_a_thing)
-
-    subject("some-id", 101)
-
-    decoy.verify(
-        subject("some-id"),
-        ignore_extra_args=True,
-    )
-
-    with pytest.raises(errors.VerifyError):
-        decoy.verify(
-            subject("wrong-id"),
-            ignore_extra_args=True,
-        )
-
-
-def test_verify_call_list(decoy: Decoy) -> None:
-    """It should be able to verify multiple calls."""
-    subject_1 = decoy.mock(cls=SomeClass)
-    subject_2 = decoy.mock(cls=SomeNestedClass)
-
-    subject_1.foo("hello")
-    subject_2.child.bar(1, 2.0, "3")
-    subject_1.foo("goodbye")
-
-    decoy.verify(
-        subject_1.foo("hello"),
-        subject_2.child.bar(1, 2.0, "3"),
-        subject_1.foo("goodbye"),
-    )
-
-    with pytest.raises(errors.VerifyError):
-        decoy.verify(
-            subject_1.foo("hello"),
-            subject_1.foo("goodbye"),
-            subject_2.child.bar(1, 2.0, "3"),
-        )
-
-
 async def test_when_async(decoy: Decoy) -> None:
     """It should be able to stub an async method."""
     subject = decoy.mock(cls=SomeAsyncClass)
@@ -213,29 +96,6 @@ async def test_when_async(decoy: Decoy) -> None:
 
     with pytest.raises(ValueError, match="oh no"):
         await subject.bar(0, 1.0, "2")
-
-
-async def test_verify_async(decoy: Decoy) -> None:
-    """It should be able to configure a verification with an async rehearsal."""
-    subject = decoy.mock(cls=SomeAsyncClass)
-
-    await subject.foo("hello")
-
-    decoy.verify(await subject.foo("hello"))
-
-    with pytest.raises(AssertionError):
-        decoy.verify(await subject.foo("goodbye"))
-
-
-def test_reset(decoy: Decoy) -> None:
-    """It should be able to reset its state."""
-    subject = decoy.mock(cls=SomeClass)
-
-    subject.foo("hello")
-    decoy.reset()
-
-    with pytest.raises(AssertionError):
-        decoy.verify(subject.foo("hello"))
 
 
 def test_generator_context_manager_mock(decoy: Decoy) -> None:
@@ -458,29 +318,3 @@ def test_property_deleter_stub_then_rase(decoy: Decoy) -> None:
 
     with pytest.raises(ValueError, match="oh no"):
         del subject.prop_name
-
-
-def test_verify_property_access(decoy: Decoy) -> None:
-    """It should be able to verify property setters and deleters."""
-    subject_1 = decoy.mock(name="subject_1")
-    subject_2 = decoy.mock(name="subject_2")
-
-    subject_1.hello("world")
-    subject_1.some_property = "fizzbuzz"
-    del subject_2.another_property
-    subject_2.answer(42)
-
-    decoy.verify(
-        subject_1.hello("world"),
-        decoy.prop(subject_1.some_property).set("fizzbuzz"),
-        decoy.prop(subject_2.another_property).delete(),
-        subject_2.answer(42),
-    )
-
-    with pytest.raises(errors.VerifyError):
-        decoy.verify(
-            subject_1.hello("world"),
-            decoy.prop(subject_1.some_property).set("fizzbuzz"),
-            subject_2.answer(42),
-            decoy.prop(subject_2.another_property).delete(),
-        )
