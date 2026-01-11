@@ -1,7 +1,7 @@
 """Common test fixtures."""
 
 from functools import lru_cache
-from typing import Any, Generic, TypeVar, Optional, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 
 class SomeClass:
@@ -114,7 +114,6 @@ class SomeCallableClass:
 
 def noop(*args: Any, **kwargs: Any) -> Any:
     """No-op."""
-    raise NotImplementedError()
 
 
 def some_func(val: str) -> str:
