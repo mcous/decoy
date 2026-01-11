@@ -7,6 +7,8 @@ from typing import Any, Generic, Optional, TypeVar, Union
 class SomeClass:
     """Testing class."""
 
+    some_attr: bool
+
     def foo(self, val: str) -> str:
         """Get the foo string."""
         raise NotImplementedError()
@@ -16,7 +18,12 @@ class SomeClass:
         raise NotImplementedError()
 
     @staticmethod
-    def fizzbuzz(hello: str) -> int:
+    def static_method(hello: str) -> int:
+        """Fizz some buzzes."""
+        raise NotImplementedError()
+
+    @classmethod
+    def class_method(cls, hello: str) -> int:
         """Fizz some buzzes."""
         raise NotImplementedError()
 
@@ -60,7 +67,12 @@ class SomeNestedClass:
         raise NotImplementedError()
 
     @property
-    def union_none_child(self) -> Union[None, SomeClass]:
+    def union_none_and_child(self) -> Union[None, SomeClass]:
+        """Get the child instance."""
+        raise NotImplementedError()
+
+    @property
+    def union_child_and_none(self) -> Union[SomeClass, None]:
         """Get the child instance."""
         raise NotImplementedError()
 
@@ -105,9 +117,9 @@ class SomeAsyncCallableClass:
 
 
 class SomeCallableClass:
-    """Async callable class."""
+    """Callable class."""
 
-    async def __call__(self, val: int) -> int:
+    def __call__(self, val: int) -> int:
         """Get an integer."""
         raise NotImplementedError()
 
