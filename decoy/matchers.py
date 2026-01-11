@@ -178,14 +178,11 @@ class _HasAttributes:
 
     def __eq__(self, target: object) -> bool:
         """Return true if target matches all given attributes."""
-        is_match = True
         for attr_name, value in self._attributes.items():
-            if is_match:
-                is_match = (
-                    hasattr(target, attr_name) and getattr(target, attr_name) == value
-                )
+            if not hasattr(target, attr_name) or getattr(target, attr_name) != value:
+                return False
 
-        return is_match
+        return True
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
@@ -219,16 +216,14 @@ class _DictMatching:
 
     def __eq__(self, target: object) -> bool:
         """Return true if target matches all given keys/values."""
-        is_match = True
-
         for key, value in self._values.items():
-            if is_match:
-                try:
-                    is_match = key in target and target[key] == value  # type: ignore[index,operator]
-                except TypeError:
-                    is_match = False
+            try:
+                if key not in target or target[key] != value:  # type: ignore[index,operator]
+                    return False
+            except TypeError:
+                return False
 
-        return is_match
+        return True
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
@@ -319,10 +314,12 @@ def StringMatching(match: str) -> str:
 class _ErrorMatching:
     _error_type: Type[BaseException]
     _string_matcher: Optional[_StringMatching]
+    _match: Optional[str]
 
     def __init__(self, error: Type[BaseException], match: Optional[str] = None) -> None:
         """Initialize with the Exception type and optional message matcher."""
         self._error_type = error
+        self._match = match
         self._string_matcher = _StringMatching(match) if match is not None else None
 
     def __eq__(self, target: object) -> bool:
@@ -338,9 +335,7 @@ class _ErrorMatching:
 
     def __repr__(self) -> str:
         """Return a string representation of the matcher."""
-        return (
-            f"<ErrorMatching {self._error_type.__name__} match={self._string_matcher}>"
-        )
+        return f"<ErrorMatching {self._error_type.__name__} match={self._match!r}>"
 
 
 ErrorT = TypeVar("ErrorT", bound=BaseException)
