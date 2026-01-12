@@ -1,17 +1,18 @@
 """Smoke and acceptance tests for main Decoy interface."""
 
 import contextlib
+import os
 from typing import Any, AsyncIterator, ContextManager, Generator, Optional
 
 import pytest
 
 from decoy import Decoy
-from decoy.errors import MockNotAsyncError
+from decoy.errors import MissingRehearsalError, MockNotAsyncError
+from decoy.warnings import MiscalledStubWarning
 
-from .fixtures import SomeAsyncClass, some_async_func, some_func
+from .fixtures import SomeAsyncClass, noop, some_async_func, some_func
 
 
-@pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
 def test_when_then_return(decoy: Decoy) -> None:
     """It should be able to configure a stub return with a rehearsal."""
     subject = decoy.mock(func=some_func)
@@ -26,6 +27,44 @@ def test_when_then_return(decoy: Decoy) -> None:
 
     result = subject("asdfghjkl")
     assert result is None
+
+
+def test_when_missing_rehearsal(decoy: Decoy) -> None:
+    """It raises a MissingRehearsalError if no rehearsal."""
+    with pytest.raises(MissingRehearsalError):
+        decoy.when(noop()).then_return("hello world")
+
+
+def test_when_missing_rehearsal_after_success(decoy: Decoy) -> None:
+    """It raises a MissingRehearsalError if no rehearsal after successful rehearsal."""
+    subject = decoy.mock(func=some_func)
+
+    decoy.when(subject("hello")).then_return("hello world")
+
+    with pytest.raises(MissingRehearsalError):
+        decoy.when(noop()).then_return("hello world")
+
+
+def test_when_no_match_warning(decoy: Decoy) -> None:
+    """It raises a MiscalledStubWarning if calls don't match stubbings."""
+    subject = decoy.mock(func=some_func)
+
+    decoy.when(subject("hello")).then_return("hello world")
+
+    subject("goodbye")
+
+    with pytest.warns(MiscalledStubWarning) as warnings:
+        decoy.reset()
+
+    assert str(warnings[0].message) == os.linesep.join(
+        [
+            "Stub was called but no matching rehearsal found.",
+            "Found 1 rehearsal:",
+            "1.\tsome_func('hello')",
+            "Found 1 call:",
+            "1.\tsome_func('goodbye')",
+        ]
+    )
 
 
 def test_when_then_raise(decoy: Decoy) -> None:
@@ -311,6 +350,14 @@ def test_property_setter_stub_then_raise(decoy: Decoy) -> None:
     """It should be able to stub a property setter to raise."""
     subject = decoy.mock(name="subject")
     prop_rehearser = decoy.prop(subject.prop_name)
+
+    decoy.when(prop_rehearser.set(42)).then_raise(ValueError("oh no"))
+
+    subject.prop_name = 41
+    assert subject.prop_name == 41
+
+    with pytest.raises(ValueError, match="oh no"):
+        subject.prop_name = 42
 
     decoy.when(prop_rehearser.set(42)).then_raise(ValueError("oh no"))
 
