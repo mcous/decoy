@@ -6,6 +6,7 @@ from typing import Any, AsyncIterator, ContextManager, Generator, Optional
 import pytest
 
 from decoy import Decoy
+from decoy.errors import MockNotAsyncError
 
 from .fixtures import SomeAsyncClass, some_async_func, some_func
 
@@ -69,6 +70,17 @@ async def test_when_then_do_async(decoy: Decoy) -> None:
     result = await subject("what's up")
     assert action_result == "what's up"
     assert result == "hello from the other side"
+
+
+def test_when_then_do_async_not_allowed(decoy: Decoy) -> None:
+    """Raises error if async func passed to sync `then_do`."""
+    subject = decoy.mock(func=some_func)
+
+    async def _async_action(arg: str) -> str:
+        raise NotImplementedError()
+
+    with pytest.raises(MockNotAsyncError):
+        decoy.when(subject("what's up")).then_do(_async_action)
 
 
 def test_when_ignore_extra_args(decoy: Decoy) -> None:
