@@ -10,7 +10,7 @@ from typing import Any, ContextManager, Dict, Optional, Type, Union, cast, overl
 
 from .call_handler import CallHandler
 from .spy_core import SpyCore
-from .spy_events import SpyCall, SpyEvent, SpyPropAccess, PropAccessType
+from .spy_events import PropAccessType, SpyCall, SpyEvent, SpyPropAccess
 
 
 class BaseSpy(ContextManager[Any]):

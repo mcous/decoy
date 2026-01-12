@@ -1,5 +1,7 @@
 """Smoke and acceptance tests for main Decoy interface."""
 
+import inspect
+
 import pytest
 
 from decoy import Decoy, errors
@@ -14,6 +16,7 @@ def test_decoy_creates_spy(decoy: Decoy) -> None:
 
     assert isinstance(subject, SomeClass)
     assert isinstance(subject, Spy)
+    assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass`>"
 
 
 def test_decoy_creates_func_spy(decoy: Decoy) -> None:
@@ -21,6 +24,8 @@ def test_decoy_creates_func_spy(decoy: Decoy) -> None:
     subject = decoy.mock(func=some_func)
 
     assert isinstance(subject, Spy)
+    assert inspect.signature(subject) == inspect.signature(some_func)
+    assert repr(subject) == "<Decoy mock `tests.fixtures.some_func`>"
 
 
 def test_decoy_creates_specless_spy(decoy: Decoy) -> None:
