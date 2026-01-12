@@ -73,6 +73,41 @@
   out: |
       main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
+- case: mock_class_attribute_get
+  main: |
+      from decoy import Decoy
+
+      class Dependency():
+          @property
+          def value(self) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+
+      decoy.when(fake.value).then_return(42)
+      decoy.when(fake.value).then_return("wrong-type")
+  out: |
+      main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: mock_class_attribute_set
+  main: |
+      from decoy import Decoy
+
+      class Dependency():
+          @property
+          def value(self) -> int:
+              return 42
+
+      decoy = Decoy()
+      fake = decoy.mock(cls=Dependency)
+      prop = decoy.prop(fake.value)
+
+      decoy.when(prop.set(42)).then_raise(Exception("oh no"))
+      decoy.when(prop.set("goodbye")).then_raise(Exception("oh no"))
+  out: |
+      main:13: error: Argument 1 to "set" of "Prop" has incompatible type "str"; expected "int"  [arg-type]
+
 - case: context_manager_stub_mimics_enter_type
   main: |
       import contextlib
