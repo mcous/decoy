@@ -5,7 +5,7 @@ import pytest
 from decoy import Decoy
 from decoy.errors import MissingRehearsalError
 
-from .fixtures import SomeClass
+from ..fixtures import SomeClass
 
 
 def test_property_missing_rehearsal(decoy: Decoy) -> None:
