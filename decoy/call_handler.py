@@ -2,9 +2,9 @@
 
 from typing import Any, NamedTuple, Optional
 
-from .spy_log import SpyLog
 from .context_managers import ContextWrapper
-from .spy_events import SpyCall, SpyEvent
+from .spy_events import PropAccessType, SpyCall, SpyEvent, SpyPropAccess
+from .spy_log import SpyLog
 from .stub_store import MISSING, StubStore
 
 
@@ -41,6 +41,11 @@ class CallHandler:
                     *call.payload.args,
                     **call.payload.kwargs,
                 )
+            elif (
+                isinstance(call.payload, SpyPropAccess)
+                and call.payload.access_type == PropAccessType.SET
+            ):
+                return_value = behavior.action(call.payload.value)
             else:
                 return_value = behavior.action()
 
