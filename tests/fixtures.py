@@ -133,6 +133,11 @@ def some_func(val: str) -> str:
     raise NotImplementedError()
 
 
+def some_func_with_args_and_kwargs(a: str, *, b: bool) -> str:
+    """Test function with args and kwargs."""
+    raise NotImplementedError()
+
+
 async def some_async_func(val: str) -> str:
     """Async test function."""
     raise NotImplementedError()

@@ -1,53 +1,227 @@
-"""Smoke and acceptance tests for main Decoy interface."""
+"""Tests for Decoy.when."""
 
 import contextlib
 import os
-from typing import Any, AsyncIterator, ContextManager, Generator, Optional
+from typing import Any, AsyncGenerator, Generator, Optional
 
 import pytest
 
-from decoy import Decoy
-from decoy.errors import MissingRehearsalError, MockNotAsyncError
-from decoy.warnings import MiscalledStubWarning
+from decoy import Decoy, errors
+from decoy.warnings import IncorrectCallWarning, MiscalledStubWarning
 
-from .fixtures import SomeAsyncClass, noop, some_async_func, some_func
+from . import fixtures
 
 
 def test_when_then_return(decoy: Decoy) -> None:
-    """It should be able to configure a stub return with a rehearsal."""
-    subject = decoy.mock(func=some_func)
+    """It returns a value."""
+    subject = decoy.mock(name="subject")
+    decoy.when(subject()).then_return("hello world")
 
+    result = subject()
+
+    assert result == "hello world"
+
+
+def test_when_then_raise(decoy: Decoy) -> None:
+    """It raises an exception."""
+    subject = decoy.mock(name="subject")
+
+    decoy.when(subject()).then_raise(ValueError("oh no"))
+
+    with pytest.raises(ValueError, match="oh no"):
+        subject()
+
+
+def test_when_then_do(decoy: Decoy) -> None:
+    """It runs a function."""
+
+    def _then_do_action() -> str:
+        return "hello from the other side"
+
+    subject = decoy.mock(name="subject")
+    decoy.when(subject()).then_do(_then_do_action)
+
+    result = subject()
+
+    assert result == "hello from the other side"
+
+
+def test_when_then_do_async_not_allowed(decoy: Decoy) -> None:
+    """Raises an error if an async func is passed to sync `then_do`."""
+    subject = decoy.mock(name="subject")
+
+    async def _async_action(arg: str) -> str:
+        raise NotImplementedError()
+
+    with pytest.raises(errors.MockNotAsyncError):
+        decoy.when(subject()).then_do(_async_action)
+
+
+def test_when_then_enter_with(decoy: Decoy) -> None:
+    """It returns a context manager."""
+
+    class _Spec:
+        @contextlib.contextmanager
+        def enter(self) -> Generator[int, None, None]:
+            yield -1
+
+    subject = decoy.mock(cls=_Spec)
+
+    decoy.when(subject.enter()).then_enter_with(42)
+
+    with subject.enter() as result:
+        assert result == 42
+
+
+async def test_when_then_return_async(decoy: Decoy) -> None:
+    """It returns a value from an async function."""
+    subject = decoy.mock(name="subject", is_async=True)
+    decoy.when(await subject()).then_return("hello world")
+
+    result = await subject()
+
+    assert result == "hello world"
+
+
+async def test_when_then_raise_async(decoy: Decoy) -> None:
+    """It raises an exception from an async function."""
+    subject = decoy.mock(name="subject", is_async=True)
+
+    decoy.when(await subject()).then_raise(ValueError("oh no"))
+
+    with pytest.raises(ValueError, match="oh no"):
+        await subject()
+
+
+async def test_when_then_do_async(decoy: Decoy) -> None:
+    """It runs a function from an async function."""
+
+    def _then_do_action() -> str:
+        return "hello from the other side"
+
+    async def _then_do_action_async() -> str:
+        return "hello from the async side"
+
+    subject = decoy.mock(name="subject", is_async=True)
+    decoy.when(await subject()).then_do(_then_do_action)
+    result = await subject()
+    assert result == "hello from the other side"
+
+    decoy.when(await subject()).then_do(_then_do_action_async)
+    result = await subject()
+    assert result == "hello from the async side"
+
+
+async def test_when_then_enter_with_async(decoy: Decoy) -> None:
+    """It returns a context manager from an async function."""
+
+    class _Spec:
+        @contextlib.asynccontextmanager
+        async def enter(self) -> AsyncGenerator[int, None]:
+            yield -1
+
+    subject = decoy.mock(cls=_Spec)
+
+    decoy.when(subject.enter()).then_enter_with(42)
+
+    async with subject.enter() as result:
+        assert result == 42
+
+
+@pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
+def test_when_miss(decoy: Decoy) -> None:
+    """It noops if stubbing is missing."""
+    subject = decoy.mock(name="subject")
     decoy.when(subject("hello")).then_return("hello world")
 
-    result = subject(val="hello")
-    assert result == "hello world"
+    result = subject("goodbye")
 
-    result = subject(val="hello")
-    assert result == "hello world"
-
-    result = subject("asdfghjkl")
     assert result is None
 
 
-def test_when_missing_rehearsal(decoy: Decoy) -> None:
-    """It raises a MissingRehearsalError if no rehearsal."""
-    with pytest.raises(MissingRehearsalError):
-        decoy.when(noop()).then_return("hello world")
+def test_when_reset(decoy: Decoy) -> None:
+    """It removes stubbings on reset."""
+    subject = decoy.mock(name="subject")
+    decoy.when(subject()).then_return("hello world")
+    decoy.reset()
+
+    result = subject()
+
+    assert result is None
 
 
-def test_when_missing_rehearsal_after_success(decoy: Decoy) -> None:
-    """It raises a MissingRehearsalError if no rehearsal after successful rehearsal."""
-    subject = decoy.mock(func=some_func)
+def test_when_multiple_stubbings(decoy: Decoy) -> None:
+    """It returns the latest stubbing."""
+    subject = decoy.mock(name="subject")
+    decoy.when(subject()).then_return("not ready yet")
+    decoy.when(subject()).then_return("hello world")
+
+    result = subject()
+
+    assert result == "hello world"
+
+
+def test_when_with_args(decoy: Decoy) -> None:
+    """It returns a value when called with args."""
+    subject = decoy.mock(name="subject")
+
+    decoy.when(subject()).then_return("no args")
+    decoy.when(subject("hello", {"world": True})).then_return("hello world")
+
+    result = subject("hello", {"world": True})
+
+    assert result == "hello world"
+
+
+def test_when_then_with_kwargs_in_stubbing(decoy: Decoy) -> None:
+    """It binds args and kwargs in the stub configuration."""
+    subject = decoy.mock(func=fixtures.some_func_with_args_and_kwargs)
+
+    decoy.when(subject(a="hello", b=True)).then_return("hello world")
+
+    result = subject("hello", b=True)
+
+    assert result == "hello world"
+
+
+def test_when_with_kwargs_in_call(decoy: Decoy) -> None:
+    """It binds args and kwargs in the call."""
+    subject = decoy.mock(func=fixtures.some_func_with_args_and_kwargs)
+
+    decoy.when(subject("hello", b=True)).then_return("hello world")
+
+    result = subject(a="hello", b=True)
+
+    assert result == "hello world"
+
+
+def test_when_no_mock(decoy: Decoy) -> None:
+    """It raises an exception if called without a mock."""
+    with pytest.raises(errors.MissingRehearsalError):
+        decoy.when(fixtures.noop())
+
+
+def test_when_no_mock_after_success(decoy: Decoy) -> None:
+    """It raises an exception if called without a mock, even if previous stubbing succeeded."""
+    subject = decoy.mock(func=fixtures.some_func)
 
     decoy.when(subject("hello")).then_return("hello world")
 
-    with pytest.raises(MissingRehearsalError):
-        decoy.when(noop()).then_return("hello world")
+    with pytest.raises(errors.MissingRehearsalError):
+        decoy.when(fixtures.noop())
+
+
+def test_when_signature_wrong_in_stubbing(decoy: Decoy) -> None:
+    """It warns if stub config does not match signature."""
+    subject = decoy.mock(func=fixtures.some_func)
+
+    with pytest.warns(IncorrectCallWarning):
+        decoy.when(subject("hello", "world"))  # type: ignore[call-arg]
 
 
 def test_when_no_match_warning(decoy: Decoy) -> None:
     """It raises a MiscalledStubWarning if calls don't match stubbings."""
-    subject = decoy.mock(func=some_func)
+    subject = decoy.mock(name="subject")
 
     decoy.when(subject("hello")).then_return("hello world")
 
@@ -60,73 +234,18 @@ def test_when_no_match_warning(decoy: Decoy) -> None:
         [
             "Stub was called but no matching rehearsal found.",
             "Found 1 rehearsal:",
-            "1.\tsome_func('hello')",
+            "1.\tsubject('hello')",
             "Found 1 call:",
-            "1.\tsome_func('goodbye')",
+            "1.\tsubject('goodbye')",
         ]
     )
 
 
-def test_when_then_raise(decoy: Decoy) -> None:
-    """It should be able to configure a stub raise with a rehearsal."""
-    subject = decoy.mock(func=some_func)
-
-    decoy.when(subject("goodbye")).then_raise(ValueError("oh no"))
-
-    with pytest.raises(ValueError, match="oh no"):
-        subject("goodbye")
-
-
-def test_when_then_do(decoy: Decoy) -> None:
-    """It should be able to configure a stub action with a rehearsal."""
-    subject = decoy.mock(func=some_func)
-    action_result = None
-
-    def _then_do_action(arg: str) -> str:
-        nonlocal action_result
-        action_result = arg
-        return "hello from the other side"
-
-    decoy.when(subject("what's up")).then_do(_then_do_action)
-
-    result = subject("what's up")
-    assert action_result == "what's up"
-    assert result == "hello from the other side"
-
-
-async def test_when_then_do_async(decoy: Decoy) -> None:
-    """It should be able to configure a stub action with a rehearsal."""
-    subject = decoy.mock(func=some_async_func)
-    action_result = None
-
-    async def _then_do_action(arg: str) -> str:
-        nonlocal action_result
-        action_result = arg
-        return "hello from the other side"
-
-    decoy.when(await subject("what's up")).then_do(_then_do_action)
-
-    result = await subject("what's up")
-    assert action_result == "what's up"
-    assert result == "hello from the other side"
-
-
-def test_when_then_do_async_not_allowed(decoy: Decoy) -> None:
-    """Raises error if async func passed to sync `then_do`."""
-    subject = decoy.mock(func=some_func)
-
-    async def _async_action(arg: str) -> str:
-        raise NotImplementedError()
-
-    with pytest.raises(MockNotAsyncError):
-        decoy.when(subject("what's up")).then_do(_async_action)
-
-
 def test_when_ignore_extra_args(decoy: Decoy) -> None:
-    """It should be able to ignore extra args in a stub rehearsal."""
+    """It ignores extra args in the call."""
 
     def _get_a_thing(id: str, default: Optional[int] = None) -> int:
-        raise NotImplementedError("intentionally unimplemented")
+        raise NotImplementedError()
 
     subject = decoy.mock(func=_get_a_thing)
 
@@ -136,175 +255,78 @@ def test_when_ignore_extra_args(decoy: Decoy) -> None:
     assert result == 42
 
 
-async def test_when_async(decoy: Decoy) -> None:
-    """It should be able to stub an async method."""
-    subject = decoy.mock(cls=SomeAsyncClass)
+def test_when_then_return_multiple(decoy: Decoy) -> None:
+    """It returns a sequence of values."""
+    subject = decoy.mock(name="subject")
+    decoy.when(subject("hello")).then_return("hola", "world")
 
-    decoy.when(await subject.foo("hello")).then_return("world")
-    decoy.when(await subject.bar(0, 1.0, "2")).then_raise(ValueError("oh no"))
-
-    assert await subject.foo("hello") == "world"
-
-    with pytest.raises(ValueError, match="oh no"):
-        await subject.bar(0, 1.0, "2")
-
-
-def test_generator_context_manager_mock(decoy: Decoy) -> None:
-    """It should be able to mock a generator-based context manager."""
-
-    class _ValueReader:
-        def get_value(self) -> int:
-            raise NotImplementedError()
-
-    class _ValueReaderLoader:
-        @contextlib.contextmanager
-        def get_value_reader(self) -> Generator[_ValueReader, None, None]:
-            raise NotImplementedError()
-
-    value_reader_loader = decoy.mock(cls=_ValueReaderLoader)
-    value_reader = decoy.mock(cls=_ValueReader)
-
-    decoy.when(value_reader_loader.get_value_reader()).then_enter_with(value_reader)
-    decoy.when(value_reader.get_value()).then_return(42)
-
-    with value_reader_loader.get_value_reader() as subject:
-        result = subject.get_value()
-
-    assert result == 42
-
-
-async def test_async_generator_context_manager_mock(decoy: Decoy) -> None:
-    """It should be able to mock a generator-based context manager."""
-
-    class _ValueReader:
-        def get_value(self) -> int:
-            raise NotImplementedError()
-
-    class _ValueReaderLoader:
-        @contextlib.asynccontextmanager
-        async def get_value_reader(self) -> AsyncIterator[_ValueReader]:
-            raise NotImplementedError()
-            yield
-
-    value_reader_loader = decoy.mock(cls=_ValueReaderLoader)
-    value_reader = decoy.mock(cls=_ValueReader)
-
-    decoy.when(value_reader_loader.get_value_reader()).then_enter_with(value_reader)
-    decoy.when(value_reader.get_value()).then_return(42)
-
-    async with value_reader_loader.get_value_reader() as subject:
-        result = subject.get_value()
-
-    assert result == 42
+    assert subject("hello") == "hola"
+    assert subject("hello") == "world"
+    assert subject("hello") == "world"
 
 
 def test_context_manager_mock(decoy: Decoy) -> None:
-    """It should be able to mock a context manager."""
+    """Mocks the `__enter__` and `__exit__` methods."""
+    is_exited = False
 
-    class _ValueReader(ContextManager[Any]):
-        def __enter__(self) -> "_ValueReader":
-            raise NotImplementedError()
+    def _on_exit(*args: Any, **kwargs: Any) -> None:
+        nonlocal is_exited
+        is_exited = True
 
-        def __exit__(self, *args: Any) -> None:
-            raise NotImplementedError()
+    class _Spec:
+        def __enter__(self) -> int:
+            return -1
 
-        def get_value(self) -> int:
-            raise NotImplementedError()
+        def __exit__(self, *args: Any, **kwargs: Any) -> None:
+            return None
 
-    value_reader = decoy.mock(cls=_ValueReader)
+    subject = decoy.mock(cls=_Spec)
 
-    def _handle_enter() -> _ValueReader:
-        decoy.when(value_reader.get_value()).then_return(42)
-        return value_reader
+    decoy.when(subject.__enter__()).then_return(42)
+    decoy.when(subject.__exit__(None, None, None)).then_do(_on_exit)
 
-    def _handle_exit(*args: Any) -> None:
-        decoy.when(value_reader.get_value()).then_raise(
-            AssertionError("Context manager exited")
-        )
+    with subject as result:
+        assert result == 42
 
-    decoy.when(value_reader.__enter__()).then_do(_handle_enter)
-    decoy.when(value_reader.__exit__(None, None, None)).then_do(_handle_exit)
-
-    with value_reader as subject:
-        result = subject.get_value()
-
-    assert result == 42
-
-    with pytest.raises(AssertionError, match="exited"):
-        subject.get_value()
+    assert is_exited is True
 
 
 async def test_async_context_manager_mock(decoy: Decoy) -> None:
-    """It should be able to mock an async context manager."""
+    """Mocks the `__aenter__` and `__aexit__` methods."""
+    is_exited = False
 
-    class _ValueReader(ContextManager[Any]):
-        async def __aenter__(self) -> "_ValueReader":
-            raise NotImplementedError()
+    async def _on_exit(*args: Any, **kwargs: Any) -> None:
+        nonlocal is_exited
+        is_exited = True
 
-        async def __aexit__(self, *args: Any) -> None:
-            raise NotImplementedError()
+    class _Spec:
+        async def __aenter__(self) -> int:
+            return -1
 
-        def get_value(self) -> int:
-            raise NotImplementedError()
+        async def __aexit__(self, *args: Any, **kwargs: Any) -> Optional[bool]:
+            return False
 
-    value_reader = decoy.mock(cls=_ValueReader)
+    subject = decoy.mock(cls=_Spec)
 
-    def _handle_enter() -> _ValueReader:
-        decoy.when(value_reader.get_value()).then_return(42)
-        return value_reader
+    decoy.when(await subject.__aenter__()).then_return(42)
+    decoy.when(await subject.__aexit__(None, None, None)).then_do(_on_exit)
 
-    def _handle_exit(*args: Any) -> None:
-        decoy.when(value_reader.get_value()).then_raise(
-            AssertionError("Context manager exited")
-        )
+    async with subject as result:
+        assert result == 42
 
-    decoy.when(await value_reader.__aenter__()).then_do(_handle_enter)
-    decoy.when(await value_reader.__aexit__(None, None, None)).then_do(_handle_exit)
-
-    async with value_reader as subject:
-        result = subject.get_value()
-
-    assert result == 42
-
-    with pytest.raises(AssertionError, match="exited"):
-        subject.get_value()
+    assert is_exited is True
 
 
-async def test_async_context_manager_mock_no_spec(decoy: Decoy) -> None:
-    """It should be able to mock an async context manager, even without a spec."""
-    value_reader = decoy.mock(name="value_reader")
-
-    def _handle_enter() -> Any:
-        decoy.when(value_reader.get_value()).then_return(42)
-        return value_reader
-
-    def _handle_exit(*args: Any) -> None:
-        decoy.when(value_reader.get_value()).then_raise(
-            AssertionError("Context manager exited")
-        )
-
-    decoy.when(await value_reader.__aenter__()).then_do(_handle_enter)
-    decoy.when(await value_reader.__aexit__(None, None, None)).then_do(_handle_exit)
-
-    async with value_reader as subject:
-        result = subject.get_value()
-
-    assert result == 42
-
-    with pytest.raises(AssertionError, match="exited"):
-        subject.get_value()
-
-
-def test_property_getter_stub_then_return(decoy: Decoy) -> None:
-    """It should be able to stub a property getter."""
+def test_when_get_then_return(decoy: Decoy) -> None:
+    """It mocks an attribute getter."""
     subject = decoy.mock(name="subject")
     decoy.when(subject.prop_name).then_return(42)
 
     assert subject.prop_name == 42
 
 
-def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
-    """It should be able to stub a property getter with multiple return values."""
+def then_when_get_then_return_multiple(decoy: Decoy) -> None:
+    """It mocks an attribute getter with a sequence of returns."""
     subject = decoy.mock(name="subject")
     decoy.when(subject.prop_name).then_return(43, 44)
 
@@ -313,8 +335,18 @@ def test_property_getter_stub_then_return_multiple(decoy: Decoy) -> None:
     assert subject.prop_name == 44
 
 
-def test_property_getter_stub_then_do(decoy: Decoy) -> None:
-    """It should be able to stub a property getter to act."""
+def test_when_get_then_raise(decoy: Decoy) -> None:
+    """It raises from a getter."""
+    subject = decoy.mock(name="subject")
+
+    decoy.when(subject.prop_name).then_raise(ValueError("oh no"))
+
+    with pytest.raises(ValueError, match="oh no"):
+        _ = subject.prop_name
+
+
+def test_when_get_then_do(decoy: Decoy) -> None:
+    """It side-effects from a getter."""
 
     def _handle_get(*args: Any, **kwargs: Any) -> int:
         return 84
@@ -325,51 +357,36 @@ def test_property_getter_stub_then_do(decoy: Decoy) -> None:
     assert subject.prop_name == 84
 
 
-def test_property_getter_stub_then_raise(decoy: Decoy) -> None:
-    """It should be able to stub a property getter to raise."""
-    subject = decoy.mock(name="subject")
-
-    decoy.when(subject.prop_name).then_raise(ValueError("oh no"))
-
-    with pytest.raises(ValueError, match="oh no"):
-        subject.prop_name  # noqa: B018
-
-
-def test_property_getter_stub_reconfigure(decoy: Decoy) -> None:
-    """It should be able to reconfigure a property getter."""
-    subject = decoy.mock(name="subject")
-
-    decoy.when(subject.prop_name).then_return(42)
-    assert subject.prop_name == 42
-
-    decoy.when(subject.prop_name).then_return(43)
-    assert subject.prop_name == 43
-
-
-def test_property_setter_stub_then_raise(decoy: Decoy) -> None:
-    """It should be able to stub a property setter to raise."""
+def test_when_set_then_raise(decoy: Decoy) -> None:
+    """It raises from a setter."""
     subject = decoy.mock(name="subject")
     prop_rehearser = decoy.prop(subject.prop_name)
 
     decoy.when(prop_rehearser.set(42)).then_raise(ValueError("oh no"))
 
-    subject.prop_name = 41
-    assert subject.prop_name == 41
-
-    with pytest.raises(ValueError, match="oh no"):
-        subject.prop_name = 42
-
-    decoy.when(prop_rehearser.set(42)).then_raise(ValueError("oh no"))
-
-    subject.prop_name = 41
-    assert subject.prop_name == 41
-
     with pytest.raises(ValueError, match="oh no"):
         subject.prop_name = 42
 
 
-def test_property_deleter_stub_then_rase(decoy: Decoy) -> None:
-    """It should be able to stub a property deleter to raise."""
+def test_when_set_then_do(decoy: Decoy) -> None:
+    """It side-effects from a setter."""
+    value = -1
+
+    def _handle_set(next_value: int) -> None:
+        nonlocal value
+        value = next_value
+
+    subject = decoy.mock(name="subject")
+    prop_rehearser = decoy.prop(subject.prop_name)
+    decoy.when(prop_rehearser.set(42)).then_do(_handle_set)
+
+    subject.prop_name = 42
+
+    assert value == 42
+
+
+def test_when_delete_then_raise(decoy: Decoy) -> None:
+    """It raises from a deleter."""
     subject = decoy.mock(name="subject")
     prop_rehearser = decoy.prop(subject.prop_name)
 
@@ -377,3 +394,20 @@ def test_property_deleter_stub_then_rase(decoy: Decoy) -> None:
 
     with pytest.raises(ValueError, match="oh no"):
         del subject.prop_name
+
+
+def test_when_delete_then_do(decoy: Decoy) -> None:
+    """It side-effects from a deleter."""
+    is_deleted = False
+
+    def _handle_delete() -> None:
+        nonlocal is_deleted
+        is_deleted = True
+
+    subject = decoy.mock(name="subject")
+    prop_rehearser = decoy.prop(subject.prop_name)
+    decoy.when(prop_rehearser.delete()).then_do(_handle_delete)
+
+    del subject.prop_name
+
+    assert is_deleted is True
