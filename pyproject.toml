@@ -81,7 +81,7 @@ check-ci = ["check", "lint", "format-check"]
 test-ci = ["test-once", "coverage-xml"]
 
 [tool.pytest.ini_options]
-addopts = "--color=yes --mypy-ini-file=tests/typing/mypy.ini --mypy-only-local-stub"
+addopts = "--color=yes --mypy-ini-file=tests/legacy/typing/mypy.ini --mypy-only-local-stub"
 asyncio_mode = "auto"
 filterwarnings = ["error::decoy.warnings.DecoyWarning"]
 
