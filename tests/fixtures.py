@@ -13,10 +13,6 @@ class SomeClass:
         """Get the foo string."""
         raise NotImplementedError()
 
-    def bar(self, a: int, b: float, c: str) -> bool:
-        """Get the bar bool based on a few inputs."""
-        raise NotImplementedError()
-
     @staticmethod
     def static_method(hello: str) -> int:
         """Fizz some buzzes."""
