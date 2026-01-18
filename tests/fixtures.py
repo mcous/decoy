@@ -27,10 +27,6 @@ class SomeClass:
         """Fizz some buzzes."""
         raise NotImplementedError()
 
-    def do_the_thing(self, *, flag: bool) -> None:
-        """Perform a side-effect without a return value."""
-        raise NotImplementedError()
-
     @property
     def primitive_property(self) -> str:
         """Get a primitive computed property."""
@@ -52,12 +48,15 @@ class SomeNestedClass:
 
     child_attr: SomeClass
 
-    def foo(self, val: str) -> str:
-        """Get the foo string."""
-        raise NotImplementedError()
+    alias_attr: "ConcreteAlias"
 
     @property
     def child(self) -> SomeClass:
+        """Get the child instance."""
+        raise NotImplementedError()
+
+    @property
+    def alias_child(self) -> "ConcreteAlias":
         """Get the child instance."""
         raise NotImplementedError()
 
@@ -87,14 +86,6 @@ class SomeAsyncClass:
 
     async def foo(self, val: str) -> str:
         """Get the foo string."""
-        raise NotImplementedError()
-
-    async def bar(self, a: int, b: float, c: str) -> bool:
-        """Get the bar bool based on a few inputs."""
-        raise NotImplementedError()
-
-    async def do_the_thing(self, *, flag: bool) -> None:
-        """Perform a side-effect without a return value."""
         raise NotImplementedError()
 
     @classmethod
