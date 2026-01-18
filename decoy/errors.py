@@ -25,6 +25,10 @@ class MockNameRequiredError(ValueError):
         return cls("Mocks without `cls` or `func` require a `name`.")
 
 
+class MockSpecInvalidError(TypeError):
+    """An value passed as a mock spec is not valid."""
+
+
 class MissingRehearsalError(ValueError):
     """An error raised when a Decoy method is called without rehearsal(s).
 
@@ -44,6 +48,14 @@ class MissingRehearsalError(ValueError):
         return cls("Rehearsal not found.")
 
 
+class NotAMockError(TypeError):
+    """A Decoy method was called without a mock."""
+
+
+class ThenDoActionNotCallableError(TypeError):
+    """A value passed to `then_do` is not callable."""
+
+
 class MockNotAsyncError(TypeError):
     """An error raised when an asynchronous function is used with a synchronous mock.
 
@@ -53,6 +65,10 @@ class MockNotAsyncError(TypeError):
 
     [MockNotAsyncError guide]: usage/errors-and-warnings.md#mocknotasyncerror
     """
+
+
+class SignatureMismatchError(TypeError):
+    """Arguments did not match the signature of the mock."""
 
 
 class VerifyError(AssertionError):
@@ -100,3 +116,12 @@ class VerifyError(AssertionError):
         result.times = times
 
         return result
+
+
+class VerifyOrderError(VerifyError):
+    """An error raised when the order of calls do not match expectations.
+
+    See [spying with verify][] for more details.
+
+    [spying with verify]: usage/verify.md
+    """
