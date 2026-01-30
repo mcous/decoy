@@ -8,6 +8,15 @@ edit_uri: ""
 
 nav:
     - Getting Started: index.md
+    - v3:
+          - v3/about.md
+          - v3/migration.md
+          - v3/create.md
+          - v3/when.md
+          - v3/verify.md
+          - v3/attributes.md
+          - v3/context-managers.md
+          - v3/api.md
     - Usage Guide:
           - usage/create.md
           - usage/when.md
@@ -29,6 +38,7 @@ theme:
     features:
         - navigation.instant
         - navigation.sections
+        - navigation.footer
     font:
         text: "Open Sans"
         code: "Fira Mono"
