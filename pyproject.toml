@@ -16,6 +16,9 @@ classifiers = [
     "Topic :: Software Development :: Testing :: Mocking",
     "Typing :: Typed",
 ]
+dependencies = [
+    "typing-extensions>=4.10.0 ; python_version >= '3.10' and python_version < '3.13'",
+]
 
 [project.urls]
 Homepage = "https://michael.cousins.io/decoy/"
