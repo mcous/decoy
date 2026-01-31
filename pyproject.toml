@@ -74,7 +74,7 @@ test = "pytest -f"
 test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
 coverage = "coverage report"
 coverage-xml = "coverage xml"
-docs = "mkdocs serve"
+docs = "mkdocs serve --livereload"
 build-docs = "mkdocs build"
 build-package = "uv build"
 check-ci = ["check", "lint", "format-check"]
