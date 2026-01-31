@@ -92,7 +92,7 @@ strict = true
 show_error_codes = true
 
 [tool.coverage.report]
-exclude_lines = ["@overload", "if TYPE_CHECKING:"]
+exclude_lines = ["@overload", "if TYPE_CHECKING:", "# pragma: no cover"]
 
 [tool.ruff]
 target-version = "py37"
