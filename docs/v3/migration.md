@@ -91,6 +91,29 @@ Using `called_with` in Decoy v3, it is no longer necessary to add `await` to `wh
 + decoy.verify(mock).called_with("hello")
 ```
 
+## Matchers
+
+Matchers have been reworked to be more type-safe and easier to extend. See the [`Matcher` guide][matcher-guide] for more details.
+
+```diff
+- from decoy import Decoy, matchers
++ from decoy.next import Decoy, Matcher
+```
+
+| v2                        | v3                                                              |
+| ------------------------- | --------------------------------------------------------------- |
+| `matchers.Anything`       | [`Matcher.something`][decoy.next.Matcher.something]             |
+| `matchers.AnythingOrNone` | [`Matcher.any`][decoy.next.Matcher.any]                         |
+| `matchers.DictMatching`   | [`Matcher.dict_containing`][decoy.next.Matcher.dict_containing] |
+| `matchers.ListMatching`   | [`Matcher.list_containing`][decoy.next.Matcher.list_containing] |
+| `matchers.ErrorMatching`  | [`Matcher.error`][decoy.next.Matcher.error]                     |
+| `matchers.HasAttributes`  | [`Matcher.has_attrs`][decoy.next.Matcher.has_attrs]             |
+| `matchers.IsA`            | [`Matcher.is_a`][decoy.next.Matcher.is_a]                       |
+| `matchers.IsNot`          | [`Matcher.is_not`][decoy.next.Matcher.is_not]                   |
+| `matchers.StringMatching` | [`Matcher.string`][decoy.next.Matcher.string]                   |
+| `matchers.ValueCaptor`    | Any matcher; all matchers are now captors                       |
+| Custom matchers           | [`Matcher`][decoy.next.Matcher] + comparison function           |
+
 ## Attributes
 
 The `decoy.prop` API has been replaced. See the [attributes guide][attributes-guide] for more details.
@@ -172,5 +195,6 @@ In v3, `__enter__` and `__exit__` can still be stubbed to test advanced context 
 
 [when-guide]: ./when.md
 [verify-guide]: ./verify.md
+[matcher-guide]: ./matchers.md
 [attributes-guide]: ./attributes.md
 [context-manager-guide]: ./context-managers.md

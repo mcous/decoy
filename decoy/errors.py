@@ -125,3 +125,12 @@ class VerifyOrderError(VerifyError):
 
     [spying with verify]: usage/verify.md
     """
+
+
+class NoMatcherValueCapturedError(ValueError):
+    """An error raised if a [decoy.next.Matcher][] has not captured any matching values.
+
+    See the [matchers guide][] for more details.
+
+    [matchers guide]: ./v3/matchers.md
+    """
