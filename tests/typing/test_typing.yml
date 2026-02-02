@@ -1,8 +1,9 @@
 # typing tests
 
 - case: mock_cls_mimics_type
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       class Dependency():
           def do_thing(self, input: str) -> int:
@@ -15,9 +16,10 @@
       main:9: note: Revealed type is "main.Dependency"
 
 - case: mock_cls_mimics_abstract_class_type
+  skip: sys.version_info < (3, 10)
   main: |
       from abc import ABC
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       class Dependency(ABC):
           def do_thing(self, input: str) -> int:
@@ -30,8 +32,9 @@
       main:10: note: Revealed type is "main.Dependency"
 
 - case: mock_func_mimics_type
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       def do_thing(input: str) -> int:
           return 42
@@ -43,8 +46,9 @@
       main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
 
 - case: class_stub_mimics_return_type
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       class Dependency():
           def do_thing(self, input: str) -> int:
@@ -53,14 +57,15 @@
       decoy = Decoy()
       fake = decoy.mock(cls=Dependency)
 
-      decoy.when(fake.do_thing("hello")).then_return(42)
-      decoy.when(fake.do_thing("goodbye")).then_return("wrong-type")
+      decoy.when(fake.do_thing).called_with("hello").then_return(42)
+      decoy.when(fake.do_thing).called_with("goodbye").then_return("wrong-type")
   out: |
       main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: function_stub_mimics_return_type
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       def do_thing(input: str) -> int:
           return 42
@@ -68,14 +73,15 @@
       decoy = Decoy()
       fake = decoy.mock(func=do_thing)
 
-      decoy.when(fake("hello")).then_return(42)
-      decoy.when(fake("goodbye")).then_return("wrong-type")
+      decoy.when(fake).called_with("hello").then_return(42)
+      decoy.when(fake).called_with("goodbye").then_return("wrong-type")
   out: |
       main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: mock_class_attribute_get
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       class Dependency():
           @property
@@ -85,14 +91,15 @@
       decoy = Decoy()
       fake = decoy.mock(cls=Dependency)
 
-      decoy.when(fake.value).then_return(42)
-      decoy.when(fake.value).then_return("wrong-type")
+      decoy.when(fake.value).get().then_return(42)
+      decoy.when(fake.value).get().then_return("wrong-type")
   out: |
       main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: mock_class_attribute_set
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       class Dependency():
           @property
@@ -101,18 +108,18 @@
 
       decoy = Decoy()
       fake = decoy.mock(cls=Dependency)
-      prop = decoy.prop(fake.value)
 
-      decoy.when(prop.set(42)).then_raise(Exception("oh no"))
-      decoy.when(prop.set("goodbye")).then_raise(Exception("oh no"))
+      decoy.when(fake.value).set(42).then_raise(Exception("oh no"))
+      decoy.when(fake.value).set("goodbye").then_raise(Exception("oh no"))
   out: |
-      main:13: error: Argument 1 to "set" of "Prop" has incompatible type "str"; expected "int"  [arg-type]
+      main:12: error: Argument 1 to "set" of "When" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_mimics_enter_type
+  skip: sys.version_info < (3, 10)
   main: |
       import contextlib
       from typing import Generator
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       @contextlib.contextmanager
       def do_thing(input: str) -> Generator[int, None, None]:
@@ -121,16 +128,16 @@
       decoy = Decoy()
       fake_cm = decoy.mock(func=do_thing)
 
-      decoy.when(fake_cm("hello")).then_enter_with(42)
-      decoy.when(fake_cm("goodbye")).then_enter_with("wrong-type")
+      decoy.when(fake_cm).called_with("hello").then_enter_with(42)
+      decoy.when(fake_cm).called_with("goodbye").then_enter_with("wrong-type")
 
   out: |
       main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_rejects_wrong_spec
-  regex: yes
+  skip: sys.version_info < (3, 10)
   main: |
-      from decoy import Decoy
+      from decoy.next import Decoy
 
       def do_thing(input: str) -> int:
           return 42
@@ -139,16 +146,14 @@
       fake_not_cm = decoy.mock(func=do_thing)
       fake_any = decoy.mock(name="fake_any")
 
-      decoy.when(fake_not_cm("hello")).then_enter_with(42)
-      decoy.when(fake_any("hello")).then_enter_with(42)
+      decoy.when(fake_not_cm).called_with("hello").then_enter_with(42)
+      decoy.when(fake_any).called_with("hello").then_enter_with(42)
 
   out: |
-      main:10: error: Invalid self argument "Stub\[int]" to attribute function "then_enter_with" with type "Callable\[\[Stub\[.*ContextManager\[ContextValueT.*]], ContextValueT], None]"  \[misc]
-      main:10: error: No overload variant of "then_enter_with" of "Stub" matches argument type "int"  \[call-overload]
-      main:10: note: Possible overload variants:
-      main:10: note:     def then_enter_with\(self, value.+\) -> None
+      main:10: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "int"; expected "Never"  [arg-type]
 
 - case: matchers_mimic_types
+  skip: sys.version_info < (3, 10)
   main: |
       from decoy import matchers
 
@@ -175,6 +180,7 @@
       main:12: note: Revealed type is "Any"
 
 - case: captor_mimics_types
+  skip: sys.version_info < (3, 10)
   main: |
       from decoy import matchers
 

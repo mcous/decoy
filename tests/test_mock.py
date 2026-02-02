@@ -1,16 +1,32 @@
 """Smoke and acceptance tests for main Decoy interface."""
 
+from __future__ import annotations
+
+import collections.abc
 import inspect
 import sys
 from typing import Any
 
 import pytest
 
-from decoy import Decoy, errors
-from decoy.spy import AsyncSpy, Spy
-from decoy.warnings import IncorrectCallWarning
+from decoy import errors
 
 from . import fixtures
+
+if sys.version_info >= (3, 10):
+    from decoy.next import AsyncMock, Decoy, Mock
+
+pytestmark = pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="v3 preview only supports Python >= 3.10",
+)
+
+
+@pytest.fixture()
+def decoy() -> collections.abc.Iterator[Decoy]:
+    """Create a Decoy instance for testing."""
+    with Decoy.create() as decoy:
+        yield decoy
 
 
 def test_create_mock(decoy: Decoy) -> None:
@@ -19,7 +35,7 @@ def test_create_mock(decoy: Decoy) -> None:
     result = subject()
 
     assert result is None
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `alice`>"
     assert inspect.signature(subject) == inspect.signature(fixtures.noop)
 
@@ -38,7 +54,7 @@ def test_child_mock(decoy: Decoy) -> None:
 
     assert subject is parent.child
     assert result is None
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `alice.child`>"
     assert inspect.signature(subject) == inspect.signature(fixtures.noop)
 
@@ -51,7 +67,7 @@ def test_attribute_set_and_delete(decoy: Decoy) -> None:
     assert subject.prop_name == 41
 
     del subject.prop_name
-    assert isinstance(subject.prop_name, Spy)
+    assert isinstance(subject.prop_name, Mock)
 
 
 async def test_create_async_mock(decoy: Decoy) -> None:
@@ -60,7 +76,7 @@ async def test_create_async_mock(decoy: Decoy) -> None:
     result = await subject()
 
     assert result is None
-    assert isinstance(subject, AsyncSpy)
+    assert isinstance(subject, AsyncMock)
     assert repr(subject) == "<Decoy mock `alice`>"
     assert inspect.signature(subject) == inspect.signature(fixtures.noop)
 
@@ -71,9 +87,15 @@ def test_create_func_mock(decoy: Decoy) -> None:
     result = subject("hello")
 
     assert result is None
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.some_func`>"
     assert inspect.signature(subject) == inspect.signature(fixtures.some_func)
+
+
+def test_create_func_mock_must_be_callable(decoy: Decoy) -> None:
+    """It raises an exception if `func` is not callable."""
+    with pytest.raises(errors.MockSpecInvalidError, match="must be a function"):
+        _ = decoy.mock(func=42)  # type: ignore[call-overload]
 
 
 async def test_create_async_func_mock(decoy: Decoy) -> None:
@@ -82,7 +104,7 @@ async def test_create_async_func_mock(decoy: Decoy) -> None:
     result = await subject("hello")
 
     assert result is None
-    assert isinstance(subject, AsyncSpy)
+    assert isinstance(subject, AsyncMock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.some_async_func`>"
     assert inspect.signature(subject) == inspect.signature(fixtures.some_async_func)
 
@@ -93,7 +115,7 @@ def test_create_decorated_func_mock(decoy: Decoy) -> None:
     result = subject("hello")
 
     assert result is None
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.some_wrapped_func`>"
     assert inspect.signature(subject) == inspect.signature(fixtures.some_func)
 
@@ -108,9 +130,12 @@ def test_create_callable_class_mock(decoy: Decoy) -> None:
 
     assert result is None
     assert isinstance(subject, fixtures.SomeCallableClass)
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeCallableClass`>"
-    assert inspect.signature(subject) == inspect.signature(_expected_signature)
+    assert inspect.signature(subject) == inspect.signature(
+        _expected_signature,
+        eval_str=True,
+    )
 
 
 async def test_create_async_callable_class_mock(decoy: Decoy) -> None:
@@ -123,9 +148,12 @@ async def test_create_async_callable_class_mock(decoy: Decoy) -> None:
 
     assert result is None
     assert isinstance(subject, fixtures.SomeAsyncCallableClass)
-    assert isinstance(subject, AsyncSpy)
+    assert isinstance(subject, AsyncMock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeAsyncCallableClass`>"
-    assert inspect.signature(subject) == inspect.signature(_expected_signature)
+    assert inspect.signature(subject) == inspect.signature(
+        _expected_signature,
+        eval_str=True,
+    )
 
 
 def test_create_class_mock(decoy: Decoy) -> None:
@@ -133,7 +161,7 @@ def test_create_class_mock(decoy: Decoy) -> None:
     subject = decoy.mock(cls=fixtures.SomeClass)
 
     assert isinstance(subject, fixtures.SomeClass)
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass`>"
 
 
@@ -142,7 +170,7 @@ def test_create_generic_class_mock(decoy: Decoy) -> None:
     subject: fixtures.GenericClass[object] = decoy.mock(cls=fixtures.GenericClass)
 
     assert isinstance(subject, fixtures.GenericClass)
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.GenericClass`>"
 
 
@@ -151,8 +179,14 @@ def test_create_concrete_generic_class_mock(decoy: Decoy) -> None:
     subject = decoy.mock(cls=fixtures.ConcreteAlias)
 
     assert isinstance(subject, fixtures.GenericClass)
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.GenericClass`>"
+
+
+def test_create_class_mock_must_be_a_class(decoy: Decoy) -> None:
+    """It raises an exception if `cls` is not a class."""
+    with pytest.raises(errors.MockSpecInvalidError, match="must be a class"):
+        _ = decoy.mock(cls=42)  # type: ignore[call-overload]
 
 
 def test_create_method_mock(decoy: Decoy) -> None:
@@ -164,9 +198,11 @@ def test_create_method_mock(decoy: Decoy) -> None:
         raise NotImplementedError()
 
     assert result is None
-    assert isinstance(subject, Spy)
-    assert inspect.signature(subject) == inspect.signature(_expected_signature)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.foo`>"
+    assert inspect.signature(subject) == inspect.signature(
+        _expected_signature, eval_str=True
+    )
 
 
 def test_create_staticmethod_mock(decoy: Decoy) -> None:
@@ -178,9 +214,12 @@ def test_create_staticmethod_mock(decoy: Decoy) -> None:
         raise NotImplementedError()
 
     assert result is None
-    assert isinstance(subject, Spy)
-    assert inspect.signature(subject) == inspect.signature(_expected_signature)
+    assert isinstance(subject, Mock)
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.static_method`>"
+    assert inspect.signature(subject) == inspect.signature(
+        _expected_signature,
+        eval_str=True,
+    )
 
 
 def test_create_classmethod_mock(decoy: Decoy) -> None:
@@ -192,9 +231,12 @@ def test_create_classmethod_mock(decoy: Decoy) -> None:
         raise NotImplementedError()
 
     assert result is None
-    assert isinstance(subject, Spy)
-    assert inspect.signature(subject) == inspect.signature(_expected_signature)
+    assert isinstance(subject, Mock)
+
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.class_method`>"
+    assert inspect.signature(subject) == inspect.signature(
+        _expected_signature, eval_str=True
+    )
 
 
 def test_create_decorated_method_mock(decoy: Decoy) -> None:
@@ -206,10 +248,13 @@ def test_create_decorated_method_mock(decoy: Decoy) -> None:
         raise NotImplementedError()
 
     assert result is None
-    assert isinstance(subject, Spy)
-    assert inspect.signature(subject) == inspect.signature(_expected_signature)
+    assert isinstance(subject, Mock)
     assert (
         repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.some_wrapped_method`>"
+    )
+    assert inspect.signature(subject) == inspect.signature(
+        _expected_signature,
+        eval_str=True,
     )
 
 
@@ -223,7 +268,7 @@ def test_create_attribute_mock(decoy: Decoy) -> None:
         else inspect.signature(fixtures.noop)
     )
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert inspect.signature(subject) == expected_signature
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.some_attr`>"
 
@@ -232,7 +277,7 @@ def test_create_attribute_class_mock(decoy: Decoy) -> None:
     """It creates a child class mock from an attribute."""
     subject = decoy.mock(cls=fixtures.SomeNestedClass).child_attr
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.SomeClass)
 
 
@@ -240,7 +285,7 @@ def test_create_attribute_type_alias_class_mock(decoy: Decoy) -> None:
     """It creates a child class mock from a type alias attribute."""
     subject = decoy.mock(cls=fixtures.SomeNestedClass).alias_attr
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.GenericClass)
 
 
@@ -248,22 +293,22 @@ def test_create_property_class_mock(decoy: Decoy) -> None:
     """It creates a child class mock from an property getter."""
     subject = decoy.mock(cls=fixtures.SomeNestedClass).child
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.SomeClass)
 
 
 def test_create_optional_property_class_mock(decoy: Decoy) -> None:
     """It creates a child class mock from an property getter with Optional return."""
     subject = decoy.mock(cls=fixtures.SomeNestedClass).optional_child
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.SomeClass)
 
     subject = decoy.mock(cls=fixtures.SomeNestedClass).union_child_and_none
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.SomeClass)
 
     subject = decoy.mock(cls=fixtures.SomeNestedClass).union_none_and_child
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.SomeClass)
 
 
@@ -271,7 +316,7 @@ def test_create_union_class_mock(decoy: Decoy) -> None:
     """A child class mock from an property with union return is not typed."""
     subject = decoy.mock(cls=fixtures.SomeNestedClass).union_child
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert not isinstance(subject, fixtures.SomeClass)
     assert not isinstance(subject, fixtures.SomeAsyncClass)
 
@@ -280,7 +325,7 @@ def test_create_type_alias_class_mock(decoy: Decoy) -> None:
     """It creates a child class mock from an property getter with type alias return."""
     subject = decoy.mock(cls=fixtures.SomeNestedClass).alias_child
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert isinstance(subject, fixtures.GenericClass)
 
 
@@ -288,7 +333,7 @@ def test_create_untyped_property_mock(decoy: Decoy) -> None:
     """It creates a child mock of a class's property getter without a type."""
     subject = decoy.mock(cls=fixtures.SomeClass).mystery_property
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
     assert inspect.signature(subject) == inspect.signature(fixtures.noop)
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.mystery_property`>"
 
@@ -297,7 +342,7 @@ def test_func_bad_call(decoy: Decoy) -> None:
     """It raises an IncorrectCallWarning if call is bad."""
     subject = decoy.mock(func=fixtures.some_func)
 
-    with pytest.warns(IncorrectCallWarning):
+    with pytest.raises(errors.SignatureMismatchError):
         subject("hello", "world")  # type: ignore[call-arg]
 
 
@@ -310,7 +355,7 @@ def test_bad_type_hints(decoy: Decoy) -> None:
 
     subject = decoy.mock(cls=_BadTypeHints).not_ok
 
-    assert isinstance(subject, Spy)
+    assert isinstance(subject, Mock)
 
 
 def test_context_manager(decoy: Decoy) -> None:
