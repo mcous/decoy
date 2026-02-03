@@ -69,8 +69,8 @@ say_hello = decoy.mock(name="say_hello")
 
 say_hello("foobar")
 
-decoy.verify(matchers.StringMatching("^foo"), times=1)  # passes
-decoy.verify(matchers.StringMatching("^bar"), times=1)  # raises
+decoy.verify(say_hello(matchers.StringMatching("^foo")), times=1)  # passes
+decoy.verify(say_hello(matchers.StringMatching("^bar")), times=1)  # raises
 ```
 
 ## Verifying with async/await

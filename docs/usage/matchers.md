@@ -51,7 +51,7 @@ When testing certain APIs, especially callback APIs, it can be helpful to captur
 
 For example, our test subject may register an event listener handler, and we want to test our subject's behavior when the event listener is triggered.
 
-```py
+```python
 import pytest
 from typing import cast, Optional
 from decoy import Decoy, matchers
