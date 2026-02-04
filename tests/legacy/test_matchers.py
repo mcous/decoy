@@ -7,7 +7,7 @@ import pytest
 
 from decoy import Decoy, matchers
 
-from .fixtures import SomeClass
+from ..fixtures import SomeClass
 
 
 class _HelloClass(NamedTuple):

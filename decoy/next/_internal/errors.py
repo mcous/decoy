@@ -95,3 +95,9 @@ def createVerifyOrderError(
     )
 
     return errors.VerifyOrderError(message)
+
+
+def createNoMatcherValueCapturedError(
+    message: str,
+) -> errors.NoMatcherValueCapturedError:
+    return errors.NoMatcherValueCapturedError(message)

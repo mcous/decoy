@@ -96,14 +96,14 @@ assert database.get("foo") == {id: "foo"}  # also prints "hello foo"
 
 ## Loosen constraints with matchers
 
-You may loosen `called_with` constraints using [`matchers`][decoy.matchers]. See the [matchers usage guide](../usage/matchers.md) for more information.
+You may loosen `called_with` constraints using [`Matcher`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
 
 ```python
 say_hello = decoy.mock(name="say_hello")
 
 decoy
     .when(say_hello)
-    .called_with(matchers.StringMatching("^foo"))
+    .called_with(Matcher.matches("^foo").arg)
     .then_return("hello")
 
 assert say_hello("foo") == "hello"
