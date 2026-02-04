@@ -98,3 +98,7 @@ class VerifyError(AssertionError):
 
 class VerifyOrderError(VerifyError):
     """A [`Decoy.verify_order`][decoy.next.Decoy.verify_order] assertion failed."""
+
+
+class NoMatcherValueCapturedError(ValueError):
+    """An error raised if a [decoy.next.Matcher][] has not captured any matching values."""

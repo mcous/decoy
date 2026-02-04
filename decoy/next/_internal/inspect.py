@@ -163,6 +163,14 @@ def bind_args(
     return BoundArguments(bound_args.args, bound_args.kwargs)
 
 
+def get_func_name(func: Callable[..., object]) -> str:
+    """Get the name of a function."""
+    if isinstance(func, functools.partial):
+        return func.func.__name__
+
+    return func.__name__
+
+
 def _unwrap_callable(value: object) -> Callable[..., object] | None:
     """Return an object's callable, checking if a class has a `__call__` method."""
     if not callable(value):

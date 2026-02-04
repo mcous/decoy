@@ -62,22 +62,22 @@ decoy
 
 ## Loosen constraints with matchers
 
-You may loosen rehearsal constraints using [`matchers`][decoy.matchers]. See the [matchers usage guide](../usage/matchers.md) for more information.
+You may loosen rehearsal constraints using [`Matchers`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
 
 ```python
 say_hello = decoy.mock(name="say_hello")
 
 say_hello("foobar")
 
-decoy.verify(say_hello).called_with(matchers.StringMatching("^foo"))
+decoy.verify(say_hello).called_with(Matcher.matches("^foo").arg)
 
 with pytest.raises():
-    decoy.verify(say_hello).called_with(matchers.StringMatching("^bar"))
+    decoy.verify(say_hello).called_with(Matcher.matches("^bar").arg)
 ```
 
 ## Verify order of multiple calls
 
-If your code under test must call several dependencies in order, use [`Decoy.verify_order`][decoy.next.Decoy.verify_order]. Decoy will search through the list of all calls made to the given spies and look for a matching ordered call sequence.
+If your code under test must call several dependencies in order, use [`Decoy.verify_order`][decoy.next.Decoy.verify_order]. Decoy will search through the list of all calls made to the given mocks and look for a matching ordered call sequence.
 
 ```python
 with decoy.verify_order():

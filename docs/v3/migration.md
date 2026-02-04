@@ -1,6 +1,6 @@
 # Migrate to v3
 
-Recommended migration:
+Recommended migration from v2:
 
 1. Upgrade to `decoy>=2.4.0 <3`.
 2. Incrementally migrate to the new API using `decoy.next`.
@@ -90,6 +90,29 @@ Using `called_with` in Decoy v3, it is no longer necessary to add `await` to `wh
 - decoy.verify(await mock("hello"))
 + decoy.verify(mock).called_with("hello")
 ```
+
+## Matchers
+
+Matchers have been reworked to be more type-safe and easier to extend. See the [`Matcher` guide][matcher-guide] for more details.
+
+```diff
+- from decoy import Decoy, matchers
++ from decoy.next import Decoy, Matcher
+```
+
+| v2                        | v3                                                   |
+| ------------------------- | ---------------------------------------------------- |
+| `matchers.AnythingOrNone` | [`Matcher.any`][decoy.next.Matcher.any]              |
+| `matchers.HasAttributes`  | [`Matcher.any(attrs=attrs)`][decoy.next.Matcher.any] |
+| `matchers.IsA`            | [`Matcher.any(type=type)`][decoy.next.Matcher.any]   |
+| `matchers.DictMatching`   | [`Matcher.contains`][decoy.next.Matcher.contains]    |
+| `matchers.ListMatching`   | [`Matcher.contains`][decoy.next.Matcher.contains]    |
+| `matchers.ErrorMatching`  | [`Matcher.error`][decoy.next.Matcher.error]          |
+| `matchers.IsNot`          | [`Matcher.is_not`][decoy.next.Matcher.is_not]        |
+| `matchers.Anything`       | [`Matcher.is_not(None)`][decoy.next.Matcher.is_not]  |
+| `matchers.StringMatching` | [`Matcher.matches`][decoy.next.Matcher.matches]      |
+| `matchers.ValueCaptor`    | Any other matcher; all matchers are now captors      |
+| Custom matchers           | [`Matcher`][decoy.next.Matcher] + match function     |
 
 ## Attributes
 
