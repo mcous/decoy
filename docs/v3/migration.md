@@ -12,19 +12,16 @@ Recommended migration from v2:
 
 ## Setup
 
-For an incremental migration, you can set up a replacement `decoy` fixture wherever tests are being migrated:
+For an incremental migration, annotate a test's `decoy` fixture as `decoy.next.Decoy` to automatically opt-in that test to the preview API.
 
-```python
-import collections.abc
-import pytest
+```diff
+- from decoy import Decoy
++ from decoy.next import Decoy
 
-from decoy.next import Decoy
-
-@pytest.fixture()
-def decoy() -> collections.abc.Iterator[Decoy]:
-    """Create a Decoy instance for testing."""
-    with Decoy.create() as decoy:
-        yield decoy
+  def test_when(decoy: Decoy) -> None:
+      mock = decoy.mock(cls=SomeClass)
+-     decoy.when(mock.foo("hello")).then_return("world")
++     decoy.when(mock.foo).called_with("hello").then_return("world")
 ```
 
 ## When
@@ -189,6 +186,7 @@ In v3, `__enter__` and `__exit__` can still be stubbed to test advanced context 
 
 ## Other breaking changes
 
+- The `mypy` plugin is no longer needed and will be removed
 - [`Decoy.mock`][decoy.next.Decoy.mock] is more strict about its arguments, and will raise [`MockSpecInvalidError`][decoy.errors.MockSpecInvalidError] if passed an invalid `spec` value.
 - [`IncorrectCallWarning`][decoy.warnings.IncorrectCallWarning] has been upgraded to an error: [`SignatureMismatchError`][decoy.errors.SignatureMismatchError].
 - Some "public" attributes have been removed from error classes.

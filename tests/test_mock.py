@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import collections.abc
 import inspect
 import sys
 from typing import Any
@@ -20,13 +19,6 @@ pytestmark = pytest.mark.skipif(
     sys.version_info < (3, 10),
     reason="v3 preview only supports Python >= 3.10",
 )
-
-
-@pytest.fixture()
-def decoy() -> collections.abc.Iterator[Decoy]:
-    """Create a Decoy instance for testing."""
-    with Decoy.create() as decoy:
-        yield decoy
 
 
 def test_create_mock(decoy: Decoy) -> None:

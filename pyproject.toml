@@ -77,11 +77,13 @@ test = "pytest -f"
 test-once = "coverage run --branch --source=decoy -m pytest --mypy-same-process"
 coverage = "coverage report"
 coverage-xml = "coverage xml"
+coverage-html = "coverage html"
 docs = "mkdocs serve --livereload"
 build-docs = "mkdocs build"
 build-package = "uv build"
 check-ci = ["check", "lint", "format-check"]
 test-ci = ["test-once", "coverage-xml"]
+test-coverage = ["test-once", "coverage-html", "coverage"]
 
 [tool.pytest.ini_options]
 addopts = "--color=yes --mypy-ini-file=tests/legacy/typing/mypy.ini --mypy-only-local-stub"
