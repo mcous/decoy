@@ -28,14 +28,6 @@ Then, start trying out the new API!
 - from decoy import Decoy
 + from decoy.next import Decoy
 
-
-+ @pytest.fixture()
-+ def decoy() -> collections.abc.Iterator[Decoy]:
-+     """Create a Decoy v3 preview instance for testing."""
-+     with Decoy.create() as decoy:
-+         yield decoy
-
-
   def test_when(decoy: Decoy) -> None:
       mock = decoy.mock(cls=SomeClass)
 -     decoy.when(mock.foo("hello")).then_return("world")

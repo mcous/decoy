@@ -23,13 +23,6 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-@pytest.fixture()
-def decoy() -> collections.abc.Iterator[Decoy]:
-    """Create a Decoy instance for testing."""
-    with Decoy.create() as decoy:
-        yield decoy
-
-
 def test_when_then_return(decoy: Decoy) -> None:
     """It returns a value."""
     subject = decoy.mock(name="subject")
