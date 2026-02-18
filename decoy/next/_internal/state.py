@@ -5,6 +5,7 @@ import dataclasses
 from typing import NamedTuple
 
 from .compare import (
+    get_verification_events,
     is_event_from_mock,
     is_matching_behavior,
     is_matching_count,
@@ -251,11 +252,11 @@ class DecoyState:
         yield result
         self._order_verification = None
 
-        for verification in result.verifications:
-            result.all_events.extend(verification.matching_events)
-
-        result.all_events.sort(key=lambda event: event.order)
-        result.is_success = is_successful_verify_order(result.verifications)
+        result.all_events = get_verification_events(result.verifications)
+        result.is_success = is_successful_verify_order(
+            result.verifications,
+            result.all_events,
+        )
 
     def reset(self) -> None:
         self._events.clear()

@@ -351,6 +351,20 @@ def test_verify_call_list_pass_other_mock(decoy: Decoy) -> None:
         decoy.verify(subject_3).called_with("c")
 
 
+def test_verify_call_list_pass_multiple_calls(decoy: Decoy) -> None:
+    """It should be able to verify a call sequence that includes the same call twice."""
+    subject = decoy.mock(name="subject")
+
+    subject("hello")
+    subject("world")
+    subject("hello")
+
+    with decoy.verify_order():
+        decoy.verify(subject).called_with("hello")
+        decoy.verify(subject).called_with("world")
+        decoy.verify(subject).called_with("hello")
+
+
 def test_verify_call_list_fail_wrong_order(decoy: Decoy) -> None:
     """It fails a call sequence if there calls are in the wrong order."""
     subject_1 = decoy.mock(name="subject_1")

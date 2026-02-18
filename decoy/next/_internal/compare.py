@@ -54,34 +54,43 @@ def is_successful_verify(verification: VerificationEntry) -> bool:
     return len(verification.matching_events) > 0
 
 
-def is_successful_verify_order(verifications: list[VerificationEntry]) -> bool:
-    matching_events: list[tuple[EventEntry, VerificationEntry]] = []
-    verification_index = 0
-    event_index = 0
+def get_verification_events(verifications: list[VerificationEntry]) -> list[EventEntry]:
+    seen_events: dict[int, bool] = {}
+    result: list[EventEntry] = []
 
     for verification in verifications:
         for matching_event in verification.matching_events:
-            matching_events.append((matching_event, verification))
+            if matching_event.order not in seen_events:
+                seen_events[matching_event.order] = True
+                result.append(matching_event)
 
-    matching_events.sort(key=lambda e: e[0].order)
+    result.sort(key=lambda e: e.order)
 
-    while event_index < len(matching_events) and verification_index < len(
-        verifications
-    ):
-        _, event_verification = matching_events[event_index]
-        expected_verification = verifications[verification_index]
-        expected_times = expected_verification.matcher.options.times
-        remaining_events = len(matching_events) - event_index
+    return result
 
-        if event_verification is expected_verification:
+
+def is_successful_verify_order(
+    verifications: list[VerificationEntry],
+    events: list[EventEntry],
+) -> bool:
+    verification_index = 0
+    event_index = 0
+
+    while event_index < len(events) and verification_index < len(verifications):
+        event = events[event_index]
+        verification = verifications[verification_index]
+        remaining_events = len(events) - event_index
+
+        if event in verification.matching_events:
+            expected_times = verification.matcher.options.times
             verification_index += 1
 
             if expected_times is None or expected_times == 1:
                 event_index += 1
             else:
                 for times_index in range(1, expected_times):
-                    _, later_verification = matching_events[event_index + times_index]
-                    if later_verification is not expected_verification:
+                    next_event = events[event_index + times_index]
+                    if next_event not in verification.matching_events:
                         return False
 
                 event_index += expected_times
