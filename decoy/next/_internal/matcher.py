@@ -216,35 +216,35 @@ class Matcher(Generic[ValueT]):
         )
 
     @staticmethod
-    def matches(pattern: str) -> "Matcher[str]":
+    def matches(match: str) -> "Matcher[str]":
         """Match a string by a pattern.
 
         Arguments:
-            pattern: Regular expression pattern.
+            match: Regular expression pattern.
         """
-        pattern_re = re.compile(pattern)
+        match_re = re.compile(match)
 
         return Matcher(
-            match=functools.partial(matches, pattern_re),
-            description=repr(pattern),
+            match=functools.partial(matches, match_re),
+            description=repr(match),
         )
 
     @staticmethod
-    def error(type: type[ErrorT], message: str | None = None) -> "Matcher[ErrorT]":
+    def error(type: type[ErrorT], match: str | None = None) -> "Matcher[ErrorT]":
         """Match an exception object.
 
         Arguments:
             type: The type of exception to match.
-            message: An optional regular expression pattern to match.
+            match: An optional regular expression pattern to match.
         """
-        message_re = re.compile(message or "")
+        match_re = re.compile(match or "")
         description = type.__name__
 
-        if message:
-            description = f"{description} message={message!r}"
+        if match:
+            description = f"{description} match={match!r}"
 
         return Matcher(
-            match=functools.partial(error, type, message_re),
+            match=functools.partial(error, type, match_re),
             name="error",
             description=description,
         )
