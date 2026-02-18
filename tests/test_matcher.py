@@ -249,9 +249,9 @@ def test_error_type() -> None:
 
 def test_error_type_and_message() -> None:
     """It matches an exception type and message."""
-    subject = Matcher.error(RuntimeError, message="^oh")
+    subject = Matcher.error(RuntimeError, match="^oh")
 
     assert RuntimeError("oh no") == subject
     assert RuntimeError("oh canada") == subject
     assert TypeError("oh no") != subject
-    assert str(subject) == "<Matcher.error RuntimeError message='^oh'>"
+    assert str(subject) == "<Matcher.error RuntimeError match='^oh'>"
