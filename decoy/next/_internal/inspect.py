@@ -105,8 +105,8 @@ def get_child_spec(spec: object, child_name: str) -> object:
                 _get_type_hints(unwrapped_child_source.fget).get("return")
             )
 
-        if inspect.isfunction(unwrapped_child_source):
-            # consume `self` argument
+        # consume `self` and `cls` arguments
+        if inspect.isroutine(unwrapped_child_source):
             return functools.partial(unwrapped_child_source, None)
 
         return _unwrap_type_alias(unwrapped_child_source)

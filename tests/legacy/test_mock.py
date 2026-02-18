@@ -1,5 +1,6 @@
 """Smoke and acceptance tests for main Decoy interface."""
 
+import asyncio
 import inspect
 import sys
 from typing import Any
@@ -327,3 +328,13 @@ async def test_async_context_manager(decoy: Decoy) -> None:
 
     async with subject as result:
         assert result is None
+
+
+@pytest.mark.skipif(sys.version_info < (3, 9), reason="msg param added in 3.9")
+def test_builtin(decoy: Decoy) -> None:
+    """It can mock builtin classes."""
+    subject = decoy.mock(cls=asyncio.Task)
+    subject.cancel(msg="hello")
+
+    with pytest.warns(IncorrectCallWarning):
+        subject.cancel(message="oops")  # type: ignore[call-arg]

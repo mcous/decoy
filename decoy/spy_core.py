@@ -1,17 +1,17 @@
 """Core spy logic."""
 
-import inspect
 import functools
+import inspect
 import warnings
 from typing import (
     Any,
     Dict,
     NamedTuple,
     Optional,
+    Sequence,
     Tuple,
     Type,
     Union,
-    Sequence,
     get_type_hints,
 )
 
@@ -142,7 +142,7 @@ class SpyCore:
 
                 child_source = inspect.unwrap(child_source)
 
-                if inspect.isfunction(child_source):
+                if inspect.isroutine(child_source):
                     # consume the `self` argument of the method to ensure proper
                     # signature reporting by wrapping it in a partial
                     child_source = functools.partial(child_source, None)
