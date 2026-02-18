@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import inspect
 import sys
 from typing import Any
@@ -364,3 +365,12 @@ async def test_async_context_manager(decoy: Decoy) -> None:
 
     async with subject as result:
         assert result is None
+
+
+def test_builtin(decoy: Decoy) -> None:
+    """It can mock builtin classes."""
+    subject = decoy.mock(cls=asyncio.Task)
+    subject.cancel(msg="hello")
+
+    with pytest.raises(errors.SignatureMismatchError):
+        subject.cancel(message="oops")  # type: ignore[call-arg]
