@@ -111,7 +111,7 @@ ignore = ["ANN401", "D107", "E501"]
 convention = "google"
 
 [build-system]
-requires = ["uv_build>=0.9.21,<0.10.0"]
+requires = ["uv_build>=0.9.21,<0.11.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
