@@ -95,21 +95,25 @@ def get_child_spec(spec: object, child_name: str) -> object:
         # falling back to type annotations for attributes
         child_hint = _get_type_hints(spec).get(child_name)
         child_source = inspect.getattr_static(spec, child_name, child_hint)
-        unwrapped_child_source = inspect.unwrap(child_source)
+
+        if isinstance(child_source, property):
+            return _unwrap_type_alias(_get_type_hints(child_source.fget).get("return"))
+
+        if isinstance(child_source, functools.cached_property):
+            return _unwrap_type_alias(_get_type_hints(child_source.func).get("return"))
 
         if isinstance(child_source, staticmethod):
-            return unwrapped_child_source
+            return child_source.__func__
 
-        if isinstance(unwrapped_child_source, property):
-            return _unwrap_type_alias(
-                _get_type_hints(unwrapped_child_source.fget).get("return")
-            )
+        # consume `cls` argument
+        if isinstance(child_source, classmethod):
+            return functools.partial(child_source.__func__, spec)
 
-        # consume `self` and `cls` arguments
-        if inspect.isroutine(unwrapped_child_source):
-            return functools.partial(unwrapped_child_source, None)
+        # consume `self` argument
+        if inspect.isroutine(child_source) and callable(child_source):
+            return functools.partial(child_source, None)
 
-        return _unwrap_type_alias(unwrapped_child_source)
+        return _unwrap_type_alias(child_source)
 
     return None
 

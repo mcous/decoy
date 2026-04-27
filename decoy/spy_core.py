@@ -133,6 +133,11 @@ class SpyCore:
             if isinstance(child_source, property):
                 child_source = _get_type_hints(child_source.fget).get("return")
 
+            elif hasattr(functools, "cached_property") and isinstance(
+                child_source, functools.cached_property
+            ):
+                child_source = _get_type_hints(child_source.func).get("return")
+
             elif isinstance(child_source, staticmethod):
                 child_source = child_source.__func__
 
@@ -142,7 +147,7 @@ class SpyCore:
 
                 child_source = inspect.unwrap(child_source)
 
-                if inspect.isroutine(child_source):
+                if inspect.isroutine(child_source) and callable(child_source):
                     # consume the `self` argument of the method to ensure proper
                     # signature reporting by wrapping it in a partial
                     child_source = functools.partial(child_source, None)

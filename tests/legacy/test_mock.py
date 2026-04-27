@@ -1,6 +1,7 @@
 """Smoke and acceptance tests for main Decoy interface."""
 
 import asyncio
+import functools
 import inspect
 import sys
 from typing import Any
@@ -338,3 +339,34 @@ def test_builtin(decoy: Decoy) -> None:
 
     with pytest.warns(IncorrectCallWarning):
         subject.cancel(message="oops")  # type: ignore[call-arg]
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 8), reason="functools.cached_property added in 3.8"
+)
+def test_cached_property(decoy: Decoy) -> None:
+    """It can mock a cached property."""
+
+    class _Spec:
+        @functools.cached_property
+        def child(self) -> fixtures.SomeClass:
+            raise NotImplementedError()
+
+    subject = decoy.mock(cls=_Spec).child
+
+    assert isinstance(subject, Spy)
+    assert isinstance(subject, fixtures.SomeClass)
+
+
+def test_non_callable_descriptor(decoy: Decoy) -> None:
+    """It doesn't choke on non-callable descriptors."""
+
+    class _NonCallableDescriptor:
+        def __get__(self, *args: Any) -> None: ...
+
+    class _Spec:
+        child = _NonCallableDescriptor()
+
+    subject = decoy.mock(cls=_Spec).child
+
+    assert isinstance(subject, Spy)

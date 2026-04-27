@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import functools
 import inspect
 import sys
 from typing import Any
@@ -331,6 +332,20 @@ def test_create_untyped_property_mock(decoy: Decoy) -> None:
     assert repr(subject) == "<Decoy mock `tests.fixtures.SomeClass.mystery_property`>"
 
 
+def test_create_cached_property_mock(decoy: Decoy) -> None:
+    """It can mock a cached property."""
+
+    class _Spec:
+        @functools.cached_property
+        def child(self) -> fixtures.SomeClass:
+            raise NotImplementedError()
+
+    subject = decoy.mock(cls=_Spec).child
+
+    assert isinstance(subject, Mock)
+    assert isinstance(subject, fixtures.SomeClass)
+
+
 def test_func_bad_call(decoy: Decoy) -> None:
     """It raises an IncorrectCallWarning if call is bad."""
     subject = decoy.mock(func=fixtures.some_func)
@@ -374,3 +389,17 @@ def test_builtin(decoy: Decoy) -> None:
 
     with pytest.raises(errors.SignatureMismatchError):
         subject.cancel(message="oops")  # type: ignore[call-arg]
+
+
+def test_non_callable_descriptor(decoy: Decoy) -> None:
+    """It doesn't choke on non-callable descriptors."""
+
+    class _NonCallableDescriptor:
+        def __get__(self, *args: Any) -> None: ...
+
+    class _Spec:
+        child = _NonCallableDescriptor()
+
+    subject = decoy.mock(cls=_Spec).child
+
+    assert isinstance(subject, Mock)
