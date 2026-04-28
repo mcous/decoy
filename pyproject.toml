@@ -53,7 +53,8 @@ dev = [
     "ruff (==0.14.10)",
     "mkdocs (==1.6.1) ; python_version >= '3.10'",
     "mkdocs-material (==9.7.1) ; python_version >= '3.10'",
-    "mkdocstrings[python] (==1.0.0) ; python_version >= '3.10'"
+    "mkdocstrings[python] (==1.0.0) ; python_version >= '3.10'",
+    "libcst>=1.0.1",
 ]
 
 [tool.poe]
@@ -100,7 +101,6 @@ show_error_codes = true
 exclude_lines = ["@overload", "if TYPE_CHECKING:", "# pragma: no cover"]
 
 [tool.ruff]
-target-version = "py37"
 extend-exclude = [".cache"]
 
 [tool.ruff.lint]
@@ -119,4 +119,4 @@ module-name = "decoy"
 module-root = ""
 
 [tool.uv]
-required-version = ">=0.9.21,<0.10.0"
+required-version = ">=0.9.21,<0.12.0"
