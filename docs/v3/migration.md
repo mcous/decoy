@@ -10,6 +10,20 @@ Recommended migration from v2:
 
     `v3` is not yet released. This migration guide will change as `v3` is finalized.
 
+## Codemod
+
+A [libcst][] codemod is available to automate the changes described in this guide. Run it against your test files with `uv`:
+
+```sh
+uv run --with libcst python -m libcst.tool codemod decoy.codemods.migrate.MigrateCommand .
+```
+
+!!! note
+
+    The codemod only transforms calls on variables named `decoy`, `self.decoy`, or `self._decoy`. Tests using a different variable name will need manual migration.
+
+[libcst]: https://libcst.readthedocs.io/
+
 ## Setup
 
 For an incremental migration, annotate a test's `decoy` fixture as `decoy.next.Decoy` to automatically opt-in that test to the preview API.
