@@ -2,6 +2,7 @@
 
 Recommended migration from v2:
 
+0. Ensure you're running Python 3.10 or later.
 1. Upgrade to `decoy>=2.4.0 <3`.
 2. Incrementally migrate to the new API using `decoy.next`.
 3. Once all tests are using the v3 syntax, upgrade to `v3` and swap `decoy.next` with `decoy`.
@@ -9,6 +10,20 @@ Recommended migration from v2:
 !!! warning
 
     `v3` is not yet released. This migration guide will change as `v3` is finalized.
+
+## Codemod
+
+A [libcst][] codemod is available to automate the changes described in this guide. Run it against your project files with `uv`:
+
+```sh
+uv run --with libcst python -m libcst.tool codemod decoy.codemods.migrate.MigrateCommand .
+```
+
+!!! note
+
+    The codemod only transforms calls on variables named `decoy`, `self.decoy`, or `self._decoy`, and matcher calls on the name `matchers`. Code using different variable names will need manual migration.
+
+[libcst]: https://libcst.readthedocs.io/
 
 ## Setup
 
@@ -70,7 +85,7 @@ To verify a sequence of calls, call `Decoy.verify` from a [`Decoy.verify_order`]
 -     mock("b"),
 -     mock("c"),
 - )
-+ decoy.verify_order():
++ with decoy.verify_order():
 +   decoy.verify(mock).called_with("a")
 +   decoy.verify(mock).called_with("b")
 +   decoy.verify(mock).called_with("c")
