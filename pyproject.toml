@@ -50,7 +50,7 @@ dev = [
     "pytest-xdist (==3.5.0) ; python_version < '3.8'",
     "pytest-xdist (==3.6.1) ; python_version >= '3.8' and python_version < '3.9'",
     "pytest-xdist (==3.7.0) ; python_version >= '3.9'",
-    "ruff (==0.14.10)",
+    "ruff==0.15.12",
     "mkdocs (==1.6.1) ; python_version >= '3.10'",
     "mkdocs-material (==9.7.1) ; python_version >= '3.10'",
     "mkdocstrings[python] (==1.0.0) ; python_version >= '3.10'",
