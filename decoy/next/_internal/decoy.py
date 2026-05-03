@@ -13,6 +13,7 @@ from .mock import AsyncMock, Mock, create_mock, ensure_mock
 from .state import DecoyState
 from .values import MatchOptions
 from .verify import Verify
+from .warnings import createMiscalledStubWarning, warnAtCallSite
 from .when import When
 
 ClassT = TypeVar("ClassT")
@@ -228,4 +229,12 @@ class Decoy:
 
     def reset(self) -> None:
         """Reset the decoy instance."""
+        for miscalled in self._state.get_miscalled_stubs():
+            warning = createMiscalledStubWarning(
+                miscalled.mock_name,
+                miscalled.expected_events,
+                miscalled.event,
+            )
+            warnAtCallSite(warning, miscalled.call_site)
+
         self._state.reset()

@@ -12,6 +12,8 @@ from typing import (
     get_type_hints,
 )
 
+from .values import CallSite
+
 from .errors import (
     createMockNameRequiredError,
     createMockNotAsyncError,
@@ -165,6 +167,17 @@ def bind_args(
         raise createSignatureMismatchError(error) from None
 
     return BoundArguments(bound_args.args, bound_args.kwargs)
+
+
+def get_call_site() -> CallSite | None:
+    """Walk frames upward to find the first frame outside the decoy package."""
+    frame = inspect.currentframe()
+    while frame is not None:
+        module: str = frame.f_globals.get("__name__", "")
+        if not module.startswith("decoy"):
+            return CallSite(frame.f_code.co_filename, frame.f_lineno, module)
+        frame = frame.f_back
+    return None
 
 
 def get_func_name(func: Callable[..., object]) -> str:

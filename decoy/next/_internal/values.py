@@ -76,11 +76,20 @@ class MockInfo(NamedTuple):
     signature: inspect.Signature | None
 
 
+class CallSite(NamedTuple):
+    """Source location of a call to a mock, captured at call time."""
+
+    filename: str
+    lineno: int
+    module: str
+
+
 class EventEntry(NamedTuple):
     mock: MockInfo
     event: Event
     state: EventState
     order: int
+    call_site: "CallSite | None" = None
 
 
 class BehaviorEntry(NamedTuple):
@@ -94,3 +103,10 @@ class VerificationEntry(NamedTuple):
     mock: MockInfo
     matcher: EventMatcher
     matching_events: list[EventEntry]
+
+
+class MiscalledStub(NamedTuple):
+    mock_name: str
+    event: CallEvent
+    expected_events: "list[Event]"
+    call_site: "CallSite | None"

@@ -1,6 +1,8 @@
+import warnings as stdlib_warnings
+
 from ... import warnings
 from .stringify import count, join_lines, stringify_event, stringify_event_list
-from .values import CallEvent, Event
+from .values import CallEvent, CallSite, Event
 
 
 def createMiscalledStubWarning(
@@ -18,6 +20,16 @@ def createMiscalledStubWarning(
     )
 
     return warnings.MiscalledStubWarning(message)
+
+
+def warnAtCallSite(warning: warnings.DecoyWarning, site: CallSite | None) -> None:
+    """Issue a warning, pointing at the captured call site if available."""
+    if site is not None:
+        stdlib_warnings.warn_explicit(
+            warning, type(warning), site.filename, site.lineno, site.module,
+        )
+    else:  # pragma: no cover
+        stdlib_warnings.warn(warning, stacklevel=4)
 
 
 def createRedundantVerifyWarning(

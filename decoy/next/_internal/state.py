@@ -10,6 +10,7 @@ from .compare import (
     is_matching_behavior,
     is_matching_count,
     is_matching_event,
+    is_miscalled_stub_event,
     is_redundant_verify,
     is_successful_verify,
     is_successful_verify_order,
@@ -22,19 +23,15 @@ from .values import (
     Behavior,
     BehaviorEntry,
     CallEvent,
+    CallSite,
     Event,
     EventEntry,
     EventMatcher,
     EventState,
+    MiscalledStub,
     MockInfo,
     VerificationEntry,
 )
-
-
-class BehaviorResult(NamedTuple):
-    is_found: bool
-    return_value: object
-    expected_events: list[Event]
 
 
 class VerificationResult(NamedTuple):
@@ -58,11 +55,13 @@ class DecoyState:
         self._behaviors: list[BehaviorEntry] = []
         self._behavior_usage_by_index: dict[int, int] = collections.defaultdict(int)
         self._attribute_mocks_by_id: dict[int, object] = {}
+        self._matched_event_indices: set[int] = set()
+        self._verified_event_indices: set[int] = set()
 
     def _consume_behavior(
         self,
         event_entry: EventEntry,
-    ) -> tuple[Behavior | None, list[Event], bool]:
+    ) -> tuple[Behavior | None, bool]:
         mock_behaviors = [
             behavior
             for behavior in self._behaviors
@@ -73,24 +72,27 @@ class DecoyState:
             for behavior in mock_behaviors
             if is_matching_event(event_entry, behavior.matcher)
         ]
-        expected_events = [behavior.matcher.event for behavior in mock_behaviors]
 
         for behavior_entry in reversed(matched_behaviors):
             usage_count = self._behavior_usage_by_index[behavior_entry.order]
 
             if is_matching_count(usage_count, behavior_entry.matcher):
                 self._behavior_usage_by_index[behavior_entry.order] = usage_count + 1
-                return behavior_entry.behavior, expected_events, True
+                self._matched_event_indices.add(event_entry.order)
+                return behavior_entry.behavior, True
 
-        return None, expected_events, len(matched_behaviors) > 0
+        is_found = len(matched_behaviors) > 0
+        if is_found:
+            self._matched_event_indices.add(event_entry.order)
+        return None, is_found
 
     def _use_behavior(
         self,
         event_entry: EventEntry,
         default_return_value: object = None,
-    ) -> BehaviorResult:
+    ) -> tuple[object, bool]:
         event = event_entry.event
-        behavior, expected_events, is_found = self._consume_behavior(event_entry)
+        behavior, is_found = self._consume_behavior(event_entry)
 
         if behavior is None:
             return_value = default_return_value
@@ -117,19 +119,16 @@ class DecoyState:
         else:
             return_value = behavior.return_value
 
-        return BehaviorResult(
-            is_found=is_found,
-            expected_events=expected_events,
-            return_value=return_value,
-        )
+        return return_value, is_found
 
     def _add_event(
         self,
         mock: MockInfo,
         event: Event,
         event_state: EventState,
+        call_site: CallSite | None = None,
     ) -> EventEntry:
-        event_entry = EventEntry(mock, event, event_state, len(self._events))
+        event_entry = EventEntry(mock, event, event_state, len(self._events), call_site)
 
         self._events.append(event_entry)
 
@@ -150,11 +149,11 @@ class DecoyState:
         mock: MockInfo,
         event: CallEvent,
         event_state: EventState,
-    ) -> BehaviorResult:
-        event_entry = self._add_event(mock, event, event_state)
-        behavior_result = self._use_behavior(event_entry)
-
-        return behavior_result
+        call_site: CallSite | None = None,
+    ) -> object:
+        event_entry = self._add_event(mock, event, event_state, call_site)
+        return_value, _ = self._use_behavior(event_entry)
+        return return_value
 
     def use_attribute_behavior(
         self,
@@ -176,9 +175,9 @@ class DecoyState:
         elif event.type == AttributeEventType.DELETE:
             self._attribute_mocks_by_id.pop(mock.id, None)
 
-        behavior_result = self._use_behavior(event_entry, default_return_value)
+        return_value, _ = self._use_behavior(event_entry, default_return_value)
 
-        return behavior_result.return_value
+        return return_value
 
     def use_verification(
         self,
@@ -198,6 +197,8 @@ class DecoyState:
         verification = VerificationEntry(mock, matcher, matching_events)
         is_success = is_successful_verify(verification)
         is_redundant = is_redundant_verify(verification, self._behaviors)
+
+        self._verified_event_indices.update(e.order for e in matching_events)
 
         if is_success and self._order_verification:
             self._order_verification.verifications.append(verification)
@@ -258,9 +259,33 @@ class DecoyState:
             result.all_events,
         )
 
+    def get_miscalled_stubs(self) -> list[MiscalledStub]:
+        return [
+            MiscalledStub(
+                mock_name=entry.mock.name,
+                event=entry.event,
+                expected_events=[
+                    b.matcher.event
+                    for b in self._behaviors
+                    if is_event_from_mock(entry, b.mock)
+                ],
+                call_site=entry.call_site,
+            )
+            for entry in self._events
+            if isinstance(entry.event, CallEvent)
+            and is_miscalled_stub_event(
+                entry,
+                self._behaviors,
+                self._matched_event_indices,
+                self._verified_event_indices,
+            )
+        ]
+
     def reset(self) -> None:
         self._events.clear()
         self._behaviors.clear()
         self._behavior_usage_by_index.clear()
         self._attribute_mocks_by_id.clear()
+        self._matched_event_indices.clear()
+        self._verified_event_indices.clear()
         self._order_verification = None

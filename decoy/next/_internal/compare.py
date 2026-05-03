@@ -12,6 +12,20 @@ from .values import (
 )
 
 
+def is_miscalled_stub_event(
+    entry: EventEntry,
+    behaviors: list[BehaviorEntry],
+    matched_event_indices: set[int],
+    verified_event_indices: set[int],
+) -> bool:
+    """Return True if this call event should trigger a MiscalledStubWarning."""
+    return (
+        any(is_event_from_mock(entry, b.mock) for b in behaviors)
+        and entry.order not in matched_event_indices
+        and entry.order not in verified_event_indices
+    )
+
+
 def is_event_from_mock(event_entry: EventEntry, mock: MockInfo) -> bool:
     return mock.id == event_entry.mock.id
 
