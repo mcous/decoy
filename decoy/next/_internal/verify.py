@@ -1,4 +1,3 @@
-import warnings
 from typing import Any, Callable, Generic, ParamSpec, TypeVar
 
 from ...errors import VerifyError
@@ -14,6 +13,7 @@ from .values import (
     MatchOptions,
     MockInfo,
 )
+from .warn import warn
 
 SpecT = TypeVar("SpecT")
 ParamsT = ParamSpec("ParamsT")
@@ -47,7 +47,7 @@ class Verify(Generic[SpecT]):
 
         if result.is_redundant:
             message = stringify_redundant_verify(self._mock.name, expected)
-            warnings.warn(RedundantVerifyWarning(message), stacklevel=3)
+            warn(RedundantVerifyWarning(message))
 
     def called_with(
         self: "Verify[Callable[ParamsT, Any]]",

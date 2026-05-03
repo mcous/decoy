@@ -3,6 +3,7 @@ import contextlib
 from typing import Any, Callable, Literal, TypeVar, overload
 
 from ...errors import NotAMockError, VerifyOrderError
+from ...warnings import MiscalledStubWarning
 from .inspect import (
     ensure_spec,
     ensure_spec_name,
@@ -11,9 +12,10 @@ from .inspect import (
 )
 from .mock import AsyncMock, Mock, create_mock, ensure_mock
 from .state import DecoyState
-from .stringify import stringify_verify_order_failure
+from .stringify import stringify_miscalled_stub, stringify_verify_order_failure
 from .values import MatchOptions
 from .verify import Verify
+from .warn import warn
 from .when import When
 
 ClassT = TypeVar("ClassT")
@@ -232,4 +234,13 @@ class Decoy:
 
     def reset(self) -> None:
         """Reset the decoy instance."""
+        for miscalled in self._state.get_miscalled_stubs():
+            message = stringify_miscalled_stub(
+                miscalled.mock_name,
+                miscalled.expected_events,
+                miscalled.all_events,
+                miscalled.event,
+            )
+            warn(MiscalledStubWarning(message), miscalled.call_site)
+
         self._state.reset()

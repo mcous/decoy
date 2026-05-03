@@ -15,8 +15,6 @@ from .stringify import count, stringify_call, stringify_error_message
 class DecoyWarning(UserWarning):
     """Base class for Decoy warnings."""
 
-    pass
-
 
 class MiscalledStubWarning(DecoyWarning):
     """A warning when a configured Stub is called with non-matching arguments.

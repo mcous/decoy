@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import collections.abc
 import contextlib
-import os
 import sys
 from typing import Any
 
 import pytest
 
-from decoy import errors, warnings
+from decoy import errors
 
 from . import fixtures
 
@@ -230,26 +229,6 @@ def test_when_signature_wrong_in_stubbing(decoy: Decoy) -> None:
         decoy.when(subject).called_with("hello", "world")  # type: ignore[call-arg]
 
 
-def test_when_no_match_warning(decoy: Decoy) -> None:
-    """It raises a MiscalledStubWarning if calls don't match stubbings."""
-    subject = decoy.mock(name="subject")
-
-    decoy.when(subject).called_with("hello").then_return("hello world")
-
-    with pytest.warns(warnings.MiscalledStubWarning) as warnings_log:
-        subject("goodbye")
-
-    assert str(warnings_log[0].message) == os.linesep.join(
-        [
-            "Mock was called but no matching `when` found.",
-            "Found 1 stubbing:",
-            "1.\tsubject('hello')",
-            "Found 1 call:",
-            "1.\tsubject('goodbye')",
-        ]
-    )
-
-
 def test_when_ignore_extra_args(decoy: Decoy) -> None:
     """It ignores extra args in the call."""
 
@@ -274,6 +253,7 @@ def test_when_ignore_extra_args_signature(decoy: Decoy) -> None:
         decoy.when(subject).called_with(not_a="hello")  # type: ignore[call-arg]
 
 
+@pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
 def test_when_times(decoy: Decoy) -> None:
     """It returns a value a given number of times."""
     subject = decoy.mock(name="subject")
