@@ -1,9 +1,11 @@
 import warnings
 from typing import Any, Callable, Generic, ParamSpec, TypeVar
 
-from .errors import createVerifyError
+from ...errors import VerifyError
+from ...warnings import RedundantVerifyWarning
 from .inspect import bind_args
 from .state import DecoyState
+from .stringify import stringify_redundant_verify, stringify_verify_failure
 from .values import (
     AttributeEvent,
     CallEvent,
@@ -12,7 +14,6 @@ from .values import (
     MatchOptions,
     MockInfo,
 )
-from .warnings import createRedundantVerifyWarning
 
 SpecT = TypeVar("SpecT")
 ParamsT = ParamSpec("ParamsT")
@@ -36,25 +37,28 @@ class Verify(Generic[SpecT]):
         result = self._state.use_verification(self._mock, matcher)
 
         if not result.is_success:
-            raise createVerifyError(
+            message = stringify_verify_failure(
                 self._mock.name,
                 self._match_options,
                 expected,
                 result.mock_events,
             )
+            raise VerifyError(message)
 
         if result.is_redundant:
-            warnings.warn(
-                createRedundantVerifyWarning(self._mock.name, expected),
-                stacklevel=3,
-            )
+            message = stringify_redundant_verify(self._mock.name, expected)
+            warnings.warn(RedundantVerifyWarning(message), stacklevel=3)
 
     def called_with(
         self: "Verify[Callable[ParamsT, Any]]",
         *args: ParamsT.args,
         **kwargs: ParamsT.kwargs,
     ) -> None:
-        """Verify that a mock was called."""
+        """Verify that a mock was called.
+
+        Raises:
+            VerifyError: The verification was not satisfied.
+        """
         bound_args = bind_args(
             signature=self._mock.signature,
             args=args,

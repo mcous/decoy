@@ -241,8 +241,8 @@ def test_when_no_match_warning(decoy: Decoy) -> None:
 
     assert str(warnings_log[0].message) == os.linesep.join(
         [
-            "Stub was called but no matching rehearsal found.",
-            "Found 1 rehearsal:",
+            "Mock was called but no matching `when` found.",
+            "Found 1 stubbing:",
             "1.\tsubject('hello')",
             "Found 1 call:",
             "1.\tsubject('goodbye')",
