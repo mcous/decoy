@@ -2,7 +2,7 @@ import collections.abc
 import contextlib
 from typing import Any, Callable, Literal, TypeVar, overload
 
-from .errors import createNotAMockError, createVerifyOrderError
+from ...errors import NotAMockError, VerifyOrderError
 from .inspect import (
     ensure_spec,
     ensure_spec_name,
@@ -11,6 +11,7 @@ from .inspect import (
 )
 from .mock import AsyncMock, Mock, create_mock, ensure_mock
 from .state import DecoyState
+from .stringify import stringify_verify_order_failure
 from .values import MatchOptions
 from .verify import Verify
 from .when import When
@@ -143,7 +144,9 @@ class Decoy:
             mock_info = self._state.peek_last_attribute_mock(mock)
 
         if not mock_info:
-            raise createNotAMockError("when", mock)
+            raise NotAMockError(
+                f"`Decoy.when` must be called with a mock, but got: {mock}"
+            )
 
         return When(self._state, mock_info, match_options)
 
@@ -164,7 +167,6 @@ class Decoy:
             is_entered: Verify call happens when the mock is entered using `with`.
 
         Raises:
-            VerifyError: The verification was not satisfied.
             NotAMockError: `mock` is invalid.
 
         !!! example
@@ -184,7 +186,9 @@ class Decoy:
             mock_info = self._state.peek_last_attribute_mock(mock)
 
         if not mock_info:
-            raise createNotAMockError("verify", mock)
+            raise NotAMockError(
+                f"`Decoy.verify` must be called with a mock, but got: {mock}"
+            )
 
         return Verify(
             self._state,
@@ -221,10 +225,10 @@ class Decoy:
             yield
 
         if not verify_order_result.is_success:
-            raise createVerifyOrderError(
-                verify_order_result.verifications,
-                verify_order_result.all_events,
+            message = stringify_verify_order_failure(
+                verify_order_result.verifications, verify_order_result.all_events
             )
+            raise VerifyOrderError(message)
 
     def reset(self) -> None:
         """Reset the decoy instance."""

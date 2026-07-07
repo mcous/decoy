@@ -62,7 +62,7 @@ decoy
 
 ## Loosen constraints with matchers
 
-You may loosen rehearsal constraints using [`Matchers`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
+You may loosen `called_with` constraints using [`Matchers`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
 
 ```python
 say_hello = decoy.mock(name="say_hello")

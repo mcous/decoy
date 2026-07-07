@@ -12,12 +12,12 @@ from typing import (
     get_type_hints,
 )
 
-from .errors import (
-    createMockNameRequiredError,
-    createMockNotAsyncError,
-    createMockSpecInvalidError,
-    createSignatureMismatchError,
-    createThenDoActionNotCallableError,
+from ...errors import (
+    MockNameRequiredError,
+    MockNotAsyncError,
+    MockSpecInvalidError,
+    SignatureMismatchError,
+    ThenDoActionNotCallableError,
 )
 
 
@@ -46,10 +46,10 @@ def ensure_spec(spec_cls: object, spec_func: object) -> object:
     spec_cls = _unwrap_type_alias(spec_cls)
 
     if spec_cls is not None and not inspect.isclass(spec_cls):
-        raise createMockSpecInvalidError("cls")
+        raise MockSpecInvalidError("cls value must be a class")
 
     if spec_func is not None and not callable(spec_func):
-        raise createMockSpecInvalidError("func")
+        raise MockSpecInvalidError("func value must be a function")
 
     return spec_cls or spec_func
 
@@ -60,17 +60,21 @@ def ensure_spec_name(spec: object, fallback_name: str | None) -> str:
     name = source_name if isinstance(source_name, str) else fallback_name
 
     if name is None:
-        raise createMockNameRequiredError()
+        raise MockNameRequiredError("Mocks without `cls` or `func` require a `name`.")
 
     return name
 
 
 def ensure_callable(value: object, is_async: bool) -> Callable[..., object]:
     if not callable(value):
-        raise createThenDoActionNotCallableError()
+        raise ThenDoActionNotCallableError(
+            "Value passed to `then_do` must be callable."
+        )
 
     if is_async_callable(value) and not is_async:
-        raise createMockNotAsyncError()
+        raise MockNotAsyncError(
+            "Synchronous mock cannot use an asynchronous callable in `then_do`."
+        )
 
     return cast(Callable[..., object], value)
 
@@ -162,7 +166,7 @@ def bind_args(
         else:
             bound_args = signature.bind(*args, **kwargs)
     except (TypeError, ValueError) as error:
-        raise createSignatureMismatchError(error) from None
+        raise SignatureMismatchError(error) from None
 
     return BoundArguments(bound_args.args, bound_args.kwargs)
 

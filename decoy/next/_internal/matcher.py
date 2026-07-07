@@ -9,7 +9,7 @@ if sys.version_info >= (3, 13):
 else:
     from typing_extensions import TypeIs
 
-from .errors import createNoMatcherValueCapturedError
+from ...errors import NoMatcherValueCapturedError
 from .inspect import get_func_name
 
 ValueT = TypeVar("ValueT")
@@ -121,9 +121,7 @@ class Matcher(Generic[ValueT]):
             ```
         """
         if len(self._values) == 0:
-            raise createNoMatcherValueCapturedError(
-                f"{self} has not matched any values"
-            )
+            raise NoMatcherValueCapturedError(f"{self} has not matched any values")
 
         return self._values[-1]
 

@@ -3,6 +3,7 @@ import warnings
 from types import TracebackType
 from typing import Any, cast
 
+from ...warnings import MiscalledStubWarning
 from .inspect import (
     bind_args,
     get_awaitable_value,
@@ -14,8 +15,8 @@ from .inspect import (
     is_magic_attribute,
 )
 from .state import DecoyState
+from .stringify import stringify_miscalled_stub
 from .values import AttributeEvent, CallEvent, EventState, MockInfo
-from .warnings import createMiscalledStubWarning
 
 
 class MockInternals:
@@ -54,14 +55,12 @@ class MockInternals:
         )
 
         if not behavior.is_found and behavior.expected_events:
-            warnings.warn(
-                createMiscalledStubWarning(
-                    self.name,
-                    behavior.expected_events,
-                    event,
-                ),
-                stacklevel=3,
+            message = stringify_miscalled_stub(
+                self.name,
+                behavior.expected_events,
+                event,
             )
+            warnings.warn(MiscalledStubWarning(message), stacklevel=3)
 
         return behavior.return_value
 

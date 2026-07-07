@@ -94,6 +94,17 @@ assert ["world", "hello"] != in_order_matcher
 
 ### `Matcher.error`
 
+Match an `Exception` object based on its type and, optionally, message.
+
+```python
+error_matcher = Matcher.error(RuntimeError, match="^oh")  # type: Matcher[RuntimeError]
+
+assert RuntimeError("oh no") == error_matcher
+assert RuntimeError("oh boy") == error_matcher
+assert RuntimeError("oops") != error_matcher
+assert TypeError("oh no") != error_matcher
+```
+
 ### `Matcher.is_not`
 
 Negate a match. For example, you may want to check that a value is simply anything except `None`.

@@ -574,7 +574,7 @@ def test_redundant_verify(decoy: Decoy) -> None:
 
     assert str(warnings_log[0].message) == os.linesep.join(
         [
-            "The same rehearsal was used in both a `when` and a `verify`.",
+            "The same `called_with` arguments were used with both `when` and `verify`.",
             "This is redundant and probably a misuse of the mock.",
             "\tsubject('hello')",
             "See https://michael.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",
