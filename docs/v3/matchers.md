@@ -34,9 +34,7 @@ def test_log_warning(decoy: Decoy):
 
     subject.log_warning("Oh no, something went wrong with request abc123")
 
-    decoy
-        .verify(logger.warn)
-        .called_with(Matcher.contains("abc123").arg)
+    decoy.verify.called(logger.warn, Matcher.contains("abc123").arg)
 ```
 
 A `Matcher` can also be used standalone, in an `assert`.
@@ -150,7 +148,7 @@ def test_event_listener(decoy: Decoy):
     subject.start_consuming()
 
     # verify listener attached and capture the listener
-    decoy.verify(event_source.add_listener).called_with(event_listener_matcher.arg)
+    decoy.verify.called(event_source.add_listener, event_listener_matcher.arg)
 
     # trigger the listener
     assert subject.has_heard_event is False
@@ -211,9 +209,7 @@ data_frame_matcher = Matcher(match=partial(matchDataFrame, {"x1": range(1, 42)})
 
 check_data(pd.DataFrame({"x1": range(1, 42)}))
 
-decoy
-    .verify(check_answer)
-    .called_with(data_frame_matcher.arg)
+decoy.verify.called(check_answer, data_frame_matcher.arg)
 ```
 
 [DataFrame]: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html

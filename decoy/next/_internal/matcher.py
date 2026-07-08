@@ -116,7 +116,7 @@ class Matcher(Generic[ValueT]):
 
             ```python
             callback_matcher = Matcher(callable)
-            decoy.verify(mock).called_with(callback_matcher)
+            decoy.verify.called(mock, callback_matcher)
             callback_matcher.value("value")
             ```
         """

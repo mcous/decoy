@@ -49,7 +49,7 @@ def test_context_manager(decoy: Decoy) -> None:
     with subject as result:
         assert result == "hello world"
 
-    decoy.verify(subject.__exit__).called_with(None, None, None)
+    decoy.verify.called(subject.__exit__, None, None, None)
 ```
 
 This also works with asynchronous `__aenter__` and `__aexit__`
@@ -70,7 +70,5 @@ decoy
     .called_with("some_flag")
     .then_return(True)
 
-decoy
-    .verify(subject.write, is_entered=True)
-    .called_with("some_flag", "new_value")
+decoy.verify(is_entered=True).called(subject.write, "some_flag", "new_value")
 ```

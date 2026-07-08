@@ -195,58 +195,47 @@ class TestMigrateCommand(CodemodTest):
         self.assertCodemod(before, after)
 
     def test_verify_called_with(self) -> None:
-        """Swap verify function rehearsal with `called_with`."""
+        """Swap verify function rehearsal with `called`."""
         before = """
             decoy.verify(some_func("hello", "world"))
         """
         after = """
-            decoy.verify(some_func).called_with("hello", "world")
+            decoy.verify.called(some_func, "hello", "world")
         """
 
         self.assertCodemod(before, after)
 
     def test_verify_called_with_on_self(self) -> None:
-        """Swap when function rehearsal with `called_with` from `self._decoy`."""
+        """Swap when function rehearsal with `called` from `self._decoy`."""
         before = """
             self._decoy.verify(some_func("hello", "world"))
             self.decoy.verify(some_func("hello", "world"))
         """
         after = """
-            self._decoy.verify(some_func).called_with("hello", "world")
-            self.decoy.verify(some_func).called_with("hello", "world")
-        """
-
-        self.assertCodemod(before, after)
-
-    def test_verify_attribute_get(self) -> None:
-        """Swap verify attribute rehearsal with `get`."""
-        before = """
-            decoy.verify(mock.some_prop)
-        """
-        after = """
-            decoy.verify(mock.some_prop).get()
+            self._decoy.verify.called(some_func, "hello", "world")
+            self.decoy.verify.called(some_func, "hello", "world")
         """
 
         self.assertCodemod(before, after)
 
     def test_verify_called_with_extra_args(self) -> None:
-        """Swap verify function rehearsal with `called_with`, keeping extra args."""
+        """Swap verify function rehearsal with `called`, keeping extra args."""
         before = """
             decoy.verify(some_func("hello"), times=1)
         """
         after = """
-            decoy.verify(some_func, times=1).called_with("hello")
+            decoy.verify(times=1).called(some_func, "hello")
         """
 
         self.assertCodemod(before, after)
 
     def test_verify_called_with_ignore_extra_args(self) -> None:
-        """Swap verify function rehearsal with `called_with`, keeping ignore_extra_args."""
+        """Swap verify function rehearsal with `called`, keeping ignore_extra_args."""
         before = """
             decoy.verify(some_func("hello"), ignore_extra_args=True)
         """
         after = """
-            decoy.verify(some_func, ignore_extra_args=True).called_with("hello")
+            decoy.verify(ignore_extra_args=True).called(some_func, "hello")
         """
 
         self.assertCodemod(before, after)
@@ -261,8 +250,8 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some_func).called_with("hello")
-                decoy.verify(other_func).called_with("world")
+                decoy.verify.called(some_func, "hello")
+                decoy.verify.called(other_func, "world")
         """
 
         self.assertCodemod(before, after)
@@ -281,11 +270,11 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with self.decoy.verify_order():
-                self.decoy.verify(some_func).called_with("hello")
-                self.decoy.verify(other_func).called_with("world")
+                self.decoy.verify.called(some_func, "hello")
+                self.decoy.verify.called(other_func, "world")
             with self._decoy.verify_order():
-                self._decoy.verify(some_func).called_with("hello")
-                self._decoy.verify(other_func).called_with("world")
+                self._decoy.verify.called(some_func, "hello")
+                self._decoy.verify.called(other_func, "world")
         """
 
         self.assertCodemod(before, after)
@@ -300,8 +289,8 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some.attr).set("hello")
-                decoy.verify(other_func).called_with("world")
+                decoy.verify.set(some.attr, "hello")
+                decoy.verify.called(other_func, "world")
         """
 
         self.assertCodemod(before, after)
@@ -317,8 +306,8 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some_func, times=1).called_with("hello")
-                decoy.verify(other_func, times=1).called_with("world")
+                decoy.verify(times=1).called(some_func, "hello")
+                decoy.verify(times=1).called(other_func, "world")
         """
 
         self.assertCodemod(before, after)
@@ -340,10 +329,10 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some_func).called_with("hello")
+                decoy.verify.called(some_func, "hello")
                 if some_flag:
-                    decoy.verify(other_func).called_with("world")
-                    decoy.verify(another_func).called_with("fizzbuzz")
+                    decoy.verify.called(other_func, "world")
+                    decoy.verify.called(another_func, "fizzbuzz")
         """
 
         self.assertCodemod(before, after)
@@ -371,7 +360,7 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             decoy.when(mock).called_with("hello").then_return("world")
-            decoy.verify(mock).called_with("hello")
+            decoy.verify.called(mock, "hello")
         """
 
         self.assertCodemod(before, after)
@@ -386,8 +375,8 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some_func).called_with("hello")
-                decoy.verify(other_func).called_with("world")
+                decoy.verify.called(some_func, "hello")
+                decoy.verify.called(other_func, "world")
         """
 
         self.assertCodemod(before, after)
@@ -612,42 +601,9 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some_func).called_with("hello")
+                decoy.verify.called(some_func, "hello")
                 if some_flag:
-                    decoy.verify(other_func).called_with("world")
-        """
-
-        self.assertCodemod(before, after)
-
-    def test_verify_order_attribute_get(self) -> None:
-        """It migrates bare attribute rehearsals inside verify_order."""
-        before = """
-            decoy.verify(
-                mock.some_prop,
-                other_func("hello"),
-            )
-        """
-        after = """
-            with decoy.verify_order():
-                decoy.verify(mock.some_prop).get()
-                decoy.verify(other_func).called_with("hello")
-        """
-
-        self.assertCodemod(before, after)
-
-    def test_verify_order_spread_attribute_get(self) -> None:
-        """It migrates attribute rehearsals inside conditional spreads."""
-        before = """
-            decoy.verify(
-                some_func("hello"),
-                *(some_flag and [mock.some_prop] or [])
-            )
-        """
-        after = """
-            with decoy.verify_order():
-                decoy.verify(some_func).called_with("hello")
-                if some_flag:
-                    decoy.verify(mock.some_prop).get()
+                    decoy.verify.called(other_func, "world")
         """
 
         self.assertCodemod(before, after)
@@ -666,11 +622,11 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify(some_func).called_with("hello")
+                decoy.verify.called(some_func, "hello")
                 if some_flag:
-                    decoy.verify(other_func).called_with("world")
+                    decoy.verify.called(other_func, "world")
                 else:
-                    decoy.verify(fallback_func).called_with("fizzbuzz")
+                    decoy.verify.called(fallback_func, "fizzbuzz")
         """
 
         self.assertCodemod(before, after)

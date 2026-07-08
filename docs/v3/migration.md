@@ -59,20 +59,20 @@ The `ignore_extra_args` option is still passed to [`Decoy.when`][decoy.next.Deco
 
 ## Verify
 
-Replace the rehearsal syntax with [`Verify.called_with`][decoy.next.Verify.called_with]. See the [`verify` guide][verify-guide] for more details.
+Replace the rehearsal syntax with [`Verify.called`][decoy.next.Verify.called], passing the mock and its arguments. See the [`verify` guide][verify-guide] for more details.
 
 ```diff
 - decoy.verify(mock("hello"))
-+ decoy.verify(mock).called_with("hello")
++ decoy.verify.called(mock, "hello")
 ```
 
 ### Options
 
-The `times` and `ignore_extra_args` options are still passed to [`Decoy.verify`][decoy.next.Decoy.verify], not `called_with`.
+The `times` and `ignore_extra_args` options are passed to [`Decoy.verify`][decoy.next.Decoy.verify], before `called`.
 
 ```diff
 - decoy.verify(mock("hello"), times=1)
-+ decoy.verify(mock, times=1).called_with("hello")
++ decoy.verify(times=1).called(mock, "hello")
 ```
 
 ### Verify call sequence
@@ -86,9 +86,9 @@ To verify a sequence of calls, call `Decoy.verify` from a [`Decoy.verify_order`]
 -     mock("c"),
 - )
 + with decoy.verify_order():
-+   decoy.verify(mock).called_with("a")
-+   decoy.verify(mock).called_with("b")
-+   decoy.verify(mock).called_with("c")
++   decoy.verify.called(mock, "a")
++   decoy.verify.called(mock, "b")
++   decoy.verify.called(mock, "c")
 ```
 
 ## Async mocks
@@ -100,7 +100,7 @@ Using `called_with` in Decoy v3, it is no longer necessary to add `await` to `wh
 + decoy.when(mock).called_with("hello").then_return("world")
 
 - decoy.verify(await mock("hello"))
-+ decoy.verify(mock).called_with("hello")
++ decoy.verify.called(mock, "hello")
 ```
 
 ## Matchers
@@ -151,10 +151,10 @@ To verify attribute set and delete calls, use [`Verify.set`][decoy.next.Verify.s
 
 ```diff
 - decoy.verify(decoy.prop(mock.attr).set(42))
-+ decoy.verify(mock.attr).set(42)
++ decoy.verify.set(mock.attr, 42)
 
 - decoy.verify(decoy.prop(mock.attr).delete())
-+ decoy.verify(mock.attr).delete()
++ decoy.verify.delete(mock.attr)
 ```
 
 ## Context managers

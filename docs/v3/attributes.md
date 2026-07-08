@@ -106,7 +106,7 @@ dependency = decoy.mock(name="dependency")
 
 dependency.some_property = 42
 
-decoy.verify(dependency.some_property).set(42)
+decoy.verify.set(dependency.some_property, 42)
 ```
 
 ### Verify a deleter
@@ -118,5 +118,5 @@ dependency = decoy.mock(name="dependency")
 
 del dependency.some_property
 
-decoy.verify(dependency.some_property).delete)
+decoy.verify.delete(dependency.some_property)
 ```

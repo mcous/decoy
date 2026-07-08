@@ -193,8 +193,8 @@ class Decoy:
                 # ...
 
                 with decoy.verify_order():
-                    decoy.verify(verify_greeting).called_with("hello world")
-                    decoy.verify(greet).called_with("hello world")
+                    decoy.verify.called(verify_greeting, "hello world")
+                    decoy.verify.called(greet, "hello world")
             ```
         """
         with self._state.verify_order() as verify_order_result:

@@ -15,17 +15,15 @@ Usage of `when` and `verify` with the same mock are **mutually exclusive** withi
 
 The `verify` API is symmetrical with the [`when`][when-guide] API.
 
-1. Pass the mock to [`Decoy.verify`][decoy.next.Decoy.verify]
-2. Assert on the arguments with [`Verify.called_with`][decoy.next.Verify.called_with]
+1. Access [`Decoy.verify`][decoy.next.Decoy.verify]
+2. Assert on the call with [`Verify.called`][decoy.next.Verify.called], passing the mock and its expected arguments
 
 ```python
 database = decoy.mock(name="database")
 
 database.remove("some-id")  # <-- call to the spy
 
-decoy
-  .verify(database)
-  .called_with("some-id")
+decoy.verify.called(database, "some-id")
 ```
 
 By default, if Decoy finds _any_ call matching the `verify` invocation, the call will pass. However, if a matching call is not found, a [`VerifyError`][verifyerror-guide] will be raised.
@@ -47,17 +45,11 @@ The behavior of `verify` may be customized with the following options.
 You can use the optional `times` argument to specify call count. With `times`, the call to `verify` will fail if there is the incorrect number of matching calls.
 
 ```python
-decoy
-    .verify(handler.should_be_called_once, times=1)
-    .called_with("hello")
+decoy.verify(times=1).called(handler.should_be_called_once, "hello")
 
-decoy
-    .verify(handler.should_be_called_twice, times=2)
-    .called_with("goodbye")
+decoy.verify(times=2).called(handler.should_be_called_twice, "goodbye")
 
-decoy
-    .verify(handler.should_be_never_be_called, times=0)
-    .called_with("fizzbuzz")
+decoy.verify(times=0).called(handler.should_be_never_be_called, "fizzbuzz")
 ```
 
 ## Loosen constraints with matchers
@@ -69,10 +61,10 @@ say_hello = decoy.mock(name="say_hello")
 
 say_hello("foobar")
 
-decoy.verify(say_hello).called_with(Matcher.matches("^foo").arg)
+decoy.verify.called(say_hello, Matcher.matches("^foo").arg)
 
 with pytest.raises():
-    decoy.verify(say_hello).called_with(Matcher.matches("^bar").arg)
+    decoy.verify.called(say_hello, Matcher.matches("^bar").arg)
 ```
 
 ## Verify order of multiple calls
@@ -81,8 +73,8 @@ If your code under test must call several dependencies in order, use [`Decoy.ver
 
 ```python
 with decoy.verify_order():
-    decoy.verify(handler.first).called_with("hello")
-    decoy.verify(handler.second).called_with("world")
+    decoy.verify.called(handler.first, "hello")
+    decoy.verify.called(handler.second, "world")
 ```
 
 ## Only specify some arguments
@@ -97,11 +89,11 @@ mock_log = decoy.mock(func=log)
 
 mock_log("hello world", meta={"foo": "bar"})
 
-decoy.verify(log, ignore_extra_args=True).called_with("hello world")
+decoy.verify(ignore_extra_args=True).called(log, "hello world")
 ```
 
 This can be combined with `times=0` to say "this dependency was never called," but your typechecker may complain about this:
 
 ```python
-decoy.verify(do_something, times=0, ignore_extra_args=True).called_with()
+decoy.verify(times=0, ignore_extra_args=True).called(do_something)
 ```

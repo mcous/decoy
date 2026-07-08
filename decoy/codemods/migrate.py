@@ -226,7 +226,7 @@ class MigrateCommand(VisitorBasedCodemodCommand):
 
         - `decoy.when(some_func(...))` -> `decoy.when(some_func).called_with(...)`
         - `decoy.when(some.attr)` -> `decoy.when(some.attr).get()`
-        - `decoy.verify(some_func(...))` -> `decoy.verify(some_func).called_with(...)`
+        - `decoy.verify(some_func(...))` -> `decoy.verify.called(some_func, ...)`
         """
         parent = self.get_metadata(ParentNodeProvider, original_node)
 
@@ -249,7 +249,7 @@ class MigrateCommand(VisitorBasedCodemodCommand):
         if m.matches(rehearsal, m.Await()):
             rehearsal = cst.ensure_type(rehearsal, cst.Await).expression
 
-        if m.matches(rehearsal, m.Attribute()):
+        if m.matches(rehearsal, m.Attribute()) and not _is_verify(updated_node.func):
             return cst.Call(
                 func=cst.Attribute(value=updated_node, attr=cst.Name("get")),
                 args=[],
@@ -366,6 +366,10 @@ def _migrate_alias(alias: cst.ImportAlias, rename: bool = True) -> cst.ImportAli
     )
 
 
+def _is_verify(decoy_method: cst.BaseExpression) -> bool:
+    return m.matches(decoy_method, m.Attribute(attr=m.Name("verify")))
+
+
 def _migrate_rehearsal(
     decoy_method: cst.BaseExpression,
     rehearsal: cst.Call,
@@ -396,21 +400,37 @@ def _migrate_rehearsal(
         attribute_rehearsal = cst.ensure_type(rehearsal.func, cst.Attribute)
         prop_call = cst.ensure_type(attribute_rehearsal.value, cst.Call)
         mock = prop_call.args[0].value
-        match_method = attribute_rehearsal.attr
-
+        event = attribute_rehearsal.attr
     else:
         mock = rehearsal.func
-        match_method = cst.Name("called_with")
+        event = None
 
+    event_args = _clean_args(rehearsal.args)
+
+    if _is_verify(decoy_method):
+        # new shape: mock + args meet at the event, options ride the mode.
+        # `decoy.verify.called(mock, *args)` / `decoy.verify(**opts).set(mock, value)`
+        clean_kwargs = _clean_args(kwargs)
+        receiver: cst.BaseExpression = (
+            cst.Call(func=decoy_method, args=clean_kwargs)
+            if clean_kwargs
+            else decoy_method
+        )
+        return cst.Call(
+            func=cst.Attribute(value=receiver, attr=event or cst.Name("called")),
+            args=[cst.Arg(value=mock), *event_args],
+        )
+
+    # old shape: `decoy.when(mock, **opts).called_with(*args)`
     return cst.Call(
         func=cst.Attribute(
             value=cst.Call(
                 func=decoy_method,
                 args=[cst.Arg(value=mock), *_clean_args(kwargs)],
             ),
-            attr=match_method,
+            attr=event or cst.Name("called_with"),
         ),
-        args=_clean_args(rehearsal.args),
+        args=event_args,
     )
 
 
@@ -462,7 +482,7 @@ def _migrate_rehearsal_stmt(
     """Migrate a single rehearsal, handling both calls and bare attribute access."""
     if m.matches(rehearsal, m.Await()):
         rehearsal = cst.ensure_type(rehearsal, cst.Await).expression
-    if m.matches(rehearsal, m.Attribute()):
+    if m.matches(rehearsal, m.Attribute()) and not _is_verify(decoy_method):
         return cst.Call(
             func=cst.Attribute(
                 value=cst.Call(

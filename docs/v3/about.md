@@ -38,7 +38,7 @@ Then, start trying out the new API!
       mock = decoy.mock(cls=SomeClass)
       mock.foo("hello")
 -     decoy.verify(mock.foo("hello"))
-+     decoy.verify(mock.foo).called_with("hello")
++     decoy.verify.called(mock.foo, "hello")
 ```
 
 See the [migration guide](./migration.md) for more details.
