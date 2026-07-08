@@ -177,7 +177,7 @@ def get_call_site() -> CallSite | None:
     frame = inspect.currentframe()
     while frame is not None:
         module: str = frame.f_globals.get("__name__", "")
-        if not module.startswith("decoy"):
+        if not module.startswith("decoy."):
             return CallSite(frame.f_code.co_filename, frame.f_lineno, module)
         frame = frame.f_back
 

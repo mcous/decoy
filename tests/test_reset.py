@@ -105,3 +105,24 @@ def test_reset_miscalled_stub_warning_call_site() -> None:
 
     assert log[0].filename == "<test_callsite>"
     assert log[0].lineno == 5  # subject("goodbye") is line 5 in the script
+
+
+def test_reset_warning_ignores_decoy_lookalike_module() -> None:
+    """A caller in a 'decoy'-prefixed module is still reported as the call site."""
+    script = textwrap.dedent("""
+        from decoy.next import Decoy
+        decoy = Decoy()
+        subject = decoy.mock(name="subject")
+        decoy.when(subject).called_with("hello").then_return("world")
+        subject("goodbye")
+        decoy.reset()
+    """).strip()
+
+    module_globals = {"__name__": "decoytools"}
+
+    with stdlib_warnings.catch_warnings(record=True) as log:
+        stdlib_warnings.simplefilter("always")
+        exec(compile(script, filename="<decoytools>", mode="exec"), module_globals)
+
+    assert log[0].filename == "<decoytools>"
+    assert log[0].lineno == 5  # subject("goodbye") is line 5 in the script
