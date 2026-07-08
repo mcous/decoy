@@ -39,4 +39,4 @@ class DecoyTestCase(unittest.TestCase):
         """Test that self.decoy.verify works."""
         mock = self.decoy.mock(cls=SomeClass)
         mock.foo("hello")
-        self.decoy.verify(mock.foo).called_with("hello")
+        self.decoy.verify.called(mock.foo, "hello")

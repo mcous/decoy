@@ -3,193 +3,243 @@
 - case: mock_cls_mimics_type
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      class Dependency():
-          def do_thing(self, input: str) -> int:
-              return 42
+    class Dependency():
+        def do_thing(self, input: str) -> int:
+            return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(cls=Dependency)
-      reveal_type(fake)
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
+    reveal_type(fake)
   out: |
-      main:9: note: Revealed type is "main.Dependency"
+    main:9: note: Revealed type is "main.Dependency"
 
 - case: mock_cls_mimics_abstract_class_type
   skip: sys.version_info < (3, 10)
   main: |
-      from abc import ABC
-      from decoy.next import Decoy
+    from abc import ABC
+    from decoy.next import Decoy
 
-      class Dependency(ABC):
-          def do_thing(self, input: str) -> int:
-              return 42
+    class Dependency(ABC):
+        def do_thing(self, input: str) -> int:
+            return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(cls=Dependency)
-      reveal_type(fake)
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
+    reveal_type(fake)
   out: |
-      main:10: note: Revealed type is "main.Dependency"
+    main:10: note: Revealed type is "main.Dependency"
 
 - case: mock_func_mimics_type
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      def do_thing(input: str) -> int:
-          return 42
+    def do_thing(input: str) -> int:
+        return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(func=do_thing)
-      reveal_type(fake)
+    decoy = Decoy()
+    fake = decoy.mock(func=do_thing)
+    reveal_type(fake)
   out: |
-      main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
+    main:8: note: Revealed type is "def (input: builtins.str) -> builtins.int"
 
 - case: class_stub_mimics_return_type
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      class Dependency():
-          def do_thing(self, input: str) -> int:
-              return 42
+    class Dependency():
+        def do_thing(self, input: str) -> int:
+            return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(cls=Dependency)
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
 
-      decoy.when(fake.do_thing).called_with("hello").then_return(42)
-      decoy.when(fake.do_thing).called_with("goodbye").then_return("wrong-type")
+    decoy.when(fake.do_thing).called_with("hello").then_return(42)
+    decoy.when(fake.do_thing).called_with("goodbye").then_return("wrong-type")
   out: |
-      main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+    main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: function_stub_mimics_return_type
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      def do_thing(input: str) -> int:
-          return 42
+    def do_thing(input: str) -> int:
+        return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(func=do_thing)
+    decoy = Decoy()
+    fake = decoy.mock(func=do_thing)
 
-      decoy.when(fake).called_with("hello").then_return(42)
-      decoy.when(fake).called_with("goodbye").then_return("wrong-type")
+    decoy.when(fake).called_with("hello").then_return(42)
+    decoy.when(fake).called_with("goodbye").then_return("wrong-type")
   out: |
-      main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+    main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: mock_class_attribute_get
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      class Dependency():
-          @property
-          def value(self) -> int:
-              return 42
+    class Dependency():
+        @property
+        def value(self) -> int:
+            return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(cls=Dependency)
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
 
-      decoy.when(fake.value).get().then_return(42)
-      decoy.when(fake.value).get().then_return("wrong-type")
+    decoy.when(fake.value).get().then_return(42)
+    decoy.when(fake.value).get().then_return("wrong-type")
   out: |
-      main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+    main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: mock_class_attribute_set
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      class Dependency():
-          @property
-          def value(self) -> int:
-              return 42
+    class Dependency():
+        @property
+        def value(self) -> int:
+            return 42
 
-      decoy = Decoy()
-      fake = decoy.mock(cls=Dependency)
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
 
-      decoy.when(fake.value).set(42).then_raise(Exception("oh no"))
-      decoy.when(fake.value).set("goodbye").then_raise(Exception("oh no"))
+    decoy.when(fake.value).set(42).then_raise(Exception("oh no"))
+    decoy.when(fake.value).set("goodbye").then_raise(Exception("oh no"))
   out: |
-      main:12: error: Argument 1 to "set" of "When" has incompatible type "str"; expected "int"  [arg-type]
+    main:12: error: Argument 1 to "set" of "When" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_mimics_enter_type
   skip: sys.version_info < (3, 10)
   main: |
-      import contextlib
-      from typing import Generator
-      from decoy.next import Decoy
+    import contextlib
+    from typing import Generator
+    from decoy.next import Decoy
 
-      @contextlib.contextmanager
-      def do_thing(input: str) -> Generator[int, None, None]:
-          yield 42
+    @contextlib.contextmanager
+    def do_thing(input: str) -> Generator[int, None, None]:
+        yield 42
 
-      decoy = Decoy()
-      fake_cm = decoy.mock(func=do_thing)
+    decoy = Decoy()
+    fake_cm = decoy.mock(func=do_thing)
 
-      decoy.when(fake_cm).called_with("hello").then_enter_with(42)
-      decoy.when(fake_cm).called_with("goodbye").then_enter_with("wrong-type")
+    decoy.when(fake_cm).called_with("hello").then_enter_with(42)
+    decoy.when(fake_cm).called_with("goodbye").then_enter_with("wrong-type")
 
   out: |
-      main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+    main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_rejects_wrong_spec
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy.next import Decoy
+    from decoy.next import Decoy
 
-      def do_thing(input: str) -> int:
-          return 42
+    def do_thing(input: str) -> int:
+        return 42
 
-      decoy = Decoy()
-      fake_not_cm = decoy.mock(func=do_thing)
-      fake_any = decoy.mock(name="fake_any")
+    decoy = Decoy()
+    fake_not_cm = decoy.mock(func=do_thing)
+    fake_any = decoy.mock(name="fake_any")
 
-      decoy.when(fake_not_cm).called_with("hello").then_enter_with(42)
-      decoy.when(fake_any).called_with("hello").then_enter_with(42)
+    decoy.when(fake_not_cm).called_with("hello").then_enter_with(42)
+    decoy.when(fake_any).called_with("hello").then_enter_with(42)
 
   out: |
-      main:10: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "int"; expected "Never"  [arg-type]
+    main:10: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "int"; expected "Never"  [arg-type]
 
 - case: matchers_mimic_types
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy import matchers
+    from decoy import matchers
 
-      reveal_type(matchers.Anything())
-      reveal_type(matchers.AnythingOrNone())
-      reveal_type(matchers.IsA(str))
-      reveal_type(matchers.IsNot(str))
-      reveal_type(matchers.HasAttributes({"foo": "bar"}))
-      reveal_type(matchers.DictMatching({"foo": 1}))
-      reveal_type(matchers.ListMatching([1]))
-      reveal_type(matchers.StringMatching("foobar"))
-      reveal_type(matchers.ErrorMatching(RuntimeError))
-      reveal_type(matchers.Captor())
+    reveal_type(matchers.Anything())
+    reveal_type(matchers.AnythingOrNone())
+    reveal_type(matchers.IsA(str))
+    reveal_type(matchers.IsNot(str))
+    reveal_type(matchers.HasAttributes({"foo": "bar"}))
+    reveal_type(matchers.DictMatching({"foo": 1}))
+    reveal_type(matchers.ListMatching([1]))
+    reveal_type(matchers.StringMatching("foobar"))
+    reveal_type(matchers.ErrorMatching(RuntimeError))
+    reveal_type(matchers.Captor())
   out: |
-      main:3: note: Revealed type is "Any"
-      main:4: note: Revealed type is "Any"
-      main:5: note: Revealed type is "Any"
-      main:6: note: Revealed type is "Any"
-      main:7: note: Revealed type is "Any"
-      main:8: note: Revealed type is "Any"
-      main:9: note: Revealed type is "Any"
-      main:10: note: Revealed type is "builtins.str"
-      main:11: note: Revealed type is "builtins.RuntimeError"
-      main:12: note: Revealed type is "Any"
+    main:3: note: Revealed type is "Any"
+    main:4: note: Revealed type is "Any"
+    main:5: note: Revealed type is "Any"
+    main:6: note: Revealed type is "Any"
+    main:7: note: Revealed type is "Any"
+    main:8: note: Revealed type is "Any"
+    main:9: note: Revealed type is "Any"
+    main:10: note: Revealed type is "builtins.str"
+    main:11: note: Revealed type is "builtins.RuntimeError"
+    main:12: note: Revealed type is "Any"
 
 - case: captor_mimics_types
   skip: sys.version_info < (3, 10)
   main: |
-      from decoy import matchers
+    from decoy import matchers
 
-      captor = matchers.ValueCaptor[str]()
+    captor = matchers.ValueCaptor[str]()
 
-      reveal_type(captor.matcher)
-      reveal_type(captor.value)
-      reveal_type(captor.values)
+    reveal_type(captor.matcher)
+    reveal_type(captor.value)
+    reveal_type(captor.values)
   out: |
-      main:5: note: Revealed type is "builtins.str"
-      main:6: note: Revealed type is "builtins.object"
-      main:7: note: Revealed type is "builtins.list[builtins.object]"
+    main:5: note: Revealed type is "builtins.str"
+    main:6: note: Revealed type is "builtins.object"
+    main:7: note: Revealed type is "builtins.list[builtins.object]"
+
+- case: verify_resolves_method_overloads
+  skip: sys.version_info < (3, 10)
+  main: |
+    from typing import overload
+    from decoy.next import Decoy
+
+    class Dependency:
+        @overload
+        def do_thing(self, input: str) -> int: ...
+        @overload
+        def do_thing(self, input: int) -> str: ...
+        def do_thing(self, input: str | int) -> str | int:
+            return 42
+
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
+
+    decoy.verify.called(fake.do_thing, "hi")
+    decoy.verify.called(fake.do_thing, 123)
+    decoy.verify.called(fake.do_thing, [])
+  out: |
+    main:17: error: Argument 1 to "called" of "Verify" has incompatible type overloaded function; expected "Callable[[list[Never]], Any]"  [arg-type]
+
+# xfail until `when` is migrated to `when.called(mock, *args)`, like `verify`.
+- case: when_resolves_method_overloads
+  skip: sys.version_info < (3, 10)
+  expect_fail: true
+  main: |
+    from typing import overload
+    from decoy.next import Decoy
+
+    class Dependency:
+        @overload
+        def do_thing(self, input: str) -> int: ...
+        @overload
+        def do_thing(self, input: int) -> str: ...
+        def do_thing(self, input: str | int) -> str | int:
+            return 42
+
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
+
+    decoy.when(fake.do_thing).called_with("hi").then_return(42)
+    decoy.when(fake.do_thing).called_with("hi").then_return("wrong-type")
+    decoy.when(fake.do_thing).called_with(123).then_return("forty-two")
+    decoy.when(fake.do_thing).called_with(123).then_return(99)
+  out: |
+    main:16: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+    main:18: error: Argument 1 to "then_return" of "Stub" has incompatible type "int"; expected "str"  [arg-type]

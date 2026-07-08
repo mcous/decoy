@@ -44,7 +44,7 @@ class Decoy:
 
     @classmethod
     @contextlib.contextmanager
-    def create(cls) -> collections.abc.Iterator["Decoy"]:
+    def create(cls) -> collections.abc.Generator["Decoy", None, None]:
         """Create a Decoy instance for testing that will reset after usage.
 
         This method is used by the [pytest plugin][decoy.pytest_plugin].
@@ -152,24 +152,12 @@ class Decoy:
 
         return When(self._state, mock_info, match_options)
 
-    def verify(
-        self,
-        mock: SpecT,
-        *,
-        times: int | None = None,
-        ignore_extra_args: bool = False,
-        is_entered: bool | None = None,
-    ) -> Verify[SpecT]:
-        """Verify a mock was called. See the [`verify` guide](./verify.md) for more details.
+    @property
+    def verify(self) -> Verify:
+        """Verify a mock was triggered. See the [`verify` guide](./verify.md) for more details.
 
-        Arguments:
-            mock: The mock to verify.
-            times: Limit the number of times the call is expected.
-            ignore_extra_args: Only partially match arguments.
-            is_entered: Verify call happens when the mock is entered using `with`.
-
-        Raises:
-            NotAMockError: `mock` is invalid.
+        Access `verify` to check a call or attribute interaction, optionally
+        configuring the verification with `verify(...)` first.
 
         !!! example
             ```python
@@ -178,28 +166,14 @@ class Decoy:
 
                 # ...
 
-                decoy.verify(gen_id).called_with("model-prefix_")
+                decoy.verify.called(gen_id, "model-prefix_")
+                decoy.verify(times=1).called(gen_id, "model-prefix_")
             ```
         """
-        mock_info = ensure_mock(mock)
-        match_options = MatchOptions(times, ignore_extra_args, is_entered)
-
-        if not mock_info:
-            mock_info = self._state.peek_last_attribute_mock(mock)
-
-        if not mock_info:
-            raise NotAMockError(
-                f"`Decoy.verify` must be called with a mock, but got: {mock}"
-            )
-
-        return Verify(
-            self._state,
-            mock_info,
-            match_options,
-        )
+        return Verify(self._state, MatchOptions(None, False, None))
 
     @contextlib.contextmanager
-    def verify_order(self) -> collections.abc.Iterator[None]:
+    def verify_order(self) -> collections.abc.Generator[None, None, None]:
         """Verify a sequence of interactions.
 
         All verifications in the sequence must be individually satisfied

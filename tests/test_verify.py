@@ -27,7 +27,7 @@ def test_verify(decoy: Decoy) -> None:
 
     subject()
 
-    decoy.verify(subject).called_with()
+    decoy.verify.called(subject)
 
 
 def test_verify_args(decoy: Decoy) -> None:
@@ -36,7 +36,7 @@ def test_verify_args(decoy: Decoy) -> None:
 
     subject("hello", world=True)
 
-    decoy.verify(subject).called_with("hello", world=True)
+    decoy.verify.called(subject, "hello", world=True)
 
 
 async def test_verify_async(decoy: Decoy) -> None:
@@ -45,7 +45,7 @@ async def test_verify_async(decoy: Decoy) -> None:
 
     await subject()
 
-    decoy.verify(subject).called_with()
+    decoy.verify.called(subject)
 
 
 async def test_verify_args_async(decoy: Decoy) -> None:
@@ -54,13 +54,13 @@ async def test_verify_args_async(decoy: Decoy) -> None:
 
     await subject("hello", world=True)
 
-    decoy.verify(subject).called_with("hello", world=True)
+    decoy.verify.called(subject, "hello", world=True)
 
 
 def test_verify_missing_mock(decoy: Decoy) -> None:
     """It raises an exception if called without a mock."""
     with pytest.raises(errors.NotAMockError):
-        decoy.verify(fixtures.noop)
+        decoy.verify.called(fixtures.noop)
 
 
 def test_verify_fail(decoy: Decoy) -> None:
@@ -68,7 +68,7 @@ def test_verify_fail(decoy: Decoy) -> None:
     subject = decoy.mock(name="subject")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject).called_with()
+        decoy.verify.called(subject)
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -87,7 +87,7 @@ def test_verify_reset(decoy: Decoy) -> None:
     decoy.reset()
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject).called_with()
+        decoy.verify.called(subject)
 
 
 def test_verify_fail_wrong_call(decoy: Decoy) -> None:
@@ -97,7 +97,7 @@ def test_verify_fail_wrong_call(decoy: Decoy) -> None:
     subject("hola", "mundo")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject).called_with("hello")
+        decoy.verify.called(subject, "hello")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -111,7 +111,7 @@ def test_verify_fail_wrong_call(decoy: Decoy) -> None:
     subject("adios")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject).called_with("hello")
+        decoy.verify.called(subject, "hello")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -140,7 +140,7 @@ def test_verify_kwargs_fail(decoy: Decoy, verify_kwargs: dict[str, object]) -> N
     subject(greeting="hello", count=1, opts={"world": True})
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject).called_with(**verify_kwargs)
+        decoy.verify.called(subject, **verify_kwargs)
 
 
 def test_verify_times_pass(decoy: Decoy) -> None:
@@ -149,8 +149,8 @@ def test_verify_times_pass(decoy: Decoy) -> None:
 
     subject("hello")
 
-    decoy.verify(subject, times=1).called_with("hello")
-    decoy.verify(subject, times=0).called_with("goodbye")
+    decoy.verify(times=1).called(subject, "hello")
+    decoy.verify(times=0).called(subject, "goodbye")
 
 
 def test_verify_times_fail(decoy: Decoy) -> None:
@@ -160,7 +160,7 @@ def test_verify_times_fail(decoy: Decoy) -> None:
     subject("hello")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject, times=0).called_with("hello")
+        decoy.verify(times=0).called(subject, "hello")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -174,7 +174,7 @@ def test_verify_times_fail(decoy: Decoy) -> None:
     subject("hello")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject, times=1).called_with("hello")
+        decoy.verify(times=1).called(subject, "hello")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -197,16 +197,17 @@ def test_verify_ignore_extra_args(decoy: Decoy) -> None:
 
     subject("some-id", 101)
 
-    decoy.verify(subject, ignore_extra_args=True).called_with("some-id")
+    decoy.verify(ignore_extra_args=True).called(subject, "some-id")
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject, ignore_extra_args=True).called_with("wrong-id")
+        decoy.verify(ignore_extra_args=True).called(subject, "wrong-id")
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject, ignore_extra_args=True).called_with("some-id", 999)
+        decoy.verify(ignore_extra_args=True).called(subject, "some-id", 999)
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject, ignore_extra_args=True).called_with(
+        decoy.verify(ignore_extra_args=True).called(
+            subject,
             "some-id",
             101,
             "oops",
@@ -223,10 +224,10 @@ def test_verify_ignore_extra_args_signature(decoy: Decoy) -> None:
 
     subject("some-id", 101, "hello")
 
-    decoy.verify(subject, ignore_extra_args=True).called_with(id="some-id")  # type: ignore[call-arg]
+    decoy.verify(ignore_extra_args=True).called(subject, id="some-id")  # type: ignore[call-arg]
 
     with pytest.raises(errors.SignatureMismatchError):
-        decoy.verify(subject, ignore_extra_args=True).called_with(not_id="wrong-id")  # type: ignore[call-arg]
+        decoy.verify(ignore_extra_args=True).called(subject, not_id="wrong-id")  # type: ignore[call-arg]
 
 
 async def test_verify_is_entered(decoy: Decoy) -> None:
@@ -236,12 +237,12 @@ async def test_verify_is_entered(decoy: Decoy) -> None:
     subject("hello")
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject, is_entered=True).called_with("hello")
+        decoy.verify(is_entered=True).called(subject, "hello")
 
     with subject:
         subject("hello")
 
-    decoy.verify(subject, is_entered=True).called_with("hello")
+    decoy.verify(is_entered=True).called(subject, "hello")
 
 
 async def test_verify_is_entered_ignore_extra_args(decoy: Decoy) -> None:
@@ -251,21 +252,21 @@ async def test_verify_is_entered_ignore_extra_args(decoy: Decoy) -> None:
     subject("hello")
 
     with pytest.raises(errors.VerifyError):
-        decoy.verify(subject, is_entered=True, ignore_extra_args=True).called_with()
+        decoy.verify(is_entered=True, ignore_extra_args=True).called(subject)
 
     with subject:
         subject("hello")
 
-    decoy.verify(subject, is_entered=True, ignore_extra_args=True).called_with()
+    decoy.verify(is_entered=True, ignore_extra_args=True).called(subject)
 
 
 def test_verify_match_signature_in_called_with(decoy: Decoy) -> None:
-    """It binds to signature in `called_with` when using args and kwargs."""
+    """It binds to signature in `called` when using args and kwargs."""
     subject = decoy.mock(func=fixtures.some_func_with_args_and_kwargs)
 
     subject("hello", b=False)
 
-    decoy.verify(subject).called_with(a="hello", b=False)
+    decoy.verify.called(subject, a="hello", b=False)
 
 
 def test_verify_match_signature_in_call(decoy: Decoy) -> None:
@@ -274,7 +275,7 @@ def test_verify_match_signature_in_call(decoy: Decoy) -> None:
 
     subject(a="hello", b=False)
 
-    decoy.verify(subject).called_with("hello", b=False)
+    decoy.verify.called(subject, "hello", b=False)
 
 
 def test_verify_call_list_pass(decoy: Decoy) -> None:
@@ -286,8 +287,8 @@ def test_verify_call_list_pass(decoy: Decoy) -> None:
     subject_2("world")
 
     with decoy.verify_order():
-        decoy.verify(subject_1).called_with("hello")
-        decoy.verify(subject_2).called_with("world")
+        decoy.verify.called(subject_1, "hello")
+        decoy.verify.called(subject_2, "world")
 
 
 def test_verify_call_list_pass_with_children(decoy: Decoy) -> None:
@@ -299,8 +300,8 @@ def test_verify_call_list_pass_with_children(decoy: Decoy) -> None:
     subject_2.foo("world")
 
     with decoy.verify_order():
-        decoy.verify(subject_1).called_with("hello")
-        decoy.verify(subject_2.foo).called_with("world")
+        decoy.verify.called(subject_1, "hello")
+        decoy.verify.called(subject_2.foo, "world")
 
 
 def test_verify_call_list_pass_ignore_before_and_after(decoy: Decoy) -> None:
@@ -314,8 +315,8 @@ def test_verify_call_list_pass_ignore_before_and_after(decoy: Decoy) -> None:
     subject_2("after")
 
     with decoy.verify_order():
-        decoy.verify(subject_1).called_with("hello")
-        decoy.verify(subject_2).called_with("world")
+        decoy.verify.called(subject_1, "hello")
+        decoy.verify.called(subject_2, "world")
 
 
 def test_verify_call_list_pass_false_start(decoy: Decoy) -> None:
@@ -331,9 +332,9 @@ def test_verify_call_list_pass_false_start(decoy: Decoy) -> None:
     subject_3("c")
 
     with decoy.verify_order():
-        decoy.verify(subject_1).called_with("a")
-        decoy.verify(subject_2).called_with("b")
-        decoy.verify(subject_3).called_with("c")
+        decoy.verify.called(subject_1, "a")
+        decoy.verify.called(subject_2, "b")
+        decoy.verify.called(subject_3, "c")
 
 
 def test_verify_call_list_pass_other_mock(decoy: Decoy) -> None:
@@ -347,8 +348,8 @@ def test_verify_call_list_pass_other_mock(decoy: Decoy) -> None:
     subject_3("c")
 
     with decoy.verify_order():
-        decoy.verify(subject_1).called_with("a")
-        decoy.verify(subject_3).called_with("c")
+        decoy.verify.called(subject_1, "a")
+        decoy.verify.called(subject_3, "c")
 
 
 def test_verify_call_list_pass_multiple_calls(decoy: Decoy) -> None:
@@ -360,9 +361,9 @@ def test_verify_call_list_pass_multiple_calls(decoy: Decoy) -> None:
     subject("hello")
 
     with decoy.verify_order():
-        decoy.verify(subject).called_with("hello")
-        decoy.verify(subject).called_with("world")
-        decoy.verify(subject).called_with("hello")
+        decoy.verify.called(subject, "hello")
+        decoy.verify.called(subject, "world")
+        decoy.verify.called(subject, "hello")
 
 
 def test_verify_call_list_fail_wrong_order(decoy: Decoy) -> None:
@@ -375,8 +376,8 @@ def test_verify_call_list_fail_wrong_order(decoy: Decoy) -> None:
 
     with pytest.raises(errors.VerifyError) as exc_info:
         with decoy.verify_order():
-            decoy.verify(subject_1).called_with("hello")
-            decoy.verify(subject_2).called_with("world")
+            decoy.verify.called(subject_1, "hello")
+            decoy.verify.called(subject_2, "world")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -403,9 +404,9 @@ def test_verify_call_list_fail_extra_call(decoy: Decoy) -> None:
 
     with pytest.raises(errors.VerifyError) as exc_info:
         with decoy.verify_order():
-            decoy.verify(subject_1).called_with("a")
-            decoy.verify(subject_2).called_with("b")
-            decoy.verify(subject_3).called_with("c")
+            decoy.verify.called(subject_1, "a")
+            decoy.verify.called(subject_2, "b")
+            decoy.verify.called(subject_3, "c")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -432,8 +433,8 @@ def test_verify_call_list_times_pass(decoy: Decoy) -> None:
     subject("after")
 
     with decoy.verify_order():
-        decoy.verify(subject, times=2).called_with("hello")
-        decoy.verify(subject, times=1).called_with("after")
+        decoy.verify(times=2).called(subject, "hello")
+        decoy.verify(times=1).called(subject, "after")
 
 
 def test_verify_call_list_times_fail(decoy: Decoy) -> None:
@@ -448,8 +449,8 @@ def test_verify_call_list_times_fail(decoy: Decoy) -> None:
 
     with pytest.raises(errors.VerifyOrderError) as exc_info:
         with decoy.verify_order():
-            decoy.verify(subject, times=3).called_with("hello")
-            decoy.verify(subject).called_with("world")
+            decoy.verify(times=3).called(subject, "hello")
+            decoy.verify.called(subject, "world")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -473,7 +474,7 @@ def test_verify_attribute_set_missing(decoy: Decoy) -> None:
     subject = decoy.mock(name="subject")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject.some_property).set("42")
+        decoy.verify.set(subject.some_property, "42")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -491,7 +492,7 @@ def test_verify_attribute_set_incorrect(decoy: Decoy) -> None:
     subject.some_property = "42"
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject.some_property).set("43")
+        decoy.verify.set(subject.some_property, "43")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -509,7 +510,7 @@ def test_verify_attribute_set(decoy: Decoy) -> None:
 
     subject.some_property = "42"
 
-    decoy.verify(subject.some_property).set("42")
+    decoy.verify.set(subject.some_property, "42")
 
 
 def test_verify_attribute_set_missing_rehearsal(decoy: Decoy) -> None:
@@ -517,7 +518,7 @@ def test_verify_attribute_set_missing_rehearsal(decoy: Decoy) -> None:
     _ = decoy.mock(name="subject").foo
 
     with pytest.raises(errors.NotAMockError):
-        decoy.verify(fixtures.noop)
+        decoy.verify.called(fixtures.noop)
 
 
 def test_verify_attribute_multiple_sets(decoy: Decoy) -> None:
@@ -527,7 +528,7 @@ def test_verify_attribute_multiple_sets(decoy: Decoy) -> None:
     subject.some_property = "42"
     subject.some_property = "43"
 
-    decoy.verify(subject.some_property).set("42")
+    decoy.verify.set(subject.some_property, "42")
 
 
 def test_verify_attribute_set_then_delete(decoy: Decoy) -> None:
@@ -537,7 +538,7 @@ def test_verify_attribute_set_then_delete(decoy: Decoy) -> None:
     subject.some_property = "42"
     del subject.some_property
 
-    decoy.verify(subject.some_property).set("42")
+    decoy.verify.set(subject.some_property, "42")
 
 
 def test_verify_attribute_delete(decoy: Decoy) -> None:
@@ -546,10 +547,10 @@ def test_verify_attribute_delete(decoy: Decoy) -> None:
 
     del subject.some_property
 
-    decoy.verify(subject.some_property).delete()
+    decoy.verify.delete(subject.some_property)
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify(subject.other_property).delete()
+        decoy.verify.delete(subject.other_property)
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -570,7 +571,7 @@ def test_redundant_verify(decoy: Decoy) -> None:
     subject("hello")
 
     with pytest.warns(warnings.RedundantVerifyWarning) as warnings_log:
-        decoy.verify(subject).called_with("hello")
+        decoy.verify.called(subject, "hello")
 
     assert str(warnings_log[0].message) == os.linesep.join(
         [
