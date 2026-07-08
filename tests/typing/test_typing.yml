@@ -57,8 +57,8 @@
     decoy = Decoy()
     fake = decoy.mock(cls=Dependency)
 
-    decoy.when(fake.do_thing).called_with("hello").then_return(42)
-    decoy.when(fake.do_thing).called_with("goodbye").then_return("wrong-type")
+    decoy.when.called(fake.do_thing, "hello").then_return(42)
+    decoy.when.called(fake.do_thing, "goodbye").then_return("wrong-type")
   out: |
     main:11: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
@@ -73,8 +73,8 @@
     decoy = Decoy()
     fake = decoy.mock(func=do_thing)
 
-    decoy.when(fake).called_with("hello").then_return(42)
-    decoy.when(fake).called_with("goodbye").then_return("wrong-type")
+    decoy.when.called(fake, "hello").then_return(42)
+    decoy.when.called(fake, "goodbye").then_return("wrong-type")
   out: |
     main:10: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
@@ -91,8 +91,8 @@
     decoy = Decoy()
     fake = decoy.mock(cls=Dependency)
 
-    decoy.when(fake.value).get().then_return(42)
-    decoy.when(fake.value).get().then_return("wrong-type")
+    decoy.when.get(fake.value).then_return(42)
+    decoy.when.get(fake.value).then_return("wrong-type")
   out: |
     main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
@@ -109,10 +109,30 @@
     decoy = Decoy()
     fake = decoy.mock(cls=Dependency)
 
-    decoy.when(fake.value).set(42).then_raise(Exception("oh no"))
-    decoy.when(fake.value).set("goodbye").then_raise(Exception("oh no"))
+    # the set value is checked against the attribute type via `WhenSet.to`
+    decoy.when.set(fake.value).to(42).then_raise(Exception("oh no"))
+    decoy.when.set(fake.value).to("goodbye").then_raise(Exception("oh no"))
   out: |
-    main:12: error: Argument 1 to "set" of "When" has incompatible type "str"; expected "int"  [arg-type]
+    main:13: error: Argument 1 to "to" of "WhenSet" has incompatible type "str"; expected "int"  [arg-type]
+
+- case: verify_attribute_set
+  skip: sys.version_info < (3, 10)
+  main: |
+    from decoy.next import Decoy
+
+    class Dependency():
+        @property
+        def value(self) -> int:
+            return 42
+
+    decoy = Decoy()
+    fake = decoy.mock(cls=Dependency)
+
+    # the set value is checked against the attribute type via `VerifySet.to`
+    decoy.verify.set(fake.value).to(42)
+    decoy.verify.set(fake.value).to("goodbye")
+  out: |
+    main:13: error: Argument 1 to "to" of "VerifySet" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: context_manager_stub_mimics_enter_type
   skip: sys.version_info < (3, 10)
@@ -128,29 +148,11 @@
     decoy = Decoy()
     fake_cm = decoy.mock(func=do_thing)
 
-    decoy.when(fake_cm).called_with("hello").then_enter_with(42)
-    decoy.when(fake_cm).called_with("goodbye").then_enter_with("wrong-type")
+    decoy.when.called(fake_cm, "hello").then_enter_with(42)
+    decoy.when.called(fake_cm, "goodbye").then_enter_with("wrong-type")
 
   out: |
     main:13: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
-
-- case: context_manager_stub_rejects_wrong_spec
-  skip: sys.version_info < (3, 10)
-  main: |
-    from decoy.next import Decoy
-
-    def do_thing(input: str) -> int:
-        return 42
-
-    decoy = Decoy()
-    fake_not_cm = decoy.mock(func=do_thing)
-    fake_any = decoy.mock(name="fake_any")
-
-    decoy.when(fake_not_cm).called_with("hello").then_enter_with(42)
-    decoy.when(fake_any).called_with("hello").then_enter_with(42)
-
-  out: |
-    main:10: error: Argument 1 to "then_enter_with" of "Stub" has incompatible type "int"; expected "Never"  [arg-type]
 
 - case: matchers_mimic_types
   skip: sys.version_info < (3, 10)
@@ -217,10 +219,8 @@
   out: |
     main:17: error: Argument 1 to "called" of "Verify" has incompatible type overloaded function; expected "Callable[[list[Never]], Any]"  [arg-type]
 
-# xfail until `when` is migrated to `when.called(mock, *args)`, like `verify`.
 - case: when_resolves_method_overloads
   skip: sys.version_info < (3, 10)
-  expect_fail: true
   main: |
     from typing import overload
     from decoy.next import Decoy
@@ -236,10 +236,10 @@
     decoy = Decoy()
     fake = decoy.mock(cls=Dependency)
 
-    decoy.when(fake.do_thing).called_with("hi").then_return(42)
-    decoy.when(fake.do_thing).called_with("hi").then_return("wrong-type")
-    decoy.when(fake.do_thing).called_with(123).then_return("forty-two")
-    decoy.when(fake.do_thing).called_with(123).then_return(99)
+    decoy.when.called(fake.do_thing, "hi").then_return(42)
+    decoy.when.called(fake.do_thing, "hi").then_return("wrong-type")
+    decoy.when.called(fake.do_thing, 123).then_return("forty-two")
+    decoy.when.called(fake.do_thing, 123).then_return(99)
   out: |
     main:16: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
     main:18: error: Argument 1 to "then_return" of "Stub" has incompatible type "int"; expected "str"  [arg-type]

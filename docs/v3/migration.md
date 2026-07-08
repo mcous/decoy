@@ -36,25 +36,25 @@ For an incremental migration, annotate a test's `decoy` fixture as `decoy.next.D
   def test_when(decoy: Decoy) -> None:
       mock = decoy.mock(cls=SomeClass)
 -     decoy.when(mock.foo("hello")).then_return("world")
-+     decoy.when(mock.foo).called_with("hello").then_return("world")
++     decoy.when.called(mock.foo, "hello").then_return("world")
 ```
 
 ## When
 
-Replace the rehearsal syntax with [`When.called_with`][decoy.next.When.called_with]. See the [`when` guide][when-guide] for more details.
+Replace the rehearsal syntax with [`When.called`][decoy.next.When.called], passing the mock and its arguments. See the [`when` guide][when-guide] for more details.
 
 ```diff
 - decoy.when(mock("hello")).then_return("world")
-+ decoy.when(mock).called_with("hello").then_return("world")
++ decoy.when.called(mock, "hello").then_return("world")
 ```
 
 ### Options
 
-The `ignore_extra_args` option is still passed to [`Decoy.when`][decoy.next.Decoy.when], not `called_with`.
+The `ignore_extra_args` option is passed to [`Decoy.when`][decoy.next.Decoy.when], before `called`.
 
 ```diff
 - decoy.when(mock("hello"), ignore_extra_args=True).then_return("world")
-+ decoy.when(mock, ignore_extra_args=True).called_with("hello").then_return("world")
++ decoy.when(ignore_extra_args=True).called(mock, "hello").then_return("world")
 ```
 
 ## Verify
@@ -93,11 +93,11 @@ To verify a sequence of calls, call `Decoy.verify` from a [`Decoy.verify_order`]
 
 ## Async mocks
 
-Using `called_with` in Decoy v3, it is no longer necessary to add `await` to `when` and `verify` calls for asynchronous mocks.
+In Decoy v3, it is no longer necessary to add `await` to `when` and `verify` calls for asynchronous mocks.
 
 ```diff
 - decoy.when(await mock("hello")).then_return("world")
-+ decoy.when(mock).called_with("hello").then_return("world")
++ decoy.when.called(mock, "hello").then_return("world")
 
 - decoy.verify(await mock("hello"))
 + decoy.verify.called(mock, "hello")
@@ -136,13 +136,13 @@ Use [`When.get`][decoy.next.When.get], [`When.set`][decoy.next.When.set], and [`
 
 ```diff
 - decoy.when(mock.attr).then_return("world")
-+ decoy.when(mock.attr).get().then_return("world")
++ decoy.when.get(mock.attr).then_return("world")
 
 - decoy.when(decoy.prop(mock.attr).set(42)).then_raise(RuntimeError("oh no"))
-+ decoy.when(mock.attr).set(42).then_raise(RuntimeError("oh no"))
++ decoy.when.set(mock.attr).to(42).then_raise(RuntimeError("oh no"))
 
 - decoy.when(decoy.prop(mock.attr).delete()).then_raise(RuntimeError("oh no"))
-+ decoy.when(mock.attr).delete().then_raise(RuntimeError("oh no"))
++ decoy.when.delete(mock.attr).then_raise(RuntimeError("oh no"))
 ```
 
 ### Verify
@@ -151,7 +151,7 @@ To verify attribute set and delete calls, use [`Verify.set`][decoy.next.Verify.s
 
 ```diff
 - decoy.verify(decoy.prop(mock.attr).set(42))
-+ decoy.verify.set(mock.attr, 42)
++ decoy.verify.set(mock.attr).to(42)
 
 - decoy.verify(decoy.prop(mock.attr).delete())
 + decoy.verify.delete(mock.attr)
@@ -163,11 +163,11 @@ See the [context manager guide][context-manager-guide] for more details.
 
 ### `then_enter_with`
 
-Mocking generator context managers has not changed aside from the `called_with` syntax.
+Mocking generator context managers has not changed aside from the `called` syntax.
 
 ```diff
 - decoy.when(mock("hello")).then_enter_with("world")
-+ decoy.when(mock).called_with("hello").then_enter_with("world")
++ decoy.when.called(mock, "hello").then_enter_with("world")
 ```
 
 ### `__enter__` and `__exit__`
@@ -191,7 +191,7 @@ In v3, `__enter__` and `__exit__` can still be stubbed to test advanced context 
 -
 - decoy.when(subject.__enter__()).then_do(_handle_enter)
 - decoy.when(subject.__exit__(None, None, None)).then_do(_handle_exit)
-+ decoy.when(subject.read, is_entered=True).called_with("some_flag").then_return(True)
++ decoy.when(is_entered=True).called(subject.read, "some_flag").then_return(True)
 
   with subject:
       result = subject.get_config("some_flag")

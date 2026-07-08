@@ -23,7 +23,7 @@ database = decoy.mock(name="database")
 
 database.remove("some-id")  # <-- call to the spy
 
-decoy.verify.called(database, "some-id")
+decoy.verify.called(database.remove, "some-id")
 ```
 
 By default, if Decoy finds _any_ call matching the `verify` invocation, the call will pass. However, if a matching call is not found, a [`VerifyError`][verifyerror-guide] will be raised.
@@ -54,7 +54,7 @@ decoy.verify(times=0).called(handler.should_be_never_be_called, "fizzbuzz")
 
 ## Loosen constraints with matchers
 
-You may loosen `called_with` constraints using [`Matchers`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
+You may loosen `called` constraints using [`Matchers`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
 
 ```python
 say_hello = decoy.mock(name="say_hello")

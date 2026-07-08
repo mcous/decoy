@@ -44,7 +44,7 @@ Use [`When.get`][decoy.next.When.get] stub a return value for an attribute inste
 ```python
 dependency = decoy.mock(name="dependency")
 
-decoy.when(dependency.some_property).get().then_return(42)
+decoy.when.get(dependency.some_property).then_return(42)
 
 assert dep.some_property == 42
 ```
@@ -54,10 +54,7 @@ You can also configure any other behavior, like raising an error.
 ```python
 dependency = decoy.mock(name="dependency")
 
-decoy
-    .when(dependency.some_property)
-    .get()
-    .then_raise(RuntimeError("oh no"))
+decoy.when.get(dependency.some_property).then_raise(RuntimeError("oh no"))
 
 with pytest.raises(RuntimeError, match="oh no"):
     dependency.some_property
@@ -70,15 +67,11 @@ While you cannot stub a return value for a getter or setter, because set and del
 ```python
 dependency = decoy.mock(name="dependency")
 
-decoy
-    .when(dependency.some_property)
-    .set(42)
-    .then_raise(RuntimeError("oh no"))
+decoy.when.set(dependency.some_property).to(42).then_raise(RuntimeError("oh no"))
 
-decoy
-    .when(dependency.some_property)
-    .delete()
-    .then_raise(RuntimeError("what a disaster"))
+decoy.when.delete(dependency.some_property).then_raise(
+    RuntimeError("what a disaster")
+)
 
 with pytest.raises(RuntimeError, match="oh no"):
     dependency.some_property = 42
@@ -106,7 +99,7 @@ dependency = decoy.mock(name="dependency")
 
 dependency.some_property = 42
 
-decoy.verify.set(dependency.some_property, 42)
+decoy.verify.set(dependency.some_property).to(42)
 ```
 
 ### Verify a deleter

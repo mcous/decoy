@@ -24,7 +24,7 @@ def test_reset_miscalled_stub_warning(decoy: Decoy) -> None:
     """It raises a MiscalledStubWarning at reset if calls don't match stubbings."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject).called_with("hello").then_return("hello world")
+    decoy.when.called(subject, "hello").then_return("hello world")
     subject("goodbye")
 
     with pytest.warns(warnings.MiscalledStubWarning) as warnings_log:
@@ -55,7 +55,7 @@ def test_reset_no_warning_without_stubs(decoy: Decoy) -> None:
 def test_reset_no_warning_when_call_matches(decoy: Decoy) -> None:
     """It does not warn if every call matched a stub."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("world")
+    decoy.when.called(subject, "hello").then_return("world")
     subject("hello")
 
     with stdlib_warnings.catch_warnings():
@@ -66,7 +66,7 @@ def test_reset_no_warning_when_call_matches(decoy: Decoy) -> None:
 def test_reset_no_warning_when_verified(decoy: Decoy) -> None:
     """It does not warn if a non-matching call was later verified."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("world")
+    decoy.when.called(subject, "hello").then_return("world")
     subject("goodbye")
     decoy.verify.called(subject, "goodbye")
 
@@ -78,7 +78,7 @@ def test_reset_no_warning_when_verified(decoy: Decoy) -> None:
 def test_reset_warning_verify_ordering(decoy: Decoy) -> None:
     """It still warns for a call that occurs after a verify, not covered by it."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("world")
+    decoy.when.called(subject, "hello").then_return("world")
 
     subject("goodbye")
     decoy.verify.called(subject, "goodbye")
@@ -94,7 +94,7 @@ def test_reset_miscalled_stub_warning_call_site() -> None:
         from decoy.next import Decoy
         decoy = Decoy()
         subject = decoy.mock(name="subject")
-        decoy.when(subject).called_with("hello").then_return("world")
+        decoy.when.called(subject, "hello").then_return("world")
         subject("goodbye")
         decoy.reset()
     """).strip()
@@ -113,7 +113,7 @@ def test_reset_warning_ignores_decoy_lookalike_module() -> None:
         from decoy.next import Decoy
         decoy = Decoy()
         subject = decoy.mock(name="subject")
-        decoy.when(subject).called_with("hello").then_return("world")
+        decoy.when.called(subject, "hello").then_return("world")
         subject("goodbye")
         decoy.reset()
     """).strip()

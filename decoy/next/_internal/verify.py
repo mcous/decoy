@@ -1,4 +1,4 @@
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import Any, Callable, Generic, ParamSpec, TypeVar
 
 from ...errors import NotAMockError, VerifyError
 from ...warnings import RedundantVerifyWarning
@@ -18,6 +18,55 @@ from .warn import warn
 
 SpecT = TypeVar("SpecT")
 ParamsT = ParamSpec("ParamsT")
+
+
+def _run_verification(
+    state: DecoyState,
+    match_options: MatchOptions,
+    mock: MockInfo,
+    expected: Event,
+) -> None:
+    matcher = EventMatcher(expected, match_options)
+    result = state.use_verification(mock, matcher)
+
+    if not result.is_success:
+        message = stringify_verify_failure(
+            mock.name,
+            match_options,
+            expected,
+            result.mock_events,
+        )
+        raise VerifyError(message)
+
+    if result.is_redundant:
+        message = stringify_redundant_verify(mock.name, expected)
+        warn(RedundantVerifyWarning(message))
+
+
+class VerifySet(Generic[SpecT]):
+    """Verify that an [attribute was set](./attributes.md#verify-a-setter).
+
+    Created by [`Verify.set`][decoy.next.Verify.set]; pass the value to `to`.
+    """
+
+    def __init__(
+        self,
+        state: DecoyState,
+        mock: MockInfo,
+        match_options: MatchOptions,
+    ) -> None:
+        self._state = state
+        self._mock = mock
+        self._match_options = match_options
+
+    def to(self, value: SpecT) -> None:
+        """Verify the attribute was set to `value`."""
+        _run_verification(
+            self._state,
+            self._match_options,
+            self._mock,
+            AttributeEvent.set(value),
+        )
 
 
 class Verify:
@@ -72,16 +121,16 @@ class Verify:
 
         self._verify(mock_info, expected)
 
-    def set(self, attribute: SpecT, value: SpecT) -> None:
+    def set(self, attribute: SpecT) -> VerifySet[SpecT]:
         """Verify that an [attribute was set](./attributes.md#verify-a-setter).
 
+        Pass the set value to [`VerifySet.to`][decoy.next.VerifySet.to].
+
         Raises:
-            NotAMockError: `mock` is invalid.
+            NotAMockError: `attribute` is invalid.
         """
         mock_info = self._ensure_mock(attribute)
-        expected = AttributeEvent.set(value)
-
-        self._verify(mock_info, expected)
+        return VerifySet(self._state, mock_info, self._match_options)
 
     def delete(self, attribute: object) -> None:
         """Verify that an [attribute was deleted](./attributes.md#verify-a-deleter).
@@ -108,18 +157,4 @@ class Verify:
         return mock_info
 
     def _verify(self, mock: MockInfo, expected: Event) -> None:
-        matcher = EventMatcher(expected, self._match_options)
-        result = self._state.use_verification(mock, matcher)
-
-        if not result.is_success:
-            message = stringify_verify_failure(
-                mock.name,
-                self._match_options,
-                expected,
-                result.mock_events,
-            )
-            raise VerifyError(message)
-
-        if result.is_redundant:
-            message = stringify_redundant_verify(mock.name, expected)
-            warn(RedundantVerifyWarning(message))
+        _run_verification(self._state, self._match_options, mock, expected)

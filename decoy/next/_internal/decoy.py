@@ -2,7 +2,7 @@ import collections.abc
 import contextlib
 from typing import Any, Callable, Literal, TypeVar, overload
 
-from ...errors import NotAMockError, VerifyOrderError
+from ...errors import VerifyOrderError
 from ...warnings import MiscalledStubWarning
 from .inspect import (
     ensure_spec,
@@ -10,17 +10,15 @@ from .inspect import (
     get_spec_module_name,
     is_async_callable,
 )
-from .mock import AsyncMock, Mock, create_mock, ensure_mock
+from .mock import AsyncMock, Mock, create_mock
 from .state import DecoyState
 from .stringify import stringify_miscalled_stub, stringify_verify_order_failure
-from .values import MatchOptions
 from .verify import Verify
 from .warn import warn
 from .when import When
 
 ClassT = TypeVar("ClassT")
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
-SpecT = TypeVar("SpecT")
 
 
 class Decoy:
@@ -111,46 +109,24 @@ class Decoy:
             state=self._state,
         )
 
-    def when(
-        self,
-        mock: SpecT,
-        *,
-        times: int | None = None,
-        ignore_extra_args: bool = False,
-        is_entered: bool | None = None,
-    ) -> When[SpecT, SpecT]:
+    @property
+    def when(self) -> When:
         """Configure a mock as a stub. See [`when` guide](./when.md) for more details.
 
-        Arguments:
-            mock: The mock to configure.
-            times: Limit the number of times the behavior is triggered.
-            ignore_extra_args: Only partially match arguments.
-            is_entered: Limit the behavior to when the mock is entered using `with`.
-
-        Returns:
-            A stub interface to configure matching arguments.
+        Access `when` to configure a call or attribute behavior, optionally
+        configuring the stub with `when(...)` first.
 
         Raises:
-            NotAMockError: `mock` is invalid.
+            NotAMockError: The configured object is invalid.
 
         !!! example
             ```python
             db = decoy.mock(cls=Database)
-            decoy.when(db.exists).called_with("some-id").then_return(True)
+            decoy.when.called(db.exists, "some-id").then_return(True)
+            decoy.when(times=1).called(db.exists, "some-id").then_return(True)
             ```
         """
-        mock_info = ensure_mock(mock)
-        match_options = MatchOptions(times, ignore_extra_args, is_entered)
-
-        if not mock_info:
-            mock_info = self._state.peek_last_attribute_mock(mock)
-
-        if not mock_info:
-            raise NotAMockError(
-                f"`Decoy.when` must be called with a mock, but got: {mock}"
-            )
-
-        return When(self._state, mock_info, match_options)
+        return When(self._state)
 
     @property
     def verify(self) -> Verify:

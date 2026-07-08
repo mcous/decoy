@@ -7,8 +7,8 @@ to isolate your code under test.
 from ._internal.decoy import Decoy
 from ._internal.matcher import Matcher
 from ._internal.mock import AsyncMock, Mock
-from ._internal.verify import Verify
-from ._internal.when import Stub, When
+from ._internal.verify import Verify, VerifySet
+from ._internal.when import Stub, When, WhenSet
 
 __all__ = [
     "AsyncMock",
@@ -17,5 +17,7 @@ __all__ = [
     "Mock",
     "Stub",
     "Verify",
+    "VerifySet",
     "When",
+    "WhenSet",
 ]

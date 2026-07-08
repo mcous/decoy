@@ -25,7 +25,7 @@ pytestmark = pytest.mark.skipif(
 def test_when_then_return(decoy: Decoy) -> None:
     """It returns a value."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with().then_return("hello world")
+    decoy.when.called(subject).then_return("hello world")
 
     result = subject()
 
@@ -36,7 +36,7 @@ def test_when_then_raise(decoy: Decoy) -> None:
     """It raises an exception."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject).called_with().then_raise(ValueError("oh no"))
+    decoy.when.called(subject).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         subject()
@@ -49,7 +49,7 @@ def test_when_then_do(decoy: Decoy) -> None:
         return "hello from the other side"
 
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with().then_do(_then_do_action)
+    decoy.when.called(subject).then_do(_then_do_action)
 
     result = subject()
 
@@ -61,7 +61,7 @@ def test_when_then_do_not_callable(decoy: Decoy) -> None:
     subject = decoy.mock(name="subject")
 
     with pytest.raises(errors.ThenDoActionNotCallableError, match="must be callable"):
-        decoy.when(subject).called_with().then_do(42)  # type: ignore[arg-type]
+        decoy.when.called(subject).then_do(42)  # type: ignore[arg-type]
 
 
 def test_when_then_do_async_not_allowed(decoy: Decoy) -> None:
@@ -74,7 +74,7 @@ def test_when_then_do_async_not_allowed(decoy: Decoy) -> None:
     with pytest.raises(
         errors.MockNotAsyncError, match="cannot use an asynchronous callable"
     ):
-        decoy.when(subject).called_with().then_do(_async_action)
+        decoy.when.called(subject).then_do(_async_action)
 
 
 def test_when_then_enter_with(decoy: Decoy) -> None:
@@ -87,7 +87,7 @@ def test_when_then_enter_with(decoy: Decoy) -> None:
 
     subject = decoy.mock(cls=_Spec)
 
-    decoy.when(subject.enter).called_with().then_enter_with(42)
+    decoy.when.called(subject.enter).then_enter_with(42)
 
     with subject.enter() as result:
         assert result == 42
@@ -96,7 +96,7 @@ def test_when_then_enter_with(decoy: Decoy) -> None:
 async def test_when_then_return_async(decoy: Decoy) -> None:
     """It returns a value from an async function."""
     subject = decoy.mock(name="subject", is_async=True)
-    decoy.when(subject).called_with().then_return("hello world")
+    decoy.when.called(subject).then_return("hello world")
 
     result = await subject()
 
@@ -107,7 +107,7 @@ async def test_when_then_raise_async(decoy: Decoy) -> None:
     """It raises an exception from an async function."""
     subject = decoy.mock(name="subject", is_async=True)
 
-    decoy.when(subject).called_with().then_raise(ValueError("oh no"))
+    decoy.when.called(subject).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         await subject()
@@ -123,11 +123,11 @@ async def test_when_then_do_async(decoy: Decoy) -> None:
         return "hello from the async side"
 
     subject = decoy.mock(name="subject", is_async=True)
-    decoy.when(subject).called_with().then_do(_then_do_action)
+    decoy.when.called(subject).then_do(_then_do_action)
     result = await subject()
     assert result == "hello from the other side"
 
-    decoy.when(subject).called_with().then_do(_then_do_action_async)
+    decoy.when.called(subject).then_do(_then_do_action_async)
     result = await subject()
     assert result == "hello from the async side"
 
@@ -142,7 +142,7 @@ async def test_when_then_enter_with_async(decoy: Decoy) -> None:
 
     subject = decoy.mock(cls=_Spec)
 
-    decoy.when(subject.enter).called_with().then_enter_with(42)
+    decoy.when.called(subject.enter).then_enter_with(42)
 
     async with subject.enter() as result:
         assert result == 42
@@ -152,7 +152,7 @@ async def test_when_then_enter_with_async(decoy: Decoy) -> None:
 def test_when_miss(decoy: Decoy) -> None:
     """It noops if stubbing is missing."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("hello world")
+    decoy.when.called(subject, "hello").then_return("hello world")
 
     result = subject("goodbye")
 
@@ -162,7 +162,7 @@ def test_when_miss(decoy: Decoy) -> None:
 def test_when_reset(decoy: Decoy) -> None:
     """It removes stubbings on reset."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with().then_return("hello world")
+    decoy.when.called(subject).then_return("hello world")
     decoy.reset()
 
     result = subject()
@@ -173,8 +173,8 @@ def test_when_reset(decoy: Decoy) -> None:
 def test_when_multiple_stubbings(decoy: Decoy) -> None:
     """It returns the latest stubbing."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with().then_return("not ready yet")
-    decoy.when(subject).called_with().then_return("hello world")
+    decoy.when.called(subject).then_return("not ready yet")
+    decoy.when.called(subject).then_return("hello world")
 
     result = subject()
 
@@ -185,8 +185,8 @@ def test_when_with_args(decoy: Decoy) -> None:
     """It returns a value when called with args."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject).called_with().then_return("no args")
-    decoy.when(subject).called_with("hello", {"world": True}).then_return("hello world")
+    decoy.when.called(subject).then_return("no args")
+    decoy.when.called(subject, "hello", {"world": True}).then_return("hello world")
 
     result = subject("hello", {"world": True})
 
@@ -197,7 +197,7 @@ def test_when_then_with_kwargs_in_stubbing(decoy: Decoy) -> None:
     """It binds args and kwargs in the stub configuration."""
     subject = decoy.mock(func=fixtures.some_func_with_args_and_kwargs)
 
-    decoy.when(subject).called_with(a="hello", b=True).then_return("hello world")
+    decoy.when.called(subject, a="hello", b=True).then_return("hello world")
 
     result = subject("hello", b=True)
 
@@ -208,7 +208,7 @@ def test_when_with_kwargs_in_call(decoy: Decoy) -> None:
     """It binds args and kwargs in the call."""
     subject = decoy.mock(func=fixtures.some_func_with_args_and_kwargs)
 
-    decoy.when(subject).called_with("hello", b=True).then_return("hello world")
+    decoy.when.called(subject, "hello", b=True).then_return("hello world")
 
     result = subject(a="hello", b=True)
 
@@ -218,7 +218,7 @@ def test_when_with_kwargs_in_call(decoy: Decoy) -> None:
 def test_when_no_mock(decoy: Decoy) -> None:
     """It raises an exception if called without a mock."""
     with pytest.raises(errors.NotAMockError):
-        decoy.when(fixtures.noop)
+        decoy.when.called(fixtures.noop)
 
 
 def test_when_signature_wrong_in_stubbing(decoy: Decoy) -> None:
@@ -226,7 +226,7 @@ def test_when_signature_wrong_in_stubbing(decoy: Decoy) -> None:
     subject = decoy.mock(func=fixtures.some_func)
 
     with pytest.raises(errors.SignatureMismatchError):
-        decoy.when(subject).called_with("hello", "world")  # type: ignore[call-arg]
+        decoy.when.called(subject, "hello", "world")  # type: ignore[call-overload]
 
 
 def test_when_ignore_extra_args(decoy: Decoy) -> None:
@@ -237,7 +237,7 @@ def test_when_ignore_extra_args(decoy: Decoy) -> None:
 
     subject = decoy.mock(func=_get_a_thing)
 
-    decoy.when(subject, ignore_extra_args=True).called_with("some-id").then_return(42)
+    decoy.when(ignore_extra_args=True).called(subject, "some-id").then_return(42)
 
     result = subject("some-id", 101)
     assert result == 42
@@ -247,17 +247,17 @@ def test_when_ignore_extra_args_signature(decoy: Decoy) -> None:
     """It does not raise a signature mismatch error when ignore_extra_args is set."""
     subject = decoy.mock(func=fixtures.some_func_with_args_and_kwargs)
 
-    decoy.when(subject, ignore_extra_args=True).called_with(a="hello")  # type: ignore[call-arg]
+    decoy.when(ignore_extra_args=True).called(subject, a="hello")  # type: ignore[call-overload]
 
     with pytest.raises(errors.SignatureMismatchError):
-        decoy.when(subject).called_with(not_a="hello")  # type: ignore[call-arg]
+        decoy.when.called(subject, not_a="hello")  # type: ignore[call-overload]
 
 
 @pytest.mark.filterwarnings("ignore::decoy.warnings.MiscalledStubWarning")
 def test_when_times(decoy: Decoy) -> None:
     """It returns a value a given number of times."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject, times=2).called_with("hello").then_return("world")
+    decoy.when(times=2).called(subject, "hello").then_return("world")
 
     assert subject("hello") == "world"
     assert subject("hello") == "world"
@@ -268,9 +268,9 @@ def test_when_times(decoy: Decoy) -> None:
 def test_when_entered(decoy: Decoy) -> None:
     """It limits matches to while the context manager is entered."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("world")
-    decoy.when(subject, is_entered=False).called_with("hola").then_return("mundo")
-    decoy.when(subject, is_entered=True).called_with("hei").then_return("verden")
+    decoy.when.called(subject, "hello").then_return("world")
+    decoy.when(is_entered=False).called(subject, "hola").then_return("mundo")
+    decoy.when(is_entered=True).called(subject, "hei").then_return("verden")
 
     result_not_entered = [subject("hello"), subject("hola"), subject("hei")]
 
@@ -285,9 +285,9 @@ def test_when_entered(decoy: Decoy) -> None:
 async def test_when_async_entered(decoy: Decoy) -> None:
     """It limits matches to while the context manager is entered asynchronously."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("world")
-    decoy.when(subject, is_entered=False).called_with("hola").then_return("mundo")
-    decoy.when(subject, is_entered=True).called_with("hei").then_return("verden")
+    decoy.when.called(subject, "hello").then_return("world")
+    decoy.when(is_entered=False).called(subject, "hola").then_return("mundo")
+    decoy.when(is_entered=True).called(subject, "hei").then_return("verden")
 
     result_not_entered = [subject("hello"), subject("hola"), subject("hei")]
 
@@ -301,7 +301,7 @@ async def test_when_async_entered(decoy: Decoy) -> None:
 def test_when_then_return_multiple(decoy: Decoy) -> None:
     """It returns a sequence of values."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject).called_with("hello").then_return("hola", "world")
+    decoy.when.called(subject, "hello").then_return("hola", "world")
 
     assert subject("hello") == "hola"
     assert subject("hello") == "world"
@@ -325,8 +325,8 @@ def test_context_manager_mock(decoy: Decoy) -> None:
 
     subject = decoy.mock(cls=_Spec)
 
-    decoy.when(subject.__enter__).called_with().then_return(42)
-    decoy.when(subject.__exit__).called_with(None, None, None).then_do(_on_exit)
+    decoy.when.called(subject.__enter__).then_return(42)
+    decoy.when.called(subject.__exit__, None, None, None).then_do(_on_exit)
 
     with subject as result:
         assert result == 42
@@ -338,7 +338,7 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
     """Mocks the `__aenter__` and `__aexit__` methods."""
     is_exited = False
 
-    async def _on_exit(*args: Any, **kwargs: Any) -> None:
+    async def _on_exit(*args: Any, **kwargs: Any) -> Any:
         nonlocal is_exited
         is_exited = True
 
@@ -351,8 +351,8 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
 
     subject = decoy.mock(cls=_Spec)
 
-    decoy.when(subject.__aenter__).called_with().then_return(42)
-    decoy.when(subject.__aexit__).called_with(None, None, None).then_do(_on_exit)
+    decoy.when.called(subject.__aenter__).then_return(42)
+    decoy.when.called(subject.__aexit__, None, None, None).then_do(_on_exit)
 
     async with subject as result:
         assert result == 42
@@ -363,7 +363,7 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
 def test_when_get_then_return(decoy: Decoy) -> None:
     """It mocks an attribute getter."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject.prop_name).get().then_return(42)
+    decoy.when.get(subject.prop_name).then_return(42)
 
     assert subject.prop_name == 42
 
@@ -371,7 +371,7 @@ def test_when_get_then_return(decoy: Decoy) -> None:
 def then_when_get_then_return_multiple(decoy: Decoy) -> None:
     """It mocks an attribute getter with a sequence of returns."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject.prop_name).get().then_return(43, 44)
+    decoy.when.get(subject.prop_name).then_return(43, 44)
 
     assert subject.prop_name == 43
     assert subject.prop_name == 44
@@ -382,7 +382,7 @@ def test_when_get_then_raise(decoy: Decoy) -> None:
     """It raises from a getter."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject.prop_name).get().then_raise(ValueError("oh no"))
+    decoy.when.get(subject.prop_name).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         _ = subject.prop_name
@@ -395,7 +395,7 @@ def test_when_get_then_do(decoy: Decoy) -> None:
         return 84
 
     subject = decoy.mock(name="subject")
-    decoy.when(subject.prop_name).get().then_do(_handle_get)
+    decoy.when.get(subject.prop_name).then_do(_handle_get)
 
     assert subject.prop_name == 84
 
@@ -403,9 +403,9 @@ def test_when_get_then_do(decoy: Decoy) -> None:
 def test_when_get_after_stubbing(decoy: Decoy) -> None:
     """It mocks an attribute getter more than once."""
     subject = decoy.mock(name="subject")
-    decoy.when(subject.prop_name).get().then_return(42)
-    decoy.when(subject.other_prop_name).get().then_return(63)
-    decoy.when(subject.prop_name).get().then_return(84)
+    decoy.when.get(subject.prop_name).then_return(42)
+    decoy.when.get(subject.other_prop_name).then_return(63)
+    decoy.when.get(subject.prop_name).then_return(84)
 
     assert subject.prop_name == 84
 
@@ -414,7 +414,7 @@ def test_when_set_then_raise(decoy: Decoy) -> None:
     """It raises from a setter."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject.prop_name).set(42).then_raise(ValueError("oh no"))
+    decoy.when.set(subject.prop_name).to(42).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         subject.prop_name = 42
@@ -429,7 +429,7 @@ def test_when_set_then_do(decoy: Decoy) -> None:
         value = next_value
 
     subject = decoy.mock(name="subject")
-    decoy.when(subject.prop_name).set(42).then_do(_handle_set)
+    decoy.when.set(subject.prop_name).to(42).then_do(_handle_set)
 
     subject.prop_name = 42
 
@@ -440,7 +440,7 @@ def test_when_delete_then_raise(decoy: Decoy) -> None:
     """It raises from a deleter."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject.prop_name).delete().then_raise(ValueError("oh no"))
+    decoy.when.delete(subject.prop_name).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         del subject.prop_name
@@ -455,7 +455,7 @@ def test_when_delete_then_do(decoy: Decoy) -> None:
         is_deleted = True
 
     subject = decoy.mock(name="subject")
-    decoy.when(subject.prop_name).delete().then_do(_handle_delete)
+    decoy.when.delete(subject.prop_name).then_do(_handle_delete)
 
     del subject.prop_name
 

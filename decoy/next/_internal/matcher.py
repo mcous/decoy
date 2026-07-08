@@ -96,10 +96,9 @@ class Matcher(Generic[ValueT]):
             If the mock expects a `str` argument, using `arg` prevents the type-checker from raising an error.
 
             ```python
-            decoy
-              .when(mock)
-              .called_with(Matcher.matches("^(hello|hi)$").arg)
-              .then_return("world")
+            decoy.when.called(mock, Matcher.matches("^(hello|hi)$").arg).then_return(
+                "world"
+            )
             ```
         """
         return cast(ValueT, self)

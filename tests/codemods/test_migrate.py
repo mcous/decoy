@@ -88,53 +88,53 @@ class TestMigrateCommand(CodemodTest):
         self.assertCodemod(before, after)
 
     def test_when_called_with(self) -> None:
-        """Swap when function rehearsal with `called_with`."""
+        """Swap when function rehearsal with `called`."""
         before = """
             decoy.when(some_func("hello", "world")).then_return(True)
         """
         after = """
-            decoy.when(some_func).called_with("hello", "world").then_return(True)
+            decoy.when.called(some_func, "hello", "world").then_return(True)
         """
 
         self.assertCodemod(before, after)
 
     def test_when_called_with_on_self(self) -> None:
-        """Swap when function rehearsal with `called_with` from `self._decoy`."""
+        """Swap when function rehearsal with `called` from `self._decoy`."""
         before = """
             self._decoy.when(some_func("hello", "world")).then_return(True)
             self.decoy.when(some_func("hello", "world")).then_return(True)
         """
         after = """
-            self._decoy.when(some_func).called_with("hello", "world").then_return(True)
-            self.decoy.when(some_func).called_with("hello", "world").then_return(True)
+            self._decoy.when.called(some_func, "hello", "world").then_return(True)
+            self.decoy.when.called(some_func, "hello", "world").then_return(True)
         """
 
         self.assertCodemod(before, after)
 
     def test_when_called_with_idempotent(self) -> None:
-        """Does not touch `called_with` twice."""
+        """Does not touch already-migrated `mode.event` calls."""
         before = """
-            decoy.when(some.func).called_with("hello").then_return(True)
-            decoy.when(some.func).get().then_return(True)
-            decoy.when(some.func).set("hello").then_raise(RuntimeError())
-            decoy.when(some.func).delete().then_raise(RuntimeError())
+            decoy.when.called(some.func, "hello").then_return(True)
+            decoy.when.get(some.func).then_return(True)
+            decoy.when.set(some.func).to("hello").then_raise(RuntimeError())
+            decoy.when.delete(some.func).then_raise(RuntimeError())
         """
         after = """
-            decoy.when(some.func).called_with("hello").then_return(True)
-            decoy.when(some.func).get().then_return(True)
-            decoy.when(some.func).set("hello").then_raise(RuntimeError())
-            decoy.when(some.func).delete().then_raise(RuntimeError())
+            decoy.when.called(some.func, "hello").then_return(True)
+            decoy.when.get(some.func).then_return(True)
+            decoy.when.set(some.func).to("hello").then_raise(RuntimeError())
+            decoy.when.delete(some.func).then_raise(RuntimeError())
         """
 
         self.assertCodemod(before, after)
 
     def test_when_called_with_extra_args(self) -> None:
-        """Swap when function rehearsal with `called_with`, keeping extra args."""
+        """Swap when function rehearsal with `called`, keeping extra args."""
         before = """
             decoy.when(some_func("hello"), ignore_extra_args=True).then_return(True)
         """
         after = """
-            decoy.when(some_func, ignore_extra_args=True).called_with("hello").then_return(True)
+            decoy.when(ignore_extra_args=True).called(some_func, "hello").then_return(True)
         """
 
         self.assertCodemod(before, after)
@@ -145,7 +145,7 @@ class TestMigrateCommand(CodemodTest):
             decoy.when(mock.some_prop).then_return(True)
         """
         after = """
-            decoy.when(mock.some_prop).get().then_return(True)
+            decoy.when.get(mock.some_prop).then_return(True)
         """
 
         self.assertCodemod(before, after)
@@ -156,7 +156,7 @@ class TestMigrateCommand(CodemodTest):
             decoy.when(decoy.prop(mock.some_prop).set(42)).then_raise(RuntimeError("oh no"))
         """
         after = """
-            decoy.when(mock.some_prop).set(42).then_raise(RuntimeError("oh no"))
+            decoy.when.set(mock.some_prop).to(42).then_raise(RuntimeError("oh no"))
         """
 
         self.assertCodemod(before, after)
@@ -167,7 +167,7 @@ class TestMigrateCommand(CodemodTest):
             decoy.when(decoy.prop(mock.some_prop).delete()).then_raise(RuntimeError("oh no"))
         """
         after = """
-            decoy.when(mock.some_prop).delete().then_raise(RuntimeError("oh no"))
+            decoy.when.delete(mock.some_prop).then_raise(RuntimeError("oh no"))
         """
 
         self.assertCodemod(before, after)
@@ -178,7 +178,7 @@ class TestMigrateCommand(CodemodTest):
             self.decoy.when(self.decoy.prop(mock.some_prop).set(42)).then_raise(RuntimeError("oh no"))
         """
         after = """
-            self.decoy.when(mock.some_prop).set(42).then_raise(RuntimeError("oh no"))
+            self.decoy.when.set(mock.some_prop).to(42).then_raise(RuntimeError("oh no"))
         """
 
         self.assertCodemod(before, after)
@@ -189,7 +189,7 @@ class TestMigrateCommand(CodemodTest):
             self.decoy.when(self.decoy.prop(mock.some_prop).delete()).then_raise(RuntimeError("oh no"))
         """
         after = """
-            self.decoy.when(mock.some_prop).delete().then_raise(RuntimeError("oh no"))
+            self.decoy.when.delete(mock.some_prop).then_raise(RuntimeError("oh no"))
         """
 
         self.assertCodemod(before, after)
@@ -236,6 +236,34 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             decoy.verify(ignore_extra_args=True).called(some_func, "hello")
+        """
+
+        self.assertCodemod(before, after)
+
+    def test_verify_attribute_get_left_untouched(self) -> None:
+        """It leaves an unsupported verify-attribute-get untouched, without crashing."""
+        before = """
+            decoy.verify(mock.some_prop)
+        """
+        after = """
+            decoy.verify(mock.some_prop)
+        """
+
+        self.assertCodemod(before, after)
+
+    def test_verify_order_attribute_get_left_untouched(self) -> None:
+        """It leaves a verify_order containing an unsupported get untouched."""
+        before = """
+            decoy.verify(
+                mock.some_prop,
+                other_func("world"),
+            )
+        """
+        after = """
+            decoy.verify(
+                mock.some_prop,
+                other_func("world"),
+            )
         """
 
         self.assertCodemod(before, after)
@@ -289,7 +317,7 @@ class TestMigrateCommand(CodemodTest):
         """
         after = """
             with decoy.verify_order():
-                decoy.verify.set(some.attr, "hello")
+                decoy.verify.set(some.attr).to("hello")
                 decoy.verify.called(other_func, "world")
         """
 
@@ -347,7 +375,7 @@ class TestMigrateCommand(CodemodTest):
             ).then_return("some-result")
         """
         after = """
-            decoy.when(mock).called_with(some_arg="some-value").then_return("some-result")
+            decoy.when.called(mock, some_arg="some-value").then_return("some-result")
         """
 
         self.assertCodemod(before, after)
@@ -359,7 +387,7 @@ class TestMigrateCommand(CodemodTest):
             decoy.verify(await mock("hello"))
         """
         after = """
-            decoy.when(mock).called_with("hello").then_return("world")
+            decoy.when.called(mock, "hello").then_return("world")
             decoy.verify.called(mock, "hello")
         """
 

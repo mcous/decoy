@@ -32,7 +32,7 @@ class DecoyTestCase(unittest.TestCase):
     def test_when(self) -> None:
         """Test that self.decoy.when works."""
         mock = self.decoy.mock(cls=SomeClass)
-        self.decoy.when(mock.foo).called_with("hello").then_return("world")
+        self.decoy.when.called(mock.foo, "hello").then_return("world")
         assert mock.foo("hello") == "world"
 
     def test_verify(self) -> None:

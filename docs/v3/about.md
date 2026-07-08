@@ -31,7 +31,7 @@ Then, start trying out the new API!
   def test_when(decoy: Decoy) -> None:
       mock = decoy.mock(cls=SomeClass)
 -     decoy.when(mock.foo("hello")).then_return("world")
-+     decoy.when(mock.foo).called_with("hello").then_return("world")
++     decoy.when.called(mock.foo, "hello").then_return("world")
 
 
    def test_verify(decoy: Decoy) -> None:

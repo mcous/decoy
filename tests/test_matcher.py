@@ -71,7 +71,7 @@ def test_matcher_arg(decoy: Decoy) -> None:
     """It matches when used in called_with."""
     subject = decoy.mock(cls=fixtures.SomeClass)
 
-    decoy.when(subject.foo).called_with(Matcher.any(str).arg).then_return("yay")
+    decoy.when.called(subject.foo, Matcher.any(str).arg).then_return("yay")
 
     assert subject.foo("hello") == "yay"
     assert subject.foo(42) is None  # type: ignore[arg-type]

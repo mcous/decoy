@@ -474,7 +474,7 @@ def test_verify_attribute_set_missing(decoy: Decoy) -> None:
     subject = decoy.mock(name="subject")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify.set(subject.some_property, "42")
+        decoy.verify.set(subject.some_property).to("42")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -492,7 +492,7 @@ def test_verify_attribute_set_incorrect(decoy: Decoy) -> None:
     subject.some_property = "42"
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify.set(subject.some_property, "43")
+        decoy.verify.set(subject.some_property).to("43")
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -510,7 +510,7 @@ def test_verify_attribute_set(decoy: Decoy) -> None:
 
     subject.some_property = "42"
 
-    decoy.verify.set(subject.some_property, "42")
+    decoy.verify.set(subject.some_property).to("42")
 
 
 def test_verify_attribute_set_missing_rehearsal(decoy: Decoy) -> None:
@@ -528,7 +528,7 @@ def test_verify_attribute_multiple_sets(decoy: Decoy) -> None:
     subject.some_property = "42"
     subject.some_property = "43"
 
-    decoy.verify.set(subject.some_property, "42")
+    decoy.verify.set(subject.some_property).to("42")
 
 
 def test_verify_attribute_set_then_delete(decoy: Decoy) -> None:
@@ -538,7 +538,7 @@ def test_verify_attribute_set_then_delete(decoy: Decoy) -> None:
     subject.some_property = "42"
     del subject.some_property
 
-    decoy.verify.set(subject.some_property, "42")
+    decoy.verify.set(subject.some_property).to("42")
 
 
 def test_verify_attribute_delete(decoy: Decoy) -> None:
@@ -565,8 +565,8 @@ def test_redundant_verify(decoy: Decoy) -> None:
     """It raises a RedundantVerifyWarning if verify call matches stubbing."""
     subject = decoy.mock(name="subject")
 
-    decoy.when(subject).called_with("goodbye").then_return("adios")
-    decoy.when(subject).called_with("hello").then_return("hello world")
+    decoy.when.called(subject, "goodbye").then_return("adios")
+    decoy.when.called(subject, "hello").then_return("hello world")
 
     subject("hello")
 
@@ -575,7 +575,7 @@ def test_redundant_verify(decoy: Decoy) -> None:
 
     assert str(warnings_log[0].message) == os.linesep.join(
         [
-            "The same `called_with` arguments were used with both `when` and `verify`.",
+            "The same `called` arguments were used with both `when` and `verify`.",
             "This is redundant and probably a misuse of the mock.",
             "\tsubject('hello')",
             "See https://michael.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",

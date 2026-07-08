@@ -24,10 +24,7 @@ def open_config(path: str) -> collections.abc.Iterator[bool]:
 def test_generator_context_manager(decoy: Decoy) -> None:
     mock_open_config = decoy.mock(func=open_config)
 
-    decoy
-        .when(mock_open_config)
-        .called_with("some_flag")
-        .then_enter_with(True)
+    decoy.when.called(mock_open_config, "some_flag").then_enter_with(True)
 
     with mock_open_config("some_flag") as result:
         assert result is True
@@ -44,7 +41,7 @@ You can stub out a context manager's `__enter__` and `__exit__` method like any 
 def test_context_manager(decoy: Decoy) -> None:
     subject = decoy.mock(name="cm")
 
-    decoy.when(subject.__enter__).called_with().then_return("hello world")
+    decoy.when.called(subject.__enter__).then_return("hello world")
 
     with subject as result:
         assert result == "hello world"
@@ -56,7 +53,7 @@ This also works with asynchronous `__aenter__` and `__aexit__`
 
 ## Context manager state
 
-You can also configure stubs and verifications to only match calls made while a context manager mock is entered using the `is_entered` option to `called_with`.
+You can also configure stubs and verifications to only match calls made while a context manager mock is entered using the `is_entered` option to `when`/`verify`.
 
 | `is_entered` | Matching behavior                                           |
 | ------------ | ----------------------------------------------------------- |
@@ -65,10 +62,7 @@ You can also configure stubs and verifications to only match calls made while a 
 | `None`       | Match the call regardless of context manager entry state    |
 
 ```python
-decoy
-    .when(subject.read, is_entered=True)
-    .called_with("some_flag")
-    .then_return(True)
+decoy.when(is_entered=True).called(subject.read, "some_flag").then_return(True)
 
 decoy.verify(is_entered=True).called(subject.write, "some_flag", "new_value")
 ```

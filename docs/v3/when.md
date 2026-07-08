@@ -8,22 +8,19 @@ Decoy stubs are **conditional**, unlike [`unittest.MagicMock.return_value`][Magi
 
 ## Configure a stub
 
-1. Pass the mock to [`Decoy.when`][decoy.next.Decoy.when]
-2. Pass the expected arguments to [`When.called_with`][decoy.next.When.called_with]
+1. Access [`Decoy.when`][decoy.next.Decoy.when]
+2. Pass the mock and its expected arguments to [`When.called`][decoy.next.When.called]
 3. Configure a behavior, e.g. [`Stub.then_return`][decoy.next.Stub.then_return]
 
 ```python
 database = decoy.mock(name="database")
 
-decoy
-    .when(database.get)
-    .called_with("some-id")
-    .then_return({"id": "some-id"})
+decoy.when.called(database.get, "some-id").then_return({"id": "some-id"})
 
 assert database.get("some-id") == {"id": "some-id"}
 ```
 
-Any time your dependency is called with exactly the same arguments as a configured stubbing, the latest matching behavior will be triggered. Otherwise, it will return the default value of `None`. The arguments passed to `called_with` are statically type-checked against the spec. If multiple stubbings match a call, the latest configured stubbing will be used.
+Any time your dependency is called with exactly the same arguments as a configured stubbing, the latest matching behavior will be triggered. Otherwise, it will return the default value of `None`. The arguments passed to `called` are statically type-checked against the spec. If multiple stubbings match a call, the latest configured stubbing will be used.
 
 The behavior of `when` may be customized with the following options.
 
@@ -43,10 +40,7 @@ To configure a return value, use [`Stub.then_return`][decoy.next.Stub.then_retur
 ```python
 database = decoy.mock(name="database")
 
-decoy
-    .when(database.get)
-    .called_with("some-id")
-    .then_return({"id": "some-id"})
+decoy.when.called(database.get, "some-id").then_return({"id": "some-id"})
 
 assert database.get("some-id") == {"id": "some-id"}
 ```
@@ -60,10 +54,7 @@ To configure a raised exception when called, use [`Stub.then_raise`][decoy.next.
 ```python
 database = decoy.mock(name="database")
 
-decoy
-    .when(database.get)
-    .called_with("foo")
-    .then_raise(KeyError("foo does not exist"))
+decoy.when.called(database.get, "foo").then_raise(KeyError("foo does not exist"))
 
 with pytest.raises(KeyError):
     subject.get_model_by_id("foo")
@@ -86,25 +77,19 @@ def _side_effect(key):
     print(f"hello {key}")
     return {"id": key}
 
-decoy
-    .when(database.get)
-    .called_with("foo")
-    .then_do(_side_effect)
+decoy.when.called(database.get, "foo").then_do(_side_effect)
 
 assert database.get("foo") == {id: "foo"}  # also prints "hello foo"
 ```
 
 ## Loosen constraints with matchers
 
-You may loosen `called_with` constraints using [`Matcher`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
+You may loosen `called` constraints using [`Matcher`][decoy.next.Matcher]. See the [argument matchers guide](./matchers.md) for more information.
 
 ```python
 say_hello = decoy.mock(name="say_hello")
 
-decoy
-    .when(say_hello)
-    .called_with(Matcher.matches("^foo").arg)
-    .then_return("hello")
+decoy.when.called(say_hello, Matcher.matches("^foo").arg).then_return("hello")
 
 assert say_hello("foo") == "hello"
 assert say_hello("foobar") == "hello"
@@ -116,10 +101,7 @@ assert say_hello("fizzbuzz") is None
 All `Stub` methods accept multiple behavior values. If you pass multiple behaviors, the mock will perform each one in sequence as it is called.
 
 ```python
-decoy
-    .when(mock)
-    .called_with("hello")
-    .then_return("world", "mundo", "verden")
+decoy.when.called(mock, "hello").then_return("world", "mundo", "verden")
 
 assert mock("hello") == "world"
 assert mock("hello") == "mundo"
@@ -137,10 +119,9 @@ If you don't care about some arguments passed to a stub, you can use the `ignore
 ```python
 database = decoy.mock(cls=Database)
 
-decoy
-    .when(database.get, ignore_extra_args=True)
-    .called_with("some-id")
-    .then_return({"id": "some-id"})
+decoy.when(ignore_extra_args=True).called(database.get, "some-id").then_return(
+    {"id": "some-id"}
+)
 
 # database.get called with more args than specified
 result = database.get("some-id", hello="world")

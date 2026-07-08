@@ -69,7 +69,7 @@ def stringify_redundant_verify(
     event: Event,
 ) -> str:
     return _join_lines(
-        "The same `called_with` arguments were used with both `when` and `verify`.",
+        "The same `called` arguments were used with both `when` and `verify`.",
         "This is redundant and probably a misuse of the mock.",
         f"\t{_stringify_event(name, event)}",
         "See https://michael.cousins.io/decoy/usage/errors-and-warnings/#redundantverifywarning",
