@@ -26,10 +26,10 @@ class Verify:
     def __init__(
         self,
         state: DecoyState,
-        match_options: MatchOptions,
+        match_options: MatchOptions | None = None,
     ) -> None:
         self._state = state
-        self._match_options = match_options
+        self._match_options = match_options or MatchOptions()
 
     def __call__(
         self,

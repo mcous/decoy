@@ -52,9 +52,9 @@ class EventState(NamedTuple):
 
 
 class MatchOptions(NamedTuple):
-    times: int | None
-    ignore_extra_args: bool
-    is_entered: bool | None
+    times: int | None = None
+    ignore_extra_args: bool = False
+    is_entered: bool | None = None
 
 
 class Behavior(NamedTuple):

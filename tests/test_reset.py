@@ -68,7 +68,7 @@ def test_reset_no_warning_when_verified(decoy: Decoy) -> None:
     subject = decoy.mock(name="subject")
     decoy.when(subject).called_with("hello").then_return("world")
     subject("goodbye")
-    decoy.verify(subject).called_with("goodbye")
+    decoy.verify.called(subject, "goodbye")
 
     with stdlib_warnings.catch_warnings():
         stdlib_warnings.simplefilter("error", warnings.MiscalledStubWarning)
@@ -81,7 +81,7 @@ def test_reset_warning_verify_ordering(decoy: Decoy) -> None:
     decoy.when(subject).called_with("hello").then_return("world")
 
     subject("goodbye")
-    decoy.verify(subject).called_with("goodbye")
+    decoy.verify.called(subject, "goodbye")
     subject("goodbye")  # second call — not covered by the verify above
 
     with pytest.warns(warnings.MiscalledStubWarning):

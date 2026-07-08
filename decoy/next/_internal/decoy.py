@@ -170,7 +170,7 @@ class Decoy:
                 decoy.verify(times=1).called(gen_id, "model-prefix_")
             ```
         """
-        return Verify(self._state, MatchOptions(None, False, None))
+        return Verify(self._state)
 
     @contextlib.contextmanager
     def verify_order(self) -> collections.abc.Generator[None, None, None]:
