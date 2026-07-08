@@ -1,6 +1,7 @@
 """Message string generation."""
 
 import os
+import reprlib
 from typing import Iterable
 
 from .values import (
@@ -50,14 +51,16 @@ def stringify_verify_order_failure(
 def stringify_miscalled_stub(
     name: str,
     expected_events: list[Event],
-    actual_event: CallEvent,
+    all_events: list[CallEvent],
+    miscalled_event: CallEvent,
 ) -> str:
     return _join_lines(
         "Mock was called but no matching `when` found.",
+        f"\t{_stringify_event(name, miscalled_event)}",
         f"Found {_count(len(expected_events), 'stubbing')}:",
         _stringify_event_list(name, expected_events),
-        "Found 1 call:",
-        f"1.\t{_stringify_event(name, actual_event)}",
+        f"Found {_count(len(all_events), 'call')}:",
+        _stringify_event_list(name, all_events),
     )
 
 
@@ -76,7 +79,6 @@ def stringify_redundant_verify(
 def _stringify_event(
     mock_name: str,
     event: Event,
-    ignore_extra_args: bool = False,
 ) -> str:
     """Stringify a call to something human readable."""
     if isinstance(event, AttributeEvent):
@@ -89,13 +91,12 @@ def _stringify_event(
         return mock_name  # pragma: no cover
 
     else:
-        args_list = [repr(arg) for arg in event.args]
-        kwargs_list = [f"{key}={val!r}" for key, val in event.kwargs.items()]
-        extra_args_msg = (
-            " - ignoring unspecified arguments" if ignore_extra_args else ""
-        )
+        args_list = [reprlib.repr(arg) for arg in event.args]
+        kwargs_list = [
+            f"{key}={reprlib.repr(val)}" for key, val in event.kwargs.items()
+        ]
 
-        return f"{mock_name}({', '.join(args_list + kwargs_list)}){extra_args_msg}"
+        return f"{mock_name}({', '.join(args_list + kwargs_list)})"
 
 
 def _stringify_event_list(mock_name: str, events: Iterable[Event]) -> str:

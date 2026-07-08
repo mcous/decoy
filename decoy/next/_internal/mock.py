@@ -1,12 +1,11 @@
 import inspect
-import warnings
 from types import TracebackType
 from typing import Any, cast
 
-from ...warnings import MiscalledStubWarning
 from .inspect import (
     bind_args,
     get_awaitable_value,
+    get_call_site,
     get_child_spec,
     get_method_class,
     get_signature,
@@ -15,7 +14,6 @@ from .inspect import (
     is_magic_attribute,
 )
 from .state import DecoyState
-from .stringify import stringify_miscalled_stub
 from .values import AttributeEvent, CallEvent, EventState, MockInfo
 
 
@@ -48,21 +46,12 @@ class MockInternals:
     def call(self, args: tuple[object, ...], kwargs: dict[str, object]) -> object:
         bound_args = bind_args(self.info.signature, args, kwargs)
         event = CallEvent(bound_args.args, bound_args.kwargs)
-        behavior = self.state.use_call_behavior(
+        return self.state.use_call_behavior(
             mock=self.info,
             event=event,
             event_state=self.event_state,
+            call_site=get_call_site(),
         )
-
-        if not behavior.is_found and behavior.expected_events:
-            message = stringify_miscalled_stub(
-                self.name,
-                behavior.expected_events,
-                event,
-            )
-            warnings.warn(MiscalledStubWarning(message), stacklevel=3)
-
-        return behavior.return_value
 
     def get_child(self, name: str, is_async: bool = False) -> "Mock":
         if name in self.children:
