@@ -2,7 +2,6 @@ import collections.abc
 import contextlib
 from typing import Any, Callable, Literal, TypeVar, overload
 
-from ...errors import VerifyOrderError
 from ...warnings import MiscalledStubWarning
 from .inspect import (
     ensure_spec,
@@ -12,7 +11,7 @@ from .inspect import (
 )
 from .mock import AsyncMock, Mock, create_mock
 from .state import DecoyState
-from .stringify import stringify_miscalled_stub, stringify_verify_order_failure
+from .stringify import stringify_miscalled_stub
 from .verify import Verify
 from .warn import warn
 from .when import When
@@ -147,40 +146,6 @@ class Decoy:
             ```
         """
         return Verify(self._state)
-
-    @contextlib.contextmanager
-    def verify_order(self) -> collections.abc.Generator[None, None, None]:
-        """Verify a sequence of interactions.
-
-        All verifications in the sequence must be individually satisfied
-        before the sequence is checked.
-
-        See [verification usage guide](verify.md) for more details.
-
-        Raises:
-            VerifyOrderError: The sequence was not satisfied.
-
-        !!! example
-            ```python
-            def test_greet(decoy: Decoy):
-                verify_greeting = decoy.mock(name="verify_greeting")
-                greet = decoy.mock(name="greet")
-
-                # ...
-
-                with decoy.verify_order():
-                    decoy.verify.called(verify_greeting, "hello world")
-                    decoy.verify.called(greet, "hello world")
-            ```
-        """
-        with self._state.verify_order() as verify_order_result:
-            yield
-
-        if not verify_order_result.is_success:
-            message = stringify_verify_order_failure(
-                verify_order_result.verifications, verify_order_result.all_events
-            )
-            raise VerifyOrderError(message)
 
     def reset(self) -> None:
         """Reset the decoy instance."""

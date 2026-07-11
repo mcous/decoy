@@ -1,5 +1,12 @@
+import contextlib
+import sys
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from typing import Any, Awaitable, Callable, Generic, ParamSpec, TypeVar, overload
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from ...errors import NotAMockError
 from .inspect import bind_args, ensure_callable
@@ -67,7 +74,8 @@ class Stub(Generic[ParamsT, ReturnT]):
 class WhenSet(Generic[AttributeValueT]):
     """Configure a stub for [setting an attribute](./attributes.md).
 
-    Created by [`When.set`][decoy.next.When.set]; pass the value to `to`.
+    Created by [`WhenWithAttributes.set`][decoy.next.WhenWithAttributes.set];
+    pass the value to `to`.
     """
 
     def __init__(
@@ -105,7 +113,7 @@ class When:
         times: int | None = None,
         ignore_extra_args: bool = False,
         is_entered: bool | None = None,
-    ) -> "When":
+    ) -> Self:
         """Configure the stub.
 
         Arguments:
@@ -113,10 +121,19 @@ class When:
             ignore_extra_args: Only partially match arguments.
             is_entered: Limit the behavior to when the mock is entered using `with`.
         """
-        return When(
+        return type(self)(
             self._state,
             MatchOptions(times, ignore_extra_args, is_entered),
         )
+
+    def __enter__(self) -> "WhenWithAttributes":
+        self._exit_stack = contextlib.ExitStack()
+        self._exit_stack.enter_context(self._state.pause())
+        return WhenWithAttributes(self._state, self._match_options)
+
+    def __exit__(self, *exc_info: object) -> None:
+        self._exit_stack.close()
+        return None
 
     @overload
     def called(
@@ -172,6 +189,31 @@ class When:
 
         return self._create_stub(mock_info, event)
 
+    def _ensure_mock(self, mock: object) -> MockInfo:
+        mock_info = ensure_mock(mock)
+
+        if not mock_info:
+            raise NotAMockError(
+                f"`Decoy.when` must be called with a mock, but got: {mock}"
+            )
+
+        return mock_info
+
+    def _create_stub(self, mock: MockInfo, event: Event) -> Stub[Any, Any]:
+        matcher = EventMatcher(event=event, options=self._match_options)
+        return Stub(self._state, mock, matcher)
+
+
+class WhenWithAttributes(When):
+    """Configure [attribute stubs](./attributes.md#stub-attribute-access) within a `with` block.
+
+    Entering `with decoy.when` yields a `WhenWithAttributes`, which adds
+    [`get`][decoy.next.WhenWithAttributes.get],
+    [`set`][decoy.next.WhenWithAttributes.set], and
+    [`delete`][decoy.next.WhenWithAttributes.delete] to the call stubbing
+    available on [`When`][decoy.next.When].
+    """
+
     def get(self, attribute: AttributeValueT) -> Stub[[], AttributeValueT]:
         """Configure a stub to react to an attribute get.
 
@@ -200,20 +242,3 @@ class When:
         """
         mock_info = self._ensure_mock(attribute)
         return self._create_stub(mock_info, AttributeEvent.delete())
-
-    def _ensure_mock(self, mock: object) -> MockInfo:
-        mock_info = ensure_mock(mock)
-
-        if not mock_info:
-            mock_info = self._state.peek_last_attribute_mock(mock)
-
-        if not mock_info:
-            raise NotAMockError(
-                f"`Decoy.when` must be called with a mock, but got: {mock}"
-            )
-
-        return mock_info
-
-    def _create_stub(self, mock: MockInfo, event: Event) -> Stub[Any, Any]:
-        matcher = EventMatcher(event=event, options=self._match_options)
-        return Stub(self._state, mock, matcher)

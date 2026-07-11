@@ -1,19 +1,15 @@
 import collections
 import collections.abc
 import contextlib
-import dataclasses
 from typing import NamedTuple
 
 from .compare import (
-    get_verification_events,
     is_event_from_mock,
-    is_matching_behavior,
     is_matching_count,
     is_matching_event,
     is_miscalled_stub_event,
     is_redundant_verify,
     is_successful_verify,
-    is_successful_verify_order,
     is_verifiable_mock_event,
 )
 from .values import (
@@ -39,23 +35,19 @@ class VerificationResult(NamedTuple):
     is_redundant: bool
     matching_events: list[EventEntry]
     mock_events: list[EventEntry]
-
-
-@dataclasses.dataclass
-class OrderVerificationResult:
-    is_success: bool = False
-    verifications: list[VerificationEntry] = dataclasses.field(default_factory=list)
-    all_events: list[EventEntry] = dataclasses.field(default_factory=list)
+    order_anchor: EventEntry | None = None
+    order_timeline: tuple[EventEntry, ...] = ()
 
 
 class DecoyState:
     def __init__(self) -> None:
-        self._order_verification: OrderVerificationResult | None = None
+        self._order_matched: list[EventEntry] | None = None
         self._events: list[EventEntry] = []
         self._behaviors: list[BehaviorEntry] = []
         self._behavior_usage_by_index: dict[int, int] = collections.defaultdict(int)
         self._attribute_mocks_by_id: dict[int, object] = {}
         self._matched_event_indices: set[int] = set()
+        self._is_paused = False
 
     def _consume_behavior(
         self,
@@ -127,16 +119,6 @@ class DecoyState:
 
         return event_entry
 
-    def _get_current_attribute_value(self, event_entry: EventEntry) -> object:
-        if event_entry.mock.id in self._attribute_mocks_by_id:
-            return self._attribute_mocks_by_id[event_entry.mock.id]
-
-        for behavior_entry in reversed(self._behaviors):
-            if is_matching_behavior(event_entry, behavior_entry):
-                return behavior_entry.behavior.return_value
-
-        return MISSING
-
     def use_call_behavior(
         self,
         mock: MockInfo,
@@ -155,6 +137,9 @@ class DecoyState:
         event_state: EventState,
         default_return_value: object = None,
     ) -> object:
+        if self._is_paused:
+            return default_return_value
+
         event_entry = self._add_event(mock, event, event_state)
 
         if (
@@ -180,25 +165,48 @@ class DecoyState:
             for event_entry in self._events
             if is_verifiable_mock_event(event_entry, mock)
         ]
-        matching_events = [
+        all_matching = [
             event_entry
             for event_entry in mock_events
             if is_matching_event(event_entry, matcher)
         ]
-        verification = VerificationEntry(mock, matcher, matching_events)
-        is_success = is_successful_verify(verification)
-        is_redundant = is_redundant_verify(verification, self._behaviors)
+
+        if self._order_matched is not None:
+            cursor = self._order_matched[-1].order if self._order_matched else -1
+            matching_events = [e for e in all_matching if e.order > cursor]
+        else:
+            matching_events = all_matching
+
+        is_success = is_successful_verify(
+            VerificationEntry(mock, matcher, matching_events)
+        )
+        is_redundant = is_redundant_verify(
+            VerificationEntry(mock, matcher, matching_events), self._behaviors
+        )
 
         self._matched_event_indices.update(e.order for e in matching_events)
 
-        if is_success and self._order_verification:
-            self._order_verification.verifications.append(verification)
+        order_anchor: EventEntry | None = None
+        order_timeline: tuple[EventEntry, ...] = ()
+
+        if self._order_matched is not None:
+            if is_success:
+                times = (
+                    matcher.options.times if matcher.options.times is not None else 1
+                )
+                self._order_matched.extend(matching_events[:times])
+            elif is_successful_verify(VerificationEntry(mock, matcher, all_matching)):
+                order_anchor = self._order_matched[-1]
+                involved = {e.mock.id for e in self._order_matched} | {mock.id}
+                order_timeline = tuple(e for e in self._events if e.mock.id in involved)
 
         return VerificationResult(
             is_success=is_success,
             is_redundant=is_redundant,
             mock_events=mock_events,
             matching_events=matching_events,
+            order_anchor=order_anchor,
+            order_timeline=order_timeline,
         )
 
     def push_behaviors(
@@ -222,33 +230,21 @@ class DecoyState:
                 BehaviorEntry(mock, matcher, behavior, order=len(self._behaviors))
             )
 
-    def peek_last_attribute_mock(self, value: object) -> MockInfo | None:
-        try:
-            event_entry = self._events[-1]
-        except IndexError:
-            return None
-
-        if (
-            isinstance(event_entry.event, AttributeEvent)
-            and event_entry.event.type == AttributeEventType.GET
-            and self._get_current_attribute_value(event_entry) is value
-        ):
-            return event_entry.mock
-
-        return None
+    @contextlib.contextmanager
+    def pause(self) -> collections.abc.Generator[None, None, None]:
+        previous = self._is_paused
+        self._is_paused = True
+        yield
+        self._is_paused = previous
 
     @contextlib.contextmanager
-    def verify_order(self) -> collections.abc.Iterator[OrderVerificationResult]:
-        result = OrderVerificationResult(is_success=True)
-        self._order_verification = result
-        yield result
-        self._order_verification = None
-
-        result.all_events = get_verification_events(result.verifications)
-        result.is_success = is_successful_verify_order(
-            result.verifications,
-            result.all_events,
-        )
+    def verify_order(self) -> collections.abc.Generator[None, None, None]:
+        previous = self._order_matched
+        self._order_matched = []
+        try:
+            yield
+        finally:
+            self._order_matched = previous
 
     def get_miscalled_stubs(self) -> list[MiscalledStub]:
         return [
@@ -283,4 +279,5 @@ class DecoyState:
         self._behavior_usage_by_index.clear()
         self._attribute_mocks_by_id.clear()
         self._matched_event_indices.clear()
-        self._order_verification = None
+        self._order_matched = None
+        self._is_paused = False

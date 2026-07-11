@@ -77,7 +77,7 @@ The `times` and `ignore_extra_args` options are passed to [`Decoy.verify`][decoy
 
 ### Verify call sequence
 
-To verify a sequence of calls, call `Decoy.verify` from a [`Decoy.verify_order`][decoy.next.Decoy.verify_order] context.
+To verify a sequence of calls, enter a [`Verify.ordered`][decoy.next.Verify.ordered] block and verify each call inside it.
 
 ```diff
 - decoy.verify(
@@ -85,11 +85,15 @@ To verify a sequence of calls, call `Decoy.verify` from a [`Decoy.verify_order`]
 -     mock("b"),
 -     mock("c"),
 - )
-+ with decoy.verify_order():
-+   decoy.verify.called(mock, "a")
-+   decoy.verify.called(mock, "b")
-+   decoy.verify.called(mock, "c")
++ with decoy.verify.ordered as verify:
++   verify.called(mock, "a")
++   verify.called(mock, "b")
++   verify.called(mock, "c")
 ```
+
+!!! note "Behavior change"
+
+    v2 required the verified calls to be **contiguous** (ignoring calls to unverified mocks). `Verify.ordered` instead checks a **subsequence**: each call must occur after the previous one, but unrelated calls — including repeats of an already-matched call — may appear in between. A sequence that failed in v2 only because of an interleaved repeat now passes.
 
 ## Async mocks
 
@@ -132,29 +136,34 @@ The `decoy.prop` API has been replaced. See the [attributes guide][attributes-gu
 
 ### When
 
-Use [`When.get`][decoy.next.When.get], [`When.set`][decoy.next.When.set], and [`When.delete`][decoy.next.When.delete], to configure attribute stubs.
+Use [`WhenWithAttributes.get`][decoy.next.WhenWithAttributes.get], [`WhenWithAttributes.set`][decoy.next.WhenWithAttributes.set], and [`WhenWithAttributes.delete`][decoy.next.WhenWithAttributes.delete] inside a `with decoy.when` block to configure attribute stubs.
 
 ```diff
 - decoy.when(mock.attr).then_return("world")
-+ decoy.when.get(mock.attr).then_return("world")
++ with decoy.when as when:
++     when.get(mock.attr).then_return("world")
 
 - decoy.when(decoy.prop(mock.attr).set(42)).then_raise(RuntimeError("oh no"))
-+ decoy.when.set(mock.attr).to(42).then_raise(RuntimeError("oh no"))
++ with decoy.when as when:
++     when.set(mock.attr).to(42).then_raise(RuntimeError("oh no"))
 
 - decoy.when(decoy.prop(mock.attr).delete()).then_raise(RuntimeError("oh no"))
-+ decoy.when.delete(mock.attr).then_raise(RuntimeError("oh no"))
++ with decoy.when as when:
++     when.delete(mock.attr).then_raise(RuntimeError("oh no"))
 ```
 
 ### Verify
 
-To verify attribute set and delete calls, use [`Verify.set`][decoy.next.Verify.set] and [`Verify.delete`][decoy.next.Verify.delete].
+To verify attribute set and delete calls, use [`VerifyWithAttributes.set`][decoy.next.VerifyWithAttributes.set] and [`VerifyWithAttributes.delete`][decoy.next.VerifyWithAttributes.delete] inside a `with decoy.verify` block.
 
 ```diff
 - decoy.verify(decoy.prop(mock.attr).set(42))
-+ decoy.verify.set(mock.attr).to(42)
++ with decoy.verify as verify:
++     verify.set(mock.attr).to(42)
 
 - decoy.verify(decoy.prop(mock.attr).delete())
-+ decoy.verify.delete(mock.attr)
++ with decoy.verify as verify:
++     verify.delete(mock.attr)
 ```
 
 ## Context managers

@@ -363,7 +363,8 @@ async def test_async_context_manager_mock(decoy: Decoy) -> None:
 def test_when_get_then_return(decoy: Decoy) -> None:
     """It mocks an attribute getter."""
     subject = decoy.mock(name="subject")
-    decoy.when.get(subject.prop_name).then_return(42)
+    with decoy.when as when:
+        when.get(subject.prop_name).then_return(42)
 
     assert subject.prop_name == 42
 
@@ -371,7 +372,8 @@ def test_when_get_then_return(decoy: Decoy) -> None:
 def then_when_get_then_return_multiple(decoy: Decoy) -> None:
     """It mocks an attribute getter with a sequence of returns."""
     subject = decoy.mock(name="subject")
-    decoy.when.get(subject.prop_name).then_return(43, 44)
+    with decoy.when as when:
+        when.get(subject.prop_name).then_return(43, 44)
 
     assert subject.prop_name == 43
     assert subject.prop_name == 44
@@ -382,7 +384,8 @@ def test_when_get_then_raise(decoy: Decoy) -> None:
     """It raises from a getter."""
     subject = decoy.mock(name="subject")
 
-    decoy.when.get(subject.prop_name).then_raise(ValueError("oh no"))
+    with decoy.when as when:
+        when.get(subject.prop_name).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         _ = subject.prop_name
@@ -395,7 +398,8 @@ def test_when_get_then_do(decoy: Decoy) -> None:
         return 84
 
     subject = decoy.mock(name="subject")
-    decoy.when.get(subject.prop_name).then_do(_handle_get)
+    with decoy.when as when:
+        when.get(subject.prop_name).then_do(_handle_get)
 
     assert subject.prop_name == 84
 
@@ -403,9 +407,10 @@ def test_when_get_then_do(decoy: Decoy) -> None:
 def test_when_get_after_stubbing(decoy: Decoy) -> None:
     """It mocks an attribute getter more than once."""
     subject = decoy.mock(name="subject")
-    decoy.when.get(subject.prop_name).then_return(42)
-    decoy.when.get(subject.other_prop_name).then_return(63)
-    decoy.when.get(subject.prop_name).then_return(84)
+    with decoy.when as when:
+        when.get(subject.prop_name).then_return(42)
+        when.get(subject.other_prop_name).then_return(63)
+        when.get(subject.prop_name).then_return(84)
 
     assert subject.prop_name == 84
 
@@ -414,7 +419,8 @@ def test_when_set_then_raise(decoy: Decoy) -> None:
     """It raises from a setter."""
     subject = decoy.mock(name="subject")
 
-    decoy.when.set(subject.prop_name).to(42).then_raise(ValueError("oh no"))
+    with decoy.when as when:
+        when.set(subject.prop_name).to(42).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         subject.prop_name = 42
@@ -429,7 +435,8 @@ def test_when_set_then_do(decoy: Decoy) -> None:
         value = next_value
 
     subject = decoy.mock(name="subject")
-    decoy.when.set(subject.prop_name).to(42).then_do(_handle_set)
+    with decoy.when as when:
+        when.set(subject.prop_name).to(42).then_do(_handle_set)
 
     subject.prop_name = 42
 
@@ -440,7 +447,8 @@ def test_when_delete_then_raise(decoy: Decoy) -> None:
     """It raises from a deleter."""
     subject = decoy.mock(name="subject")
 
-    decoy.when.delete(subject.prop_name).then_raise(ValueError("oh no"))
+    with decoy.when as when:
+        when.delete(subject.prop_name).then_raise(ValueError("oh no"))
 
     with pytest.raises(ValueError, match="oh no"):
         del subject.prop_name
@@ -455,7 +463,8 @@ def test_when_delete_then_do(decoy: Decoy) -> None:
         is_deleted = True
 
     subject = decoy.mock(name="subject")
-    decoy.when.delete(subject.prop_name).then_do(_handle_delete)
+    with decoy.when as when:
+        when.delete(subject.prop_name).then_do(_handle_delete)
 
     del subject.prop_name
 

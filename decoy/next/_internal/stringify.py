@@ -11,7 +11,6 @@ from .values import (
     Event,
     EventEntry,
     MatchOptions,
-    VerificationEntry,
 )
 
 
@@ -37,14 +36,21 @@ def stringify_verify_failure(
 
 
 def stringify_verify_order_failure(
-    verifications: list[VerificationEntry],
-    all_events: list[EventEntry],
+    mock_name: str,
+    expected: Event,
+    anchor: EventEntry,
+    timeline: list[EventEntry],
 ) -> str:
     return _join_lines(
-        "Expected call sequence:",
-        _stringify_verification_list(verifications),
-        f"Found {_count(len(all_events), 'call')}:",
-        _stringify_event_entry_list(all_events),
+        "Call made out of order.",
+        "",
+        "Expected:",
+        f"\t{_stringify_event(mock_name, expected)}",
+        "to occur after:",
+        f"\t{_stringify_event(anchor.mock.name, anchor.event)}",
+        "",
+        "Actual calls, in order:",
+        _stringify_event_entry_list(timeline),
     )
 
 
@@ -83,7 +89,7 @@ def _stringify_event(
     """Stringify a call to something human readable."""
     if isinstance(event, AttributeEvent):
         if event.type == AttributeEventType.SET:
-            return f"{mock_name} = {event.value}"
+            return f"{mock_name} = {reprlib.repr(event.value)}"
         elif event.type == AttributeEventType.DELETE:
             return f"del {mock_name}"
 
@@ -110,23 +116,6 @@ def _stringify_event_entry_list(event_entries: Iterable[EventEntry]) -> str:
     """Stringify a sequence of verifications into an ordered list."""
     return _stringify_ordered_list(
         _stringify_event(entry.mock.name, entry.event) for entry in event_entries
-    )
-
-
-def _stringify_verification_list(verifications: Iterable[VerificationEntry]) -> str:
-    """Stringify a sequence of verifications into an ordered list."""
-    events: list[tuple[str, Event]] = []
-
-    for verification in verifications:
-        times = verification.matcher.options.times
-        if times is None:
-            times = 1
-
-        for _ in range(times):
-            events.append((verification.mock.name, verification.matcher.event))
-
-    return _stringify_ordered_list(
-        _stringify_event(mock_name, event) for mock_name, event in events
     )
 
 

@@ -97,7 +97,7 @@ class VerifyError(AssertionError):
 
 
 class VerifyOrderError(VerifyError):
-    """A [`Decoy.verify_order`][decoy.next.Decoy.verify_order] assertion failed."""
+    """A [`Verify.ordered`][decoy.next.Verify.ordered] assertion failed."""
 
 
 class NoMatcherValueCapturedError(ValueError):

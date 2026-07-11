@@ -91,10 +91,11 @@
     decoy = Decoy()
     fake = decoy.mock(cls=Dependency)
 
-    decoy.when.get(fake.value).then_return(42)
-    decoy.when.get(fake.value).then_return("wrong-type")
+    with decoy.when as when:
+        when.get(fake.value).then_return(42)
+        when.get(fake.value).then_return("wrong-type")
   out: |
-    main:12: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
+    main:13: error: Argument 1 to "then_return" of "Stub" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: mock_class_attribute_set
   skip: sys.version_info < (3, 10)
@@ -110,10 +111,11 @@
     fake = decoy.mock(cls=Dependency)
 
     # the set value is checked against the attribute type via `WhenSet.to`
-    decoy.when.set(fake.value).to(42).then_raise(Exception("oh no"))
-    decoy.when.set(fake.value).to("goodbye").then_raise(Exception("oh no"))
+    with decoy.when as when:
+        when.set(fake.value).to(42).then_raise(Exception("oh no"))
+        when.set(fake.value).to("goodbye").then_raise(Exception("oh no"))
   out: |
-    main:13: error: Argument 1 to "to" of "WhenSet" has incompatible type "str"; expected "int"  [arg-type]
+    main:14: error: Argument 1 to "to" of "WhenSet" has incompatible type "str"; expected "int"  [arg-type]
 
 - case: verify_attribute_set
   skip: sys.version_info < (3, 10)
@@ -128,9 +130,9 @@
     decoy = Decoy()
     fake = decoy.mock(cls=Dependency)
 
-    # the set value is checked against the attribute type via `VerifySet.to`
-    decoy.verify.set(fake.value).to(42)
-    decoy.verify.set(fake.value).to("goodbye")
+    with decoy.verify as verify:
+        verify.set(fake.value).to(42)
+        verify.set(fake.value).to("goodbye")
   out: |
     main:13: error: Argument 1 to "to" of "VerifySet" has incompatible type "str"; expected "int"  [arg-type]
 

@@ -286,9 +286,9 @@ def test_verify_call_list_pass(decoy: Decoy) -> None:
     subject_1("hello")
     subject_2("world")
 
-    with decoy.verify_order():
-        decoy.verify.called(subject_1, "hello")
-        decoy.verify.called(subject_2, "world")
+    with decoy.verify.ordered as verify:
+        verify.called(subject_1, "hello")
+        verify.called(subject_2, "world")
 
 
 def test_verify_call_list_pass_with_children(decoy: Decoy) -> None:
@@ -299,9 +299,9 @@ def test_verify_call_list_pass_with_children(decoy: Decoy) -> None:
     subject_1("hello")
     subject_2.foo("world")
 
-    with decoy.verify_order():
-        decoy.verify.called(subject_1, "hello")
-        decoy.verify.called(subject_2.foo, "world")
+    with decoy.verify.ordered as verify:
+        verify.called(subject_1, "hello")
+        verify.called(subject_2.foo, "world")
 
 
 def test_verify_call_list_pass_ignore_before_and_after(decoy: Decoy) -> None:
@@ -314,9 +314,9 @@ def test_verify_call_list_pass_ignore_before_and_after(decoy: Decoy) -> None:
     subject_2("world")
     subject_2("after")
 
-    with decoy.verify_order():
-        decoy.verify.called(subject_1, "hello")
-        decoy.verify.called(subject_2, "world")
+    with decoy.verify.ordered as verify:
+        verify.called(subject_1, "hello")
+        verify.called(subject_2, "world")
 
 
 def test_verify_call_list_pass_false_start(decoy: Decoy) -> None:
@@ -331,10 +331,10 @@ def test_verify_call_list_pass_false_start(decoy: Decoy) -> None:
     subject_2("b")
     subject_3("c")
 
-    with decoy.verify_order():
-        decoy.verify.called(subject_1, "a")
-        decoy.verify.called(subject_2, "b")
-        decoy.verify.called(subject_3, "c")
+    with decoy.verify.ordered as verify:
+        verify.called(subject_1, "a")
+        verify.called(subject_2, "b")
+        verify.called(subject_3, "c")
 
 
 def test_verify_call_list_pass_other_mock(decoy: Decoy) -> None:
@@ -347,9 +347,9 @@ def test_verify_call_list_pass_other_mock(decoy: Decoy) -> None:
     subject_2("b")
     subject_3("c")
 
-    with decoy.verify_order():
-        decoy.verify.called(subject_1, "a")
-        decoy.verify.called(subject_3, "c")
+    with decoy.verify.ordered as verify:
+        verify.called(subject_1, "a")
+        verify.called(subject_3, "c")
 
 
 def test_verify_call_list_pass_multiple_calls(decoy: Decoy) -> None:
@@ -360,10 +360,10 @@ def test_verify_call_list_pass_multiple_calls(decoy: Decoy) -> None:
     subject("world")
     subject("hello")
 
-    with decoy.verify_order():
-        decoy.verify.called(subject, "hello")
-        decoy.verify.called(subject, "world")
-        decoy.verify.called(subject, "hello")
+    with decoy.verify.ordered as verify:
+        verify.called(subject, "hello")
+        verify.called(subject, "world")
+        verify.called(subject, "hello")
 
 
 def test_verify_call_list_fail_wrong_order(decoy: Decoy) -> None:
@@ -374,25 +374,29 @@ def test_verify_call_list_fail_wrong_order(decoy: Decoy) -> None:
     subject_2("world")
     subject_1("hello")
 
-    with pytest.raises(errors.VerifyError) as exc_info:
-        with decoy.verify_order():
-            decoy.verify.called(subject_1, "hello")
-            decoy.verify.called(subject_2, "world")
+    with pytest.raises(errors.VerifyOrderError) as exc_info:
+        with decoy.verify.ordered as verify:
+            verify.called(subject_1, "hello")
+            verify.called(subject_2, "world")
 
     assert str(exc_info.value) == os.linesep.join(
         [
-            "Expected call sequence:",
-            "1.\tsubject_1('hello')",
-            "2.\tsubject_2('world')",
-            "Found 2 calls:",
+            "Call made out of order.",
+            "",
+            "Expected:",
+            "\tsubject_2('world')",
+            "to occur after:",
+            "\tsubject_1('hello')",
+            "",
+            "Actual calls, in order:",
             "1.\tsubject_2('world')",
             "2.\tsubject_1('hello')",
         ]
     )
 
 
-def test_verify_call_list_fail_extra_call(decoy: Decoy) -> None:
-    """It fails a call sequence if there is an extra call in the wrong place."""
+def test_verify_call_list_pass_interleaved_repeat(decoy: Decoy) -> None:
+    """It allows a repeat of an already-matched call interleaved in the sequence."""
     subject_1 = decoy.mock(name="subject_1")
     subject_2 = decoy.mock(name="subject_2")
     subject_3 = decoy.mock(name="subject_3")
@@ -402,25 +406,10 @@ def test_verify_call_list_fail_extra_call(decoy: Decoy) -> None:
     subject_1("a")
     subject_3("c")
 
-    with pytest.raises(errors.VerifyError) as exc_info:
-        with decoy.verify_order():
-            decoy.verify.called(subject_1, "a")
-            decoy.verify.called(subject_2, "b")
-            decoy.verify.called(subject_3, "c")
-
-    assert str(exc_info.value) == os.linesep.join(
-        [
-            "Expected call sequence:",
-            "1.\tsubject_1('a')",
-            "2.\tsubject_2('b')",
-            "3.\tsubject_3('c')",
-            "Found 4 calls:",
-            "1.\tsubject_1('a')",
-            "2.\tsubject_2('b')",
-            "3.\tsubject_1('a')",
-            "4.\tsubject_3('c')",
-        ]
-    )
+    with decoy.verify.ordered as verify:
+        verify.called(subject_1, "a")
+        verify.called(subject_2, "b")
+        verify.called(subject_3, "c")
 
 
 def test_verify_call_list_times_pass(decoy: Decoy) -> None:
@@ -432,9 +421,9 @@ def test_verify_call_list_times_pass(decoy: Decoy) -> None:
     subject("hello")
     subject("after")
 
-    with decoy.verify_order():
-        decoy.verify(times=2).called(subject, "hello")
-        decoy.verify(times=1).called(subject, "after")
+    with decoy.verify.ordered as verify:
+        verify(times=2).called(subject, "hello")
+        verify(times=1).called(subject, "after")
 
 
 def test_verify_call_list_times_fail(decoy: Decoy) -> None:
@@ -448,18 +437,20 @@ def test_verify_call_list_times_fail(decoy: Decoy) -> None:
     subject("hello")
 
     with pytest.raises(errors.VerifyOrderError) as exc_info:
-        with decoy.verify_order():
-            decoy.verify(times=3).called(subject, "hello")
-            decoy.verify.called(subject, "world")
+        with decoy.verify.ordered as verify:
+            verify(times=3).called(subject, "hello")
+            verify.called(subject, "world")
 
     assert str(exc_info.value) == os.linesep.join(
         [
-            "Expected call sequence:",
-            "1.\tsubject('hello')",
-            "2.\tsubject('hello')",
-            "3.\tsubject('hello')",
-            "4.\tsubject('world')",
-            "Found 5 calls:",
+            "Call made out of order.",
+            "",
+            "Expected:",
+            "\tsubject('world')",
+            "to occur after:",
+            "\tsubject('hello')",
+            "",
+            "Actual calls, in order:",
             "1.\tsubject('hello')",
             "2.\tsubject('hello')",
             "3.\tsubject('world')",
@@ -474,12 +465,13 @@ def test_verify_attribute_set_missing(decoy: Decoy) -> None:
     subject = decoy.mock(name="subject")
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify.set(subject.some_property).to("42")
+        with decoy.verify as verify:
+            verify.set(subject.some_property).to("42")
 
     assert str(exc_info.value) == os.linesep.join(
         [
             "Expected at least 1 call:",
-            "1.\tsubject.some_property = 42",
+            "1.\tsubject.some_property = '42'",
             "Found 0 calls.",
         ]
     )
@@ -492,14 +484,15 @@ def test_verify_attribute_set_incorrect(decoy: Decoy) -> None:
     subject.some_property = "42"
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify.set(subject.some_property).to("43")
+        with decoy.verify as verify:
+            verify.set(subject.some_property).to("43")
 
     assert str(exc_info.value) == os.linesep.join(
         [
             "Expected at least 1 call:",
-            "1.\tsubject.some_property = 43",
+            "1.\tsubject.some_property = '43'",
             "Found 1 call:",
-            "1.\tsubject.some_property = 42",
+            "1.\tsubject.some_property = '42'",
         ]
     )
 
@@ -510,7 +503,8 @@ def test_verify_attribute_set(decoy: Decoy) -> None:
 
     subject.some_property = "42"
 
-    decoy.verify.set(subject.some_property).to("42")
+    with decoy.verify as verify:
+        verify.set(subject.some_property).to("42")
 
 
 def test_verify_attribute_set_missing_rehearsal(decoy: Decoy) -> None:
@@ -528,7 +522,8 @@ def test_verify_attribute_multiple_sets(decoy: Decoy) -> None:
     subject.some_property = "42"
     subject.some_property = "43"
 
-    decoy.verify.set(subject.some_property).to("42")
+    with decoy.verify as verify:
+        verify.set(subject.some_property).to("42")
 
 
 def test_verify_attribute_set_then_delete(decoy: Decoy) -> None:
@@ -538,7 +533,8 @@ def test_verify_attribute_set_then_delete(decoy: Decoy) -> None:
     subject.some_property = "42"
     del subject.some_property
 
-    decoy.verify.set(subject.some_property).to("42")
+    with decoy.verify as verify:
+        verify.set(subject.some_property).to("42")
 
 
 def test_verify_attribute_delete(decoy: Decoy) -> None:
@@ -547,10 +543,12 @@ def test_verify_attribute_delete(decoy: Decoy) -> None:
 
     del subject.some_property
 
-    decoy.verify.delete(subject.some_property)
+    with decoy.verify as verify:
+        verify.delete(subject.some_property)
 
     with pytest.raises(errors.VerifyError) as exc_info:
-        decoy.verify.delete(subject.other_property)
+        with decoy.verify as verify:
+            verify.delete(subject.other_property)
 
     assert str(exc_info.value) == os.linesep.join(
         [
@@ -559,6 +557,35 @@ def test_verify_attribute_delete(decoy: Decoy) -> None:
             "Found 0 calls.",
         ]
     )
+
+
+def test_verify_attribute_nested_blocks(decoy: Decoy) -> None:
+    """It restores the outer block's paused state when a nested block exits."""
+    subject = decoy.mock(name="subject")
+
+    subject.some_property = "42"
+    subject.other_property = "43"
+
+    with decoy.verify as outer:
+        with decoy.verify as inner:
+            inner.set(subject.some_property).to("42")
+
+        outer.set(subject.other_property).to("43")
+
+
+def test_verify_attribute_set_times(decoy: Decoy) -> None:
+    """It threads per-check options into attribute verification within a block."""
+    subject = decoy.mock(name="subject")
+
+    subject.some_property = "42"
+    subject.some_property = "42"
+
+    with decoy.verify as verify:
+        verify(times=2).set(subject.some_property).to("42")
+
+    with pytest.raises(errors.VerifyError):
+        with decoy.verify as verify:
+            verify(times=1).set(subject.some_property).to("42")
 
 
 def test_redundant_verify(decoy: Decoy) -> None:

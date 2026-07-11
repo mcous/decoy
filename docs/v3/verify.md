@@ -69,13 +69,15 @@ with pytest.raises():
 
 ## Verify order of multiple calls
 
-If your code under test must call several dependencies in order, use [`Decoy.verify_order`][decoy.next.Decoy.verify_order]. Decoy will search through the list of all calls made to the given mocks and look for a matching ordered call sequence.
+If your code under test must call several dependencies in order, enter a [`Verify.ordered`][decoy.next.Verify.ordered] block and verify each interaction inside it.
 
 ```python
-with decoy.verify_order():
-    decoy.verify.called(handler.first, "hello")
-    decoy.verify.called(handler.second, "world")
+with decoy.verify.ordered as verify:
+    verify.called(handler.first, "hello")
+    verify.called(handler.second, "world")
 ```
+
+Each verification must match a call that happened *after* the previous one; unrelated calls in between are ignored. If an interaction happened out of order, a `VerifyOrderError` is raised. Attribute interactions work inside the block too, so you can mix `called`, `set`, and `delete` in a single ordered sequence.
 
 ## Only specify some arguments
 

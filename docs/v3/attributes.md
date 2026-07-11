@@ -37,16 +37,19 @@ assert isinstance(mock_parent.child, Child)
 
 ## Stub attribute access
 
+Attribute stubs live behind a `with decoy.when` block, which yields a [`WhenWithAttributes`][decoy.next.WhenWithAttributes]. Inside the block, attribute access resolves to the underlying mock rather than any stubbed value, so Decoy can tell exactly which attribute you mean. Passing anything that isn't a mock raises a `NotAMockError`.
+
 ### Stub a getter
 
-Use [`When.get`][decoy.next.When.get] stub a return value for an attribute instead of returning a child mock.
+Use [`WhenWithAttributes.get`][decoy.next.WhenWithAttributes.get] to stub a return value for an attribute instead of returning a child mock.
 
 ```python
 dependency = decoy.mock(name="dependency")
 
-decoy.when.get(dependency.some_property).then_return(42)
+with decoy.when as when:
+    when.get(dependency.some_property).then_return(42)
 
-assert dep.some_property == 42
+assert dependency.some_property == 42
 ```
 
 You can also configure any other behavior, like raising an error.
@@ -54,7 +57,8 @@ You can also configure any other behavior, like raising an error.
 ```python
 dependency = decoy.mock(name="dependency")
 
-decoy.when.get(dependency.some_property).then_raise(RuntimeError("oh no"))
+with decoy.when as when:
+    when.get(dependency.some_property).then_raise(RuntimeError("oh no"))
 
 with pytest.raises(RuntimeError, match="oh no"):
     dependency.some_property
@@ -62,16 +66,16 @@ with pytest.raises(RuntimeError, match="oh no"):
 
 ### Stub a setter or deleter
 
-While you cannot stub a return value for a getter or setter, because set and delete expressions do not return a value in Python, you _can_ stub a `raise` or a side effect with [`When.set`][decoy.next.When.set] and [`When.delete`][decoy.next.When.delete].
+While you cannot stub a return value for a getter or setter, because set and delete expressions do not return a value in Python, you _can_ stub a `raise` or a side effect with [`WhenWithAttributes.set`][decoy.next.WhenWithAttributes.set] and [`WhenWithAttributes.delete`][decoy.next.WhenWithAttributes.delete].
 
 ```python
 dependency = decoy.mock(name="dependency")
 
-decoy.when.set(dependency.some_property).to(42).then_raise(RuntimeError("oh no"))
-
-decoy.when.delete(dependency.some_property).then_raise(
-    RuntimeError("what a disaster")
-)
+with decoy.when as when:
+    when.set(dependency.some_property).to(42).then_raise(RuntimeError("oh no"))
+    when.delete(dependency.some_property).then_raise(
+        RuntimeError("what a disaster")
+    )
 
 with pytest.raises(RuntimeError, match="oh no"):
     dependency.some_property = 42
@@ -82,7 +86,9 @@ with pytest.raises(RuntimeError, match="what a disaster"):
 
 ## Verify property access
 
-You can verify calls to property setters and deleters with [`Verify.set`][decoy.next.Verify.set] and [`Verify.delete`][decoy.next.Verify.delete].
+You can verify calls to property setters and deleters with [`VerifyWithAttributes.set`][decoy.next.VerifyWithAttributes.set] and [`VerifyWithAttributes.delete`][decoy.next.VerifyWithAttributes.delete].
+
+These live behind a `with decoy.verify` block rather than on `decoy.verify` directly. Inside the block, attribute access resolves to the underlying mock instead of any stubbed value, so Decoy can tell exactly which attribute you mean. Passing anything that isn't a mock raises a `NotAMockError`.
 
 !!! tip
 
@@ -92,24 +98,26 @@ You can verify calls to property setters and deleters with [`Verify.set`][decoy.
 
 ### Verify a setter
 
-Use [`Verify.set`][decoy.next.Verify.set] to check that an attribute was set.
+Use [`VerifyWithAttributes.set`][decoy.next.VerifyWithAttributes.set] to check that an attribute was set.
 
 ```python
 dependency = decoy.mock(name="dependency")
 
 dependency.some_property = 42
 
-decoy.verify.set(dependency.some_property).to(42)
+with decoy.verify as verify:
+    verify.set(dependency.some_property).to(42)
 ```
 
 ### Verify a deleter
 
-Use [`Verify.delete`][decoy.next.Verify.delete] to check that an attribute was deleted.
+Use [`VerifyWithAttributes.delete`][decoy.next.VerifyWithAttributes.delete] to check that an attribute was deleted.
 
 ```python
 dependency = decoy.mock(name="dependency")
 
 del dependency.some_property
 
-decoy.verify.delete(dependency.some_property)
+with decoy.verify as verify:
+    verify.delete(dependency.some_property)
 ```
