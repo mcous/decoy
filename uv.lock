@@ -533,7 +533,7 @@ dev = [
     { name = "libcst", specifier = ">=1.0.1" },
     { name = "mkdocs", marker = "python_full_version >= '3.10'", specifier = "==1.6.1" },
     { name = "mkdocs-material", marker = "python_full_version >= '3.10'", specifier = "==9.7.1" },
-    { name = "mkdocstrings", extras = ["python"], marker = "python_full_version >= '3.10'", specifier = "==1.0.0" },
+    { name = "mkdocstrings", extras = ["python"], marker = "python_full_version >= '3.10'", specifier = "==1.0.6" },
     { name = "mypy", marker = "python_full_version < '3.8'", specifier = "==1.4.1" },
     { name = "mypy", marker = "python_full_version == '3.8.*'", specifier = "==1.14.1" },
     { name = "mypy", marker = "python_full_version >= '3.9'", specifier = "==1.16.0" },
@@ -1232,7 +1232,7 @@ wheels = [
 
 [[package]]
 name = "mkdocstrings"
-version = "1.0.0"
+version = "1.0.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2", marker = "python_full_version >= '3.10'" },
@@ -1242,9 +1242,9 @@ dependencies = [
     { name = "mkdocs-autorefs", marker = "python_full_version >= '3.10'" },
     { name = "pymdown-extensions", marker = "python_full_version >= '3.10'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e5/13/10bbf9d56565fd91b91e6f5a8cd9b9d8a2b101c4e8ad6eeafa35a706301d/mkdocstrings-1.0.0.tar.gz", hash = "sha256:351a006dbb27aefce241ade110d3cd040c1145b7a3eb5fd5ac23f03ed67f401a", size = 101086, upload-time = "2025-11-27T15:39:40.534Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/71/f85bdf13355073ae15a7375f09879375a830553552e58c1c4b7e0bbc5c8b/mkdocstrings-1.0.6.tar.gz", hash = "sha256:a0b8c2bdd29a6416c80d717aa369bbf7831946bd9f23c2a66db1b1dbe7693dbd", size = 100649, upload-time = "2026-07-11T19:38:05.732Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ec/fc/80aa31b79133634721cf7855d37b76ea49773599214896f2ff10be03de2a/mkdocstrings-1.0.0-py3-none-any.whl", hash = "sha256:4c50eb960bff6e05dfc631f6bc00dfabffbcb29c5ff25f676d64daae05ed82fa", size = 35135, upload-time = "2025-11-27T15:39:39.301Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/5b/4c1902e8bdd5c4db63284e9d101dece4038d4025d6d88850ffe0a1578980/mkdocstrings-1.0.6-py3-none-any.whl", hash = "sha256:2703708697487d1b6d6d7b412e176fa436edf120c1bf81dc9e126b12d00893c7", size = 35787, upload-time = "2026-07-11T19:38:04.417Z" },
 ]
 
 [package.optional-dependencies]
